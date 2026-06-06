@@ -1,4 +1,9 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 const SCORES_KEY = 'pegue_ursinho_global_scores';
 
@@ -12,7 +17,7 @@ export default async function handler(req, res) {
   // GET — retorna top 10
   if (req.method === 'GET') {
     try {
-      const scores = await kv.get(SCORES_KEY) || [];
+      const scores = await redis.get(SCORES_KEY) || [];
       return res.status(200).json(scores);
     } catch (e) {
       return res.status(500).json({ error: 'Erro ao buscar scores' });
@@ -26,11 +31,11 @@ export default async function handler(req, res) {
       if (!nick || typeof seconds !== 'number') {
         return res.status(400).json({ error: 'Dados inválidos' });
       }
-      const scores = await kv.get(SCORES_KEY) || [];
+      const scores = await redis.get(SCORES_KEY) || [];
       scores.push({ nick, seconds, ghosts, date: Date.now() });
       scores.sort((a, b) => b.seconds - a.seconds);
       const top10 = scores.slice(0, 10);
-      await kv.set(SCORES_KEY, top10);
+      await redis.set(SCORES_KEY, top10);
       const rank = top10.findIndex(s => s.nick === nick && s.seconds === seconds) + 1;
       return res.status(200).json({ rank, scores: top10 });
     } catch (e) {
