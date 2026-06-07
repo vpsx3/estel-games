@@ -158,12 +158,23 @@ function resizeCanvas(){
 window.addEventListener('resize',resizeCanvas);resizeCanvas();
 
 const GAME_ID='pegue-o-ursinho';
+let sessionToken=null;
+
+// Pede um token de sessão ao servidor no início da partida
+async function startSession(){
+  try{
+    const res=await fetch('/api/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:GAME_ID})});
+    if(!res.ok)throw new Error();
+    const data=await res.json();
+    sessionToken=data.token||null;
+  }catch{sessionToken=null;}
+}
 async function loadScores(){
   try{const res=await fetch('/api/scores?game='+GAME_ID);if(!res.ok)throw new Error();return await res.json();}catch{return[];}
 }
 async function saveScore(nick,seconds,numGhosts){
   try{
-    const res=await fetch('/api/scores',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:GAME_ID,nick,seconds,ghosts:numGhosts})});
+    const res=await fetch('/api/scores',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:GAME_ID,nick,seconds,ghosts:numGhosts,token:sessionToken})});
     if(!res.ok)throw new Error();return await res.json();
   }catch{return{rank:null,scores:[]};}
 }
@@ -250,6 +261,34 @@ function moveGhosts(dt){
     const dx=tx-g.x,dy=ty-g.y,dist=Math.hypot(dx,dy)||1;
     g.x+=(dx/dist)*spd;g.y+=(dy/dist)*spd;
   });
+  // separação: fantasmas não se sobrepõem
+  resolveGhostCollisions();
+}
+
+function resolveGhostCollisions(){
+  const minDist=24; // distância mínima entre centros
+  for(let i=0;i<ghosts.length;i++){
+    for(let j=i+1;j<ghosts.length;j++){
+      const a=ghosts[i],b=ghosts[j];
+      let dx=b.x-a.x,dy=b.y-a.y;
+      let d=Math.hypot(dx,dy);
+      if(d<minDist&&d>0){
+        const overlap=(minDist-d)/2;
+        const ux=dx/d,uy=dy/d;
+        // empurra os dois em direções opostas
+        if(a.frozen<=0){a.x-=ux*overlap;a.y-=uy*overlap;}
+        if(b.frozen<=0){b.x+=ux*overlap;b.y+=uy*overlap;}
+      }else if(d===0){
+        // sobreposição perfeita: desloca levemente um deles
+        b.x+=minDist*0.5;
+      }
+    }
+  }
+  // mantém todos dentro dos limites do mapa
+  ghosts.forEach(g=>{
+    g.x=Math.max(g.size,Math.min(CW-g.size,g.x));
+    g.y=Math.max(g.size,Math.min(CH-g.size,g.y));
+  });
 }
 function applyEffect(p,who,targets,isGhost=false){
   const m=isGhost?0.5:1;
@@ -282,7 +321,13 @@ function updateEffects(dt){
     if(e.turbo>0){e.turbo-=dt;if(e.turbo<0){e.turbo=0;e.speed=e.baseSpeed;}}
   });
   if(jumpCd>0)jumpCd-=dt;
-  if(jumpActive){jumpTimer-=dt;if(jumpTimer<=0){jumpActive=false;jumpCd=JUMP_CD;}}
+  if(jumpActive){jumpTimer-=dt;if(jumpTimer<=0){jumpActive=false;jumpCd=JUMP_CD;resolveLandingInsideWall();}}
+  if(bear.landingTarget){
+    const tx=bear.landingTarget.x,ty=bear.landingTarget.y;
+    const dx=tx-bear.x,dy=ty-bear.y,d=Math.hypot(dx,dy);
+    if(d<2){bear.x=tx;bear.y=ty;bear.landingTarget=null;}
+    else{const step=Math.min(d,6);bear.x+=(dx/d)*step;bear.y+=(dy/d)*step;}
+  }
   powerups.forEach(p=>{p.life-=dt;p.pulse+=dt*4;});
   powerups=powerups.filter(p=>p.life>0);
   notifications.forEach(n=>{n.life-=dt;n.y-=0.5;});
@@ -293,6 +338,30 @@ function tryJump(){
   if(jumpCd>0||jumpActive||bear.frozen>0)return;
   jumpActive=true;jumpTimer=JUMP_DURATION;
   addNotif('🦘 PULO!','#aaffaa',bear.x,bear.y-28);
+}
+
+// Quando o pulo termina dentro de uma parede, busca a célula livre mais
+// próxima (espiral) e o ursinho desliza suavemente até lá.
+function resolveLandingInsideWall(){
+  if(canMove(bear.x,bear.y,bear.size))return;
+  const startCol=Math.floor(bear.x/TILE),startRow=Math.floor(bear.y/TILE);
+  let best=null,bestD=Infinity;
+  for(let radius=1;radius<=Math.max(ROWS,COLS);radius++){
+    for(let dr=-radius;dr<=radius;dr++){
+      for(let dc=-radius;dc<=radius;dc++){
+        if(Math.abs(dr)!==radius&&Math.abs(dc)!==radius)continue;
+        const r=startRow+dr,c=startCol+dc;
+        if(r<0||r>=ROWS||c<0||c>=COLS)continue;
+        if(map[r][c]!==0)continue;
+        const cx=c*TILE+TILE/2,cy=r*TILE+TILE/2;
+        if(!canMove(cx,cy,bear.size))continue;
+        const d=Math.hypot(cx-bear.x,cy-bear.y);
+        if(d<bestD){bestD=d;best={x:cx,y:cy};}
+      }
+    }
+    if(best)break;
+  }
+  if(best)bear.landingTarget=best;
 }
 function spawnPowerup(){
   if(powerups.length>=MAX_WORLD_PU)return;
@@ -450,7 +519,7 @@ async function renderRanking(hlNick,hlSec){
   }).join('');
 }
 
-function startGame(){initGame();state='playing';hideOverlay();requestAnimationFrame(gameLoop);}
+function startGame(){startSession();initGame();state='playing';hideOverlay();requestAnimationFrame(gameLoop);}
 
 async function endGame(){
   state='lose';
