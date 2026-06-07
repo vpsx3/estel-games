@@ -1,9 +1,12 @@
 import { Redis } from '@upstash/redis';
+import crypto from 'crypto';
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN,
 });
+
+const SECRET = process.env.SESSION_SECRET || 'troque-este-segredo-em-producao';
 
 // Rate limiter opcional — não derruba o serviço se a dependência faltar.
 let ratelimit = null;
@@ -21,11 +24,14 @@ try {
 const MAX_SCORES = 10;
 const MAX_GHOSTS = 300;
 const MAX_NICK_LEN = 16;
-const MAX_BODY_BYTES = 2048; // payload guard
+const MAX_BODY_BYTES = 4096;
 
-// Whitelist de jogos. Cada novo jogo do portal entra aqui.
+// Margem de tolerância entre o tempo do servidor e o score enviado (segundos).
+// Cobre latência de rede e o pequeno atraso entre fim de jogo e envio.
+const TIME_TOLERANCE = 8;
+
 const GAMES = {
-  'pegue-o-ursinho': { maxScore: 3600 }, // teto: 1h de sobrevivência
+  'pegue-o-ursinho': { maxScore: 3600 },
 };
 
 const ALLOWED_ORIGINS = [
@@ -33,24 +39,39 @@ const ALLOWED_ORIGINS = [
   'https://www.estel.games',
 ];
 
-function scoresKey(gameId) {
-  return `scores:${gameId}`;
-}
+function scoresKey(gameId) { return `scores:${gameId}`; }
+function usedTokenKey(sid) { return `used:${sid}`; }
 
 function sanitizeNick(raw) {
   if (typeof raw !== 'string') return null;
-  let nick = raw.replace(/[\u0000-\u001F\u007F-\u009F]/g, ''); // controle
-  nick = nick.replace(/[<>"'`&]/g, '');                        // HTML/script
+  let nick = raw.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+  nick = nick.replace(/[<>"'`&]/g, '');
   nick = nick.trim().slice(0, MAX_NICK_LEN);
   return nick.length > 0 ? nick : null;
 }
 
-// gameId só pode conter letras minúsculas, números e hífen; e tem que existir na whitelist
 function sanitizeGameId(raw) {
   if (typeof raw !== 'string') return null;
   const id = raw.trim().toLowerCase();
   if (!/^[a-z0-9-]{1,40}$/.test(id)) return null;
   return GAMES[id] ? id : null;
+}
+
+// Verifica assinatura HMAC e retorna o payload, ou null se inválido
+function verifyToken(token) {
+  if (typeof token !== 'string' || !token.includes('.')) return null;
+  const [data, sig] = token.split('.');
+  if (!data || !sig) return null;
+  const expected = crypto.createHmac('sha256', SECRET).update(data).digest('base64url');
+  // comparação em tempo constante (anti timing attack)
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  try {
+    return JSON.parse(Buffer.from(data, 'base64url').toString());
+  } catch (e) {
+    return null;
+  }
 }
 
 function setCors(req, res) {
@@ -73,18 +94,15 @@ export default async function handler(req, res) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Rate limiting (se disponível)
   try {
     if (ratelimit) {
       const ip = getClientIp(req);
       const { success } = await ratelimit.limit(ip);
-      if (!success) {
-        return res.status(429).json({ error: 'Muitas requisições. Tente novamente em instantes.' });
-      }
+      if (!success) return res.status(429).json({ error: 'Muitas requisições. Tente novamente em instantes.' });
     }
-  } catch (e) { /* não bloqueia se o limiter falhar */ }
+  } catch (e) { /* não bloqueia */ }
 
-  // GET — top 10 de um jogo
+  // GET — top 10
   if (req.method === 'GET') {
     try {
       const gameId = sanitizeGameId(req.query.game);
@@ -96,20 +114,18 @@ export default async function handler(req, res) {
     }
   }
 
-  // POST — salva score
+  // POST — salva score (exige token válido de sessão)
   if (req.method === 'POST') {
     try {
-      // payload guard
       const cl = Number(req.headers['content-length'] || 0);
-      if (cl > MAX_BODY_BYTES) {
-        return res.status(413).json({ error: 'Payload muito grande' });
-      }
+      if (cl > MAX_BODY_BYTES) return res.status(413).json({ error: 'Payload muito grande' });
 
       const body = req.body || {};
       const gameId = sanitizeGameId(body.game);
       const nick = sanitizeNick(body.nick);
       const seconds = body.seconds;
       const ghosts = body.ghosts;
+      const token = body.token;
 
       if (!gameId) return res.status(400).json({ error: 'Jogo inválido' });
       if (!nick) return res.status(400).json({ error: 'Apelido inválido' });
@@ -120,6 +136,31 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Dados inválidos' });
       }
 
+      // --- Validação do token de sessão (anti-cheat) ---
+      const payload = verifyToken(token);
+      if (!payload || payload.game !== gameId || !payload.sid || !payload.iat) {
+        return res.status(403).json({ error: 'Sessão inválida' });
+      }
+
+      // tempo real decorrido no servidor
+      const elapsedServer = (Date.now() - payload.iat) / 1000;
+      // o score não pode exceder o tempo real + tolerância
+      if (seconds > elapsedServer + TIME_TOLERANCE) {
+        return res.status(403).json({ error: 'Tempo inconsistente' });
+      }
+      // token não pode ser muito antigo (sessão expira em maxScore + 1min)
+      if (elapsedServer > GAMES[gameId].maxScore + 60) {
+        return res.status(403).json({ error: 'Sessão expirada' });
+      }
+
+      // anti-replay: cada token só conta uma vez
+      const usedKey = usedTokenKey(payload.sid);
+      const already = await redis.get(usedKey);
+      if (already) return res.status(409).json({ error: 'Sessão já utilizada' });
+      // marca como usado, expira sozinho depois de 2h
+      await redis.set(usedKey, 1, { ex: 7200 });
+
+      // --- Persistência do score ---
       const secondsInt = Math.floor(seconds);
       const ghostsInt = Math.floor(ghosts);
       const key = scoresKey(gameId);
