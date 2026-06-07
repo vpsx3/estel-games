@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>estel.games — jogos leves para jogar na hora</title>
+<meta name="description" content="estel.games — uma coleção de jogos leves e divertidos para jogar direto no navegador, no computador ou no celular.">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#0e0e1a;--bg2:#16162a;--card:#1a1a2e;--border:#2a2a45;
+    --text:#eef;--muted:#9090b0;--accent:#7878ff;--accent2:#a0e0ff;
+  }
+  html,body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+  body{display:flex;flex-direction:column;}
+
+  /* subtle starfield */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+  .star{position:absolute;background:#fff;border-radius:50%;opacity:0.5;animation:tw 3s infinite ease-in-out;}
+  @keyframes tw{0%,100%{opacity:0.15;}50%{opacity:0.7;}}
+
+  header{position:relative;z-index:1;text-align:center;padding:64px 20px 40px;}
+  .logo{font-size:38px;font-weight:800;letter-spacing:1px;}
+  .logo .dot{color:var(--accent);}
+  .tagline{color:var(--muted);font-size:15px;margin-top:8px;}
+
+  main{position:relative;z-index:1;flex:1;width:100%;max-width:1000px;margin:0 auto;padding:20px;}
+  .section-title{font-size:13px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:18px;text-align:center;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;justify-content:center;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .18s,border-color .18s,box-shadow .18s;display:flex;flex-direction:column;}
+  .card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 12px 30px rgba(120,120,255,0.18);}
+  .card-art{height:150px;display:flex;align-items:center;justify-content:center;font-size:64px;background:radial-gradient(circle at 50% 40%,#23234a,#15152a);position:relative;}
+  .card-art .ghost{position:absolute;font-size:30px;opacity:0.8;}
+  .g1{top:24px;left:38px;}.g2{bottom:26px;right:40px;}
+  .card-body{padding:16px 18px 20px;}
+  .card-title{font-size:18px;font-weight:700;margin-bottom:4px;}
+  .card-desc{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:12px;}
+  .card-tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .tag{background:rgba(120,120,255,0.12);color:var(--accent2);font-size:11px;padding:3px 9px;border-radius:20px;}
+  .play-btn{margin-top:14px;display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:14px;padding:9px 0;border-radius:10px;text-align:center;}
+
+  footer{position:relative;z-index:1;text-align:center;padding:30px 20px;color:var(--muted);font-size:12px;}
+  footer a{color:var(--accent2);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<header>
+  <div class="logo">estel<span class="dot">.</span>games</div>
+  <div class="tagline">jogos leves para jogar na hora — no navegador ou no celular</div>
+</header>
+
+<main>
+  <div class="section-title">✦ Jogos disponíveis</div>
+  <div class="grid">
+    <a class="card" href="/games/pegue-o-ursinho/">
+      <div class="card-art">
+        🐻
+        <span class="ghost g1">👻</span>
+        <span class="ghost g2">👻</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Pegue o Ursinho</div>
+        <div class="card-desc">Fuja dos fantasmas o máximo de tempo que conseguir. Pule obstáculos, use power-ups e dispute o ranking global!</div>
+        <div class="card-tags">
+          <span class="tag">Arcade</span>
+          <span class="tag">Sobrevivência</span>
+          <span class="tag">Ranking</span>
+        </div>
+        <span class="play-btn">▶ Jogar</span>
+      </div>
+    </a>
+  </div>
+</main>
+
+<footer>
+  feito com 🌟 por estel.games · <a href="/games/pegue-o-ursinho/">jogar agora</a>
+</footer>
+
+<script>
+  // generate starfield
+  const sc=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*2+1;
+    s.style.width=sz+'px';s.style.height=sz+'px';
+    s.style.left=Math.random()*100+'%';
+    s.style.top=Math.random()*100+'%';
+    s.style.animationDelay=(Math.random()*3)+'s';
+    sc.appendChild(s);
+  }
+</script>
+</body>
+</html>
