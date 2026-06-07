@@ -141,24 +141,25 @@
 <script>
 const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
-const TILE=40;
+const TILE=46;
+// Mapa 9×16 (proporção retrato de celular), densidade equilibrada
 const MAP_TEMPLATE=[
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-  [1,0,1,1,0,0,0,0,0,0,0,1,1,0,0,1],
-  [1,0,1,0,0,0,1,1,1,1,0,0,1,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,1],
-  [1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1],
-  [1,0,1,0,0,0,0,1,1,0,0,0,0,1,0,1],
-  [1,0,1,0,0,0,0,1,1,0,0,0,0,1,0,1],
-  [1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1],
-  [1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,1,0,0,1,1,1,1,0,0,0,1,0,0,1],
-  [1,0,1,1,0,0,0,0,0,0,0,1,1,0,0,1],
-  [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,1,1,1,1,1,1],
+  [1,0,0,0,0,0,0,0,1],
+  [1,0,1,1,0,1,1,0,1],
+  [1,0,0,0,0,0,0,0,1],
+  [1,0,1,0,1,1,0,1,1],
+  [1,0,0,0,0,0,0,0,1],
+  [1,1,0,1,1,0,1,0,1],
+  [1,0,0,0,0,0,0,0,1],
+  [1,0,1,1,0,1,1,0,1],
+  [1,0,0,0,0,0,0,0,1],
+  [1,1,0,1,1,0,1,1,1],
+  [1,0,0,0,0,0,0,0,1],
+  [1,0,1,1,0,1,0,0,1],
+  [1,0,0,0,0,0,0,1,1],
+  [1,0,1,0,1,0,0,0,1],
+  [1,1,1,1,1,1,1,1,1],
 ];
 const ROWS=MAP_TEMPLATE.length,COLS=MAP_TEMPLATE[0].length;
 const CW=COLS*TILE,CH=ROWS*TILE;
@@ -278,7 +279,7 @@ function initGame(){
   dashTimer=0;dashDir={x:1,y:0};invisibleTimer=0;decoy=null;reboundCharges=0;slowTimeTimer=0;traps=[];
   nextBuffTime=BUFF_INTERVAL;pendingBuff=false;
   bear={x:1.5*TILE,y:1.5*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,landingTarget:null,facing:'south'};
-  ghosts.push({x:(COLS-2.5)*TILE,y:(ROWS-2.5)*TILE,speed:1.7,baseSpeed:1.7,size:14,frozen:0,trapped:0,facing:'south',palette:GHOST_PALETTES[0]});
+  ghosts.push({x:6.5*TILE,y:13.5*TILE,speed:1.7,baseSpeed:1.7,size:14,frozen:0,trapped:0,facing:'south',palette:GHOST_PALETTES[0]});
   renderActiveBuffs();
 }
 function tileAt(px,py){const c=Math.floor(px/TILE),r=Math.floor(py/TILE);if(r<0||r>=ROWS||c<0||c>=COLS)return 1;return map[r][c];}
