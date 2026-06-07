@@ -1,32 +1,36 @@
 import { Redis } from '@upstash/redis';
-import { Ratelimit } from '@upstash/ratelimit';
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN,
 });
 
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(10, '10 s'),
-  prefix: 'ratelimit:estel',
-});
+// Rate limiter opcional — não derruba o serviço se a dependência faltar.
+let ratelimit = null;
+try {
+  const { Ratelimit } = await import('@upstash/ratelimit');
+  ratelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '10 s'),
+    prefix: 'rl:estel',
+  });
+} catch (e) {
+  ratelimit = null;
+}
 
 const MAX_SCORES = 10;
-const MAX_SECONDS = 3600;
 const MAX_GHOSTS = 300;
 const MAX_NICK_LEN = 16;
+const MAX_BODY_BYTES = 2048; // payload guard
 
-// Jogos válidos e seus limites (whitelist evita criação de chaves arbitrárias)
+// Whitelist de jogos. Cada novo jogo do portal entra aqui.
 const GAMES = {
-  'pegue-o-ursinho': { maxScore: MAX_SECONDS },
-  // novos jogos entram aqui: 'nome-do-jogo': { maxScore: ... },
+  'pegue-o-ursinho': { maxScore: 3600 }, // teto: 1h de sobrevivência
 };
 
 const ALLOWED_ORIGINS = [
   'https://estel.games',
   'https://www.estel.games',
-  'https://pegue-o-ursinho-125r.vercel.app',
 ];
 
 function scoresKey(gameId) {
@@ -35,15 +39,17 @@ function scoresKey(gameId) {
 
 function sanitizeNick(raw) {
   if (typeof raw !== 'string') return null;
-  let nick = raw.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
-  nick = nick.replace(/[<>"'`&]/g, '');
+  let nick = raw.replace(/[\u0000-\u001F\u007F-\u009F]/g, ''); // controle
+  nick = nick.replace(/[<>"'`&]/g, '');                        // HTML/script
   nick = nick.trim().slice(0, MAX_NICK_LEN);
   return nick.length > 0 ? nick : null;
 }
 
+// gameId só pode conter letras minúsculas, números e hífen; e tem que existir na whitelist
 function sanitizeGameId(raw) {
   if (typeof raw !== 'string') return null;
   const id = raw.trim().toLowerCase();
+  if (!/^[a-z0-9-]{1,40}$/.test(id)) return null;
   return GAMES[id] ? id : null;
 }
 
@@ -67,15 +73,18 @@ export default async function handler(req, res) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  // Rate limiting (se disponível)
   try {
-    const ip = getClientIp(req);
-    const { success } = await ratelimit.limit(ip);
-    if (!success) {
-      return res.status(429).json({ error: 'Muitas requisições. Tente novamente em instantes.' });
+    if (ratelimit) {
+      const ip = getClientIp(req);
+      const { success } = await ratelimit.limit(ip);
+      if (!success) {
+        return res.status(429).json({ error: 'Muitas requisições. Tente novamente em instantes.' });
+      }
     }
   } catch (e) { /* não bloqueia se o limiter falhar */ }
 
-  // GET — top 10 de um jogo: /api/scores?game=pegue-o-ursinho
+  // GET — top 10 de um jogo
   if (req.method === 'GET') {
     try {
       const gameId = sanitizeGameId(req.query.game);
@@ -87,9 +96,15 @@ export default async function handler(req, res) {
     }
   }
 
-  // POST — salva score: { game, nick, seconds, ghosts }
+  // POST — salva score
   if (req.method === 'POST') {
     try {
+      // payload guard
+      const cl = Number(req.headers['content-length'] || 0);
+      if (cl > MAX_BODY_BYTES) {
+        return res.status(413).json({ error: 'Payload muito grande' });
+      }
+
       const body = req.body || {};
       const gameId = sanitizeGameId(body.game);
       const nick = sanitizeNick(body.nick);
