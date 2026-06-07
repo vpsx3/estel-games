@@ -157,12 +157,13 @@ function resizeCanvas(){
 }
 window.addEventListener('resize',resizeCanvas);resizeCanvas();
 
+const GAME_ID='pegue-o-ursinho';
 async function loadScores(){
-  try{const res=await fetch('/api/scores');if(!res.ok)throw new Error();return await res.json();}catch{return[];}
+  try{const res=await fetch('/api/scores?game='+GAME_ID);if(!res.ok)throw new Error();return await res.json();}catch{return[];}
 }
 async function saveScore(nick,seconds,numGhosts){
   try{
-    const res=await fetch('/api/scores',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nick,seconds,ghosts:numGhosts})});
+    const res=await fetch('/api/scores',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:GAME_ID,nick,seconds,ghosts:numGhosts})});
     if(!res.ok)throw new Error();return await res.json();
   }catch{return{rank:null,scores:[]};}
 }
@@ -426,6 +427,13 @@ function gameLoop(ts){
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('overlay').style.display='flex';document.getElementById('joystick').style.display='none';}
 function hideOverlay(){document.getElementById('overlay').style.display='none';document.getElementById('joystick').style.display='block';}
 
+// Escapa HTML para prevenir XSS ao renderizar nicks vindos do servidor
+function escapeHtml(str){
+  return String(str).replace(/[&<>"'`]/g,ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'
+  }[ch]));
+}
+
 async function renderRanking(hlNick,hlSec){
   document.getElementById('rankingBody').innerHTML='<tr><td colspan="4" class="loading-msg">Carregando...</td></tr>';
   const scores=await loadScores();
@@ -436,7 +444,9 @@ async function renderRanking(hlNick,hlSec){
     const isMe=hlNick&&s.nick===hlNick&&s.seconds===hlSec;
     const cls=isMe?'me':i===0?'top1':i===1?'top2':i===2?'top3':'';
     const medal=medals[i]?`${medals[i]}`:`${i+1}º`;
-    return`<tr class="${cls}"><td>${medal}</td><td>${s.nick}${isMe?'<span class="new-badge">NOVO</span>':''}</td><td class="rank-score">${formatTime(s.seconds)}</td><td>${s.ghosts}</td></tr>`;
+    const safeNick=escapeHtml(s.nick);
+    const safeGhosts=Number.isFinite(s.ghosts)?Math.floor(s.ghosts):0;
+    return`<tr class="${cls}"><td>${medal}</td><td>${safeNick}${isMe?'<span class="new-badge">NOVO</span>':''}</td><td class="rank-score">${formatTime(s.seconds)}</td><td>${safeGhosts}</td></tr>`;
   }).join('');
 }
 
