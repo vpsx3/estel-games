@@ -307,6 +307,9 @@ function moveBear(dt){
   if(joyVec.active){dx=joyVec.x;dy=joyVec.y;}
   const mag=Math.hypot(dx,dy);
   if(mag>0.01){dashDir={x:dx/mag,y:dy/mag};bear.facing=dirFromVec(dx,dy,bear.facing);}
+  // enquanto há escorregão de pouso em andamento, não processa o input
+  // (mas também não o descarta — assim que o slide acaba, o input já vale)
+  if(bear.landingTarget){return;}
   if(dashTimer>0){
     const dspd=bear.speed*5*dt*60;const nx=bear.x+dashDir.x*dspd,ny=bear.y+dashDir.y*dspd;
     if(canMove(nx,bear.y,bear.size))bear.x=nx;if(canMove(bear.x,ny,bear.size))bear.y=ny;
@@ -498,6 +501,9 @@ function gameLoop(ts){
   if(!lastTime)lastTime=ts;
   const dt=Math.min((ts-lastTime)/1000,0.05);
   lastTime=ts;elapsed+=dt;
+  // recalcula o joystick a cada frame a partir da posição do dedo (robusto contra
+  // ausência de eventos touchmove quando o dedo fica parado)
+  if(joyVec.active)joyMove(joyLast.x,joyLast.y);
   if(elapsed>=nextBuffTime){nextBuffTime+=BUFF_INTERVAL;offerBuffs(false);return;}
   if(elapsed>=nextGhostTime){spawnGhost();nextGhostTime+=GHOST_INTERVAL;}
   if(mapItemPool.length){itemSpawnTimer-=dt;if(itemSpawnTimer<=0){spawnMapItem();itemSpawnTimer=ITEM_SPAWN_INTERVAL;}}
@@ -545,14 +551,21 @@ async function endGame(){
 }
 
 const joyEl=document.getElementById('joystick'),knob=document.getElementById('joyKnob');
-let joyId=null,joyCenter={x:0,y:0};const JOY_RADIUS=42;
+let joyId=null,joyCenter={x:0,y:0},joyLast={x:0,y:0};const JOY_RADIUS=42;
 function resetKnob(){knob.style.left='50%';knob.style.top='50%';}
-function joyStart(cx,cy,id){const rect=joyEl.getBoundingClientRect();joyCenter={x:rect.left+rect.width/2,y:rect.top+rect.height/2};joyId=id;joyVec.active=true;joyMove(cx,cy);}
-function joyMove(cx,cy){let dx=cx-joyCenter.x,dy=cy-joyCenter.y;const dist=Math.hypot(dx,dy);const clamp=Math.min(dist,JOY_RADIUS);const ang=Math.atan2(dy,dx);knob.style.left=`calc(50% + ${Math.cos(ang)*clamp}px)`;knob.style.top=`calc(50% + ${Math.sin(ang)*clamp}px)`;const nx=dx/JOY_RADIUS,ny=dy/JOY_RADIUS;if(Math.hypot(nx,ny)<0.18){joyVec.x=0;joyVec.y=0;}else{joyVec.x=nx;joyVec.y=ny;}}
+function joyStart(cx,cy,id){const rect=joyEl.getBoundingClientRect();joyCenter={x:rect.left+rect.width/2,y:rect.top+rect.height/2};joyId=id;joyVec.active=true;joyLast={x:cx,y:cy};joyMove(cx,cy);}
+function joyMove(cx,cy){
+  joyLast={x:cx,y:cy};
+  let dx=cx-joyCenter.x,dy=cy-joyCenter.y;const dist=Math.hypot(dx,dy);const clamp=Math.min(dist,JOY_RADIUS);const ang=Math.atan2(dy,dx);
+  knob.style.left=`calc(50% + ${Math.cos(ang)*clamp}px)`;knob.style.top=`calc(50% + ${Math.sin(ang)*clamp}px)`;
+  const nx=dx/JOY_RADIUS,ny=dy/JOY_RADIUS;
+  if(Math.hypot(nx,ny)<0.18){joyVec.x=0;joyVec.y=0;}else{joyVec.x=nx;joyVec.y=ny;}
+}
 function joyEnd(){joyId=null;joyVec.x=0;joyVec.y=0;joyVec.active=false;resetKnob();}
 joyEl.addEventListener('touchstart',e=>{e.preventDefault();const t=e.changedTouches[0];joyStart(t.clientX,t.clientY,t.identifier);},{passive:false});
 joyEl.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches){if(t.identifier===joyId)joyMove(t.clientX,t.clientY);}},{passive:false});
 joyEl.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches){if(t.identifier===joyId)joyEnd();}},{passive:false});
+joyEl.addEventListener('touchcancel',e=>{e.preventDefault();for(const t of e.changedTouches){if(t.identifier===joyId)joyEnd();}},{passive:false});
 let mouseJoy=false;
 joyEl.addEventListener('mousedown',e=>{e.preventDefault();mouseJoy=true;joyStart(e.clientX,e.clientY,'mouse');});
 window.addEventListener('mousemove',e=>{if(mouseJoy)joyMove(e.clientX,e.clientY);});
