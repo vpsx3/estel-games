@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>estel.games — jogos leves para jogar na hora</title>
-<meta name="description" content="estel.games — uma coleção de jogos leves e divertidos para jogar direto no navegador, no computador ou no celular.">
+<title>estel.games — light games to play right now</title>
+<meta name="description" content="estel.games — a collection of light, fun games to play straight in your browser, on desktop or mobile.">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ENR25YEZMV"></script>
 <script>
@@ -73,11 +73,11 @@
 
 <header>
   <div class="logo">estel<span class="dot">.</span>games</div>
-  <div class="tagline" data-i18n="tagline">jogos leves para jogar na hora — no navegador ou no celular</div>
+  <div class="tagline" data-i18n="tagline">light games to play right now — browser or mobile</div>
 </header>
 
 <main>
-  <div class="section-title" data-i18n="sectionTitle">✦ Jogos disponíveis</div>
+  <div class="section-title" data-i18n="sectionTitle">✦ Available games</div>
   <div class="grid">
     <a class="card" href="/games/pegue-o-ursinho/">
       <div class="card-art">
@@ -86,21 +86,21 @@
         <span class="ghost g2">👻</span>
       </div>
       <div class="card-body">
-        <div class="card-title" data-i18n="gameTitle">Pegue o Ursinho</div>
-        <div class="card-desc" data-i18n="gameDesc">Fuja dos fantasmas o máximo de tempo que conseguir. Pule obstáculos, use power-ups e dispute o ranking global!</div>
+        <div class="card-title" data-i18n="gameTitle">Catch the Teddy</div>
+        <div class="card-desc" data-i18n="gameDesc">Escape ghosts for as long as you can. Dodge walls, grab power-ups and climb the global leaderboard!</div>
         <div class="card-tags">
           <span class="tag">Arcade</span>
-          <span class="tag" data-i18n="tagSurvival">Sobrevivência</span>
-          <span class="tag" data-i18n="tagRanking">Ranking</span>
+          <span class="tag" data-i18n="tagSurvival">Survival</span>
+          <span class="tag" data-i18n="tagRanking">Leaderboard</span>
         </div>
-        <span class="play-btn" data-i18n="playBtn">▶ Jogar</span>
+        <span class="play-btn" data-i18n="playBtn">▶ Play</span>
       </div>
     </a>
   </div>
 </main>
 
 <footer>
-  <span data-i18n="footer">feito com 🌟 por estel.games · </span><a href="/games/pegue-o-ursinho/" data-i18n="footerLink">jogar agora</a>
+  <span data-i18n="footer">made with 🌟 by estel.games · </span><a href="/games/pegue-o-ursinho/" data-i18n="footerLink">play now</a>
 </footer>
 
 <script>
@@ -119,9 +119,9 @@
 </script>
 
 <div id="lang-toggle" aria-label="Switch language">
-  <button id="btn-pt" class="lang-btn active" onclick="setLang('pt')">PT</button>
+  <button id="btn-en" class="lang-btn active" onclick="setLang('en')">EN</button>
   <span class="lang-sep">|</span>
-  <button id="btn-en" class="lang-btn" onclick="setLang('en')">EN</button>
+  <button id="btn-pt" class="lang-btn" onclick="setLang('pt')">PT</button>
 </div>
 
 <script>
@@ -180,7 +180,7 @@
   // Initialization
   (function initLang() {
     const saved = localStorage.getItem('estel_lang');
-    const detected = navigator.language?.startsWith('en') ? 'en' : 'pt';
+    const detected = navigator.language?.startsWith('pt') ? 'pt' : 'en';
     setLang(saved || detected);
   })();
 </script>
