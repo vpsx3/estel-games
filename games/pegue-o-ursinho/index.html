@@ -722,7 +722,7 @@ function moveBear(dt){
   if(bear.landingTarget)return;
   if(mag<0.01)return;
   let ndx=dx,ndy=dy;if(mag>1){ndx/=mag;ndy/=mag;}
-  const spd=bear.speed*bearSpeedMult()*dt*60;
+  const spd=bear.speed*bearSpeedMult()*(bear.poisoned?POISON_DEBUFF:1)*dt*60;
   const nx=bear.x+ndx*spd,ny=bear.y+ndy*spd;
   const phasing=jumpActive||phaseTimer>0;
   if(phasing){if(nx>bear.size&&nx<CW-bear.size)bear.x=nx;if(ny>bear.size&&ny<CH-bear.size)bear.y=ny;}
@@ -754,6 +754,14 @@ function moveGhosts(dt){
       g.modeTimer-=dt*1000;
       if(g.modeTimer<=0){g.isChasing=!g.isChasing;g.modeTimer=4000+Math.random()*4000;}
       if(!g.isChasing){wanderMove(g,dt,gm);return;}
+    }
+    if(g.tipo==='venenoso'){
+      if(g.poisonTimer>0){g.poisonTimer-=dt*1000;if(g.poisonTimer<0)g.poisonTimer=0;}
+      if(g.poisonTimer<=0&&Math.hypot(bear.x-g.x,bear.y-g.y)<POISON_RADIUS){
+        bear.poisoned=true;
+        bear.poisonEnd=Date.now()+POISON_DURATION; // não acumula: só atualiza para o mais recente
+        g.poisonTimer=POISON_COOLDOWN;
+      }
     }
     let tx=bear.x,ty=bear.y;
     if(decoy&&decoy.life>0){tx=decoy.x;ty=decoy.y;}
@@ -792,6 +800,7 @@ function resolveLandingInsideWall(){
 function updateEffects(dt){
   if(bear.frozen>0){bear.frozen-=dt;if(bear.frozen<0)bear.frozen=0;}
   if(bear.invuln>0){bear.invuln-=dt;if(bear.invuln<0)bear.invuln=0;}
+  if(bear.poisoned&&Date.now()>bear.poisonEnd)bear.poisoned=false;
   ghosts.forEach(g=>{
     if(g.frozen>0){g.frozen-=dt;if(g.frozen<0)g.frozen=0;}
     if(g.trapped>0){g.trapped-=dt;if(g.trapped<0)g.trapped=0;}
