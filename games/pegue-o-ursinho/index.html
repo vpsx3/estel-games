@@ -21,17 +21,8 @@
   #ui{position:absolute;top:6px;left:0;width:100%;display:flex;justify-content:space-between;align-items:flex-start;padding:0 8px;pointer-events:none;}
   #timer{background:rgba(0,0,0,0.65);color:#a0e0ff;font-size:16px;font-weight:700;padding:5px 12px;border-radius:18px;backdrop-filter:blur(3px);}
   #ghostCount{background:rgba(0,0,0,0.65);color:#d0aaff;font-size:13px;font-weight:700;padding:5px 10px;border-radius:18px;backdrop-filter:blur(3px);}
-  /* HUD de bioma (Jornada do Ursinho) */
-  #uiLeft{display:flex;flex-direction:column;align-items:flex-start;gap:3px;}
-  #biomeHud{display:flex;flex-direction:column;gap:2px;padding-left:4px;opacity:0;}
-  #biomeHud.show{animation:biomeFade 2s ease forwards;}
-  @keyframes biomeFade{from{opacity:0}to{opacity:1}}
-  #biomeName{font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.85);white-space:nowrap;}
-  #biomeIdx{font-size:11px;opacity:0.6;font-weight:600;}
-  #biomeBarWrap{width:120px;height:4px;border-radius:2px;background:rgba(0,0,0,0.45);overflow:hidden;}
-  #biomeBar{height:100%;width:100%;border-radius:2px;}
   /* HUD de passivos (esquerda) */
-  #passiveHud{position:absolute;top:78px;left:8px;display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:20;}
+  #passiveHud{position:absolute;top:38px;left:8px;display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:20;}
   .phud-chip{display:flex;align-items:center;gap:5px;background:rgba(10,10,24,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:11px;padding:3px 9px 3px 7px;font-size:12px;color:#fff;backdrop-filter:blur(3px);}
   .phud-chip .pi{font-size:14px;line-height:1;}
   .phud-chip b{color:#ffe066;font-weight:800;font-size:11px;}
@@ -118,13 +109,7 @@
   <canvas id="c"></canvas>
   <div id="rotateHint"><div style="text-align:center;"><div style="font-size:40px;margin-bottom:10px;">📱↻</div>Vire o celular na horizontal para jogar</div></div>
   <div id="ui">
-    <div id="uiLeft">
-      <div id="timer">0:00</div>
-      <div id="biomeHud">
-        <div id="biomeName"></div>
-        <div id="biomeBarWrap"><div id="biomeBar"></div></div>
-      </div>
-    </div>
+    <div id="timer">0:00</div>
     <div id="ghostCount">👻 ×1</div>
   </div>
   <div id="passiveHud"></div>
@@ -551,6 +536,8 @@ let biomeStartTime=0;      // valor de `elapsed` (em s, relógio do jogo) quando
 let biomePhase='playing';  // 'playing' | 'warning' | 'transitioning'
 let shakeFrames=0;         // frames restantes de tremor de tela na transição
 let ghostHideTimer=0;      // fantasmas invisíveis/parados por 0.5s após a transição
+const BIOME_ANNOUNCE_DURATION=3; // segundos exibindo o nome do bioma após a transição
+let biomeAnnounceTimer=0;
 const joyVec={x:0,y:0,active:false};const keysDown={};
 
 function freeCells(){const c=[];for(let r=1;r<ROWS-1;r++)for(let c2=1;c2<COLS-1;c2++)if(map[r][c2]===0)c.push({r,c:c2});return c;}
@@ -608,16 +595,25 @@ function executeBiomeTransition(){
   biomeStartTime=elapsed;
   biomePhase='playing';
   nextGhostTime=elapsed+eff.ghostSpawnRate;
-  updateBiomeHud();
-  addNotif(`${b.icon} ${b.name}`,'#ffe066',CW/2,CH*0.42,16);
+  biomeAnnounceTimer=BIOME_ANNOUNCE_DURATION; // nome do bioma só aparece aqui, na transição
 }
-function updateBiomeHud(){
+// anúncio do bioma desenhado no canvas durante alguns segundos após a transição
+function drawBiomeAnnounce(){
+  if(biomeAnnounceTimer<=0)return;
   const b=BIOMES[currentBiome];
-  const cyc=cycleCount>0?` · Ciclo ${cycleCount+1}`:'';
-  document.getElementById('biomeName').innerHTML=`${escapeHtml(b.name)} ${b.icon} <span id="biomeIdx">Mundo ${b.id}/${TOTAL_BIOMES}${cyc}</span>`;
-  document.getElementById('biomeBar').style.background=`linear-gradient(90deg,${b.wallTint},${shadeColor(b.wallTint,1.6)})`;
-  const hud=document.getElementById('biomeHud');
-  hud.classList.remove('show');void hud.offsetWidth;hud.classList.add('show'); // reinicia fade-in de 2s
+  const t=BIOME_ANNOUNCE_DURATION-biomeAnnounceTimer; // tempo desde o início do anúncio
+  let alpha=1;
+  if(t<0.4)alpha=t/0.4;                                  // fade-in
+  else if(biomeAnnounceTimer<0.8)alpha=biomeAnnounceTimer/0.8; // fade-out
+  ctx.save();
+  ctx.globalAlpha=alpha;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.shadowColor='rgba(0,0,0,0.8)';ctx.shadowBlur=10;
+  ctx.font='bold 26px Segoe UI';ctx.fillStyle='#fff';
+  ctx.fillText(`${b.icon} ${b.name}`,CW/2,CH/2-66);
+  ctx.font='600 13px Segoe UI';ctx.fillStyle='rgba(255,255,255,0.75)';
+  ctx.fillText(`Mundo ${b.id}/${TOTAL_BIOMES}${cycleCount>0?` · Ciclo ${cycleCount+1}`:''}`,CW/2,CH/2-42);
+  ctx.restore();
 }
 function drawBiomeWarning(){
   if(biomePhase!=='warning')return;
@@ -644,7 +640,7 @@ function drawBiomeWarning(){
 }
 
 function initGame(){
-  currentBiome=0;cycleCount=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;
+  currentBiome=0;cycleCount=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;biomeAnnounceTimer=0;
   loadBiomeMap();
   elapsed=0;lastTime=null;notifications=[];ghosts=[];collectibles=[];
   jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=biomeEffective(BIOMES[0]).ghostSpawnRate;
@@ -660,7 +656,6 @@ function initGame(){
   bear={x:(bs.c+0.5)*TILE,y:(bs.r+0.5)*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south'};
   ghosts.push({x:(gs.c+0.5)*TILE,y:(gs.r+0.5)*TILE,speed:gspd,baseSpeed:gspd,size:14,frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',palette:GHOST_PALETTES[0]});
   recalcPassives();
-  updateBiomeHud();
   document.getElementById('fxHud').innerHTML='';
 }
 function tileAt(px,py){const c=Math.floor(px/TILE),r=Math.floor(py/TILE);if(r<0||r>=ROWS||c<0||c>=COLS)return 1;return map[r][c];}
@@ -744,6 +739,7 @@ function updateEffects(dt){
   if(phaseTimer>0){phaseTimer-=dt;if(phaseTimer<=0){phaseTimer=0;resolveLandingInsideWall();}}
   if(decoy){decoy.life-=dt;if(decoy.life<=0)decoy=null;}
   if(ghostHideTimer>0){ghostHideTimer-=dt;if(ghostHideTimer<0)ghostHideTimer=0;}
+  if(biomeAnnounceTimer>0){biomeAnnounceTimer-=dt;if(biomeAnnounceTimer<0)biomeAnnounceTimer=0;}
   if(jumpCd>0)jumpCd-=dt;
   if(jumpActive){jumpTimer-=dt;if(jumpTimer<=0){jumpActive=false;jumpCd=jumpCdMax;resolveLandingInsideWall();const pl=passiveLevels['post_jump']||0;if(pl>0){postJumpTimer=PROG.post_jump_dur[pl-1];postJumpMax=postJumpTimer;postJumpSpd=PROG.post_jump_spd[pl-1];}}}
   if(bear.landingTarget){const t=bear.landingTarget,dx=t.x-bear.x,dy=t.y-bear.y,d=Math.hypot(dx,dy);if(d<6||canMove(bear.x,bear.y,bear.size)){bear.landingTarget=null;}else{const st=Math.min(d,8);bear.x+=(dx/d)*st;bear.y+=(dy/d)*st;}}
@@ -1019,10 +1015,9 @@ function gameLoop(ts){
   if(ghostHideTimer<=0)ghosts.forEach(g=>drawGhost(g));
   drawBear();drawNotifications();
   ctx.restore();
-  drawBiomeWarning();
+  drawBiomeWarning();drawBiomeAnnounce();
   document.getElementById('timer').textContent=formatTime(elapsed);
   document.getElementById('ghostCount').textContent=`👻 ×${ghosts.length}`;
-  document.getElementById('biomeBar').style.width=(Math.max(0,1-(elapsed-biomeStartTime)/BIOME_DURATION)*100)+'%';
   renderEffectsHud();
   requestAnimationFrame(gameLoop);
 }
