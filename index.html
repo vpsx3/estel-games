@@ -20,7 +20,7 @@
     --text:#eef;--muted:#9090b0;--accent:#7878ff;--accent2:#a0e0ff;
   }
   html,body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
-  body{display:flex;flex-direction:column;}
+  body{display:flex;flex-direction:column;transition:opacity 0.15s;}
 
   /* subtle starfield */
   .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
@@ -51,6 +51,21 @@
 
   footer{position:relative;z-index:1;text-align:center;padding:30px 20px;color:var(--muted);font-size:12px;}
   footer a{color:var(--accent2);text-decoration:none;}
+
+  #lang-toggle{
+    position:fixed;top:16px;right:20px;z-index:100;
+    display:flex;align-items:center;gap:4px;
+    background:var(--card);border:1px solid var(--border);
+    border-radius:20px;padding:4px 10px;font-size:13px;
+  }
+  .lang-btn{
+    background:none;border:none;color:var(--muted);
+    cursor:pointer;font-size:13px;font-weight:600;padding:2px 4px;
+    border-radius:4px;transition:color .15s;
+  }
+  .lang-btn.active{color:var(--accent);}
+  .lang-btn:hover:not(.active){color:var(--text);}
+  .lang-sep{color:var(--border);}
 </style>
 </head>
 <body>
@@ -58,11 +73,11 @@
 
 <header>
   <div class="logo">estel<span class="dot">.</span>games</div>
-  <div class="tagline">jogos leves para jogar na hora — no navegador ou no celular</div>
+  <div class="tagline" data-i18n="tagline">jogos leves para jogar na hora — no navegador ou no celular</div>
 </header>
 
 <main>
-  <div class="section-title">✦ Jogos disponíveis</div>
+  <div class="section-title" data-i18n="sectionTitle">✦ Jogos disponíveis</div>
   <div class="grid">
     <a class="card" href="/games/pegue-o-ursinho/">
       <div class="card-art">
@@ -71,21 +86,21 @@
         <span class="ghost g2">👻</span>
       </div>
       <div class="card-body">
-        <div class="card-title">Pegue o Ursinho</div>
-        <div class="card-desc">Fuja dos fantasmas o máximo de tempo que conseguir. Pule obstáculos, use power-ups e dispute o ranking global!</div>
+        <div class="card-title" data-i18n="gameTitle">Pegue o Ursinho</div>
+        <div class="card-desc" data-i18n="gameDesc">Fuja dos fantasmas o máximo de tempo que conseguir. Pule obstáculos, use power-ups e dispute o ranking global!</div>
         <div class="card-tags">
           <span class="tag">Arcade</span>
-          <span class="tag">Sobrevivência</span>
-          <span class="tag">Ranking</span>
+          <span class="tag" data-i18n="tagSurvival">Sobrevivência</span>
+          <span class="tag" data-i18n="tagRanking">Ranking</span>
         </div>
-        <span class="play-btn">▶ Jogar</span>
+        <span class="play-btn" data-i18n="playBtn">▶ Jogar</span>
       </div>
     </a>
   </div>
 </main>
 
 <footer>
-  feito com 🌟 por estel.games · <a href="/games/pegue-o-ursinho/">jogar agora</a>
+  <span data-i18n="footer">feito com 🌟 por estel.games · </span><a href="/games/pegue-o-ursinho/" data-i18n="footerLink">jogar agora</a>
 </footer>
 
 <script>
@@ -101,6 +116,73 @@
     s.style.animationDelay=(Math.random()*3)+'s';
     sc.appendChild(s);
   }
+</script>
+
+<div id="lang-toggle" aria-label="Switch language">
+  <button id="btn-pt" class="lang-btn active" onclick="setLang('pt')">PT</button>
+  <span class="lang-sep">|</span>
+  <button id="btn-en" class="lang-btn" onclick="setLang('en')">EN</button>
+</div>
+
+<script>
+  const STRINGS = {
+    pt: {
+      title:        "estel.games — jogos leves para jogar na hora",
+      metaDesc:     "estel.games — uma coleção de jogos leves e divertidos para jogar direto no navegador, no computador ou no celular.",
+      tagline:      "jogos leves para jogar na hora — no navegador ou no celular",
+      sectionTitle: "✦ Jogos disponíveis",
+      gameTitle:    "Pegue o Ursinho",
+      gameDesc:     "Fuja dos fantasmas o máximo de tempo que conseguir. Pule obstáculos, use power-ups e dispute o ranking global!",
+      tagArcade:    "Arcade",
+      tagSurvival:  "Sobrevivência",
+      tagRanking:   "Ranking",
+      playBtn:      "▶ Jogar",
+      footer:       "feito com 🌟 por estel.games · ",
+      footerLink:   "jogar agora",
+    },
+    en: {
+      title:        "estel.games — light games to play right now",
+      metaDesc:     "estel.games — a collection of light, fun games to play straight in your browser, on desktop or mobile.",
+      tagline:      "light games to play right now — browser or mobile",
+      sectionTitle: "✦ Available games",
+      gameTitle:    "Catch the Teddy",
+      gameDesc:     "Escape ghosts for as long as you can. Dodge walls, grab power-ups and climb the global leaderboard!",
+      tagArcade:    "Arcade",
+      tagSurvival:  "Survival",
+      tagRanking:   "Leaderboard",
+      playBtn:      "▶ Play",
+      footer:       "made with 🌟 by estel.games · ",
+      footerLink:   "play now",
+    },
+  };
+
+  function setLang(lang) {
+    // 1. Persist
+    localStorage.setItem('estel_lang', lang);
+    // 2. Update <html lang>
+    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+    // 3. Update <title> and <meta description>
+    document.title = STRINGS[lang].title;
+    document.querySelector('meta[name="description"]').content = STRINGS[lang].metaDesc;
+    // 4. Update all data-i18n elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (STRINGS[lang][key] !== undefined) el.textContent = STRINGS[lang][key];
+    });
+    // 5. Update toggle button states
+    document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    // 6. Fade animation
+    document.body.style.opacity = '0';
+    setTimeout(() => { document.body.style.opacity = '1'; }, 150);
+  }
+
+  // Initialization
+  (function initLang() {
+    const saved = localStorage.getItem('estel_lang');
+    const detected = navigator.language?.startsWith('en') ? 'en' : 'pt';
+    setLang(saved || detected);
+  })();
 </script>
 </body>
 </html>
