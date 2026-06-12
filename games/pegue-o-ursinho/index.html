@@ -419,20 +419,23 @@ window.addEventListener('orientationchange',()=>setTimeout(resizeCanvas,200));
 resizeCanvas();
 
 // --- Sprites direcionais ---
-const SPRITES={bear:{},ghost:{},loaded:0,total:8,ready:false};
+const SPRITES={bear:{},ghost:{},loaded:0,total:4,ready:false};
 function loadSprites(){
   const dirs=['north','south','east','west'];
-  ['bear','ghost'].forEach(who=>{
-    dirs.forEach(dir=>{
-      const img=new Image();
-      img.onload=()=>{SPRITES.loaded++;if(SPRITES.loaded>=SPRITES.total)SPRITES.ready=true;};
-      img.onerror=()=>{SPRITES.loaded++;};
-      img.src='assets/'+who+'_'+dir+'.png';
-      SPRITES[who][dir]=img;
-    });
+  dirs.forEach(dir=>{
+    const img=new Image();
+    img.onload=()=>{SPRITES.loaded++;if(SPRITES.loaded>=SPRITES.total)SPRITES.ready=true;};
+    img.onerror=()=>{SPRITES.loaded++;};
+    img.src='assets/bear_'+dir+'.png';
+    SPRITES.bear[dir]=img;
   });
 }
 loadSprites();
+// --- Spritesheet das classes de fantasmas (4 direções × 5 classes) ---
+const ghostSheet=new Image();
+ghostSheet.src='assets/ghost_classes_spritesheet.png';
+const GHOST_CELL_W=280;
+const GHOST_CELL_H=280;
 function dirFromVec(dx,dy,current){
   if(Math.abs(dx)<0.01&&Math.abs(dy)<0.01)return current||'south';
   if(Math.abs(dx)>Math.abs(dy))return dx>0?'east':'west';
