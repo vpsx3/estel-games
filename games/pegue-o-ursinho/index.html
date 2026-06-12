@@ -21,8 +21,17 @@
   #ui{position:absolute;top:6px;left:0;width:100%;display:flex;justify-content:space-between;align-items:flex-start;padding:0 8px;pointer-events:none;}
   #timer{background:rgba(0,0,0,0.65);color:#a0e0ff;font-size:16px;font-weight:700;padding:5px 12px;border-radius:18px;backdrop-filter:blur(3px);}
   #ghostCount{background:rgba(0,0,0,0.65);color:#d0aaff;font-size:13px;font-weight:700;padding:5px 10px;border-radius:18px;backdrop-filter:blur(3px);}
+  /* HUD de bioma (Jornada do Ursinho) */
+  #uiLeft{display:flex;flex-direction:column;align-items:flex-start;gap:3px;}
+  #biomeHud{display:flex;flex-direction:column;gap:2px;padding-left:4px;opacity:0;}
+  #biomeHud.show{animation:biomeFade 2s ease forwards;}
+  @keyframes biomeFade{from{opacity:0}to{opacity:1}}
+  #biomeName{font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.85);white-space:nowrap;}
+  #biomeIdx{font-size:11px;opacity:0.6;font-weight:600;}
+  #biomeBarWrap{width:120px;height:4px;border-radius:2px;background:rgba(0,0,0,0.45);overflow:hidden;}
+  #biomeBar{height:100%;width:100%;border-radius:2px;}
   /* HUD de passivos (esquerda) */
-  #passiveHud{position:absolute;top:38px;left:8px;display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:20;}
+  #passiveHud{position:absolute;top:78px;left:8px;display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:20;}
   .phud-chip{display:flex;align-items:center;gap:5px;background:rgba(10,10,24,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:11px;padding:3px 9px 3px 7px;font-size:12px;color:#fff;backdrop-filter:blur(3px);}
   .phud-chip .pi{font-size:14px;line-height:1;}
   .phud-chip b{color:#ffe066;font-weight:800;font-size:11px;}
@@ -109,7 +118,13 @@
   <canvas id="c"></canvas>
   <div id="rotateHint"><div style="text-align:center;"><div style="font-size:40px;margin-bottom:10px;">📱↻</div>Vire o celular na horizontal para jogar</div></div>
   <div id="ui">
-    <div id="timer">0:00</div>
+    <div id="uiLeft">
+      <div id="timer">0:00</div>
+      <div id="biomeHud">
+        <div id="biomeName"></div>
+        <div id="biomeBarWrap"><div id="biomeBar"></div></div>
+      </div>
+    </div>
     <div id="ghostCount">👻 ×1</div>
   </div>
   <div id="passiveHud"></div>
@@ -195,6 +210,24 @@ const MAP_TEMPLATE=[
   [1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,1,0,1,1,0,0,0,0,0,0,1,1,1,1,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+];
+// ====== JORNADA DO URSINHO: BIOMAS ======
+const BIOME_DURATION=120; // segundos por bioma
+const TOTAL_BIOMES=10;
+const BIOME_WARNING_TIME=10; // últimos N segundos exibem aviso de mudança
+const GHOST_BASE_SPEED=1.7;
+// Etapa 1: todos os biomas usam o MAP_TEMPLATE do seed 184 (mapas próprios chegam na Etapa 2).
+const BIOMES=[
+  {id:1, name:'Floresta Encantada', icon:'🌲', wallTint:'#2d5a1b', bgColor:'#1a3a0a', ghostSpeed:0.75, ghostSpawnRate:20, maxGhosts:3, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
+  {id:2, name:'Praia dos Coqueiros', icon:'🏖️', wallTint:'#b08d4a', bgColor:'#1e3a52', ghostSpeed:0.80, ghostSpawnRate:18, maxGhosts:3, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
+  {id:3, name:'Montanha Gelada', icon:'🏔️', wallTint:'#6a9ec9', bgColor:'#14233c', ghostSpeed:0.90, ghostSpawnRate:16, maxGhosts:4, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
+  {id:4, name:'Pântano Verde', icon:'🐸', wallTint:'#3f5a2a', bgColor:'#182612', ghostSpeed:0.95, ghostSpawnRate:15, maxGhosts:4, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
+  {id:5, name:'Caverna dos Ecos', icon:'🦇', wallTint:'#5a4a6a', bgColor:'#120e1a', ghostSpeed:1.00, ghostSpawnRate:14, maxGhosts:5, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
+  {id:6, name:'Vila Assombrada', icon:'🏚️', wallTint:'#6a5a8a', bgColor:'#1c1830', ghostSpeed:1.05, ghostSpawnRate:13, maxGhosts:5, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
+  {id:7, name:'Castelo do Rei', icon:'👑', wallTint:'#8a7a4a', bgColor:'#241e10', ghostSpeed:1.10, ghostSpawnRate:12, maxGhosts:6, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
+  {id:8, name:'Ilhas Flutuantes', icon:'☁️', wallTint:'#5a7aa0', bgColor:'#101c30', ghostSpeed:1.15, ghostSpawnRate:11, maxGhosts:6, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
+  {id:9, name:'Inferno Fofo', icon:'🔥', wallTint:'#a04a3a', bgColor:'#2a0f0a', ghostSpeed:1.25, ghostSpawnRate:10, maxGhosts:7, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
+  {id:10,name:'Dimensão dos Fantasmas', icon:'👻', wallTint:'#7a4aa0', bgColor:'#150a24', ghostSpeed:1.40, ghostSpawnRate:8, maxGhosts:8, bearSpawn:{c:15,r:13}, ghostSpawn:{c:25,r:3}, MAP_TEMPLATE:MAP_TEMPLATE},
 ];
 const ROWS=MAP_TEMPLATE.length,COLS=MAP_TEMPLATE[0].length;
 const CW=COLS*TILE,CH=ROWS*TILE;
@@ -322,6 +355,13 @@ let postJumpTimer=0,postJumpSpd=0,postJumpMax=0;
 let bearBoostTimer=0,bearBoostMult=1,bearBoostMax=0;
 let ghostSlowTimer=0,ghostSlowMult=1,ghostSlowMax=0;
 let invisibleTimer=0,invisibleMax=0,phaseTimer=0,phaseMax=0,reboundActive=false,decoy=null;
+// estado da Jornada do Ursinho (biomas)
+let currentBiome=0;        // índice em BIOMES[] (0–9)
+let cycleCount=0;          // ciclos completos (1→10) concluídos
+let biomeStartTime=0;      // valor de `elapsed` (em s, relógio do jogo) quando o bioma atual iniciou
+let biomePhase='playing';  // 'playing' | 'warning' | 'transitioning'
+let shakeFrames=0;         // frames restantes de tremor de tela na transição
+let ghostHideTimer=0;      // fantasmas invisíveis/parados por 0.5s após a transição
 const joyVec={x:0,y:0,active:false};const keysDown={};
 
 function freeCells(){const c=[];for(let r=1;r<ROWS-1;r++)for(let c2=1;c2<COLS-1;c2++)if(map[r][c2]===0)c.push({r,c:c2});return c;}
@@ -333,9 +373,80 @@ function farthestGhost(){let best=null,bd=-1;for(const g of ghosts){const d=Math
 function pushGhost(g){const dx=g.x-bear.x,dy=g.y-bear.y,d=Math.hypot(dx,dy)||1;g.x+=dx/d*TILE*1.6;g.y+=dy/d*TILE*1.6;clampGhost(g);}
 function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 
-function spawnGhost(){const pal=GHOST_PALETTES[ghosts.length%GHOST_PALETTES.length];const pos=randomFreePosAway(bear,TILE*8);ghosts.push({x:pos.x,y:pos.y,speed:1.7,baseSpeed:1.7,size:14,frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',palette:pal});}
+function spawnGhost(minDist){const pal=GHOST_PALETTES[ghosts.length%GHOST_PALETTES.length];const pos=randomFreePosAway(bear,minDist||TILE*8);ghosts.push({x:pos.x,y:pos.y,speed:GHOST_BASE_SPEED,baseSpeed:GHOST_BASE_SPEED,size:14,frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',palette:pal});}
+
+// ====== JORNADA DO URSINHO: transição de biomas ======
+function shadeColor(hex,f){
+  const n=parseInt(hex.slice(1),16);
+  const r=Math.min(255,Math.round(((n>>16)&255)*f)),g=Math.min(255,Math.round(((n>>8)&255)*f)),b=Math.min(255,Math.round((n&255)*f));
+  return`rgb(${r},${g},${b})`;
+}
+function loadBiomeMap(){map=BIOMES[currentBiome].MAP_TEMPLATE.map(r=>[...r]);}
+function placeBearSafe(){
+  // célula de spawn do bioma; fallback: célula livre mais próxima do centro do mapa
+  const s=BIOMES[currentBiome].bearSpawn;
+  let cell=(s&&map[s.r]&&map[s.r][s.c]===0)?s:null;
+  if(!cell){
+    const cr=(ROWS-1)/2,cc=(COLS-1)/2;let bd=Infinity;
+    for(const fc of freeCells()){const d=Math.abs(fc.r-cr)+Math.abs(fc.c-cc);if(d<bd){bd=d;cell=fc;}}
+  }
+  bear.x=(cell.c+0.5)*TILE;bear.y=(cell.r+0.5)*TILE;
+}
+function executeBiomeTransition(){
+  biomePhase='transitioning';
+  shakeFrames=3;        // tremor de tela por 3 frames
+  ghostHideTimer=0.5;   // fantasmas somem por 500ms
+  const prevCount=ghosts.length;
+  currentBiome=(currentBiome+1)%TOTAL_BIOMES;
+  if(currentBiome===0)cycleCount++; // completou 1→10, recomeça mais difícil
+  const b=BIOMES[currentBiome];
+  loadBiomeMap();
+  collectibles=[];decoy=null;bear.landingTarget=null;
+  placeBearSafe();
+  ghosts=[];
+  for(let i=0;i<Math.max(1,prevCount);i++)spawnGhost(TILE*10); // respawn longe (≥10 células)
+  bear.invuln=Math.max(bear.invuln,1); // transição nunca causa morte injusta
+  biomeStartTime=elapsed;
+  biomePhase='playing';
+  nextGhostTime=elapsed+GHOST_INTERVAL;
+  updateBiomeHud();
+  addNotif(`${b.icon} ${b.name}`,'#ffe066',CW/2,CH*0.42,16);
+}
+function updateBiomeHud(){
+  const b=BIOMES[currentBiome];
+  const cyc=cycleCount>0?` · Ciclo ${cycleCount+1}`:'';
+  document.getElementById('biomeName').innerHTML=`${escapeHtml(b.name)} ${b.icon} <span id="biomeIdx">Mundo ${b.id}/${TOTAL_BIOMES}${cyc}</span>`;
+  document.getElementById('biomeBar').style.background=`linear-gradient(90deg,${b.wallTint},${shadeColor(b.wallTint,1.6)})`;
+  const hud=document.getElementById('biomeHud');
+  hud.classList.remove('show');void hud.offsetWidth;hud.classList.add('show'); // reinicia fade-in de 2s
+}
+function drawBiomeWarning(){
+  if(biomePhase!=='warning')return;
+  const remain=Math.max(0,BIOME_DURATION-(elapsed-biomeStartTime));
+  ctx.save();
+  ctx.textBaseline='middle';
+  ctx.globalAlpha=0.85+0.15*Math.sin(elapsed*Math.PI*4); // pulsa 0.7→1.0 a cada 0.5s
+  ctx.shadowColor='rgba(140,60,220,0.9)';ctx.shadowBlur=12;
+  const y=CH/2-60;
+  if(remain>5){
+    ctx.textAlign='center';ctx.font='bold 22px Segoe UI';ctx.fillStyle='#fff';
+    ctx.fillText('O mundo está mudando…',CW/2,y);
+  }else{
+    const n=Math.max(1,Math.ceil(remain));
+    ctx.textAlign='left';
+    ctx.font='bold 22px Segoe UI';const w1=ctx.measureText('Novo mapa em ').width,w3=ctx.measureText('…').width;
+    ctx.font='bold 32px Segoe UI';const w2=ctx.measureText(String(n)).width;
+    let x=CW/2-(w1+w2+w3)/2;
+    ctx.font='bold 22px Segoe UI';ctx.fillStyle='#fff';ctx.fillText('Novo mapa em ',x,y);x+=w1;
+    ctx.font='bold 32px Segoe UI';ctx.fillStyle='#ffe066';ctx.fillText(String(n),x,y);x+=w2;
+    ctx.font='bold 22px Segoe UI';ctx.fillStyle='#fff';ctx.fillText('…',x,y);
+  }
+  ctx.restore();
+}
+
 function initGame(){
-  map=MAP_TEMPLATE.map(r=>[...r]);
+  currentBiome=0;cycleCount=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;
+  loadBiomeMap();
   elapsed=0;lastTime=null;notifications=[];ghosts=[];collectibles=[];
   jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=FIRST_GHOST_TIME;
   jumpCdMax=10;jumpDuration=JUMP_DURATION;
@@ -345,9 +456,11 @@ function initGame(){
   bearBoostTimer=0;bearBoostMult=1;bearBoostMax=0;
   ghostSlowTimer=0;ghostSlowMult=1;ghostSlowMax=0;
   invisibleTimer=0;invisibleMax=0;phaseTimer=0;phaseMax=0;reboundActive=false;decoy=null;
-  bear={x:15*TILE,y:13.5*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south'};
-  ghosts.push({x:25.5*TILE,y:3.5*TILE,speed:1.7,baseSpeed:1.7,size:14,frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',palette:GHOST_PALETTES[0]});
+  const bs=BIOMES[0].bearSpawn,gs=BIOMES[0].ghostSpawn;
+  bear={x:(bs.c+0.5)*TILE,y:(bs.r+0.5)*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south'};
+  ghosts.push({x:(gs.c+0.5)*TILE,y:(gs.r+0.5)*TILE,speed:GHOST_BASE_SPEED,baseSpeed:GHOST_BASE_SPEED,size:14,frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',palette:GHOST_PALETTES[0]});
   recalcPassives();
+  updateBiomeHud();
   document.getElementById('fxHud').innerHTML='';
 }
 function tileAt(px,py){const c=Math.floor(px/TILE),r=Math.floor(py/TILE);if(r<0||r>=ROWS||c<0||c>=COLS)return 1;return map[r][c];}
@@ -377,6 +490,7 @@ function moveBear(dt){
   bear.x=Math.max(bear.size,Math.min(CW-bear.size,bear.x));bear.y=Math.max(bear.size,Math.min(CH-bear.size,bear.y));
 }
 function moveGhosts(dt){
+  if(ghostHideTimer>0)return; // fantasmas ausentes logo após a troca de bioma
   const gm=ghostGlobalMult();
   ghosts.forEach(g=>{
     if(g.frozen>0||g.trapped>0)return;
@@ -429,6 +543,7 @@ function updateEffects(dt){
   if(invisibleTimer>0){invisibleTimer-=dt;if(invisibleTimer<0)invisibleTimer=0;}
   if(phaseTimer>0){phaseTimer-=dt;if(phaseTimer<=0){phaseTimer=0;resolveLandingInsideWall();}}
   if(decoy){decoy.life-=dt;if(decoy.life<=0)decoy=null;}
+  if(ghostHideTimer>0){ghostHideTimer-=dt;if(ghostHideTimer<0)ghostHideTimer=0;}
   if(jumpCd>0)jumpCd-=dt;
   if(jumpActive){jumpTimer-=dt;if(jumpTimer<=0){jumpActive=false;jumpCd=jumpCdMax;resolveLandingInsideWall();const pl=passiveLevels['post_jump']||0;if(pl>0){postJumpTimer=PROG.post_jump_dur[pl-1];postJumpMax=postJumpTimer;postJumpSpd=PROG.post_jump_spd[pl-1];}}}
   if(bear.landingTarget){const t=bear.landingTarget,dx=t.x-bear.x,dy=t.y-bear.y,d=Math.hypot(dx,dy);if(d<6||canMove(bear.x,bear.y,bear.size)){bear.landingTarget=null;}else{const st=Math.min(d,8);bear.x+=(dx/d)*st;bear.y+=(dy/d)*st;}}
@@ -556,7 +671,14 @@ function renderEffectsHud(){
 }
 
 // ====== DESENHO ======
-function drawMap(){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(map[r][c]===1){ctx.fillStyle='#2e2e6a';ctx.fillRect(c*TILE,r*TILE,TILE,TILE);ctx.strokeStyle='#1a1a44';ctx.lineWidth=0.8;ctx.strokeRect(c*TILE,r*TILE,TILE,TILE);}else{ctx.fillStyle='#16213e';ctx.fillRect(c*TILE,r*TILE,TILE,TILE);}}}
+function drawMap(){
+  const b=BIOMES[currentBiome];
+  const wallC=b.wallTint,strokeC=shadeColor(b.wallTint,0.55),floorC=b.bgColor;
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    if(map[r][c]===1){ctx.fillStyle=wallC;ctx.fillRect(c*TILE,r*TILE,TILE,TILE);ctx.strokeStyle=strokeC;ctx.lineWidth=0.8;ctx.strokeRect(c*TILE,r*TILE,TILE,TILE);}
+    else{ctx.fillStyle=floorC;ctx.fillRect(c*TILE,r*TILE,TILE,TILE);}
+  }
+}
 function drawCollectibles(){
   collectibles.forEach(col=>{
     const isRare=col.rar==='raro';
@@ -675,9 +797,13 @@ function gameLoop(ts){
   const dt=Math.min((ts-lastTime)/1000,0.05);
   lastTime=ts;elapsed+=dt;
   if(joyVec.active)joyMove(joyLast.x,joyLast.y);
+  // timer de bioma: warning nos últimos 10s, transição ao fim dos 120s
+  const biomeElapsed=elapsed-biomeStartTime;
+  if(biomePhase==='playing'&&biomeElapsed>=BIOME_DURATION-BIOME_WARNING_TIME)biomePhase='warning';
+  if(biomePhase==='warning'&&biomeElapsed>=BIOME_DURATION)executeBiomeTransition();
   if(elapsed>=nextGhostTime){spawnGhost();nextGhostTime+=GHOST_INTERVAL;}
   moveBear(dt);moveGhosts(dt);updateCollectibles(dt);updateEffects(dt);
-  for(const g of ghosts){
+  if(ghostHideTimer<=0)for(const g of ghosts){
     if(Math.hypot(bear.x-g.x,bear.y-g.y)<bear.size+g.size-5){
       if(bear.invuln>0)continue;
       if(shieldCharges>0){shieldCharges--;bear.invuln=0.9;addNotif('🛡️ Escudo -1','#9ad8ff',bear.x,bear.y-28,13);pushGhost(g);continue;}
@@ -686,9 +812,16 @@ function gameLoop(ts){
     }
   }
   ctx.clearRect(0,0,CW,CH);
-  drawMap();drawCollectibles();drawDecoy();ghosts.forEach(g=>drawGhost(g));drawBear();drawNotifications();
+  ctx.save();
+  if(shakeFrames>0){ctx.translate((Math.random()-0.5)*12,(Math.random()-0.5)*12);shakeFrames--;}
+  drawMap();drawCollectibles();drawDecoy();
+  if(ghostHideTimer<=0)ghosts.forEach(g=>drawGhost(g));
+  drawBear();drawNotifications();
+  ctx.restore();
+  drawBiomeWarning();
   document.getElementById('timer').textContent=formatTime(elapsed);
   document.getElementById('ghostCount').textContent=`👻 ×${ghosts.length}`;
+  document.getElementById('biomeBar').style.width=(Math.max(0,1-(elapsed-biomeStartTime)/BIOME_DURATION)*100)+'%';
   renderEffectsHud();
   requestAnimationFrame(gameLoop);
 }
