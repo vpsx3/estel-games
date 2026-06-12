@@ -392,16 +392,16 @@ const BIOME_DURATION=120; // segundos por bioma
 const TOTAL_BIOMES=10;
 const BIOME_WARNING_TIME=10; // últimos N segundos exibem aviso de mudança
 const BIOMES=[
-  {id:1, name:'Floresta Encantada', icon:'🌲', wallTint:'#2d5a1b', bgColor:'#1a3a0a', ghostSpeed:0.75, ghostSpawnRate:20, maxGhosts:3, bearSpawn:{c:14,r:8}, ghostSpawn:{c:28,r:16}, MAP_TEMPLATE:BIOME_MAPS[0]},
-  {id:2, name:'Praia dos Coqueiros', icon:'🏖️', wallTint:'#b08d4a', bgColor:'#1e3a52', ghostSpeed:0.80, ghostSpawnRate:18, maxGhosts:3, bearSpawn:{c:14,r:8}, ghostSpawn:{c:28,r:16}, MAP_TEMPLATE:BIOME_MAPS[1]},
-  {id:3, name:'Montanha Gelada', icon:'🏔️', wallTint:'#6a9ec9', bgColor:'#14233c', ghostSpeed:0.90, ghostSpawnRate:16, maxGhosts:4, bearSpawn:{c:14,r:9}, ghostSpawn:{c:28,r:1}, MAP_TEMPLATE:BIOME_MAPS[2]},
-  {id:4, name:'Pântano Verde', icon:'🐸', wallTint:'#3f5a2a', bgColor:'#182612', ghostSpeed:0.95, ghostSpawnRate:15, maxGhosts:4, bearSpawn:{c:15,r:9}, ghostSpawn:{c:2,r:3}, MAP_TEMPLATE:BIOME_MAPS[3]},
-  {id:5, name:'Caverna dos Ecos', icon:'🦇', wallTint:'#5a4a6a', bgColor:'#120e1a', ghostSpeed:1.00, ghostSpawnRate:14, maxGhosts:5, bearSpawn:{c:14,r:8}, ghostSpawn:{c:1,r:16}, MAP_TEMPLATE:BIOME_MAPS[4]},
-  {id:6, name:'Vila Assombrada', icon:'🏚️', wallTint:'#6a5a8a', bgColor:'#1c1830', ghostSpeed:1.05, ghostSpawnRate:13, maxGhosts:5, bearSpawn:{c:15,r:8}, ghostSpawn:{c:1,r:1}, MAP_TEMPLATE:BIOME_MAPS[5]},
-  {id:7, name:'Castelo do Rei', icon:'👑', wallTint:'#8a7a4a', bgColor:'#241e10', ghostSpeed:1.10, ghostSpawnRate:12, maxGhosts:6, bearSpawn:{c:13,r:8}, ghostSpawn:{c:28,r:1}, MAP_TEMPLATE:BIOME_MAPS[6]},
-  {id:8, name:'Ilhas Flutuantes', icon:'☁️', wallTint:'#5a7aa0', bgColor:'#101c30', ghostSpeed:1.15, ghostSpawnRate:11, maxGhosts:6, bearSpawn:{c:14,r:8}, ghostSpawn:{c:28,r:1}, MAP_TEMPLATE:BIOME_MAPS[7]},
-  {id:9, name:'Inferno Fofo', icon:'🔥', wallTint:'#a04a3a', bgColor:'#2a0f0a', ghostSpeed:1.25, ghostSpawnRate:10, maxGhosts:7, bearSpawn:{c:14,r:8}, ghostSpawn:{c:28,r:1}, MAP_TEMPLATE:BIOME_MAPS[8]},
-  {id:10,name:'Dimensão dos Fantasmas', icon:'👻', wallTint:'#7a4aa0', bgColor:'#150a24', ghostSpeed:1.40, ghostSpawnRate:8, maxGhosts:8, bearSpawn:{c:15,r:8}, ghostSpawn:{c:1,r:1}, MAP_TEMPLATE:BIOME_MAPS[9]},
+  {id:1, name:'Floresta Encantada', icon:'🌲', wallTint:'#2d5a1b', bgColor:'#1a3a0a', ghostSpeed:0.75, ghostSpawnRate:20, bearSpawn:{c:14,r:8}, ghostSpawn:{c:28,r:16}, MAP_TEMPLATE:BIOME_MAPS[0]},
+  {id:2, name:'Praia dos Coqueiros', icon:'🏖️', wallTint:'#b08d4a', bgColor:'#1e3a52', ghostSpeed:0.80, ghostSpawnRate:18, bearSpawn:{c:14,r:8}, ghostSpawn:{c:28,r:16}, MAP_TEMPLATE:BIOME_MAPS[1]},
+  {id:3, name:'Montanha Gelada', icon:'🏔️', wallTint:'#6a9ec9', bgColor:'#14233c', ghostSpeed:0.90, ghostSpawnRate:16, bearSpawn:{c:14,r:9}, ghostSpawn:{c:28,r:1}, MAP_TEMPLATE:BIOME_MAPS[2]},
+  {id:4, name:'Pântano Verde', icon:'🐸', wallTint:'#3f5a2a', bgColor:'#182612', ghostSpeed:0.95, ghostSpawnRate:15, bearSpawn:{c:15,r:9}, ghostSpawn:{c:2,r:3}, MAP_TEMPLATE:BIOME_MAPS[3]},
+  {id:5, name:'Caverna dos Ecos', icon:'🦇', wallTint:'#5a4a6a', bgColor:'#120e1a', ghostSpeed:1.00, ghostSpawnRate:14, bearSpawn:{c:14,r:8}, ghostSpawn:{c:1,r:16}, MAP_TEMPLATE:BIOME_MAPS[4]},
+  {id:6, name:'Vila Assombrada', icon:'🏚️', wallTint:'#6a5a8a', bgColor:'#1c1830', ghostSpeed:1.05, ghostSpawnRate:13, bearSpawn:{c:15,r:8}, ghostSpawn:{c:1,r:1}, MAP_TEMPLATE:BIOME_MAPS[5]},
+  {id:7, name:'Castelo do Rei', icon:'👑', wallTint:'#8a7a4a', bgColor:'#241e10', ghostSpeed:1.10, ghostSpawnRate:12, bearSpawn:{c:13,r:8}, ghostSpawn:{c:28,r:1}, MAP_TEMPLATE:BIOME_MAPS[6]},
+  {id:8, name:'Ilhas Flutuantes', icon:'☁️', wallTint:'#5a7aa0', bgColor:'#101c30', ghostSpeed:1.15, ghostSpawnRate:11, bearSpawn:{c:14,r:8}, ghostSpawn:{c:28,r:1}, MAP_TEMPLATE:BIOME_MAPS[7]},
+  {id:9, name:'Inferno Fofo', icon:'🔥', wallTint:'#a04a3a', bgColor:'#2a0f0a', ghostSpeed:1.25, ghostSpawnRate:10, bearSpawn:{c:14,r:8}, ghostSpawn:{c:28,r:1}, MAP_TEMPLATE:BIOME_MAPS[8]},
+  {id:10,name:'Dimensão dos Fantasmas', icon:'👻', wallTint:'#7a4aa0', bgColor:'#150a24', ghostSpeed:1.40, ghostSpawnRate:8, bearSpawn:{c:15,r:8}, ghostSpawn:{c:1,r:1}, MAP_TEMPLATE:BIOME_MAPS[9]},
 ];
 const ROWS=BIOME_MAPS[0].length,COLS=BIOME_MAPS[0][0].length;
 const CW=COLS*TILE,CH=ROWS*TILE;
@@ -614,7 +614,6 @@ function biomeEffective(b){
   return{
     ghostSpeed:b.ghostSpeed+cycleCount*0.10,
     ghostSpawnRate:Math.max(5,b.ghostSpawnRate-cycleCount*2),
-    maxGhosts:Math.min(20,b.maxGhosts+cycleCount*2),
   };
 }
 function placeBearSafe(){
@@ -640,7 +639,7 @@ function executeBiomeTransition(){
   placeBearSafe();
   ghosts=[];
   const eff=biomeEffective(b);
-  const count=Math.min(Math.max(1,prevCount),eff.maxGhosts);
+  const count=Math.max(1,prevCount); // mantém todos os fantasmas na troca de bioma (sem cap)
   for(let i=0;i<count;i++)spawnGhost(TILE*10); // respawn longe (≥10 células), já na velocidade do novo bioma
   bear.invuln=Math.max(bear.invuln,1); // transição nunca causa morte injusta
   biomeStartTime=elapsed;
@@ -1079,7 +1078,7 @@ function gameLoop(ts){
   if(biomePhase==='playing'&&biomeElapsed>=BIOME_DURATION-BIOME_WARNING_TIME)biomePhase='warning';
   if(biomePhase==='warning'&&biomeElapsed>=BIOME_DURATION)executeBiomeTransition();
   const ghostEff=biomeEffective(BIOMES[currentBiome]);
-  if(elapsed>=nextGhostTime){if(ghosts.length<ghostEff.maxGhosts)spawnGhost();nextGhostTime=elapsed+ghostEff.ghostSpawnRate;}
+  if(elapsed>=nextGhostTime){spawnGhost();nextGhostTime=elapsed+ghostEff.ghostSpawnRate;}
   moveBear(dt);moveGhosts(dt);updateCollectibles(dt);updateEffects(dt);
   if(ghostHideTimer<=0)for(const g of ghosts){
     if(Math.hypot(bear.x-g.x,bear.y-g.y)<bear.size+g.size-5){
