@@ -419,7 +419,7 @@ window.addEventListener('orientationchange',()=>setTimeout(resizeCanvas,200));
 resizeCanvas();
 
 // --- Sprites direcionais ---
-const SPRITES={bear:{},ghost:{},loaded:0,total:4,ready:false};
+const SPRITES={bear:{},loaded:0,total:4,ready:false};
 function loadSprites(){
   const dirs=['north','south','east','west'];
   dirs.forEach(dir=>{
@@ -436,6 +436,8 @@ const ghostSheet=new Image();
 ghostSheet.src='assets/ghost_classes_spritesheet.png';
 const GHOST_CELL_W=280;
 const GHOST_CELL_H=280;
+const GHOST_SPRITE_ROW={comum:0,rapido:1,pesado:2,errante:3,venenoso:4};
+const GHOST_DIR_COL={south:0,north:1,east:2,west:3};
 function dirFromVec(dx,dy,current){
   if(Math.abs(dx)<0.01&&Math.abs(dy)<0.01)return current||'south';
   if(Math.abs(dx)>Math.abs(dy))return dx>0?'east':'west';
@@ -1025,12 +1027,14 @@ function drawBear(){
 function drawGhost(g){
   ctx.save();ctx.translate(g.x,g.y);
   if(g.frozen>0)ctx.globalAlpha=0.6;
-  const img=SPRITES.ghost[g.facing||'south'];
-  if(SPRITES.ready&&img&&img.complete&&img.naturalWidth){
-    const sz=g.size*3;
+  if(ghostSheet.complete&&ghostSheet.naturalWidth){
+    const row=GHOST_SPRITE_ROW[g.tipo]??0;
+    const col=GHOST_DIR_COL[g.facing]??0;
+    // células da spritesheet têm ~30% de margem interna; *4 mantém a escala visual dos sprites antigos (*3 com recorte justo)
+    const drawSize=g.size*4;
     if(g.frozen>0)ctx.filter='hue-rotate(150deg) saturate(1.5) brightness(1.1)';
     ctx.shadowColor=g.boostTimer>0?'rgba(255,120,120,0.9)':g.palette.glow;ctx.shadowBlur=g.boostTimer>0?16:10;
-    ctx.drawImage(img,-sz/2,-sz/2,sz,sz);
+    ctx.drawImage(ghostSheet,col*GHOST_CELL_W,row*GHOST_CELL_H,GHOST_CELL_W,GHOST_CELL_H,-drawSize/2,-drawSize/2,drawSize,drawSize);
   }else{
     const s=g.size,pal=g.palette;
     ctx.shadowColor=g.boostTimer>0?'rgba(255,120,120,0.9)':pal.glow;ctx.shadowBlur=g.boostTimer>0?16:12;
