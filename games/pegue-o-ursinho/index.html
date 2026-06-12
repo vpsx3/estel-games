@@ -175,6 +175,7 @@
       <h2 class="subtitle" id="resultTitle">O fantasma te pegou!</h2>
       <div class="result-time" id="resultTime">0:00</div>
       <div class="result-ghosts" id="resultGhosts"></div>
+      <div id="resultBiome" style="color:#9fd09f;font-size:13px;margin-bottom:12px;text-align:center;"></div>
       <div id="resultRankMsg" style="color:#ffe066;font-size:13px;margin-bottom:12px;text-align:center;">Salvando...</div>
       <div class="btn-row">
         <button class="btn btn-primary btn-small" id="btnPlayAgain">Jogar de novo</button>
@@ -463,13 +464,12 @@ async function startSession(){
 async function loadScores(){
   try{const res=await fetch('/api/scores?game='+GAME_ID);if(!res.ok)throw new Error();return await res.json();}catch{return[];}
 }
-async function saveScore(nick,seconds,numGhosts){
-  try{const res=await fetch('/api/scores',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:GAME_ID,nick,seconds,ghosts:numGhosts,token:sessionToken})});if(!res.ok)throw new Error();return await res.json();}catch{return{rank:null,scores:[]};}
+async function saveScore(nick,seconds,numGhosts,biomeReached){
+  try{const res=await fetch('/api/scores',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:GAME_ID,nick,seconds,ghosts:numGhosts,biomeReached,token:sessionToken})});if(!res.ok)throw new Error();return await res.json();}catch{return{rank:null,scores:[]};}
 }
 function escapeHtml(str){return String(str).replace(/[&<>"'`]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[ch]));}
 
 const JUMP_DURATION=0.55;
-const FIRST_GHOST_TIME=20,GHOST_INTERVAL=20;
 const SPAWN_INTERVAL_BASE=8, COLLECT_LIFE=10, MAX_COLLECT=4, COLLECT_R=12;
 const GHOST_PALETTES=[
   {body:'rgba(200,170,255,0.92)',eye:'#5522aa',glow:'rgba(150,100,255,0.6)'},
@@ -562,7 +562,7 @@ function farthestGhost(){let best=null,bd=-1;for(const g of ghosts){const d=Math
 function pushGhost(g){const dx=g.x-bear.x,dy=g.y-bear.y,d=Math.hypot(dx,dy)||1;g.x+=dx/d*TILE*1.6;g.y+=dy/d*TILE*1.6;clampGhost(g);}
 function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 
-function spawnGhost(minDist){const pal=GHOST_PALETTES[ghosts.length%GHOST_PALETTES.length];const pos=randomFreePosAway(bear,minDist||TILE*8);ghosts.push({x:pos.x,y:pos.y,speed:GHOST_BASE_SPEED,baseSpeed:GHOST_BASE_SPEED,size:14,frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',palette:pal});}
+function spawnGhost(minDist){const pal=GHOST_PALETTES[ghosts.length%GHOST_PALETTES.length];const pos=randomFreePosAway(bear,minDist||TILE*8);const spd=GHOST_BASE_SPEED*biomeEffective(BIOMES[currentBiome]).ghostSpeed;ghosts.push({x:pos.x,y:pos.y,speed:spd,baseSpeed:spd,size:14,frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',palette:pal});}
 
 // ====== JORNADA DO URSINHO: transição de biomas ======
 function shadeColor(hex,f){
@@ -571,6 +571,14 @@ function shadeColor(hex,f){
   return`rgb(${r},${g},${b})`;
 }
 function loadBiomeMap(){map=BIOMES[currentBiome].MAP_TEMPLATE.map(r=>[...r]);}
+// dificuldade efetiva: valores-base do bioma + escalonamento permanente por ciclo completo
+function biomeEffective(b){
+  return{
+    ghostSpeed:b.ghostSpeed+cycleCount*0.10,
+    ghostSpawnRate:Math.max(5,b.ghostSpawnRate-cycleCount*2),
+    maxGhosts:Math.min(20,b.maxGhosts+cycleCount*2),
+  };
+}
 function placeBearSafe(){
   // célula de spawn do bioma; fallback: célula livre mais próxima do centro do mapa
   const s=BIOMES[currentBiome].bearSpawn;
@@ -593,11 +601,13 @@ function executeBiomeTransition(){
   collectibles=[];decoy=null;bear.landingTarget=null;
   placeBearSafe();
   ghosts=[];
-  for(let i=0;i<Math.max(1,prevCount);i++)spawnGhost(TILE*10); // respawn longe (≥10 células)
+  const eff=biomeEffective(b);
+  const count=Math.min(Math.max(1,prevCount),eff.maxGhosts);
+  for(let i=0;i<count;i++)spawnGhost(TILE*10); // respawn longe (≥10 células), já na velocidade do novo bioma
   bear.invuln=Math.max(bear.invuln,1); // transição nunca causa morte injusta
   biomeStartTime=elapsed;
   biomePhase='playing';
-  nextGhostTime=elapsed+GHOST_INTERVAL;
+  nextGhostTime=elapsed+eff.ghostSpawnRate;
   updateBiomeHud();
   addNotif(`${b.icon} ${b.name}`,'#ffe066',CW/2,CH*0.42,16);
 }
@@ -637,7 +647,7 @@ function initGame(){
   currentBiome=0;cycleCount=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;
   loadBiomeMap();
   elapsed=0;lastTime=null;notifications=[];ghosts=[];collectibles=[];
-  jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=FIRST_GHOST_TIME;
+  jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=biomeEffective(BIOMES[0]).ghostSpawnRate;
   jumpCdMax=10;jumpDuration=JUMP_DURATION;
   passiveLevels={};spawnTimer=SPAWN_INTERVAL_BASE;
   shieldCharges=0;itemCdReduction=0;resistFrac=0;lightStepsMult=1;
@@ -646,8 +656,9 @@ function initGame(){
   ghostSlowTimer=0;ghostSlowMult=1;ghostSlowMax=0;
   invisibleTimer=0;invisibleMax=0;phaseTimer=0;phaseMax=0;reboundActive=false;decoy=null;
   const bs=BIOMES[0].bearSpawn,gs=BIOMES[0].ghostSpawn;
+  const gspd=GHOST_BASE_SPEED*biomeEffective(BIOMES[0]).ghostSpeed;
   bear={x:(bs.c+0.5)*TILE,y:(bs.r+0.5)*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south'};
-  ghosts.push({x:(gs.c+0.5)*TILE,y:(gs.r+0.5)*TILE,speed:GHOST_BASE_SPEED,baseSpeed:GHOST_BASE_SPEED,size:14,frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',palette:GHOST_PALETTES[0]});
+  ghosts.push({x:(gs.c+0.5)*TILE,y:(gs.r+0.5)*TILE,speed:gspd,baseSpeed:gspd,size:14,frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',palette:GHOST_PALETTES[0]});
   recalcPassives();
   updateBiomeHud();
   document.getElementById('fxHud').innerHTML='';
@@ -990,7 +1001,8 @@ function gameLoop(ts){
   const biomeElapsed=elapsed-biomeStartTime;
   if(biomePhase==='playing'&&biomeElapsed>=BIOME_DURATION-BIOME_WARNING_TIME)biomePhase='warning';
   if(biomePhase==='warning'&&biomeElapsed>=BIOME_DURATION)executeBiomeTransition();
-  if(elapsed>=nextGhostTime){spawnGhost();nextGhostTime+=GHOST_INTERVAL;}
+  const ghostEff=biomeEffective(BIOMES[currentBiome]);
+  if(elapsed>=nextGhostTime){if(ghosts.length<ghostEff.maxGhosts)spawnGhost();nextGhostTime=elapsed+ghostEff.ghostSpawnRate;}
   moveBear(dt);moveGhosts(dt);updateCollectibles(dt);updateEffects(dt);
   if(ghostHideTimer<=0)for(const g of ghosts){
     if(Math.hypot(bear.x-g.x,bear.y-g.y)<bear.size+g.size-5){
@@ -1083,9 +1095,11 @@ async function endGame(){
   const secs=Math.floor(elapsed),numGhosts=ghosts.length;
   document.getElementById('resultTime').textContent=formatTime(secs);
   document.getElementById('resultGhosts').textContent=`${numGhosts} fantasma${numGhosts>1?'s':''} · build ${buildIcons}`;
+  const biome=BIOMES[currentBiome];
+  document.getElementById('resultBiome').textContent=`Você chegou até: ${biome.name} ${biome.icon}${cycleCount>0?` · Ciclo ${cycleCount+1}`:''}`;
   document.getElementById('resultRankMsg').textContent='Salvando recorde...';
   showScreen('screenResult');
-  const data=await saveScore(playerNick,secs,numGhosts);
+  const data=await saveScore(playerNick,secs,numGhosts,BIOMES[currentBiome].name);
   lastSavedRankData={nick:playerNick,secs};
   const rmsg=document.getElementById('resultRankMsg');
   if(data.rank===1)rmsg.textContent='🏆 Novo recorde mundial! 1º lugar!';
