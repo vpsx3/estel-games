@@ -729,12 +729,32 @@ function moveBear(dt){
   else{if(canMove(nx,bear.y,bear.size))bear.x=nx;else{const sx=bear.x+ndx*spd*0.3;if(canMove(sx,bear.y,bear.size))bear.x=sx;}if(canMove(bear.x,ny,bear.size))bear.y=ny;else{const sy=bear.y+ndy*spd*0.3;if(canMove(bear.x,sy,bear.size))bear.y=sy;}}
   bear.x=Math.max(bear.size,Math.min(CW-bear.size,bear.x));bear.y=Math.max(bear.size,Math.min(CH-bear.size,bear.y));
 }
+function wanderMove(g,dt,gm){
+  g.wanderTimer-=dt*1000;
+  const per=(g.boostTimer>0?g.boostMult:1);
+  const step=g.speed*gm*per*dt*60;
+  const nx=g.x+g.wanderDir.x*step,ny=g.y+g.wanderDir.y*step;
+  // se já está dentro de parede (veio do modo chase atravessando), continua até sair
+  const blocked=!canMove(nx,ny,g.size)&&canMove(g.x,g.y,g.size);
+  if(blocked||g.wanderTimer<=0){
+    g.wanderDir=randomUnitDir();
+    g.wanderTimer=2000;
+  }else{
+    g.x=nx;g.y=ny;
+    g.facing=dirFromVec(g.wanderDir.x,g.wanderDir.y,g.facing);
+  }
+}
 function moveGhosts(dt){
   if(ghostHideTimer>0)return; // fantasmas ausentes logo após a troca de bioma
   const gm=ghostGlobalMult();
   ghosts.forEach(g=>{
     if(g.frozen>0||g.trapped>0)return;
     if(invisibleTimer>0)return;
+    if(g.tipo==='errante'){
+      g.modeTimer-=dt*1000;
+      if(g.modeTimer<=0){g.isChasing=!g.isChasing;g.modeTimer=4000+Math.random()*4000;}
+      if(!g.isChasing){wanderMove(g,dt,gm);return;}
+    }
     let tx=bear.x,ty=bear.y;
     if(decoy&&decoy.life>0){tx=decoy.x;ty=decoy.y;}
     const per=(g.boostTimer>0?g.boostMult:1);
