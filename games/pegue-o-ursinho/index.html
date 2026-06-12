@@ -630,21 +630,19 @@ function executeBiomeTransition(){
   biomePhase='transitioning';
   shakeFrames=3;        // tremor de tela por 3 frames
   ghostHideTimer=0.5;   // fantasmas somem por 500ms
-  const prevCount=ghosts.length;
   currentBiome=(currentBiome+1)%TOTAL_BIOMES;
   if(currentBiome===0)cycleCount++; // completou 1→10, recomeça mais difícil
   const b=BIOMES[currentBiome];
   loadBiomeMap();
   collectibles=[];decoy=null;bear.landingTarget=null;
   placeBearSafe();
-  ghosts=[];
-  const eff=biomeEffective(b);
-  const count=Math.max(1,prevCount); // mantém todos os fantasmas na troca de bioma (sem cap)
-  for(let i=0;i<count;i++)spawnGhost(TILE*10); // respawn longe (≥10 células), já na velocidade do novo bioma
+  // mantém os mesmos fantasmas (tipo, velocidade, estado); só reposiciona longe do urso no novo mapa
+  ghosts.forEach(g=>{const p=randomFreePosAway(bear,TILE*10);g.x=p.x;g.y=p.y;});
+  if(ghosts.length===0)spawnGhost(TILE*10); // garante pelo menos 1 fantasma no novo mundo
   bear.invuln=Math.max(bear.invuln,1); // transição nunca causa morte injusta
   biomeStartTime=elapsed;
   biomePhase='playing';
-  nextGhostTime=elapsed+eff.ghostSpawnRate;
+  nextGhostTime=elapsed+biomeEffective(b).ghostSpawnRate;
   biomeAnnounceTimer=BIOME_ANNOUNCE_DURATION; // nome do bioma só aparece aqui, na transição
 }
 // anúncio do bioma desenhado no canvas durante alguns segundos após a transição
