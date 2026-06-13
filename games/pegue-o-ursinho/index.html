@@ -865,10 +865,10 @@ function ghostGlobalMult(){let m=lightStepsMult;if(ghostSlowTimer>0)m*=ghostSlow
 function moveBear(dt){
   if(bear.frozen>0)return;
   let dx=0,dy=0;
-  if(keysDown['ArrowLeft']||keysDown['a']||keysDown['A'])dx-=1;
-  if(keysDown['ArrowRight']||keysDown['d']||keysDown['D'])dx+=1;
-  if(keysDown['ArrowUp']||keysDown['w']||keysDown['W'])dy-=1;
-  if(keysDown['ArrowDown']||keysDown['s']||keysDown['S'])dy+=1;
+  if(keysDown['ArrowLeft']||keysDown['KeyA'])dx-=1;
+  if(keysDown['ArrowRight']||keysDown['KeyD'])dx+=1;
+  if(keysDown['ArrowUp']||keysDown['KeyW'])dy-=1;
+  if(keysDown['ArrowDown']||keysDown['KeyS'])dy+=1;
   if(joyVec.active){dx=joyVec.x;dy=joyVec.y;}
   const mag=Math.hypot(dx,dy);
   if(mag>0.01)bear.facing=dirFromVec(dx,dy,bear.facing);
@@ -1367,8 +1367,9 @@ window.addEventListener('mouseup',()=>{if(mouseJoy){mouseJoy=false;joyEnd();}});
 const jBtn=document.getElementById('btnJump');
 jBtn.addEventListener('touchstart',e=>{e.preventDefault();if(state==='playing')tryJump();},{passive:false});
 jBtn.addEventListener('click',()=>{if(state==='playing')tryJump();});
-document.addEventListener('keydown',e=>{keysDown[e.key]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();if(state==='playing'&&e.key===' ')tryJump();});
-document.addEventListener('keyup',e=>{keysDown[e.key]=false;});
+// usa e.code (tecla fisica, independe de Shift/CapsLock) para evitar tecla "presa" — ex.: digitar 'S' no nick deixava keysDown['S'] travado e o urso andava sozinho
+document.addEventListener('keydown',e=>{keysDown[e.code]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();if(state==='playing'&&e.code==='Space')tryJump();});
+document.addEventListener('keyup',e=>{keysDown[e.code]=false;});
 document.getElementById('btnPlay').addEventListener('click',()=>{const v=document.getElementById('nickInput').value.trim();if(!v){document.getElementById('nickInput').focus();document.getElementById('nickInput').style.borderColor='#ff6060';return;}document.getElementById('nickInput').style.borderColor='';playerNick=v;showScreen('screenHowto');});
 document.getElementById('nickInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btnPlay').click();});
 document.getElementById('btnStartGame').addEventListener('click',startGame);
