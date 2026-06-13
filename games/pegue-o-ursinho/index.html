@@ -581,6 +581,18 @@ function dirFromVec(dx,dy,current){
   return dy>0?'south':'north';
 }
 
+// --- Tiles por bioma (Jornada do Ursinho): floor/wall_a/wall_b/obstacle/decor ---
+const BIOME_SLUGS=['01-floresta-encantada','02-praia-dos-coqueiros','03-montanha-gelada','04-pantano-verde','05-caverna-dos-ecos','06-vila-assombrada','07-castelo-do-rei','08-ilhas-flutuantes','09-inferno-fofo','10-dimensao-dos-fantasmas'];
+const TILE_SLOTS=['floor','wall_a','wall_b','obstacle','decor'];
+const biomeTiles=BIOME_SLUGS.map(slug=>{
+  const set={};
+  TILE_SLOTS.forEach(slot=>{const img=new Image();img.src='assets/biomes/'+slug+'/'+slot+'.png';set[slot]=img;});
+  return set;
+});
+function imgReady(img){return !!(img&&img.complete&&img.naturalWidth>0);}
+// hash inteiro estável por célula -> variação de parede/decor sem "piscar" entre frames
+function tileHash(r,c){return ((r*73856093)^(c*19349663))>>>0;}
+
 // --- API / ranking (anti-cheat) ---
 const GAME_ID='pegue-o-ursinho';
 let sessionToken=null;
@@ -1084,10 +1096,20 @@ function renderEffectsHud(){
 // ====== DESENHO ======
 function drawMap(){
   const b=BIOMES[currentBiome];
+  const set=biomeTiles[currentBiome];
   const wallC=b.wallTint,strokeC=shadeColor(b.wallTint,0.55),floorC=b.bgColor;
   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-    if(map[r][c]===1){ctx.fillStyle=wallC;ctx.fillRect(c*TILE,r*TILE,TILE,TILE);ctx.strokeStyle=strokeC;ctx.lineWidth=0.8;ctx.strokeRect(c*TILE,r*TILE,TILE,TILE);}
-    else{ctx.fillStyle=floorC;ctx.fillRect(c*TILE,r*TILE,TILE,TILE);}
+    const x=c*TILE,y=r*TILE;
+    if(map[r][c]===1){
+      const k=tileHash(r,c)%10;                       // 0-5 wall_a, 6-8 wall_b, 9 obstacle
+      const img=k<6?set.wall_a:(k<9?set.wall_b:set.obstacle);
+      if(imgReady(img))ctx.drawImage(img,x,y,TILE,TILE);
+      else{ctx.fillStyle=wallC;ctx.fillRect(x,y,TILE,TILE);ctx.strokeStyle=strokeC;ctx.lineWidth=0.8;ctx.strokeRect(x,y,TILE,TILE);} // fallback cor antiga
+    }else{
+      if(imgReady(set.floor))ctx.drawImage(set.floor,x,y,TILE,TILE);
+      else{ctx.fillStyle=floorC;ctx.fillRect(x,y,TILE,TILE);} // fallback chão
+      if(tileHash(r,c)%12===0&&imgReady(set.decor))ctx.drawImage(set.decor,x,y,TILE,TILE); // ~8% das células livres
+    }
   }
 }
 function drawCollectibles(){
