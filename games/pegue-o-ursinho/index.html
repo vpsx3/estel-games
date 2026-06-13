@@ -448,6 +448,59 @@ const BIOMES=[
 const ROWS=BIOME_MAPS[0].length,COLS=BIOME_MAPS[0][0].length;
 const CW=COLS*TILE,CH=ROWS*TILE;
 canvas.width=CW;canvas.height=CH;
+
+// ====== FULLSCREEN (desktop + Android nativo; iPhone via pseudo-fs CSS) ======
+const gameShell=document.getElementById('gameShell');
+const fsBtn=document.getElementById('fsBtn');
+let pseudoFsActive=false;
+let wakeLock=null;
+function rawRequestFS(el){const fn=el.requestFullscreen||el.webkitRequestFullscreen||el.webkitRequestFullScreen||el.msRequestFullscreen;return fn?fn.call(el):null;}
+function rawExitFS(){const fn=document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen;return fn?fn.call(document):null;}
+function fsElement(){return document.fullscreenElement||document.webkitFullscreenElement||document.msFullscreenElement||null;}
+function fsApiSupported(el){return !!(el.requestFullscreen||el.webkitRequestFullscreen||el.webkitRequestFullScreen||el.msRequestFullscreen);}
+function isFullscreenActive(){return !!fsElement()||pseudoFsActive;}
+async function acquireWakeLock(){try{if(navigator.wakeLock)wakeLock=await navigator.wakeLock.request('screen');}catch{}}
+function releaseWakeLock(){try{if(wakeLock){wakeLock.release();wakeLock=null;}}catch{}}
+function lockLandscape(){try{const p=screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape');if(p&&p.catch)p.catch(()=>{});}catch{}}
+function unlockOrientation(){try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();}catch{}}
+function setPseudoFS(on){pseudoFsActive=on;gameShell.classList.toggle('pseudo-fs',on);}
+function syncFsUI(){
+  const active=isFullscreenActive();
+  document.body.classList.toggle('fs-active',active);
+  fsBtn.classList.toggle('is-fs',active);
+  resizeCanvas();
+}
+function enterFS(){
+  if(fsApiSupported(gameShell)){
+    // só funciona dentro de um gesto do usuário; falha vira no-op (ícone sincroniza via evento)
+    try{const p=rawRequestFS(gameShell);if(p&&p.catch)p.catch(()=>{});}catch{}
+    lockLandscape();
+  }else{
+    setPseudoFS(true); // iPhone Safari: sem Fullscreen API para elementos
+  }
+  acquireWakeLock();
+  syncFsUI();
+}
+function exitFS(){
+  if(fsElement()){try{const p=rawExitFS();if(p&&p.catch)p.catch(()=>{});}catch{}}
+  setPseudoFS(false);
+  releaseWakeLock();
+  syncFsUI();
+}
+function toggleFS(){if(isFullscreenActive())exitFS();else enterFS();}
+function onFsChange(){
+  if(!fsElement()){ // saiu por ESC/gesto do sistema sem passar pelo botão
+    unlockOrientation();
+    if(!pseudoFsActive)releaseWakeLock();
+  }
+  syncFsUI();
+}
+fsBtn.addEventListener('click',toggleFS);
+fsBtn.addEventListener('touchend',e=>{e.preventDefault();toggleFS();},{passive:false});
+document.addEventListener('fullscreenchange',onFsChange);
+document.addEventListener('webkitfullscreenchange',onFsChange);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&isFullscreenActive())acquireWakeLock();});
+
 function resizeCanvas(){
   const gc=document.getElementById('gameContainer');
   const vw=window.innerWidth,vh=window.innerHeight;
