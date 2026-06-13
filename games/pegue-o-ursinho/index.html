@@ -495,15 +495,24 @@ function onFsChange(){
   }
   syncFsUI();
 }
-fsBtn.addEventListener('click',toggleFS);
+fsBtn.addEventListener('click',()=>{toggleFS();fsBtn.blur();}); // blur: Espaço/Enter seguem no jogo (pulo), não no botão
 fsBtn.addEventListener('touchend',e=>{e.preventDefault();toggleFS();},{passive:false});
 document.addEventListener('fullscreenchange',onFsChange);
 document.addEventListener('webkitfullscreenchange',onFsChange);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&isFullscreenActive())acquireWakeLock();});
 
+// Área disponível para o canvas: em fullscreen (real ou pseudo) prefere o
+// visualViewport (mobile lida melhor com barras dinâmicas); fora dele, o
+// comportamento de hoje (viewport da janela). Só a escala CSS muda — a
+// resolução interna do canvas (CW×CH) permanece fixa.
+function availArea(){
+  if(isFullscreenActive()&&window.visualViewport)
+    return{w:window.visualViewport.width,h:window.visualViewport.height};
+  return{w:window.innerWidth,h:window.innerHeight};
+}
 function resizeCanvas(){
   const gc=document.getElementById('gameContainer');
-  const vw=window.innerWidth,vh=window.innerHeight;
+  const {w:vw,h:vh}=availArea();
   const scale=Math.min(vw/CW,vh/CH);
   gc.style.width=(CW*scale)+'px';gc.style.height=(CH*scale)+'px';
   const rot=document.getElementById('rotateHint');
@@ -511,6 +520,7 @@ function resizeCanvas(){
 }
 window.addEventListener('resize',resizeCanvas);
 window.addEventListener('orientationchange',()=>setTimeout(resizeCanvas,200));
+if(window.visualViewport)window.visualViewport.addEventListener('resize',resizeCanvas);
 resizeCanvas();
 
 // --- Sprites direcionais ---
