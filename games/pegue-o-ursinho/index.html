@@ -927,9 +927,10 @@ function moveGhosts(dt){
   resolveGhostCollisions();
 }
 function resolveGhostCollisions(){
-  const minDist=24;
   for(let i=0;i<ghosts.length;i++)for(let j=i+1;j<ghosts.length;j++){
-    const a=ghosts[i],b=ghosts[j];let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
+    const a=ghosts[i],b=ghosts[j];
+    const minDist=a.size+b.size;                       // separação por classe: evita sobreposição de fantasmas grandes (pesado etc.)
+    let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
     if(d<minDist&&d>0){const o=(minDist-d)/2,ux=dx/d,uy=dy/d;if(a.frozen<=0&&a.trapped<=0){a.x-=ux*o;a.y-=uy*o;}if(b.frozen<=0&&b.trapped<=0){b.x+=ux*o;b.y+=uy*o;}}
     else if(d===0){b.x+=minDist*0.5;}
   }
@@ -1098,6 +1099,7 @@ function drawMap(){
   const b=BIOMES[currentBiome];
   const set=biomeTiles[currentBiome];
   const wallC=b.wallTint,strokeC=shadeColor(b.wallTint,0.55),floorC=b.bgColor;
+  ctx.fillStyle=floorC;ctx.fillRect(-16,-16,COLS*TILE+32,ROWS*TILE+32); // fundo na cor tema do bioma: evita bordas pretas nas junções/transparências das sprites
   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
     const x=c*TILE,y=r*TILE;
     if(map[r][c]===1){
