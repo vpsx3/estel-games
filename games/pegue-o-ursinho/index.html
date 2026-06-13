@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Catch the Teddy — estel.games</title>
 <meta name="description" content="Run from ghosts and survive as long as you can!">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23FFD84D' stroke='%23E0A800' stroke-width='1' d='M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z'/></svg>">
@@ -37,6 +38,8 @@
   #fsBtn .ic-compress{display:none;}
   #fsBtn.is-fs .ic-expand{display:none;}
   #fsBtn.is-fs .ic-compress{display:block;}
+  #fsHint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%) translateY(8px);max-width:86%;background:rgba(10,10,24,0.88);border:1px solid rgba(255,255,255,0.22);color:#dde;font-size:12px;line-height:1.45;padding:9px 14px;border-radius:14px;text-align:center;z-index:10000;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;}
+  #fsHint.show{opacity:1;transform:translateX(-50%) translateY(0);}
   #timer{background:rgba(0,0,0,0.65);color:#a0e0ff;font-size:16px;font-weight:700;padding:5px 12px;border-radius:18px;backdrop-filter:blur(3px);}
   #ghostCount{background:rgba(0,0,0,0.65);color:#d0aaff;font-size:13px;font-weight:700;padding:5px 10px;border-radius:18px;backdrop-filter:blur(3px);}
   /* HUD de passivos (esquerda) */
@@ -210,6 +213,7 @@
     </div>
   </div>
 </div>
+<div id="fsHint"></div>
 </div>
 </div>
 <script>
@@ -463,18 +467,44 @@ async function acquireWakeLock(){try{if(navigator.wakeLock)wakeLock=await naviga
 function releaseWakeLock(){try{if(wakeLock){wakeLock.release();wakeLock=null;}}catch{}}
 function lockLandscape(){try{const p=screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape');if(p&&p.catch)p.catch(()=>{});}catch{}}
 function unlockOrientation(){try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();}catch{}}
-function setPseudoFS(on){pseudoFsActive=on;gameShell.classList.toggle('pseudo-fs',on);}
+function isStandalone(){return navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);}
+const fsHint=document.getElementById('fsHint');
+let fsHintTimer=null,fsHintShown=false;
+function showFsHint(){
+  // pseudo-fs não esconde a barra do Safari — só o modo standalone (A2HS) faz isso no iPhone
+  if(fsHintShown||isStandalone()||!fsHint)return;
+  fsHintShown=true;
+  fsHint.textContent=(typeof T==='function')?T('fsHint'):'Para tela cheia real no iPhone: Compartilhar → "Adicionar à Tela de Início".';
+  fsHint.classList.add('show');
+  fsHintTimer=setTimeout(()=>fsHint.classList.remove('show'),7000);
+}
+function hideFsHint(){if(fsHintTimer){clearTimeout(fsHintTimer);fsHintTimer=null;}if(fsHint)fsHint.classList.remove('show');}
+function setPseudoFS(on){
+  pseudoFsActive=on;
+  gameShell.classList.toggle('pseudo-fs',on);
+  if(on)showFsHint();else hideFsHint();
+}
 function syncFsUI(){
   const active=isFullscreenActive();
   document.body.classList.toggle('fs-active',active);
   fsBtn.classList.toggle('is-fs',active);
   resizeCanvas();
 }
+let nativeFsConfirm=null;
 function enterFS(){
   if(fsApiSupported(gameShell)){
-    // só funciona dentro de um gesto do usuário; falha vira no-op (ícone sincroniza via evento)
-    try{const p=rawRequestFS(gameShell);if(p&&p.catch)p.catch(()=>{});}catch{}
-    lockLandscape();
+    // a API pode existir mas falhar (iPhone com suporte parcial/flag) → cai no pseudo-fs
+    let p=null,threw=false;
+    try{p=rawRequestFS(gameShell);}catch{threw=true;}
+    if(threw){
+      setPseudoFS(true);
+    }else if(p&&p.then){
+      p.then(()=>{lockLandscape();syncFsUI();}).catch(()=>{setPseudoFS(true);syncFsUI();});
+    }else{
+      // API antiga sem promise: se o evento não confirmar a entrada, ativa o pseudo-fs
+      lockLandscape();
+      nativeFsConfirm=setTimeout(()=>{nativeFsConfirm=null;if(!fsElement()&&!pseudoFsActive){setPseudoFS(true);syncFsUI();}},500);
+    }
   }else{
     setPseudoFS(true); // iPhone Safari: sem Fullscreen API para elementos
   }
@@ -482,6 +512,7 @@ function enterFS(){
   syncFsUI();
 }
 function exitFS(){
+  if(nativeFsConfirm){clearTimeout(nativeFsConfirm);nativeFsConfirm=null;}
   if(fsElement()){try{const p=rawExitFS();if(p&&p.catch)p.catch(()=>{});}catch{}}
   setPseudoFS(false);
   releaseWakeLock();
@@ -489,6 +520,7 @@ function exitFS(){
 }
 function toggleFS(){if(isFullscreenActive())exitFS();else enterFS();}
 function onFsChange(){
+  if(fsElement()&&nativeFsConfirm){clearTimeout(nativeFsConfirm);nativeFsConfirm=null;}
   if(!fsElement()){ // saiu por ESC/gesto do sistema sem passar pelo botão
     unlockOrientation();
     if(!pseudoFsActive)releaseWakeLock();
@@ -1392,6 +1424,7 @@ const STRINGS_GAME={
     rar_raro:'Raro',
     type_passive:'★ Passivo (empilha)',
     type_map:'◆ Item de Mapa',
+    fsHint:'O Safari do iPhone não permite esconder a barra do navegador. Para tela cheia real: Compartilhar → "Adicionar à Tela de Início".',
   },
   en:{
     title:'Catch the Teddy — estel.games',
@@ -1451,6 +1484,7 @@ const STRINGS_GAME={
     rar_raro:'Rare',
     type_passive:'★ Passive (stackable)',
     type_map:'◆ Map Item',
+    fsHint:'iPhone Safari can\'t hide the browser bar. For true fullscreen: Share → "Add to Home Screen".',
   },
 };
 const BIOME_NAMES_EN={
