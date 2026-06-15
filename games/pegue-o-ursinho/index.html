@@ -26,7 +26,7 @@
   .game-shell.pseudo-fs{position:fixed;inset:0;width:100vw;height:100dvh;z-index:9999;background:#000;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
   body.fs-active #lang-toggle-game{display:none;}
   #gameContainer{position:relative;width:100%;max-width:100vw;}
-  canvas{display:block;width:100%;height:auto;border-radius:8px;border:2px solid #4a4a8a;}
+  canvas{display:block;width:100%;height:auto;background:#16213e;}
   .game-shell:fullscreen canvas{border:none;border-radius:0;}
   .game-shell:-webkit-full-screen canvas{border:none;border-radius:0;}
   .game-shell.pseudo-fs canvas{border:none;border-radius:0;}
@@ -61,10 +61,10 @@
   .fxchip .ft{font-weight:800;font-size:10px;opacity:0.85;}
   .fxbar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:rgba(255,255,255,0.08);}
   .fxbarfill{height:100%;}
-  #joystick{position:absolute;bottom:-40px;left:20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.18);pointer-events:all;touch-action:none;display:none;z-index:30;}
+  #joystick{position:absolute;bottom:calc(env(safe-area-inset-bottom, 0px) + 26px);left:24px;width:104px;height:104px;border-radius:50%;background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.18);pointer-events:all;touch-action:none;display:none;z-index:30;}
   #joyKnob{position:absolute;top:50%;left:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:rgba(255,255,255,0.28);border:2px solid rgba(255,255,255,0.45);}
-  #actionBtns{position:absolute;bottom:10px;right:10px;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:all;z-index:30;}
-  #rotateHint{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(12,12,26,0.97);color:#fff;font-size:16px;font-weight:600;border-radius:8px;z-index:100;padding:20px;}
+  #actionBtns{position:absolute;bottom:calc(env(safe-area-inset-bottom, 0px) + 20px);right:18px;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:all;z-index:30;}
+  #rotateHint{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(12,12,26,0.98);color:#fff;font-size:16px;font-weight:600;z-index:10001;padding:20px;}
   .circ-btn{border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;user-select:none;border:2px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.45);}
   .circ-btn:active{transform:scale(0.92);}
   #btnJump{border-color:rgba(150,255,150,0.55);background:rgba(100,200,100,0.18);font-size:20px;}
@@ -145,7 +145,7 @@
 <div id="gameShell" class="game-shell">
 <div id="gameContainer">
   <canvas id="c"></canvas>
-  <div id="rotateHint"><div style="text-align:center;"><div style="font-size:40px;margin-bottom:10px;">📱↻</div><span data-i18n="rotateHint">Vire o celular na horizontal para jogar</span></div></div>
+  <div id="rotateHint"><div style="text-align:center;"><div style="font-size:40px;margin-bottom:10px;">📱</div><span data-i18n="rotateHint">Gire o celular na vertical para jogar</span></div></div>
   <div id="ui">
     <div id="timer">0:00</div>
     <div id="uiRight">
@@ -652,20 +652,58 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 // Área disponível para o canvas: em fullscreen (real ou pseudo) prefere o
 // visualViewport (mobile lida melhor com barras dinâmicas); fora dele, o
-// comportamento de hoje (viewport da janela). Só a escala CSS muda — a
-// resolução interna do canvas (CW×CH) permanece fixa.
+// viewport da janela.
 function availArea(){
   if(isFullscreenActive()&&window.visualViewport)
     return{w:window.visualViewport.width,h:window.visualViewport.height};
   return{w:window.innerWidth,h:window.innerHeight};
 }
+
+// ====== CÂMERA / VIEWPORT (mobile-first em retrato, segue o ursinho) ======
+// O mundo continua em coordenadas de tiles (CW×CH). Em vez de mostrar o mapa
+// inteiro encolhido, o canvas vira uma "janela" em retrato com zoom fixo
+// centrada no ursinho — assim as sprites ficam grandes no celular.
+const TILES_ACROSS=7.5;        // tiles visíveis na largura (~2.4x vs. o mapa inteiro de 18 tiles)
+const PLAY_MAX_ASPECT=0.62;    // largura/altura máx. da área de jogo: mantém o formato retrato (mapa ~0.6)
+const camCoarsePointer=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart'in window);
+let dpr=1,viewCssW=CW,viewCssH=CH,pxPerWorld=1,camX=0,camY=0,camReady=false;
+function camClamp(v,a,b){return v<a?a:(v>b?b:v);}
 function resizeCanvas(){
   const gc=document.getElementById('gameContainer');
   const {w:vw,h:vh}=availArea();
-  const scale=Math.min(vw/CW,vh/CH);
-  gc.style.width=(CW*scale)+'px';gc.style.height=(CH*scale)+'px';
+  // área de jogo sempre em retrato: corta a largura se a tela for mais larga que o alvo (letterbox no desktop)
+  let pw=vw,ph=vh;
+  if(pw/ph>PLAY_MAX_ASPECT)pw=Math.round(ph*PLAY_MAX_ASPECT);
+  dpr=Math.min(window.devicePixelRatio||1,2.5);
+  viewCssW=pw;viewCssH=ph;
+  canvas.style.width=pw+'px';canvas.style.height=ph+'px';
+  canvas.width=Math.max(1,Math.round(pw*dpr));canvas.height=Math.max(1,Math.round(ph*dpr));
+  gc.style.width=pw+'px';gc.style.height=ph+'px';
+  pxPerWorld=pw/(TILES_ACROSS*TILE);
+  if(!camReady)centerCameraOnBear(true);
+  // gate de orientação: em dispositivos de toque, pedir retrato quando o aparelho estiver na horizontal
   const rot=document.getElementById('rotateHint');
-  if(rot) rot.style.display='none';
+  if(rot)rot.style.display=(camCoarsePointer&&vw>vh)?'flex':'none';
+}
+// alvo da câmera: centraliza no ursinho e trava nas bordas do mapa (sem mostrar fora dele)
+function cameraTarget(){
+  const viewW=viewCssW/pxPerWorld,viewH=viewCssH/pxPerWorld;
+  const tx=viewW>=CW?(CW-viewW)/2:camClamp(bear.x-viewW/2,0,CW-viewW);
+  const ty=viewH>=CH?(CH-viewH)/2:camClamp(bear.y-viewH/2,0,CH-viewH);
+  return{tx,ty};
+}
+function centerCameraOnBear(snap){
+  if(typeof bear==='undefined'||!bear)return;
+  const t=cameraTarget();
+  if(snap){camX=t.tx;camY=t.ty;camReady=true;}
+  else{camX+=(t.tx-camX)*0.18;camY+=(t.ty-camY)*0.18;} // suavização leve para não tremer
+}
+// transform mundo->canvas: zoom (pxPerWorld) * densidade do dispositivo (dpr) + offset da câmera
+function applyWorldTransform(){
+  const s=pxPerWorld*dpr;
+  let ox=-camX*s,oy=-camY*s;
+  if(shakeFrames>0){ox+=(Math.random()-0.5)*10*dpr;oy+=(Math.random()-0.5)*10*dpr;shakeFrames--;}
+  ctx.setTransform(s,0,0,s,ox,oy);
 }
 window.addEventListener('resize',resizeCanvas);
 window.addEventListener('orientationchange',()=>setTimeout(resizeCanvas,200));
@@ -917,10 +955,10 @@ function drawBiomeAnnounce(){
   ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.shadowColor='rgba(0,0,0,0.8)';ctx.shadowBlur=10;
   ctx.font='bold 26px Segoe UI';ctx.fillStyle='#fff';
-  ctx.fillText(`${b.icon} ${biomeName(currentBiome)}`,CW/2,CH/2-66);
+  ctx.fillText(`${b.icon} ${biomeName(currentBiome)}`,viewCssW/2,viewCssH/2-66);
   ctx.font='600 13px Segoe UI';ctx.fillStyle='rgba(255,255,255,0.75)';
   const cycleStr=cycleCount>0?` · ${T('cycle_label')} ${cycleCount+1}`:'';
-  ctx.fillText(`${T('world_label')} ${b.id}/${TOTAL_BIOMES}${cycleStr}`,CW/2,CH/2-42);
+  ctx.fillText(`${T('world_label')} ${b.id}/${TOTAL_BIOMES}${cycleStr}`,viewCssW/2,viewCssH/2-42);
   ctx.restore();
 }
 function drawBiomeWarning(){
@@ -930,17 +968,17 @@ function drawBiomeWarning(){
   ctx.textBaseline='middle';
   ctx.globalAlpha=0.85+0.15*Math.sin(elapsed*Math.PI*4); // pulsa 0.7→1.0 a cada 0.5s
   ctx.shadowColor='rgba(140,60,220,0.9)';ctx.shadowBlur=12;
-  const y=CH/2-60;
+  const y=viewCssH/2-60;
   if(remain>5){
     ctx.textAlign='center';ctx.font='bold 22px Segoe UI';ctx.fillStyle='#fff';
-    ctx.fillText(T('biome_changing'),CW/2,y);
+    ctx.fillText(T('biome_changing'),viewCssW/2,y);
   }else{
     const n=Math.max(1,Math.ceil(remain));
     const txt1=T('biome_new_map_in');
     ctx.textAlign='left';
     ctx.font='bold 22px Segoe UI';const w1=ctx.measureText(txt1).width,w3=ctx.measureText('…').width;
     ctx.font='bold 32px Segoe UI';const w2=ctx.measureText(String(n)).width;
-    let x=CW/2-(w1+w2+w3)/2;
+    let x=viewCssW/2-(w1+w2+w3)/2;
     ctx.font='bold 22px Segoe UI';ctx.fillStyle='#fff';ctx.fillText(txt1,x,y);x+=w1;
     ctx.font='bold 32px Segoe UI';ctx.fillStyle='#ffe066';ctx.fillText(String(n),x,y);x+=w2;
     ctx.font='bold 22px Segoe UI';ctx.fillStyle='#fff';ctx.fillText('…',x,y);
@@ -1360,14 +1398,18 @@ function gameLoop(ts){
       endGame();return;
     }
   }
-  ctx.clearRect(0,0,CW,CH);
-  ctx.save();
-  if(shakeFrames>0){ctx.translate((Math.random()-0.5)*12,(Math.random()-0.5)*12);shakeFrames--;}
+  centerCameraOnBear(false);
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // mundo: câmera com zoom seguindo o ursinho
+  applyWorldTransform();
   drawMap();drawCollectibles();drawDecoy();
   if(ghostHideTimer<=0)ghosts.forEach(g=>drawGhost(g));
   drawBear();drawNotifications();
-  ctx.restore();
+  // HUD desenhada no canvas em espaço de tela (independente do zoom da câmera)
+  ctx.setTransform(dpr,0,0,dpr,0,0);
   drawBiomeWarning();drawBiomeAnnounce();
+  ctx.setTransform(1,0,0,1,0,0);
   document.getElementById('timer').textContent=formatTime(elapsed);
   document.getElementById('ghostCount').textContent=`👻 ×${ghosts.length}`;
   renderEffectsHud();
@@ -1413,6 +1455,7 @@ function startRun(){
   buildIcons=selectionPicks.map(b=>b.icon).join(' ');
   document.getElementById('buffScreen').classList.remove('active');
   initGame();
+  centerCameraOnBear(true); // câmera já começa centrada no ursinho
   // passivos escolhidos começam no nível 1
   passPicks.forEach(b=>{passiveLevels[b.id]=1;});
   if(passiveLevels['shield'])shieldCharges=PROG.shield[passiveLevels['shield']-1];
@@ -1420,7 +1463,7 @@ function startRun(){
   state='playing';
   document.getElementById('overlay').style.display='none';
   document.getElementById('joystick').style.display='block';
-  addNotif('Build: '+buildIcons,'#ffe066',CW/2,CH/2-30,16);
+  addNotif('Build: '+buildIcons,'#ffe066',bear.x,bear.y-40,16);
   startSession();
   lastTime=null;requestAnimationFrame(gameLoop);
 }
@@ -1490,7 +1533,7 @@ document.getElementById('btnBackRanking').addEventListener('click',()=>showScree
 document.getElementById('btnPlayAgain').addEventListener('click',startGame);
 document.getElementById('btnResultRanking').addEventListener('click',()=>{const d=lastSavedRankData;renderRanking(d?d.nick:null,d?d.secs:null);showScreen('screenRanking');});
 
-ctx.fillStyle='#16213e';ctx.fillRect(0,0,CW,CH);
+ctx.fillStyle='#16213e';ctx.fillRect(0,0,canvas.width,canvas.height);
 </script>
 
 <div id="lang-toggle-game">
@@ -1505,7 +1548,7 @@ const STRINGS_GAME={
   pt:{
     title:'Pegue o Ursinho — estel.games',
     metaDesc:'Fuja dos fantasmas e sobreviva o máximo possível!',
-    rotateHint:'Vire o celular na horizontal para jogar',
+    rotateHint:'Gire o celular na vertical para jogar',
     screenNickTitle:'🐻 Pegue o Ursinho!',
     screenNickDesc:'Fuja dos fantasmas e sobreviva o máximo possível! Antes de cada partida, escolha 3 buffs e monte sua build.',
     nickPlaceholder:'Seu apelido...',
@@ -1565,7 +1608,7 @@ const STRINGS_GAME={
   en:{
     title:'Catch the Teddy — estel.games',
     metaDesc:'Run from ghosts and survive as long as you can!',
-    rotateHint:'Rotate your phone to landscape to play',
+    rotateHint:'Rotate your phone to portrait to play',
     screenNickTitle:'🐻 Catch the Teddy!',
     screenNickDesc:'Run from ghosts and survive as long as you can! Before each run, pick 3 buffs to build your loadout.',
     nickPlaceholder:'Your nickname...',
