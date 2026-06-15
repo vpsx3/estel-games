@@ -17,6 +17,19 @@
   gtag('config', 'G-ENR25YEZMV');
 </script>
 <style>
+  :root{
+    --pc-shell-cap: 420px;     /* paridade TC: cap aplicado SÓ a partir de 768px (md:), igual ao TC */
+    --pc-cap-bp: 768px;        /* breakpoint do md: do TC; abaixo disto = largura cheia */
+    --pc-activate-max: 1024px; /* se min(vw,vh) < isto E retrato => console portrait (cobre celular + tablet em retrato) */
+    --pc-deck-pad: 16px;
+    --pc-joy-size: 124px;      /* hoje: 100px */
+    --pc-joy-knob: 54px;       /* hoje: 44px  */
+    --pc-jump-size: 64px;      /* hoje: 52px (.circ-btn) */
+    --pc-topbar-h: 40px;
+    --pc-safe-b: env(safe-area-inset-bottom, 0px);
+    --pc-safe-l: env(safe-area-inset-left, 0px);
+    --pc-safe-r: env(safe-area-inset-right, 0px);
+  }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:'Segoe UI',sans-serif;touch-action:none;}
   #wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;}
