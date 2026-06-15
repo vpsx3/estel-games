@@ -151,6 +151,25 @@
   .lang-btn-g.active{color:#a0aaff;}
   .lang-btn-g:hover:not(.active){color:#eef;}
   .lang-sep-g{color:rgba(255,255,255,0.2);}
+  /* ====== CONSOLE PORTRAIT (apresentação mobile — somente em retrato) ====== */
+  /* PARIDADE TC: base = largura cheia (mobile); cap de 420px só a partir de 768px (md:) */
+  body.portrait-console .game-shell{
+    flex-direction:column;
+    justify-content:flex-start;
+    align-items:center;
+    width:100vw;
+    height:100svh;
+    margin-inline:auto;
+    overflow:hidden;
+  }
+  body.portrait-console #gameContainer{
+    width:100%;
+    flex:0 0 auto;
+  }
+  @media (min-width: 768px){
+    body.portrait-console .game-shell{ max-width:var(--pc-shell-cap); }   /* 420px, igual ao .md:max-w-[420px] do TC */
+    body.portrait-console #gameContainer{ max-width:var(--pc-shell-cap); }
+  }
 </style>
 </head>
 <body>
@@ -555,13 +574,33 @@ function availArea(){
     return{w:window.visualViewport.width,h:window.visualViewport.height};
   return{w:window.innerWidth,h:window.innerHeight};
 }
+// raio do joystick (px) — ajustado por layout em resizeCanvas; saída do vetor normalizada inalterada.
+// Declarado aqui (antes da 1ª chamada de resizeCanvas) para evitar TDZ do let.
+let JOY_RADIUS=42;
 function resizeCanvas(){
   const gc=document.getElementById('gameContainer');
   const {w:vw,h:vh}=availArea();
-  const scale=Math.min(vw/CW,vh/CH);
-  gc.style.width=(CW*scale)+'px';gc.style.height=(CH*scale)+'px';
+  const css=getComputedStyle(document.documentElement);
+  const cap   =parseInt(css.getPropertyValue('--pc-shell-cap'))||420;   // 420 (paridade TC)
+  const capBp =parseInt(css.getPropertyValue('--pc-cap-bp'))||768;      // breakpoint md: do TC
+  const actMax=parseInt(css.getPropertyValue('--pc-activate-max'))||1024;
+  const portrait = vh>vw && Math.min(vw,vh) < actMax;
+  document.body.classList.toggle('portrait-console', portrait);
+  if(portrait){
+    // PARIDADE TC: largura cheia abaixo de 768px; cap de 420px só a partir de 768px
+    const shellW = (vw >= capBp) ? Math.min(vw, cap) : vw;
+    gc.style.width=shellW+'px';
+    gc.style.height=(shellW*CH/CW)+'px';   // ajusta pela LARGURA (canvas no topo)
+    JOY_RADIUS=50;                          // ergonomia; saída normalizada inalterada
+  }else{
+    const scale=Math.min(vw/CW,vh/CH);      // comportamento de hoje (intocado)
+    gc.style.width=(CW*scale)+'px';
+    gc.style.height=(CH*scale)+'px';
+    JOY_RADIUS=42;
+  }
+  // rotação forçada desativada: retrato agora é suportado
   const rot=document.getElementById('rotateHint');
-  if(rot){const isPortraitPhone=vh>vw&&Math.min(vw,vh)<560;rot.style.display=isPortraitPhone?'flex':'none';}
+  if(rot) rot.style.display='none';
 }
 window.addEventListener('resize',resizeCanvas);
 window.addEventListener('orientationchange',()=>setTimeout(resizeCanvas,200));
@@ -1352,7 +1391,7 @@ async function endGame(){
 }
 
 const joyEl=document.getElementById('joystick'),knob=document.getElementById('joyKnob');
-let joyId=null,joyCenter={x:0,y:0},joyLast={x:0,y:0};const JOY_RADIUS=42;
+let joyId=null,joyCenter={x:0,y:0},joyLast={x:0,y:0};
 function resetKnob(){knob.style.left='50%';knob.style.top='50%';}
 function joyStart(cx,cy,id){const rect=joyEl.getBoundingClientRect();joyCenter={x:rect.left+rect.width/2,y:rect.top+rect.height/2};joyId=id;joyVec.active=true;joyLast={x:cx,y:cy};joyMove(cx,cy);}
 function joyMove(cx,cy){
