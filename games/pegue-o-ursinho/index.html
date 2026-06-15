@@ -562,13 +562,12 @@ const GHOST_CELL_W=280;
 const GHOST_CELL_H=280;
 const GHOST_SPRITE_ROW={comum:0,rapido:1,pesado:2,errante:3,venenoso:4};
 const GHOST_DIR_COL={south:0,north:1,east:2,west:3};
-// --- Spritesheet do ursinho (4 direções × 3 frames: idle, walk_1, walk_2) ---
+// --- Spritesheet do ursinho (1 linha × 4 direções: north, south, east, west) ---
 const bearSheet=new Image();
-bearSheet.src='assets/bear-adventurer-walk-transparent.png';
-const BEAR_CELL_W=362, BEAR_CELL_H=362;
-const BEAR_DIR_ROW={north:0,south:1,east:2,west:3};
-const BEAR_DRAW_MULT=3;   // célula recortada justa -> mesma escala dos sprites antigos
-const BEAR_WALK_FPS=7;    // velocidade da animação de caminhada
+bearSheet.src='assets/pegue-o-ursinho-bear-spritesheet-bg-removed.png';
+const BEAR_CELL_W=64, BEAR_CELL_H=64;
+const BEAR_DIR_COL={north:0,south:1,east:2,west:3};
+const BEAR_DRAW_MULT=3.5; // célula 64px (~14% de margem) -> casa com a escala visual anterior; ajuste fino livre
 function dirFromVec(dx,dy,current){
   if(Math.abs(dx)<0.01&&Math.abs(dy)<0.01)return current||'south';
   if(Math.abs(dx)>Math.abs(dy))return dx>0?'east':'west';
@@ -1144,7 +1143,7 @@ function drawDecoy(){
   ctx.save();ctx.translate(decoy.x,decoy.y);ctx.globalAlpha=0.55+0.2*Math.sin(elapsed*6);
   if(bearSheet.complete&&bearSheet.naturalWidth){
     const sz=14*BEAR_DRAW_MULT;
-    ctx.drawImage(bearSheet,0,1*BEAR_CELL_H,BEAR_CELL_W,BEAR_CELL_H,-sz/2,-sz/2,sz,sz);
+    ctx.drawImage(bearSheet,BEAR_DIR_COL.south*BEAR_CELL_W,0,BEAR_CELL_W,BEAR_CELL_H,-sz/2,-sz/2,sz,sz);
     ctx.strokeStyle='#ffcc88';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,24,0,Math.PI*2);ctx.stroke();
   }else{
     const s=14;ctx.fillStyle='#c8843a';ctx.beginPath();ctx.arc(0,2,s,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d4904a';ctx.beginPath();ctx.arc(0,-s+2,s*0.75,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ffcc88';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,-s*0.2,s*1.6,0,Math.PI*2);ctx.stroke();
@@ -1162,10 +1161,8 @@ function drawBear(){
   if(bearSheet.complete&&bearSheet.naturalWidth){
     const sz=bear.size*BEAR_DRAW_MULT;
     if(bear.frozen>0)ctx.filter='hue-rotate(160deg) saturate(2)';
-    const row=BEAR_DIR_ROW[bear.facing||'south']??1;
-    const moving=bear.moving&&!bear.landingTarget&&bear.frozen<=0;
-    const col=moving?(1+(Math.floor(elapsed*BEAR_WALK_FPS)%2)):0;
-    ctx.drawImage(bearSheet,col*BEAR_CELL_W,row*BEAR_CELL_H,BEAR_CELL_W,BEAR_CELL_H,-sz/2,-sz/2,sz,sz);
+    const col=BEAR_DIR_COL[bear.facing||'south']??1;
+    ctx.drawImage(bearSheet,col*BEAR_CELL_W,0,BEAR_CELL_W,BEAR_CELL_H,-sz/2,-sz/2,sz,sz);
   }else{
     if(bear.frozen>0)ctx.filter='hue-rotate(160deg) saturate(2)';
     const s=bear.size;
