@@ -170,6 +170,40 @@
     body.portrait-console .game-shell{ max-width:var(--pc-shell-cap); }   /* 420px, igual ao .md:max-w-[420px] do TC */
     body.portrait-console #gameContainer{ max-width:var(--pc-shell-cap); }
   }
+  /* Deck de controle: painel de fundo que preenche o espaço abaixo do canvas */
+  #controlDeck{ display:none; }
+  body.portrait-console #controlDeck{
+    display:block;
+    flex:1 1 auto;
+    width:100%;
+    background:linear-gradient(180deg, rgba(20,18,34,0.0), rgba(20,18,34,0.55));
+  }
+  /* Controles reposicionados via fixed: ancoram à viewport (= shell em retrato),
+     sem depender do containing-block do #gameContainer. */
+  body.portrait-console #joystick{
+    position:fixed;
+    left:calc(var(--pc-deck-pad) + var(--pc-safe-l));
+    bottom:calc(var(--pc-deck-pad) + var(--pc-safe-b));
+    width:var(--pc-joy-size);
+    height:var(--pc-joy-size);
+    z-index:40;
+  }
+  body.portrait-console #joyKnob{
+    width:var(--pc-joy-knob);
+    height:var(--pc-joy-knob);
+    margin:calc(var(--pc-joy-knob) / -2) 0 0 calc(var(--pc-joy-knob) / -2);
+  }
+  body.portrait-console #actionBtns{
+    position:fixed;
+    right:calc(var(--pc-deck-pad) + var(--pc-safe-r));
+    bottom:calc(var(--pc-deck-pad) + var(--pc-safe-b));
+    z-index:40;
+  }
+  body.portrait-console #btnJump{
+    width:var(--pc-jump-size);
+    height:var(--pc-jump-size);
+    font-size:28px;
+  }
 </style>
 </head>
 <body>
@@ -245,6 +279,7 @@
     </div>
   </div>
 </div>
+<div id="controlDeck" aria-hidden="true"></div>
 <div id="fsHint"></div>
 </div>
 </div>
