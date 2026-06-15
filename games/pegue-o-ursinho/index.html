@@ -204,6 +204,31 @@
     height:var(--pc-jump-size);
     font-size:28px;
   }
+  /* HUD: timer/contador sobre o topo do canvas, com legibilidade reforçada */
+  body.portrait-console #ui{
+    top:calc(6px + var(--pc-safe-b)*0); /* topo do canvas */
+    padding:0 10px;
+  }
+  body.portrait-console #timer{ font-size:18px; }
+  /* Overlays e tela de buffs em tela cheia (retrato) */
+  body.portrait-console #overlay,
+  body.portrait-console #buffScreen{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100svh;
+    overflow-y:auto;
+    padding:calc(16px + var(--pc-safe-b)) 16px;
+  }
+  /* cartões de buff em 1 coluna no estreito (#buffCards é flex, não grid) */
+  body.portrait-console #buffCards{
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    max-width:340px;
+  }
+  body.portrait-console #buffCards .buff-card{ width:100%; }
 </style>
 </head>
 <body>
