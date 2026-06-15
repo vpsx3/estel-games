@@ -555,19 +555,6 @@ window.addEventListener('orientationchange',()=>setTimeout(resizeCanvas,200));
 if(window.visualViewport)window.visualViewport.addEventListener('resize',resizeCanvas);
 resizeCanvas();
 
-// --- Sprites direcionais ---
-const SPRITES={bear:{},loaded:0,total:4,ready:false};
-function loadSprites(){
-  const dirs=['north','south','east','west'];
-  dirs.forEach(dir=>{
-    const img=new Image();
-    img.onload=()=>{SPRITES.loaded++;if(SPRITES.loaded>=SPRITES.total)SPRITES.ready=true;};
-    img.onerror=()=>{SPRITES.loaded++;};
-    img.src='assets/bear_'+dir+'.png';
-    SPRITES.bear[dir]=img;
-  });
-}
-loadSprites();
 // --- Spritesheet das classes de fantasmas (4 direções × 5 classes) ---
 const ghostSheet=new Image();
 ghostSheet.src='assets/ghost_classes_spritesheet.png';
@@ -575,6 +562,13 @@ const GHOST_CELL_W=280;
 const GHOST_CELL_H=280;
 const GHOST_SPRITE_ROW={comum:0,rapido:1,pesado:2,errante:3,venenoso:4};
 const GHOST_DIR_COL={south:0,north:1,east:2,west:3};
+// --- Spritesheet do ursinho (4 direções × 3 frames: idle, walk_1, walk_2) ---
+const bearSheet=new Image();
+bearSheet.src='assets/bear-adventurer-walk-transparent.png';
+const BEAR_CELL_W=362, BEAR_CELL_H=362;
+const BEAR_DIR_ROW={north:0,south:1,east:2,west:3};
+const BEAR_DRAW_MULT=3;   // célula recortada justa -> mesma escala dos sprites antigos
+const BEAR_WALK_FPS=7;    // velocidade da animação de caminhada
 function dirFromVec(dx,dy,current){
   if(Math.abs(dx)<0.01&&Math.abs(dy)<0.01)return current||'south';
   if(Math.abs(dx)>Math.abs(dy))return dx>0?'east':'west';
@@ -851,7 +845,7 @@ function initGame(){
   ghostSlowTimer=0;ghostSlowMult=1;ghostSlowMax=0;
   invisibleTimer=0;invisibleMax=0;phaseTimer=0;phaseMax=0;reboundActive=false;decoy=null;
   const bs=BIOMES[0].bearSpawn,gs=BIOMES[0].ghostSpawn;
-  bear={x:(bs.c+0.5)*TILE,y:(bs.r+0.5)*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south',poisoned:false,poisonEnd:0};
+  bear={x:(bs.c+0.5)*TILE,y:(bs.r+0.5)*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south',moving:false,poisoned:false,poisonEnd:0};
   ghosts.push(makeGhost('comum',{x:(gs.c+0.5)*TILE,y:(gs.r+0.5)*TILE})); // 1º fantasma da run é sempre comum
   recalcPassives();
   document.getElementById('fxHud').innerHTML='';
@@ -871,6 +865,7 @@ function moveBear(dt){
   if(keysDown['ArrowDown']||keysDown['KeyS'])dy+=1;
   if(joyVec.active){dx=joyVec.x;dy=joyVec.y;}
   const mag=Math.hypot(dx,dy);
+  bear.moving=(mag>0.01);
   if(mag>0.01)bear.facing=dirFromVec(dx,dy,bear.facing);
   if(bear.landingTarget)return;
   if(mag<0.01)return;
@@ -1147,9 +1142,9 @@ function drawCollectibles(){
 function drawDecoy(){
   if(!decoy)return;
   ctx.save();ctx.translate(decoy.x,decoy.y);ctx.globalAlpha=0.55+0.2*Math.sin(elapsed*6);
-  const img=SPRITES.bear['south'];
-  if(SPRITES.ready&&img&&img.complete&&img.naturalWidth){
-    const sz=14*3;ctx.drawImage(img,-sz/2,-sz/2,sz,sz);
+  if(bearSheet.complete&&bearSheet.naturalWidth){
+    const sz=14*BEAR_DRAW_MULT;
+    ctx.drawImage(bearSheet,0,1*BEAR_CELL_H,BEAR_CELL_W,BEAR_CELL_H,-sz/2,-sz/2,sz,sz);
     ctx.strokeStyle='#ffcc88';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,24,0,Math.PI*2);ctx.stroke();
   }else{
     const s=14;ctx.fillStyle='#c8843a';ctx.beginPath();ctx.arc(0,2,s,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d4904a';ctx.beginPath();ctx.arc(0,-s+2,s*0.75,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ffcc88';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,-s*0.2,s*1.6,0,Math.PI*2);ctx.stroke();
@@ -1164,11 +1159,13 @@ function drawBear(){
   if(bearBoostTimer>0||postJumpTimer>0){ctx.shadowColor='#ffe066';ctx.shadowBlur=14;}
   if(phaseTimer>0){ctx.shadowColor='#88ccff';ctx.shadowBlur=14;}
   if(jumpActive){ctx.shadowColor='#aaffaa';ctx.shadowBlur=14;ctx.scale(1,0.8);}
-  const img=SPRITES.bear[bear.facing||'south'];
-  if(SPRITES.ready&&img&&img.complete&&img.naturalWidth){
-    const sz=bear.size*3;
+  if(bearSheet.complete&&bearSheet.naturalWidth){
+    const sz=bear.size*BEAR_DRAW_MULT;
     if(bear.frozen>0)ctx.filter='hue-rotate(160deg) saturate(2)';
-    ctx.drawImage(img,-sz/2,-sz/2,sz,sz);
+    const row=BEAR_DIR_ROW[bear.facing||'south']??1;
+    const moving=bear.moving&&!bear.landingTarget&&bear.frozen<=0;
+    const col=moving?(1+(Math.floor(elapsed*BEAR_WALK_FPS)%2)):0;
+    ctx.drawImage(bearSheet,col*BEAR_CELL_W,row*BEAR_CELL_H,BEAR_CELL_W,BEAR_CELL_H,-sz/2,-sz/2,sz,sz);
   }else{
     if(bear.frozen>0)ctx.filter='hue-rotate(160deg) saturate(2)';
     const s=bear.size;
