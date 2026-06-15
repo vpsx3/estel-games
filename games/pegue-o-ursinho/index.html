@@ -576,6 +576,13 @@ function isFullscreenActive(){return !!fsElement()||pseudoFsActive;}
 async function acquireWakeLock(){try{if(navigator.wakeLock)wakeLock=await navigator.wakeLock.request('screen');}catch{}}
 function releaseWakeLock(){try{if(wakeLock){wakeLock.release();wakeLock=null;}}catch{}}
 function lockLandscape(){try{const p=screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape');if(p&&p.catch)p.catch(()=>{});}catch{}}
+function lockOrientationForLayout(){
+  try{
+    if(screen.orientation && screen.orientation.lock){
+      screen.orientation.lock('portrait').catch(()=>{});
+    }
+  }catch{}
+}
 function unlockOrientation(){try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();}catch{}}
 function isStandalone(){return navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);}
 const fsHint=document.getElementById('fsHint');
@@ -609,10 +616,10 @@ function enterFS(){
     if(threw){
       setPseudoFS(true);
     }else if(p&&p.then){
-      p.then(()=>{lockLandscape();syncFsUI();}).catch(()=>{setPseudoFS(true);syncFsUI();});
+      p.then(()=>{lockOrientationForLayout();syncFsUI();}).catch(()=>{setPseudoFS(true);syncFsUI();});
     }else{
       // API antiga sem promise: se o evento não confirmar a entrada, ativa o pseudo-fs
-      lockLandscape();
+      lockOrientationForLayout();
       nativeFsConfirm=setTimeout(()=>{nativeFsConfirm=null;if(!fsElement()&&!pseudoFsActive){setPseudoFS(true);syncFsUI();}},500);
     }
   }else{
@@ -658,7 +665,7 @@ function resizeCanvas(){
   const scale=Math.min(vw/CW,vh/CH);
   gc.style.width=(CW*scale)+'px';gc.style.height=(CH*scale)+'px';
   const rot=document.getElementById('rotateHint');
-  if(rot){const isPortraitPhone=vh>vw&&Math.min(vw,vh)<560;rot.style.display=isPortraitPhone?'flex':'none';}
+  if(rot) rot.style.display='none';
 }
 window.addEventListener('resize',resizeCanvas);
 window.addEventListener('orientationchange',()=>setTimeout(resizeCanvas,200));
