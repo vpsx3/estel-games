@@ -17,19 +17,6 @@
   gtag('config', 'G-ENR25YEZMV');
 </script>
 <style>
-  :root{
-    --pc-shell-cap: 420px;     /* paridade TC: cap aplicado SÓ a partir de 768px (md:), igual ao TC */
-    --pc-cap-bp: 768px;        /* breakpoint do md: do TC; abaixo disto = largura cheia */
-    --pc-activate-max: 1024px; /* se min(vw,vh) < isto E retrato => console portrait (cobre celular + tablet em retrato) */
-    --pc-deck-pad: 16px;
-    --pc-joy-size: 124px;      /* hoje: 100px */
-    --pc-joy-knob: 54px;       /* hoje: 44px  */
-    --pc-jump-size: 64px;      /* hoje: 52px (.circ-btn) */
-    --pc-topbar-h: 40px;
-    --pc-safe-b: env(safe-area-inset-bottom, 0px);
-    --pc-safe-l: env(safe-area-inset-left, 0px);
-    --pc-safe-r: env(safe-area-inset-right, 0px);
-  }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:'Segoe UI',sans-serif;touch-action:none;}
   #wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;}
@@ -151,84 +138,6 @@
   .lang-btn-g.active{color:#a0aaff;}
   .lang-btn-g:hover:not(.active){color:#eef;}
   .lang-sep-g{color:rgba(255,255,255,0.2);}
-  /* ====== CONSOLE PORTRAIT (apresentação mobile — somente em retrato) ====== */
-  /* PARIDADE TC: base = largura cheia (mobile); cap de 420px só a partir de 768px (md:) */
-  body.portrait-console .game-shell{
-    flex-direction:column;
-    justify-content:flex-start;
-    align-items:center;
-    width:100vw;
-    height:100svh;
-    margin-inline:auto;
-    overflow:hidden;
-  }
-  body.portrait-console #gameContainer{
-    width:100%;
-    flex:0 0 auto;
-  }
-  @media (min-width: 768px){
-    body.portrait-console .game-shell{ max-width:var(--pc-shell-cap); }   /* 420px, igual ao .md:max-w-[420px] do TC */
-    body.portrait-console #gameContainer{ max-width:var(--pc-shell-cap); }
-  }
-  /* Deck de controle: painel de fundo que preenche o espaço abaixo do canvas */
-  #controlDeck{ display:none; }
-  body.portrait-console #controlDeck{
-    display:block;
-    flex:1 1 auto;
-    width:100%;
-    background:linear-gradient(180deg, rgba(20,18,34,0.0), rgba(20,18,34,0.55));
-  }
-  /* Controles reposicionados via fixed: ancoram à viewport (= shell em retrato),
-     sem depender do containing-block do #gameContainer. */
-  body.portrait-console #joystick{
-    position:fixed;
-    left:calc(var(--pc-deck-pad) + var(--pc-safe-l));
-    bottom:calc(var(--pc-deck-pad) + var(--pc-safe-b));
-    width:var(--pc-joy-size);
-    height:var(--pc-joy-size);
-    z-index:40;
-  }
-  body.portrait-console #joyKnob{
-    width:var(--pc-joy-knob);
-    height:var(--pc-joy-knob);
-    margin:calc(var(--pc-joy-knob) / -2) 0 0 calc(var(--pc-joy-knob) / -2);
-  }
-  body.portrait-console #actionBtns{
-    position:fixed;
-    right:calc(var(--pc-deck-pad) + var(--pc-safe-r));
-    bottom:calc(var(--pc-deck-pad) + var(--pc-safe-b));
-    z-index:40;
-  }
-  body.portrait-console #btnJump{
-    width:var(--pc-jump-size);
-    height:var(--pc-jump-size);
-    font-size:28px;
-  }
-  /* HUD: timer/contador sobre o topo do canvas, com legibilidade reforçada */
-  body.portrait-console #ui{
-    top:calc(6px + var(--pc-safe-b)*0); /* topo do canvas */
-    padding:0 10px;
-  }
-  body.portrait-console #timer{ font-size:18px; }
-  /* Overlays e tela de buffs em tela cheia (retrato) */
-  body.portrait-console #overlay,
-  body.portrait-console #buffScreen{
-    position:fixed;
-    inset:0;
-    width:100vw;
-    height:100svh;
-    overflow-y:auto;
-    padding:calc(16px + var(--pc-safe-b)) 16px;
-  }
-  /* cartões de buff em 1 coluna no estreito (#buffCards é flex, não grid) */
-  body.portrait-console #buffCards{
-    flex-direction:column;
-    align-items:center;
-    gap:10px;
-    width:100%;
-    max-width:340px;
-  }
-  body.portrait-console #buffCards .buff-card{ width:100%; }
 </style>
 </head>
 <body>
@@ -304,7 +213,6 @@
     </div>
   </div>
 </div>
-<div id="controlDeck" aria-hidden="true"></div>
 <div id="fsHint"></div>
 </div>
 </div>
@@ -558,14 +466,6 @@ function isFullscreenActive(){return !!fsElement()||pseudoFsActive;}
 async function acquireWakeLock(){try{if(navigator.wakeLock)wakeLock=await navigator.wakeLock.request('screen');}catch{}}
 function releaseWakeLock(){try{if(wakeLock){wakeLock.release();wakeLock=null;}}catch{}}
 function lockLandscape(){try{const p=screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape');if(p&&p.catch)p.catch(()=>{});}catch{}}
-function lockOrientationForLayout(){
-  const portrait=document.body.classList.contains('portrait-console');
-  try{
-    if(screen.orientation && screen.orientation.lock){
-      screen.orientation.lock(portrait ? 'portrait' : 'landscape').catch(()=>{});
-    }
-  }catch{}
-}
 function unlockOrientation(){try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();}catch{}}
 function isStandalone(){return navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);}
 const fsHint=document.getElementById('fsHint');
@@ -599,10 +499,10 @@ function enterFS(){
     if(threw){
       setPseudoFS(true);
     }else if(p&&p.then){
-      p.then(()=>{lockOrientationForLayout();syncFsUI();}).catch(()=>{setPseudoFS(true);syncFsUI();});
+      p.then(()=>{lockLandscape();syncFsUI();}).catch(()=>{setPseudoFS(true);syncFsUI();});
     }else{
       // API antiga sem promise: se o evento não confirmar a entrada, ativa o pseudo-fs
-      lockOrientationForLayout();
+      lockLandscape();
       nativeFsConfirm=setTimeout(()=>{nativeFsConfirm=null;if(!fsElement()&&!pseudoFsActive){setPseudoFS(true);syncFsUI();}},500);
     }
   }else{
@@ -642,33 +542,13 @@ function availArea(){
     return{w:window.visualViewport.width,h:window.visualViewport.height};
   return{w:window.innerWidth,h:window.innerHeight};
 }
-// raio do joystick (px) — ajustado por layout em resizeCanvas; saída do vetor normalizada inalterada.
-// Declarado aqui (antes da 1ª chamada de resizeCanvas) para evitar TDZ do let.
-let JOY_RADIUS=42;
 function resizeCanvas(){
   const gc=document.getElementById('gameContainer');
   const {w:vw,h:vh}=availArea();
-  const css=getComputedStyle(document.documentElement);
-  const cap   =parseInt(css.getPropertyValue('--pc-shell-cap'))||420;   // 420 (paridade TC)
-  const capBp =parseInt(css.getPropertyValue('--pc-cap-bp'))||768;      // breakpoint md: do TC
-  const actMax=parseInt(css.getPropertyValue('--pc-activate-max'))||1024;
-  const portrait = vh>vw && Math.min(vw,vh) < actMax;
-  document.body.classList.toggle('portrait-console', portrait);
-  if(portrait){
-    // PARIDADE TC: largura cheia abaixo de 768px; cap de 420px só a partir de 768px
-    const shellW = (vw >= capBp) ? Math.min(vw, cap) : vw;
-    gc.style.width=shellW+'px';
-    gc.style.height=(shellW*CH/CW)+'px';   // ajusta pela LARGURA (canvas no topo)
-    JOY_RADIUS=50;                          // ergonomia; saída normalizada inalterada
-  }else{
-    const scale=Math.min(vw/CW,vh/CH);      // comportamento de hoje (intocado)
-    gc.style.width=(CW*scale)+'px';
-    gc.style.height=(CH*scale)+'px';
-    JOY_RADIUS=42;
-  }
-  // rotação forçada desativada: retrato agora é suportado
+  const scale=Math.min(vw/CW,vh/CH);
+  gc.style.width=(CW*scale)+'px';gc.style.height=(CH*scale)+'px';
   const rot=document.getElementById('rotateHint');
-  if(rot) rot.style.display='none';
+  if(rot){const isPortraitPhone=vh>vw&&Math.min(vw,vh)<560;rot.style.display=isPortraitPhone?'flex':'none';}
 }
 window.addEventListener('resize',resizeCanvas);
 window.addEventListener('orientationchange',()=>setTimeout(resizeCanvas,200));
@@ -1459,7 +1339,7 @@ async function endGame(){
 }
 
 const joyEl=document.getElementById('joystick'),knob=document.getElementById('joyKnob');
-let joyId=null,joyCenter={x:0,y:0},joyLast={x:0,y:0};
+let joyId=null,joyCenter={x:0,y:0},joyLast={x:0,y:0};const JOY_RADIUS=42;
 function resetKnob(){knob.style.left='50%';knob.style.top='50%';}
 function joyStart(cx,cy,id){const rect=joyEl.getBoundingClientRect();joyCenter={x:rect.left+rect.width/2,y:rect.top+rect.height/2};joyId=id;joyVec.active=true;joyLast={x:cx,y:cy};joyMove(cx,cy);}
 function joyMove(cx,cy){
