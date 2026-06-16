@@ -663,7 +663,7 @@ function availArea(){
 // O mundo continua em coordenadas de tiles (CW×CH). Em vez de mostrar o mapa
 // inteiro encolhido, o canvas vira uma "janela" em retrato com zoom fixo
 // centrada no ursinho — assim as sprites ficam grandes no celular.
-const TILES_ACROSS=7.5;        // tiles visíveis na largura (~2.4x vs. o mapa inteiro de 18 tiles)
+const TILES_ACROSS=9;          // tiles visíveis na largura (~2x vs. o mapa inteiro de 18 tiles)
 const PLAY_MAX_ASPECT=0.62;    // largura/altura máx. da área de jogo: mantém o formato retrato (mapa ~0.6)
 const camCoarsePointer=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart'in window);
 let dpr=1,viewCssW=CW,viewCssH=CH,pxPerWorld=1,camX=0,camY=0,camReady=false;
