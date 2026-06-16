@@ -1115,15 +1115,19 @@ function mechNearestDry(sr,sc,blocked){
   }
   return null;
 }
+// sorteia até n células distintas de arr (Fisher-Yates parcial) — posições aleatórias por mapa/jogo
+function mechPickRandom(arr,n){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}
+  return a.slice(0,n);
+}
 
 // --- 1.1 Cogumelo-trampolim (índice 0) ---
 function mechInitMushroom(){
   const sp=BIOMES[currentBiome].bearSpawn;
   const spx=(sp.c+0.5)*TILE,spy=(sp.r+0.5)*TILE;
-  const cells=freeCells()
-    .filter(({r,c})=>Math.hypot((c+0.5)*TILE-spx,(r+0.5)*TILE-spy)>TILE*3) // longe do spawn
-    .sort((a,b)=>tileHash(a.r,a.c)-tileHash(b.r,b.c));                      // ordem determinística e estável
-  mech.mushrooms=cells.slice(0,mech.cfg.count);
+  const cells=freeCells().filter(({r,c})=>Math.hypot((c+0.5)*TILE-spx,(r+0.5)*TILE-spy)>TILE*3); // longe do spawn
+  mech.mushrooms=mechPickRandom(cells,mech.cfg.count); // posições aleatórias a cada visita/jogo
   mech.mushFired={}; // "r,c" -> elapsed do último disparo (anim de squash)
 }
 function mechUpdateMushroom(dt){
@@ -1206,7 +1210,7 @@ function mechInitLily(){
   mech.lilies=new Map();
   for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){
     if(map[r][c]!==0)continue;
-    if((tileHash(r,c)%1000)/1000<mech.cfg.frac)mech.lilies.set(r+','+c,{state:'stable',t:0});
+    if(Math.random()<mech.cfg.frac)mech.lilies.set(r+','+c,{state:'stable',t:0});
   }
 }
 function mechLilyGoneSet(){const s=new Set();for(const[k,L]of mech.lilies)if(L.state==='gone')s.add(k);return s;}
@@ -1290,7 +1294,7 @@ function mechInitWindows(){
   mech.windows=[];
   for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){
     if(map[r][c]!==1)continue;
-    if((tileHash(r,c)%1000)/1000<mech.cfg.frac)mech.windows.push({r,c,armed:false,t:0,cd:0});
+    if(Math.random()<mech.cfg.frac)mech.windows.push({r,c,armed:false,t:0,cd:0});
   }
 }
 function mechUpdateWindows(dt){
@@ -1328,12 +1332,13 @@ function mechInitCastle(){
   for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){
     if(map[r][c]!==0)continue;
     const corridor=(wall(r-1,c)&&wall(r+1,c))||(wall(r,c-1)&&wall(r,c+1));
-    if(corridor&&(tileHash(r,c)%1000)/1000<mech.cfg.gateFrac)mech.gates.push({r,c,phase:((r+c)%2)*Math.PI,cl:-1});
+    if(corridor&&Math.random()<mech.cfg.gateFrac)mech.gates.push({r,c,phase:((r+c)%2)*Math.PI,cl:-1});
   }
-  // tapete: linhas espaçadas viram "autoestradas" horizontais
+  // tapete: linhas aleatórias viram "autoestradas" horizontais
   mech.carpet=new Set();
-  const span=Math.floor((ROWS-2)/(mech.cfg.carpetRows+1));
-  for(let i=1;i<=mech.cfg.carpetRows;i++){const r=i*span;for(let c=1;c<COLS-1;c++)if(map[r]&&map[r][c]===0)mech.carpet.add(r+','+c);}
+  const floorRows=[];
+  for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){if(map[r][c]===0){floorRows.push(r);break;}}
+  for(const r of mechPickRandom(floorRows,mech.cfg.carpetRows))for(let c=1;c<COLS-1;c++)if(map[r][c]===0)mech.carpet.add(r+','+c);
 }
 function mechUpdateCastle(dt){
   const br=Math.floor(bear.y/TILE),bc=Math.floor(bear.x/TILE);
@@ -1363,11 +1368,11 @@ function mechDrawCastle(){
 // --- 4 Ilhas: plataformas móveis + correntes de ar (índice 7) ---
 function mechInitSky(){
   const cfg=mech.cfg;
-  const cells=freeCells().sort((a,b)=>tileHash(a.r,a.c)-tileHash(b.r,b.c));
+  const cells=mechPickRandom(freeCells(),9999); // embaralha as candidatas
   mech.platforms=[];
   for(const cell of cells){
     if(mech.platforms.length>=cfg.platforms)break;
-    const axis=(tileHash(cell.r,cell.c)%2)?'h':'v';
+    const axis=(Math.random()<0.5)?'h':'v';
     let ok=true;
     for(let o=-cfg.platRange;o<=cfg.platRange;o++){
       const rr=cell.r+(axis==='v'?o:0),cc=cell.c+(axis==='h'?o:0);
@@ -1375,14 +1380,14 @@ function mechInitSky(){
     }
     if(!ok)continue;
     if(mech.platforms.some(p=>Math.abs(p.r0-cell.r)+Math.abs(p.c0-cell.c)<3))continue; // espaça
-    mech.platforms.push({r0:cell.r,c0:cell.c,axis,phase:(tileHash(cell.r,cell.c)%628)/100,off:0,cont:0,r:cell.r,c:cell.c});
+    mech.platforms.push({r0:cell.r,c0:cell.c,axis,phase:Math.random()*Math.PI*2,off:0,cont:0,r:cell.r,c:cell.c});
   }
-  // correntes de ar: faixas alternadas (linhas/colunas) com direção
+  // correntes de ar: faixas aleatórias (linhas/colunas) com direção sorteada
   mech.winds=new Map();
   const bands=3;
   for(let i=0;i<bands;i++){
-    if(i%2===0){const r=2+Math.floor((ROWS-4)*((i+1)/(bands+1))),dir={x:(i%4<2?1:-1),y:0};for(let c=1;c<COLS-1;c++)if(map[r]&&map[r][c]===0)mech.winds.set(r+','+c,dir);}
-    else{const c=2+Math.floor((COLS-4)*((i+1)/(bands+1))),dir={x:0,y:(i%4<2?1:-1)};for(let r=1;r<ROWS-1;r++)if(map[r][c]===0)mech.winds.set(r+','+c,dir);}
+    if(Math.random()<0.5){const r=1+Math.floor(Math.random()*(ROWS-2)),dir={x:(Math.random()<0.5?1:-1),y:0};for(let c=1;c<COLS-1;c++)if(map[r]&&map[r][c]===0)mech.winds.set(r+','+c,dir);}
+    else{const c=1+Math.floor(Math.random()*(COLS-2)),dir={x:0,y:(Math.random()<0.5?1:-1)};for(let r=1;r<ROWS-1;r++)if(map[r][c]===0)mech.winds.set(r+','+c,dir);}
   }
 }
 function mechUpdateSky(dt){
@@ -1425,8 +1430,8 @@ function mechDrawSky(){
 // --- 5 Inferno: gêiseres + rastro de fogo (índice 8) ---
 function mechInitFire(){
   const sp=BIOMES[currentBiome].bearSpawn;
-  const cells=freeCells().filter(({r,c})=>Math.abs(r-sp.r)+Math.abs(c-sp.c)>2).sort((a,b)=>tileHash(a.r,a.c)-tileHash(b.r,b.c));
-  mech.geysers=cells.slice(0,mech.cfg.geyserCount).map(({r,c})=>({r,c,phase:(tileHash(r,c)%628)/100}));
+  const cells=freeCells().filter(({r,c})=>Math.abs(r-sp.r)+Math.abs(c-sp.c)>2);
+  mech.geysers=mechPickRandom(cells,mech.cfg.geyserCount).map(({r,c})=>({r,c,phase:Math.random()*Math.PI*2}));
   mech.trail=[];mech.trailTimer=0;
 }
 function mechGeyserState(g){const s=Math.sin(elapsed*mech.cfg.geySpeed+g.phase);return s>0.6?'fire':(s>0.3?'warming':'idle');}
@@ -1487,8 +1492,7 @@ function mechInitVoid(){
   mech.invertTimer=cfg.invertPeriod-cfg.invertDur;
   mech.nextSpecial='phase';
   mech.flash=0;
-  const cells=freeCells().sort((a,b)=>tileHash(a.r,a.c)-tileHash(b.r,b.c));
-  mech.portals=cells.slice(0,cfg.portals).map(({r,c})=>({r,c}));
+  mech.portals=mechPickRandom(freeCells(),cfg.portals).map(({r,c})=>({r,c}));
   mech.portalCd=0;
 }
 function mechUpdateVoid(dt){
