@@ -42,6 +42,10 @@
   #fsHint.show{opacity:1;transform:translateX(-50%) translateY(0);}
   #timer{background:rgba(0,0,0,0.65);color:#a0e0ff;font-size:16px;font-weight:700;padding:5px 12px;border-radius:18px;backdrop-filter:blur(3px);}
   #ghostCount{background:rgba(0,0,0,0.65);color:#d0aaff;font-size:13px;font-weight:700;padding:5px 10px;border-radius:18px;backdrop-filter:blur(3px);}
+  /* build de teste: botão de pular fase */
+  #btnSkipBiome{pointer-events:all;background:rgba(120,40,170,0.85);border:1.5px solid rgba(255,255,255,0.35);color:#fff;font-size:13px;font-weight:800;padding:5px 11px;border-radius:18px;cursor:pointer;backdrop-filter:blur(3px);}
+  #btnSkipBiome:active{transform:scale(0.92);}
+  #testBadge{position:absolute;top:6px;left:50%;transform:translateX(-50%);background:rgba(120,40,170,0.85);color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;padding:3px 10px;border-radius:12px;z-index:60;pointer-events:none;}
   /* HUD de passivos (esquerda) */
   #passiveHud{position:absolute;top:38px;left:8px;display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:20;}
   .phud-chip{display:flex;align-items:center;gap:5px;background:rgba(10,10,24,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:11px;padding:3px 9px 3px 7px;font-size:12px;color:#fff;backdrop-filter:blur(3px);}
@@ -149,6 +153,7 @@
   <div id="ui">
     <div id="timer">0:00</div>
     <div id="uiRight">
+      <button id="btnSkipBiome" type="button" title="Pular para a próxima fase (build de teste)">⏭️ Fase</button>
       <div id="ghostCount">👻 ×1</div>
       <button id="fsBtn" type="button" aria-label="Fullscreen" title="Fullscreen">
         <svg class="ic-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
@@ -156,6 +161,7 @@
       </button>
     </div>
   </div>
+  <div id="testBadge">⚠️ BUILD DE TESTE</div>
   <div id="passiveHud"></div>
   <div id="fxHud"></div>
   <div id="joystick"><div id="joyKnob"></div></div>
@@ -1570,6 +1576,8 @@ function moveBearIce(dt){
 
 function initGame(){
   currentBiome=0;cycleCount=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;biomeAnnounceTimer=0;
+  // [BUILD DE TESTE] ?biome=N (1–10) começa direto nesse bioma
+  try{const _b=parseInt(new URLSearchParams(location.search).get('biome'),10);if(_b>=1&&_b<=TOTAL_BIOMES)currentBiome=_b-1;}catch{}
   loadBiomeMap();
   elapsed=0;lastTime=null;notifications=[];ghosts=[];collectibles=[];
   jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=biomeEffective(BIOMES[0]).ghostSpawnRate;
@@ -2111,6 +2119,8 @@ document.addEventListener('keydown',e=>{keysDown[e.code]=true;if(['ArrowUp','Arr
 document.addEventListener('keyup',e=>{keysDown[e.code]=false;});
 document.getElementById('btnPlay').addEventListener('click',()=>{const v=document.getElementById('nickInput').value.trim();if(!v){document.getElementById('nickInput').focus();document.getElementById('nickInput').style.borderColor='#ff6060';return;}document.getElementById('nickInput').style.borderColor='';playerNick=v;showScreen('screenHowto');});
 document.getElementById('nickInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btnPlay').click();});
+// [BUILD DE TESTE] pular para a próxima fase imediatamente
+document.getElementById('btnSkipBiome').addEventListener('click',()=>{if(state==='playing')executeBiomeTransition();});
 document.getElementById('btnStartGame').addEventListener('click',startGame);
 document.getElementById('btnStartRun').addEventListener('click',startRun);
 document.getElementById('btnShowRanking').addEventListener('click',()=>{renderRanking(null,null);showScreen('screenRanking');});
