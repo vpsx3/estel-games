@@ -1016,15 +1016,169 @@ function drawBiomeWarning(){
   ctx.restore();
 }
 
-// ====== MECÂNICAS DE BIOMA (esqueleto — etapas seguintes preenchem) ======
-function mechReset(){ mech={cfg:BIOME_MECH[currentBiome]||null}; /* etapas seguintes preenchem */ }
-function mechUpdate(dt){ if(!mech||!mech.cfg)return; /* … */ }
-function mechBlocksBear(x,y){ return false; }      // terreno que bloqueia o urso
-function mechSpeedMult(){ return 1; }              // tapete (boost)
-function mechApplyDrift(dt){ }                     // vento
-function mechDrawUnder(){ if(!mech||!mech.cfg)return; } // sob entidades (chão)
-function mechDrawOver(){ if(!mech||!mech.cfg)return; }  // sobre entidades (voa/sobe)
-function mechGhostAlpha(){ return 1; }             // bioma 10 (blind)
+// ====== MECÂNICAS DE BIOMA ======
+function mechReset(){
+  const cfg=BIOME_MECH[currentBiome]||null;
+  mech={cfg};
+  if(!cfg)return;
+  switch(cfg.type){
+    case 'mushroom':mechInitMushroom();break;
+    case 'tide':mechInitTide();break;
+    // ice: sem estado além de cfg (inércia em moveBearIce)
+  }
+}
+function mechUpdate(dt){
+  if(!mech||!mech.cfg)return;
+  switch(mech.cfg.type){
+    case 'mushroom':mechUpdateMushroom(dt);break;
+    case 'tide':mechUpdateTide(dt);break;
+  }
+}
+function mechBlocksBear(x,y){
+  if(!mech||!mech.cfg)return false;
+  if(mech.cfg.type==='tide'&&mech.flooded){
+    const r=Math.floor(y/TILE),c=Math.floor(x/TILE);
+    return mech.flooded.has(r+','+c);
+  }
+  return false;
+}
+function mechSpeedMult(){ return 1; }              // tapete (boost) — Etapa 3
+function mechApplyDrift(dt){ }                     // vento — Etapa 4
+function mechDrawUnder(){
+  if(!mech||!mech.cfg)return;
+  switch(mech.cfg.type){
+    case 'mushroom':mechDrawMushroom();break;
+    case 'tide':mechDrawTide();break;
+  }
+}
+function mechDrawOver(){ if(!mech||!mech.cfg)return; }  // sobre entidades — etapas seguintes
+function mechGhostAlpha(){ return 1; }             // bioma 10 (blind) — Etapa 6
+
+// célula de chão seca mais próxima (anel crescente) que não esteja em `blocked` (Set "r,c") — empurrão justo
+function mechNearestDry(sr,sc,blocked){
+  for(let rad=1;rad<Math.max(ROWS,COLS);rad++){
+    let best=null,bd=Infinity;
+    for(let dr=-rad;dr<=rad;dr++)for(let dc=-rad;dc<=rad;dc++){
+      if(Math.abs(dr)!==rad&&Math.abs(dc)!==rad)continue;
+      const r=sr+dr,c=sc+dc;
+      if(r<0||r>=ROWS||c<0||c>=COLS||map[r][c]!==0)continue;
+      if(blocked&&blocked.has(r+','+c))continue;
+      const d=Math.abs(dr)+Math.abs(dc);if(d<bd){bd=d;best={r,c};}
+    }
+    if(best)return best;
+  }
+  return null;
+}
+
+// --- 1.1 Cogumelo-trampolim (índice 0) ---
+function mechInitMushroom(){
+  const sp=BIOMES[currentBiome].bearSpawn;
+  const spx=(sp.c+0.5)*TILE,spy=(sp.r+0.5)*TILE;
+  const cells=freeCells()
+    .filter(({r,c})=>Math.hypot((c+0.5)*TILE-spx,(r+0.5)*TILE-spy)>TILE*3) // longe do spawn
+    .sort((a,b)=>tileHash(a.r,a.c)-tileHash(b.r,b.c));                      // ordem determinística e estável
+  mech.mushrooms=cells.slice(0,mech.cfg.count);
+  mech.mushFired={}; // "r,c" -> elapsed do último disparo (anim de squash)
+}
+function mechUpdateMushroom(dt){
+  if(bear.mushCd>0){bear.mushCd-=dt;if(bear.mushCd<0)bear.mushCd=0;}
+  if(bear.mushCd>0||bear.landingTarget)return;
+  const br=Math.floor(bear.y/TILE),bc=Math.floor(bear.x/TILE);
+  const m=mech.mushrooms.find(mm=>mm.r===br&&mm.c===bc);
+  if(!m)return;
+  let dc=0,dr=0;
+  if(bear.facing==='east')dc=1;else if(bear.facing==='west')dc=-1;else if(bear.facing==='north')dr=-1;else dr=1;
+  let destR=m.r,destC=m.c;
+  for(let step=1;step<=mech.cfg.dist;step++){
+    const nr=m.r+dr*step,nc=m.c+dc*step;
+    if(nr<0||nr>=ROWS||nc<0||nc>=COLS||map[nr][nc]!==0)break; // para 1 tile antes da parede
+    destR=nr;destC=nc;
+  }
+  bear.landingTarget={x:(destC+0.5)*TILE,y:(destR+0.5)*TILE,glide:true};
+  bear.mushCd=mech.cfg.cd;
+  mech.mushFired[m.r+','+m.c]=elapsed;
+}
+function mechDrawMushroom(){
+  const img=mechTiles[0]&&mechTiles[0].mushroom;
+  for(const m of mech.mushrooms){
+    const h=tileHash(m.r,m.c)%628/100;
+    const bob=Math.sin(elapsed*4+h)*2;
+    let sy=1;
+    const ft=mech.mushFired[m.r+','+m.c];
+    if(ft!==undefined&&elapsed-ft<0.15)sy=0.6+0.4*((elapsed-ft)/0.15); // squash ao disparar, recuperando
+    const cx=(m.c+0.5)*TILE,cy=(m.r+0.5)*TILE+bob;
+    ctx.save();ctx.translate(cx,cy);ctx.scale(1,sy);
+    if(imgReady(img))ctx.drawImage(img,-TILE/2,-TILE/2,TILE,TILE);
+    else{ctx.fillStyle='rgba(220,80,80,0.9)';ctx.beginPath();ctx.ellipse(0,0,TILE*0.3,TILE*0.2,0,0,Math.PI*2);ctx.fill();}
+    ctx.restore();
+  }
+}
+
+// --- 1.2 Maré cíclica (índice 1) ---
+function mechInitTide(){ mech.flooded=new Set();mech.floodedRows=[]; }
+function mechUpdateTide(dt){
+  const cfg=mech.cfg;
+  const lvl=(Math.sin(elapsed*cfg.speed)*0.5+0.5); // [0,1]
+  const nRows=Math.floor(lvl*cfg.maxRows);
+  const floodedRows=[];
+  for(let r=ROWS-2;r>=1&&floodedRows.length<nRows;r--){ // linhas de chão mais ao fundo (maior r)
+    for(let c=1;c<COLS-1;c++){if(map[r][c]===0){floodedRows.push(r);break;}}
+  }
+  const flooded=new Set();
+  for(const r of floodedRows)for(let c=0;c<COLS;c++)if(map[r][c]===0)flooded.add(r+','+c);
+  mech.flooded=flooded;mech.floodedRows=floodedRows;
+  // empurrão justo: maré subindo alcançou o urso -> manda pra célula seca adjacente (não afoga)
+  const br=Math.floor(bear.y/TILE),bc=Math.floor(bear.x/TILE);
+  if(flooded.has(br+','+bc)&&!bear.landingTarget){
+    const dry=mechNearestDry(br,bc,flooded);
+    if(dry)bear.landingTarget={x:(dry.c+0.5)*TILE,y:(dry.r+0.5)*TILE,glide:true};
+  }
+}
+function mechDrawTide(){
+  if(!mech.flooded)return;
+  const water=mechTiles[1]&&mechTiles[1].water,foam=mechTiles[1]&&mechTiles[1].foam;
+  ctx.save();
+  ctx.globalAlpha=0.8;
+  for(const key of mech.flooded){
+    const i=key.indexOf(','),r=+key.slice(0,i),c=+key.slice(i+1);
+    if(imgReady(water))ctx.drawImage(water,c*TILE,r*TILE,TILE,TILE);
+    else{ctx.fillStyle='rgba(40,110,200,0.8)';ctx.fillRect(c*TILE,r*TILE,TILE,TILE);}
+  }
+  ctx.globalAlpha=1;
+  for(const key of mech.flooded){ // espuma na fronteira: borda superior das células com vizinho de cima seco
+    const i=key.indexOf(','),r=+key.slice(0,i),c=+key.slice(i+1);
+    if(mech.flooded.has((r-1)+','+c))continue;
+    const sway=Math.sin(elapsed*3+c*0.6)*2;
+    if(imgReady(foam))ctx.drawImage(foam,c*TILE,r*TILE-TILE*0.25+sway,TILE,TILE*0.5);
+    else{ctx.fillStyle='rgba(255,255,255,0.55)';ctx.fillRect(c*TILE,r*TILE-2+sway,TILE,4);}
+  }
+  ctx.restore();
+}
+
+// --- 1.3 Piso escorregadio / inércia (índice 2) ---
+function moveBearIce(dt){
+  if(bear.frozen>0)return;
+  let dx=0,dy=0;
+  if(keysDown['ArrowLeft']||keysDown['KeyA'])dx-=1;
+  if(keysDown['ArrowRight']||keysDown['KeyD'])dx+=1;
+  if(keysDown['ArrowUp']||keysDown['KeyW'])dy-=1;
+  if(keysDown['ArrowDown']||keysDown['KeyS'])dy+=1;
+  if(joyVec.active){dx=joyVec.x;dy=joyVec.y;}
+  const mag=Math.hypot(dx,dy);bear.moving=(mag>0.01);
+  if(mag>0.01)bear.facing=dirFromVec(dx,dy,bear.facing);
+  if(bear.landingTarget)return;
+  let ndx=dx,ndy=dy;if(mag>1){ndx/=mag;ndy/=mag;}
+  const c=mech.cfg;
+  bear.vx=(bear.vx+ndx*c.accel)*c.friction; // acelera pela input e mantém deslize pelo atrito
+  bear.vy=(bear.vy+ndy*c.accel)*c.friction;
+  const sp=Math.hypot(bear.vx,bear.vy),max=c.maxSpd;
+  if(sp>max){bear.vx=bear.vx/sp*max;bear.vy=bear.vy/sp*max;}
+  const f=dt*60,nx=bear.x+bear.vx*f,ny=bear.y+bear.vy*f;
+  if(canMove(nx,bear.y,bear.size)&&!mechBlocksBear(nx,bear.y))bear.x=nx;else bear.vx*=-c.bounce;
+  if(canMove(bear.x,ny,bear.size)&&!mechBlocksBear(bear.x,ny))bear.y=ny;else bear.vy*=-c.bounce;
+  bear.x=Math.max(bear.size,Math.min(CW-bear.size,bear.x));
+  bear.y=Math.max(bear.size,Math.min(CH-bear.size,bear.y));
+}
 
 function initGame(){
   currentBiome=0;cycleCount=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;biomeAnnounceTimer=0;
@@ -1055,6 +1209,7 @@ function ghostGlobalMult(){let m=lightStepsMult;if(ghostSlowTimer>0)m*=ghostSlow
 
 function moveBear(dt){
   if(bear.frozen>0)return;
+  if(mech&&mech.cfg&&mech.cfg.type==='ice'){moveBearIce(dt);return;} // piso escorregadio (inércia)
   let dx=0,dy=0;
   if(keysDown['ArrowLeft']||keysDown['KeyA'])dx-=1;
   if(keysDown['ArrowRight']||keysDown['KeyD'])dx+=1;
@@ -1163,7 +1318,7 @@ function updateEffects(dt){
   if(biomeAnnounceTimer>0){biomeAnnounceTimer-=dt;if(biomeAnnounceTimer<0)biomeAnnounceTimer=0;}
   if(jumpCd>0)jumpCd-=dt;
   if(jumpActive){jumpTimer-=dt;if(jumpTimer<=0){jumpActive=false;jumpCd=jumpCdMax;resolveLandingInsideWall();const pl=passiveLevels['post_jump']||0;if(pl>0){postJumpTimer=PROG.post_jump_dur[pl-1];postJumpMax=postJumpTimer;postJumpSpd=PROG.post_jump_spd[pl-1];}}}
-  if(bear.landingTarget){const t=bear.landingTarget,dx=t.x-bear.x,dy=t.y-bear.y,d=Math.hypot(dx,dy);if(d<6||canMove(bear.x,bear.y,bear.size)){bear.landingTarget=null;}else{const st=Math.min(d,8);bear.x+=(dx/d)*st;bear.y+=(dy/d)*st;}}
+  if(bear.landingTarget){const t=bear.landingTarget,dx=t.x-bear.x,dy=t.y-bear.y,d=Math.hypot(dx,dy);if(d<6||(!t.glide&&canMove(bear.x,bear.y,bear.size))){bear.landingTarget=null;}else{const st=Math.min(d,8);bear.x+=(dx/d)*st;bear.y+=(dy/d)*st;}}
   notifications.forEach(n=>{n.life-=dt;n.y-=0.5;});notifications=notifications.filter(n=>n.life>0);
   updateJumpBtn();
 }
