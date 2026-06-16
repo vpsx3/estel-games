@@ -743,6 +743,31 @@ function imgReady(img){return !!(img&&img.complete&&img.naturalWidth>0);}
 // hash inteiro estável por célula -> variação de parede/decor sem "piscar" entre frames
 function tileHash(r,c){return ((r*73856093)^(c*19349663))>>>0;}
 
+// --- Sprites de mecânicas por bioma (índice 0-based) ---
+const MECH_SLOTS={
+  0:['mushroom'], 1:['water','foam'], 3:['lilypad','lilypad_sink'],
+  4:['bat_sheet'], 5:['window_eyes'], 6:['gate','carpet'],
+  7:['platform','wind'], 8:['geyser_idle','geyser_fire','fire_trail'], 9:['portal']
+};
+const mechTiles={};
+Object.entries(MECH_SLOTS).forEach(([idx,slots])=>{
+  const slug=BIOME_SLUGS[idx]; mechTiles[idx]={};
+  slots.forEach(s=>{const img=new Image();img.src='assets/biomes/'+slug+'/'+s+'.png';mechTiles[idx][s]=img;});
+});
+// --- Config de parâmetros por bioma (índice 0-based): centraliza todo número ajustável ---
+const BIOME_MECH={
+  0:{type:'mushroom', count:6, dist:3, cd:0.4},
+  1:{type:'tide', speed:0.25, maxRows:5},
+  2:{type:'ice', accel:0.95, friction:0.90, maxSpd:3.3, bounce:0.15},
+  3:{type:'lily', frac:0.40, sinkDelay:1.1, gone:3.5},
+  4:{type:'bats', interval:3.5, speed:2.2, r:16, freeze:2},
+  5:{type:'windows', frac:0.12, radius:3, telegraph:1.2, cd:12},
+  6:{type:'castle', gateFrac:0.5, gateSpeed:1.1, carpetRows:3, carpetBoost:1.5},
+  7:{type:'sky', platforms:5, platSpeed:0.4, platRange:2, windForce:1.4},
+  8:{type:'fire', geyserCount:10, geySpeed:0.8, trailDrop:0.12, trailLife:1.4, trailFreeze:0.6},
+  9:{type:'void', invertPeriod:8, invertDur:3, portals:2, portalCd:2}
+};
+
 // --- API / ranking (anti-cheat) ---
 const GAME_ID='pegue-o-ursinho';
 let sessionToken=null;
@@ -854,6 +879,7 @@ let shakeFrames=0;         // frames restantes de tremor de tela na transição
 let ghostHideTimer=0;      // fantasmas invisíveis/parados por 0.5s após a transição
 const BIOME_ANNOUNCE_DURATION=3; // segundos exibindo o nome do bioma após a transição
 let biomeAnnounceTimer=0;
+let mech=null;        // estado da(s) mecânica(s) do bioma atual; (re)montado por mechReset()
 const joyVec={x:0,y:0,active:false};const keysDown={};
 
 function freeCells(){const c=[];for(let r=1;r<ROWS-1;r++)for(let c2=1;c2<COLS-1;c2++)if(map[r][c2]===0)c.push({r,c:c2});return c;}
@@ -943,6 +969,8 @@ function executeBiomeTransition(){
   biomePhase='playing';
   nextGhostTime=elapsed+biomeEffective(b).ghostSpawnRate;
   biomeAnnounceTimer=BIOME_ANNOUNCE_DURATION; // nome do bioma só aparece aqui, na transição
+  bear.vx=0;bear.vy=0;bear.mushCd=0;
+  mechReset();
 }
 // anúncio do bioma desenhado no canvas durante alguns segundos após a transição
 function drawBiomeAnnounce(){
@@ -988,8 +1016,20 @@ function drawBiomeWarning(){
   ctx.restore();
 }
 
+// ====== MECÂNICAS DE BIOMA (esqueleto — etapas seguintes preenchem) ======
+function mechReset(){ mech={cfg:BIOME_MECH[currentBiome]||null}; /* etapas seguintes preenchem */ }
+function mechUpdate(dt){ if(!mech||!mech.cfg)return; /* … */ }
+function mechBlocksBear(x,y){ return false; }      // terreno que bloqueia o urso
+function mechSpeedMult(){ return 1; }              // tapete (boost)
+function mechApplyDrift(dt){ }                     // vento
+function mechDrawUnder(){ if(!mech||!mech.cfg)return; } // sob entidades (chão)
+function mechDrawOver(){ if(!mech||!mech.cfg)return; }  // sobre entidades (voa/sobe)
+function mechGhostAlpha(){ return 1; }             // bioma 10 (blind)
+
 function initGame(){
   currentBiome=0;cycleCount=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;biomeAnnounceTimer=0;
+  // helper de teste temporário (remover antes do merge final): ?biome=N (1–10) começa nesse bioma
+  try{const _b=parseInt(new URLSearchParams(location.search).get('biome'),10);if(_b>=1&&_b<=TOTAL_BIOMES)currentBiome=_b-1;}catch{}
   loadBiomeMap();
   elapsed=0;lastTime=null;notifications=[];ghosts=[];collectibles=[];
   jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=biomeEffective(BIOMES[0]).ghostSpawnRate;
@@ -1000,9 +1040,10 @@ function initGame(){
   bearBoostTimer=0;bearBoostMult=1;bearBoostMax=0;
   ghostSlowTimer=0;ghostSlowMult=1;ghostSlowMax=0;
   invisibleTimer=0;invisibleMax=0;phaseTimer=0;phaseMax=0;reboundActive=false;decoy=null;
-  const bs=BIOMES[0].bearSpawn,gs=BIOMES[0].ghostSpawn;
-  bear={x:(bs.c+0.5)*TILE,y:(bs.r+0.5)*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south',moving:false,poisoned:false,poisonEnd:0};
+  const bs=BIOMES[currentBiome].bearSpawn,gs=BIOMES[currentBiome].ghostSpawn;
+  bear={x:(bs.c+0.5)*TILE,y:(bs.r+0.5)*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south',moving:false,poisoned:false,poisonEnd:0,vx:0,vy:0,mushCd:0};
   ghosts.push(makeGhost('comum',{x:(gs.c+0.5)*TILE,y:(gs.r+0.5)*TILE})); // 1º fantasma da run é sempre comum
+  mechReset();
   recalcPassives();
   document.getElementById('fxHud').innerHTML='';
 }
@@ -1026,12 +1067,13 @@ function moveBear(dt){
   if(bear.landingTarget)return;
   if(mag<0.01)return;
   let ndx=dx,ndy=dy;if(mag>1){ndx/=mag;ndy/=mag;}
-  const spd=bear.speed*bearSpeedMult()*(bear.poisoned?POISON_DEBUFF:1)*dt*60;
+  const spd=bear.speed*bearSpeedMult()*mechSpeedMult()*(bear.poisoned?POISON_DEBUFF:1)*dt*60;
   const nx=bear.x+ndx*spd,ny=bear.y+ndy*spd;
   const phasing=jumpActive||phaseTimer>0;
   if(phasing){if(nx>bear.size&&nx<CW-bear.size)bear.x=nx;if(ny>bear.size&&ny<CH-bear.size)bear.y=ny;}
-  else{if(canMove(nx,bear.y,bear.size))bear.x=nx;else{const sx=bear.x+ndx*spd*0.3;if(canMove(sx,bear.y,bear.size))bear.x=sx;}if(canMove(bear.x,ny,bear.size))bear.y=ny;else{const sy=bear.y+ndy*spd*0.3;if(canMove(bear.x,sy,bear.size))bear.y=sy;}}
+  else{if(canMove(nx,bear.y,bear.size)&&!mechBlocksBear(nx,bear.y))bear.x=nx;else{const sx=bear.x+ndx*spd*0.3;if(canMove(sx,bear.y,bear.size)&&!mechBlocksBear(sx,bear.y))bear.x=sx;}if(canMove(bear.x,ny,bear.size)&&!mechBlocksBear(bear.x,ny))bear.y=ny;else{const sy=bear.y+ndy*spd*0.3;if(canMove(bear.x,sy,bear.size)&&!mechBlocksBear(bear.x,sy))bear.y=sy;}}
   bear.x=Math.max(bear.size,Math.min(CW-bear.size,bear.x));bear.y=Math.max(bear.size,Math.min(CH-bear.size,bear.y));
+  mechApplyDrift(dt);
 }
 function wanderMove(g,dt,gm){
   g.wanderTimer-=dt*1000;
@@ -1391,7 +1433,7 @@ function gameLoop(ts){
   if(biomePhase==='warning'&&biomeElapsed>=BIOME_DURATION)executeBiomeTransition();
   const ghostEff=biomeEffective(BIOMES[currentBiome]);
   if(elapsed>=nextGhostTime){spawnGhost();nextGhostTime=elapsed+ghostEff.ghostSpawnRate;}
-  moveBear(dt);moveGhosts(dt);updateCollectibles(dt);updateEffects(dt);
+  moveBear(dt);moveGhosts(dt);updateCollectibles(dt);updateEffects(dt);mechUpdate(dt);
   if(ghostHideTimer<=0)for(const g of ghosts){
     if(Math.hypot(bear.x-g.x,bear.y-g.y)<bear.size+g.size-5){
       if(bear.invuln>0)continue;
@@ -1405,9 +1447,9 @@ function gameLoop(ts){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   // mundo: câmera com zoom seguindo o ursinho
   applyWorldTransform();
-  drawMap();drawCollectibles();drawDecoy();
-  if(ghostHideTimer<=0)ghosts.forEach(g=>drawGhost(g));
-  drawBear();drawNotifications();
+  drawMap();mechDrawUnder();drawCollectibles();drawDecoy();
+  if(ghostHideTimer<=0){const ga=mechGhostAlpha();ctx.globalAlpha=ga;ghosts.forEach(g=>drawGhost(g));ctx.globalAlpha=1;}
+  drawBear();mechDrawOver();drawNotifications();
   // HUD desenhada no canvas em espaço de tela (independente do zoom da câmera)
   ctx.setTransform(dpr,0,0,dpr,0,0);
   drawBiomeWarning();drawBiomeAnnounce();
