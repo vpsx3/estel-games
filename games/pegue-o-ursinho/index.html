@@ -1566,8 +1566,6 @@ function moveBearIce(dt){
 
 function initGame(){
   currentBiome=0;cycleCount=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;biomeAnnounceTimer=0;
-  // helper de teste temporário (remover antes do merge final): ?biome=N (1–10) começa nesse bioma
-  try{const _b=parseInt(new URLSearchParams(location.search).get('biome'),10);if(_b>=1&&_b<=TOTAL_BIOMES)currentBiome=_b-1;}catch{}
   loadBiomeMap();
   elapsed=0;lastTime=null;notifications=[];ghosts=[];collectibles=[];
   jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=biomeEffective(BIOMES[0]).ghostSpawnRate;
