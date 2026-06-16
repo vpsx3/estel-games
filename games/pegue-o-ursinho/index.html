@@ -1024,6 +1024,13 @@ function mechReset(){
   switch(cfg.type){
     case 'mushroom':mechInitMushroom();break;
     case 'tide':mechInitTide();break;
+    case 'lily':mechInitLily();break;
+    case 'bats':mechInitBats();break;
+    case 'windows':mechInitWindows();break;
+    case 'castle':mechInitCastle();break;
+    case 'sky':mechInitSky();break;
+    case 'fire':mechInitFire();break;
+    case 'void':mechInitVoid();break;
     // ice: sem estado além de cfg (inércia em moveBearIce)
   }
 }
@@ -1032,27 +1039,66 @@ function mechUpdate(dt){
   switch(mech.cfg.type){
     case 'mushroom':mechUpdateMushroom(dt);break;
     case 'tide':mechUpdateTide(dt);break;
+    case 'lily':mechUpdateLily(dt);break;
+    case 'bats':mechUpdateBats(dt);break;
+    case 'windows':mechUpdateWindows(dt);break;
+    case 'castle':mechUpdateCastle(dt);break;
+    case 'sky':mechUpdateSky(dt);break;
+    case 'fire':mechUpdateFire(dt);break;
+    case 'void':mechUpdateVoid(dt);break;
   }
 }
 function mechBlocksBear(x,y){
   if(!mech||!mech.cfg)return false;
-  if(mech.cfg.type==='tide'&&mech.flooded){
-    const r=Math.floor(y/TILE),c=Math.floor(x/TILE);
-    return mech.flooded.has(r+','+c);
-  }
+  const t=mech.cfg.type, r=Math.floor(y/TILE),c=Math.floor(x/TILE),k=r+','+c;
+  if(t==='tide'&&mech.flooded)return mech.flooded.has(k);
+  if(t==='lily'&&mech.lilies){const L=mech.lilies.get(k);return !!(L&&L.state==='gone');}
+  if(t==='castle'&&mech.gates){for(const g of mech.gates)if(g.r===r&&g.c===c)return (g.cl??-1)>0.4;return false;}
+  if(t==='sky'&&mech.platforms){for(const p of mech.platforms)if(p.r===r&&p.c===c)return true;return false;}
   return false;
 }
-function mechSpeedMult(){ return 1; }              // tapete (boost) — Etapa 3
-function mechApplyDrift(dt){ }                     // vento — Etapa 4
+function mechSpeedMult(){
+  if(mech&&mech.cfg&&mech.cfg.type==='castle'&&mech.carpet){
+    const r=Math.floor(bear.y/TILE),c=Math.floor(bear.x/TILE);
+    if(mech.carpet.has(r+','+c))return mech.cfg.carpetBoost;
+  }
+  return 1;
+}
+function mechApplyDrift(dt){
+  if(!mech||!mech.cfg||mech.cfg.type!=='sky'||!mech.winds)return;
+  const r=Math.floor(bear.y/TILE),c=Math.floor(bear.x/TILE);
+  const dir=mech.winds.get(r+','+c);
+  if(!dir)return;
+  const f=mech.cfg.windForce*dt*60;
+  const nx=bear.x+dir.x*f,ny=bear.y+dir.y*f;
+  if(canMove(nx,bear.y,bear.size)&&!mechBlocksBear(nx,bear.y))bear.x=nx;
+  if(canMove(bear.x,ny,bear.size)&&!mechBlocksBear(bear.x,ny))bear.y=ny;
+}
 function mechDrawUnder(){
   if(!mech||!mech.cfg)return;
   switch(mech.cfg.type){
     case 'mushroom':mechDrawMushroom();break;
     case 'tide':mechDrawTide();break;
+    case 'lily':mechDrawLily();break;
+    case 'windows':mechDrawWindows();break;
+    case 'castle':mechDrawCastle();break;
+    case 'sky':mechDrawSky();break;
+    case 'fire':mechDrawFireUnder();break;
+    case 'void':mechDrawVoidUnder();break;
   }
 }
-function mechDrawOver(){ if(!mech||!mech.cfg)return; }  // sobre entidades — etapas seguintes
-function mechGhostAlpha(){ return 1; }             // bioma 10 (blind) — Etapa 6
+function mechDrawOver(){
+  if(!mech||!mech.cfg)return;
+  switch(mech.cfg.type){
+    case 'bats':mechDrawBats();break;
+    case 'fire':mechDrawFireOver();break;
+    case 'void':mechDrawVoidOver();break;
+  }
+}
+function mechGhostAlpha(){
+  if(mech&&mech.cfg&&mech.cfg.type==='void'&&mech.invertMode==='blind')return 0.15;
+  return 1;
+}
 
 // célula de chão seca mais próxima (anel crescente) que não esteja em `blocked` (Set "r,c") — empurrão justo
 function mechNearestDry(sr,sc,blocked){
@@ -1153,6 +1199,344 @@ function mechDrawTide(){
     else{ctx.fillStyle='rgba(255,255,255,0.55)';ctx.fillRect(c*TILE,r*TILE-2+sway,TILE,4);}
   }
   ctx.restore();
+}
+
+// --- 2.1 Vitória-régia que afunda (índice 3) ---
+function mechInitLily(){
+  mech.lilies=new Map();
+  for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){
+    if(map[r][c]!==0)continue;
+    if((tileHash(r,c)%1000)/1000<mech.cfg.frac)mech.lilies.set(r+','+c,{state:'stable',t:0});
+  }
+}
+function mechLilyGoneSet(){const s=new Set();for(const[k,L]of mech.lilies)if(L.state==='gone')s.add(k);return s;}
+function mechUpdateLily(dt){
+  const br=Math.floor(bear.y/TILE),bc=Math.floor(bear.x/TILE),onKey=br+','+bc;
+  for(const[key,L]of mech.lilies){
+    if(L.state==='stable'){
+      if(key===onKey){L.state='sinking';L.t=mech.cfg.sinkDelay;} // só afunda quando o urso pisa (evita encurralar)
+    }else if(L.state==='sinking'){
+      L.t-=dt;
+      if(L.t<=0){
+        L.state='gone';L.t=mech.cfg.gone;
+        if(key===onKey&&!bear.landingTarget){
+          const dry=mechNearestDry(br,bc,mechLilyGoneSet());
+          if(dry)bear.landingTarget={x:(dry.c+0.5)*TILE,y:(dry.r+0.5)*TILE,glide:true};
+        }
+      }
+    }else{ // gone
+      L.t-=dt;if(L.t<=0){L.state='stable';L.t=0;}
+    }
+  }
+}
+function mechDrawLily(){
+  const pad=mechTiles[3]&&mechTiles[3].lilypad,sink=mechTiles[3]&&mechTiles[3].lilypad_sink;
+  for(const[key,L]of mech.lilies){
+    if(L.state==='gone')continue;
+    const i=key.indexOf(','),r=+key.slice(0,i),c=+key.slice(i+1);
+    const cx=(c+0.5)*TILE,cy=(r+0.5)*TILE;
+    if(L.state==='stable'){
+      if(imgReady(pad))ctx.drawImage(pad,cx-TILE/2,cy-TILE/2,TILE,TILE);
+      else{ctx.fillStyle='rgba(60,150,70,0.9)';ctx.beginPath();ctx.arc(cx,cy,TILE*0.4,0,Math.PI*2);ctx.fill();}
+    }else{ // sinking: tremor/tilt proporcional ao progresso
+      const prog=1-(L.t/mech.cfg.sinkDelay);
+      const tilt=Math.sin(elapsed*30)*0.12*prog,sy=1-0.25*prog;
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(tilt);ctx.scale(1,sy);ctx.globalAlpha=1-0.3*prog;
+      if(imgReady(sink))ctx.drawImage(sink,-TILE/2,-TILE/2,TILE,TILE);
+      else{ctx.fillStyle='rgba(50,120,60,0.8)';ctx.beginPath();ctx.arc(0,0,TILE*0.4,0,Math.PI*2);ctx.fill();}
+      ctx.restore();
+    }
+  }
+}
+
+// --- 2.2 Morcegos que travam o urso (índice 4) ---
+function mechInitBats(){ mech.bats=[];mech.batTimer=mech.cfg.interval; }
+function mechSpawnBat(){
+  const cfg=mech.cfg,side=Math.floor(Math.random()*4);let x,y,ang;
+  if(side===0){x=-20;y=Math.random()*CH;ang=-0.4+Math.random()*0.8;}
+  else if(side===1){x=CW+20;y=Math.random()*CH;ang=Math.PI+(-0.4+Math.random()*0.8);}
+  else if(side===2){x=Math.random()*CW;y=-20;ang=Math.PI/2+(-0.4+Math.random()*0.8);}
+  else{x=Math.random()*CW;y=CH+20;ang=-Math.PI/2+(-0.4+Math.random()*0.8);}
+  mech.bats.push({x,y,vx:Math.cos(ang)*cfg.speed,vy:Math.sin(ang)*cfg.speed,frame:0,ft:0,hit:false});
+}
+function mechUpdateBats(dt){
+  const cfg=mech.cfg;
+  mech.batTimer-=dt;
+  if(mech.batTimer<=0){mechSpawnBat();mech.batTimer=cfg.interval;}
+  const f=dt*60;
+  for(let i=mech.bats.length-1;i>=0;i--){
+    const b=mech.bats[i];
+    b.x+=b.vx*f;b.y+=b.vy*f;b.ft+=dt;if(b.ft>=0.18){b.ft=0;b.frame=b.frame?0:1;}
+    if(b.x<-40||b.x>CW+40||b.y<-40||b.y>CH+40){mech.bats.splice(i,1);continue;}
+    if(!b.hit&&Math.hypot(b.x-bear.x,b.y-bear.y)<bear.size+cfg.r){ // trava o urso, não mata
+      b.hit=true;bear.frozen=Math.max(bear.frozen,cfg.freeze);
+      addNotif('🦇 '+T('notif_bat'),'#c9b3ff',bear.x,bear.y-28);
+    }
+  }
+}
+function mechDrawBats(){
+  const sheet=mechTiles[4]&&mechTiles[4].bat_sheet,sz=30;
+  for(const b of mech.bats){
+    ctx.save();ctx.translate(b.x,b.y);
+    if(b.vx<0)ctx.scale(-1,1); // espelha pela direção de voo
+    if(imgReady(sheet))ctx.drawImage(sheet,b.frame*144,0,144,144,-sz/2,-sz/2,sz,sz);
+    else{ctx.fillStyle='#3a2a4a';ctx.beginPath();ctx.ellipse(0,0,sz*0.42,sz*0.28,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#5a4a6a';ctx.beginPath();ctx.ellipse(-sz*0.32,0,sz*0.2,sz*0.12,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(sz*0.32,0,sz*0.2,sz*0.12,0,0,Math.PI*2);ctx.fill();}
+    ctx.restore();
+  }
+}
+
+// --- 2.3 Janelas que espreitam (índice 5) ---
+function mechInitWindows(){
+  mech.windows=[];
+  for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){
+    if(map[r][c]!==1)continue;
+    if((tileHash(r,c)%1000)/1000<mech.cfg.frac)mech.windows.push({r,c,armed:false,t:0,cd:0});
+  }
+}
+function mechUpdateWindows(dt){
+  const cfg=mech.cfg,rad=cfg.radius*TILE;
+  for(const w of mech.windows){
+    if(w.cd>0){w.cd-=dt;if(w.cd<0)w.cd=0;w.armed=false;w.t=0;continue;}
+    const d=Math.hypot((w.c+0.5)*TILE-bear.x,(w.r+0.5)*TILE-bear.y);
+    if(d<rad){
+      w.armed=true;w.t+=dt;
+      if(w.t>=cfg.telegraph){ // telegrafou -> spawn de fantasma na janela
+        ghosts.push(makeGhost('comum',{x:(w.c+0.5)*TILE,y:(w.r+0.5)*TILE}));
+        w.t=0;w.armed=false;w.cd=cfg.cd;
+      }
+    }else{w.armed=false;if(w.t>0){w.t-=dt;if(w.t<0)w.t=0;}}
+  }
+}
+function mechDrawWindows(){
+  const img=mechTiles[5]&&mechTiles[5].window_eyes;
+  for(const w of mech.windows){
+    if(!w.armed)continue;
+    const p=Math.min(1,w.t/mech.cfg.telegraph),x=w.c*TILE,y=w.r*TILE;
+    ctx.save();
+    ctx.globalAlpha=0.35+0.65*p;
+    ctx.shadowColor='rgba(255,80,80,'+(0.4+0.5*Math.sin(elapsed*10))+')';ctx.shadowBlur=8+10*p;
+    if(imgReady(img))ctx.drawImage(img,x,y,TILE,TILE);
+    else{ctx.fillStyle='rgba(255,210,80,0.95)';ctx.fillRect(x+TILE*0.2,y+TILE*0.38,TILE*0.18,TILE*0.12);ctx.fillRect(x+TILE*0.6,y+TILE*0.38,TILE*0.18,TILE*0.12);}
+    ctx.restore();
+  }
+}
+
+// --- 3 Castelo: grades + tapete (índice 6) ---
+function mechInitCastle(){
+  mech.gates=[];
+  const wall=(r,c)=>(r<0||r>=ROWS||c<0||c>=COLS||map[r][c]===1);
+  for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){
+    if(map[r][c]!==0)continue;
+    const corridor=(wall(r-1,c)&&wall(r+1,c))||(wall(r,c-1)&&wall(r,c+1));
+    if(corridor&&(tileHash(r,c)%1000)/1000<mech.cfg.gateFrac)mech.gates.push({r,c,phase:((r+c)%2)*Math.PI,cl:-1});
+  }
+  // tapete: linhas espaçadas viram "autoestradas" horizontais
+  mech.carpet=new Set();
+  const span=Math.floor((ROWS-2)/(mech.cfg.carpetRows+1));
+  for(let i=1;i<=mech.cfg.carpetRows;i++){const r=i*span;for(let c=1;c<COLS-1;c++)if(map[r]&&map[r][c]===0)mech.carpet.add(r+','+c);}
+}
+function mechUpdateCastle(dt){
+  const br=Math.floor(bear.y/TILE),bc=Math.floor(bear.x/TILE);
+  for(const g of mech.gates){
+    let s=Math.sin(elapsed*mech.cfg.gateSpeed+g.phase);
+    if(br===g.r&&bc===g.c)s=-1; // grade ocupada pelo urso não fecha (fairness)
+    g.cl=s; // -1..1 ; >0 fechando
+  }
+}
+function mechDrawCastle(){
+  const carpet=mechTiles[6]&&mechTiles[6].carpet,gate=mechTiles[6]&&mechTiles[6].gate;
+  if(mech.carpet)for(const key of mech.carpet){ // tapete primeiro (grade por cima)
+    const i=key.indexOf(','),r=+key.slice(0,i),c=+key.slice(i+1);
+    if(imgReady(carpet))ctx.drawImage(carpet,c*TILE,r*TILE,TILE,TILE);
+    else{ctx.fillStyle='rgba(170,40,40,0.5)';ctx.fillRect(c*TILE,r*TILE,TILE,TILE);}
+  }
+  for(const g of mech.gates){
+    const cl=Math.max(0,g.cl);if(cl<=0.02)continue; // aberta: barras recolhidas
+    const x=g.c*TILE,y=g.r*TILE;
+    ctx.save();ctx.globalAlpha=0.25+0.75*cl;ctx.translate(x,y);ctx.scale(1,Math.max(0.05,cl)); // fecha por escala Y
+    if(imgReady(gate))ctx.drawImage(gate,0,0,TILE,TILE);
+    else{ctx.fillStyle='rgba(190,170,90,0.92)';for(let k=0;k<4;k++)ctx.fillRect(k*TILE/4+3,0,3,TILE);}
+    ctx.restore();
+  }
+}
+
+// --- 4 Ilhas: plataformas móveis + correntes de ar (índice 7) ---
+function mechInitSky(){
+  const cfg=mech.cfg;
+  const cells=freeCells().sort((a,b)=>tileHash(a.r,a.c)-tileHash(b.r,b.c));
+  mech.platforms=[];
+  for(const cell of cells){
+    if(mech.platforms.length>=cfg.platforms)break;
+    const axis=(tileHash(cell.r,cell.c)%2)?'h':'v';
+    let ok=true;
+    for(let o=-cfg.platRange;o<=cfg.platRange;o++){
+      const rr=cell.r+(axis==='v'?o:0),cc=cell.c+(axis==='h'?o:0);
+      if(rr<1||rr>=ROWS-1||cc<1||cc>=COLS-1||map[rr][cc]!==0){ok=false;break;}
+    }
+    if(!ok)continue;
+    if(mech.platforms.some(p=>Math.abs(p.r0-cell.r)+Math.abs(p.c0-cell.c)<3))continue; // espaça
+    mech.platforms.push({r0:cell.r,c0:cell.c,axis,phase:(tileHash(cell.r,cell.c)%628)/100,off:0,cont:0,r:cell.r,c:cell.c});
+  }
+  // correntes de ar: faixas alternadas (linhas/colunas) com direção
+  mech.winds=new Map();
+  const bands=3;
+  for(let i=0;i<bands;i++){
+    if(i%2===0){const r=2+Math.floor((ROWS-4)*((i+1)/(bands+1))),dir={x:(i%4<2?1:-1),y:0};for(let c=1;c<COLS-1;c++)if(map[r]&&map[r][c]===0)mech.winds.set(r+','+c,dir);}
+    else{const c=2+Math.floor((COLS-4)*((i+1)/(bands+1))),dir={x:0,y:(i%4<2?1:-1)};for(let r=1;r<ROWS-1;r++)if(map[r][c]===0)mech.winds.set(r+','+c,dir);}
+  }
+}
+function mechUpdateSky(dt){
+  const cfg=mech.cfg;
+  for(const p of mech.platforms){
+    p.cont=Math.sin(elapsed*cfg.platSpeed+p.phase)*cfg.platRange;
+    p.off=Math.round(p.cont);
+    p.r=p.r0+(p.axis==='v'?p.off:0);p.c=p.c0+(p.axis==='h'?p.off:0);
+  }
+  const br=Math.floor(bear.y/TILE),bc=Math.floor(bear.x/TILE);
+  for(const p of mech.platforms){ // plataforma alcançou o urso -> empurra
+    if(p.r===br&&p.c===bc&&!bear.landingTarget){
+      const blocked=new Set(mech.platforms.map(q=>q.r+','+q.c));
+      const dry=mechNearestDry(br,bc,blocked);
+      if(dry)bear.landingTarget={x:(dry.c+0.5)*TILE,y:(dry.r+0.5)*TILE,glide:true};
+      break;
+    }
+  }
+}
+function mechDrawSky(){
+  const plat=mechTiles[7]&&mechTiles[7].platform,windImg=mechTiles[7]&&mechTiles[7].wind;
+  if(mech.winds){ // correntes (sob plataformas)
+    ctx.save();ctx.globalAlpha=0.22+0.08*Math.sin(elapsed*3);
+    for(const[key,dir]of mech.winds){
+      const i=key.indexOf(','),r=+key.slice(0,i),c=+key.slice(i+1);
+      ctx.save();ctx.translate((c+0.5)*TILE,(r+0.5)*TILE);ctx.rotate(Math.atan2(dir.y,dir.x));
+      if(imgReady(windImg))ctx.drawImage(windImg,-TILE/2,-TILE/2,TILE,TILE);
+      else{ctx.strokeStyle='rgba(200,230,255,0.7)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-TILE*0.4,0);ctx.lineTo(TILE*0.4,0);ctx.lineTo(TILE*0.2,-TILE*0.12);ctx.stroke();}
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  for(const p of mech.platforms){ // posição sub-tile interpolada (desliza suave)
+    const x=(p.c0+(p.axis==='h'?p.cont:0))*TILE,y=(p.r0+(p.axis==='v'?p.cont:0))*TILE;
+    if(imgReady(plat))ctx.drawImage(plat,x,y,TILE,TILE);
+    else{ctx.fillStyle='rgba(150,180,210,0.92)';roundRect(ctx,x+2,y+4,TILE-4,TILE-8,5);ctx.fill();}
+  }
+}
+
+// --- 5 Inferno: gêiseres + rastro de fogo (índice 8) ---
+function mechInitFire(){
+  const sp=BIOMES[currentBiome].bearSpawn;
+  const cells=freeCells().filter(({r,c})=>Math.abs(r-sp.r)+Math.abs(c-sp.c)>2).sort((a,b)=>tileHash(a.r,a.c)-tileHash(b.r,b.c));
+  mech.geysers=cells.slice(0,mech.cfg.geyserCount).map(({r,c})=>({r,c,phase:(tileHash(r,c)%628)/100}));
+  mech.trail=[];mech.trailTimer=0;
+}
+function mechGeyserState(g){const s=Math.sin(elapsed*mech.cfg.geySpeed+g.phase);return s>0.6?'fire':(s>0.3?'warming':'idle');}
+function mechUpdateFire(dt){
+  const cfg=mech.cfg,br=Math.floor(bear.y/TILE),bc=Math.floor(bear.x/TILE);
+  for(const g of mech.geysers){
+    if(g.r===br&&g.c===bc&&mechGeyserState(g)==='fire'){ // empurra + invuln; nunca mata
+      if(!bear.landingTarget){
+        const blocked=new Set();for(const gg of mech.geysers)if(mechGeyserState(gg)==='fire')blocked.add(gg.r+','+gg.c);
+        const dry=mechNearestDry(br,bc,blocked);
+        if(dry)bear.landingTarget={x:(dry.c+0.5)*TILE,y:(dry.r+0.5)*TILE,glide:true};
+      }
+      bear.invuln=Math.max(bear.invuln,0.4);
+    }
+  }
+  mech.trailTimer-=dt;
+  if(bear.moving&&mech.trailTimer<=0){mech.trail.push({x:bear.x,y:bear.y,life:cfg.trailLife});mech.trailTimer=cfg.trailDrop;}
+  for(let i=mech.trail.length-1;i>=0;i--){
+    const t=mech.trail[i];t.life-=dt;
+    if(t.life<=0){mech.trail.splice(i,1);continue;}
+    for(const g of ghosts)if(Math.hypot(g.x-t.x,g.y-t.y)<TILE*0.6){pushGhost(g);g.frozen=Math.max(g.frozen,cfg.trailFreeze);} // empurra e atordoa
+  }
+}
+function mechDrawFireUnder(){
+  const idle=mechTiles[8]&&mechTiles[8].geyser_idle,trailImg=mechTiles[8]&&mechTiles[8].fire_trail;
+  for(const t of mech.trail){
+    const a=t.life/mech.cfg.trailLife,pulse=1+0.15*Math.sin(elapsed*12+t.x);
+    ctx.save();ctx.globalAlpha=a;ctx.translate(t.x,t.y);ctx.scale(pulse,pulse);
+    if(imgReady(trailImg))ctx.drawImage(trailImg,-TILE*0.4,-TILE*0.4,TILE*0.8,TILE*0.8);
+    else{ctx.fillStyle='rgba(255,120,40,0.7)';ctx.beginPath();ctx.arc(0,0,TILE*0.25,0,Math.PI*2);ctx.fill();}
+    ctx.restore();
+  }
+  for(const g of mech.geysers){
+    const st=mechGeyserState(g),x=g.c*TILE,y=g.r*TILE;
+    ctx.save();
+    if(st==='warming')ctx.globalAlpha=0.7+0.3*Math.sin(elapsed*20); // shimmer telegrafa antes do fogo
+    if(imgReady(idle))ctx.drawImage(idle,x,y,TILE,TILE);
+    else{ctx.fillStyle='rgba(120,60,40,0.85)';ctx.beginPath();ctx.arc(x+TILE/2,y+TILE/2,TILE*0.25,0,Math.PI*2);ctx.fill();}
+    ctx.restore();
+  }
+}
+function mechDrawFireOver(){
+  const fire=mechTiles[8]&&mechTiles[8].geyser_fire;
+  for(const g of mech.geysers){
+    if(mechGeyserState(g)!=='fire')continue;
+    const flick=1+0.12*Math.sin(elapsed*25+g.phase),x=(g.c+0.5)*TILE,y=(g.r+0.5)*TILE;
+    ctx.save();ctx.translate(x,y);ctx.scale(flick,flick);ctx.globalAlpha=0.85+0.15*Math.sin(elapsed*30);
+    if(imgReady(fire))ctx.drawImage(fire,-TILE/2,-TILE,TILE,TILE*1.4); // chama sobe sobre o urso
+    else{ctx.fillStyle='rgba(255,120,30,0.9)';ctx.beginPath();ctx.moveTo(-TILE*0.3,TILE*0.4);ctx.lineTo(0,-TILE*0.7);ctx.lineTo(TILE*0.3,TILE*0.4);ctx.closePath();ctx.fill();}
+    ctx.restore();
+  }
+}
+
+// --- 6 Dimensão: inversão de fases + mapa que respira/portal (índice 9) ---
+function mechInitVoid(){
+  const cfg=mech.cfg;
+  mech.invertMode='normal';
+  mech.invertTimer=cfg.invertPeriod-cfg.invertDur;
+  mech.nextSpecial='phase';
+  mech.flash=0;
+  const cells=freeCells().sort((a,b)=>tileHash(a.r,a.c)-tileHash(b.r,b.c));
+  mech.portals=cells.slice(0,cfg.portals).map(({r,c})=>({r,c}));
+  mech.portalCd=0;
+}
+function mechUpdateVoid(dt){
+  const cfg=mech.cfg;
+  if(mech.flash>0){mech.flash-=dt;if(mech.flash<0)mech.flash=0;}
+  mech.invertTimer-=dt;
+  if(mech.invertTimer<=0){
+    if(mech.invertMode==='normal'){
+      mech.invertMode=mech.nextSpecial;
+      mech.nextSpecial=(mech.nextSpecial==='phase')?'blind':'phase';
+      mech.invertTimer=cfg.invertDur;
+    }else{mech.invertMode='normal';mech.invertTimer=cfg.invertPeriod-cfg.invertDur;}
+    mech.flash=0.3;
+  }
+  if(mech.invertMode==='phase')phaseTimer=Math.max(phaseTimer,0.2); // atravessa paredes (reusa phaseTimer)
+  if(mech.portalCd>0){mech.portalCd-=dt;if(mech.portalCd<0)mech.portalCd=0;}
+  const br=Math.floor(bear.y/TILE),bc=Math.floor(bear.x/TILE);
+  if(mech.portalCd<=0)for(const p of mech.portals){
+    if(p.r===br&&p.c===bc){
+      const np=randomFreePosAway(bear,TILE*8);bear.x=np.x;bear.y=np.y;bear.landingTarget=null;
+      mech.portalCd=cfg.portalCd;mech.flash=0.25;break;
+    }
+  }
+}
+function mechDrawVoidUnder(){
+  const set=biomeTiles[9];
+  ctx.save();ctx.globalAlpha=0.18; // "respirar": pulso leve nas paredes (overlay; não toca drawMap nem colisão)
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    if(map[r][c]!==1)continue;
+    const img=(tileHash(r,c)%10<6)?set.wall_a:set.wall_b;if(!imgReady(img))continue;
+    const s=1+0.04*Math.sin(elapsed*1.5+tileHash(r,c)%6),cx=c*TILE+TILE/2,cy=r*TILE+TILE/2,w=TILE*s;
+    ctx.drawImage(img,cx-w/2,cy-w/2,w,w);
+  }
+  ctx.restore();
+  const img=mechTiles[9]&&mechTiles[9].portal;
+  for(const p of mech.portals){
+    const cx=(p.c+0.5)*TILE,cy=(p.r+0.5)*TILE;
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(elapsed*1.5);ctx.globalAlpha=0.7+0.3*Math.sin(elapsed*4);
+    ctx.shadowColor='rgba(180,80,255,0.8)';ctx.shadowBlur=14;
+    if(imgReady(img))ctx.drawImage(img,-TILE/2,-TILE/2,TILE,TILE);
+    else{ctx.strokeStyle='rgba(180,80,255,0.95)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,TILE*0.35,0,Math.PI*2);ctx.stroke();}
+    ctx.restore();
+  }
+}
+function mechDrawVoidOver(){
+  if(mech.flash>0){ // flash branco rápido a cada troca de fase
+    ctx.save();ctx.globalAlpha=Math.min(0.55,mech.flash*2);ctx.fillStyle='#fff';ctx.fillRect(-32,-32,CW+64,CH+64);ctx.restore();
+  }
 }
 
 // --- 1.3 Piso escorregadio / inércia (índice 2) ---
@@ -1774,6 +2158,7 @@ const STRINGS_GAME={
     notif_max:'MÁX',
     notif_stolen:'roubado!',
     notif_jump:'PULO!',
+    notif_bat:'travado!',
     fx_speed:'Velocidade',
     fx_postjump:'Pós-pulo',
     fx_slow:'Lentidão',
@@ -1834,6 +2219,7 @@ const STRINGS_GAME={
     notif_max:'MAX',
     notif_stolen:'stolen!',
     notif_jump:'JUMP!',
+    notif_bat:'stunned!',
     fx_speed:'Speed',
     fx_postjump:'Post-jump',
     fx_slow:'Slow',
