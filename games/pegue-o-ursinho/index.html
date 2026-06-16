@@ -680,7 +680,9 @@ function resizeCanvas(){
   canvas.width=Math.max(1,Math.round(pw*dpr));canvas.height=Math.max(1,Math.round(ph*dpr));
   gc.style.width=pw+'px';gc.style.height=ph+'px';
   pxPerWorld=pw/(TILES_ACROSS*TILE);
-  if(!camReady)centerCameraOnBear(true);
+  // só re-centra se a câmera já foi inicializada (no startRun): evita tocar em `bear`
+  // durante o carregamento, quando ele ainda está na TDZ (let declarado mais abaixo)
+  if(camReady)centerCameraOnBear(true);
   // gate de orientação: em dispositivos de toque, pedir retrato quando o aparelho estiver na horizontal
   const rot=document.getElementById('rotateHint');
   if(rot)rot.style.display=(camCoarsePointer&&vw>vh)?'flex':'none';
