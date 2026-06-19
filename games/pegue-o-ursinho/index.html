@@ -88,6 +88,8 @@
   .btn-secondary{background:rgba(255,255,255,0.12);color:#ddd;border:1px solid rgba(255,255,255,0.2);}
   .btn-secondary:active{background:rgba(255,255,255,0.22);}
   .btn-small{padding:8px 18px;font-size:13px;border-radius:20px;}
+  .menu-btns{display:flex;flex-direction:column;gap:8px;align-items:center;}
+  .menu-honey{font-size:18px;font-weight:800;color:#ffcf66;margin-bottom:12px;}
   #rankingTable{width:100%;border-collapse:collapse;margin-bottom:12px;}
   #rankingTable th{color:#a0aaff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
   #rankingTable td{padding:6px 8px;font-size:13px;color:#ddd;border-bottom:1px solid rgba(255,255,255,0.06);}
@@ -182,6 +184,16 @@
         <button class="btn btn-secondary btn-small" id="btnShowRanking" data-i18n="btnShowRanking">🏆 Ranking</button>
       </div>
     </div>
+    <div class="screen" id="screenMenu">
+      <h1 class="title">🐻 Pegue o Ursinho!</h1>
+      <div id="menuHoney" class="menu-honey">🍯 0</div>
+      <div class="menu-btns">
+        <button class="btn btn-primary" id="btnMenuPlay" data-i18n="menuPlay">▶ Jogar</button>
+        <button class="btn btn-secondary" id="btnMenuUpgrades" data-i18n="menuUpgrades">⬆ Upgrades</button>
+        <button class="btn btn-secondary" id="btnMenuSkins" data-i18n="menuSkins" disabled>🎨 Skins (em breve)</button>
+        <button class="btn btn-secondary btn-small" id="btnMenuRanking" data-i18n="menuRanking">🏆 Ranking</button>
+      </div>
+    </div>
     <div class="screen" id="screenHowto">
       <h2 class="subtitle" data-i18n="howtoSubtitle">Como jogar</h2>
       <div class="legend">
@@ -211,6 +223,7 @@
       <div id="resultRankMsg" style="color:#ffe066;font-size:13px;margin-bottom:12px;text-align:center;">Salvando...</div>
       <div class="btn-row">
         <button class="btn btn-primary btn-small" id="btnPlayAgain" data-i18n="btnPlayAgain">Jogar de novo</button>
+        <button class="btn btn-secondary btn-small" id="btnResultMenu" data-i18n="btnResultMenu">🏠 Menu</button>
         <button class="btn btn-secondary btn-small" id="btnResultRanking" data-i18n="btnResultRanking">🏆 Ranking</button>
       </div>
     </div>
@@ -2212,12 +2225,17 @@ jBtn.addEventListener('click',()=>{if(state==='playing')tryJump();});
 // usa e.code (tecla fisica, independe de Shift/CapsLock) para evitar tecla "presa" — ex.: digitar 'S' no nick deixava keysDown['S'] travado e o urso andava sozinho
 document.addEventListener('keydown',e=>{keysDown[e.code]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();if(state==='playing'&&e.code==='Space')tryJump();});
 document.addEventListener('keyup',e=>{keysDown[e.code]=false;});
-document.getElementById('btnPlay').addEventListener('click',()=>{const v=document.getElementById('nickInput').value.trim();if(!v){document.getElementById('nickInput').focus();document.getElementById('nickInput').style.borderColor='#ff6060';return;}document.getElementById('nickInput').style.borderColor='';playerNick=v;showScreen('screenHowto');});
+document.getElementById('btnPlay').addEventListener('click',()=>{const v=document.getElementById('nickInput').value.trim();if(!v){document.getElementById('nickInput').focus();document.getElementById('nickInput').style.borderColor='#ff6060';return;}document.getElementById('nickInput').style.borderColor='';playerNick=v;showScreen('screenMenu');refreshMenu();});
+function refreshMenu(){document.getElementById('menuHoney').textContent=`🍯 ${saveData.honey}`;}
+document.getElementById('btnMenuPlay').addEventListener('click',startGame);
+document.getElementById('btnMenuUpgrades').addEventListener('click',()=>{renderUpgrades();showScreen('screenUpgrades');});
+document.getElementById('btnMenuRanking').addEventListener('click',()=>{renderRanking(null,null);showScreen('screenRanking');});
+document.getElementById('btnResultMenu').addEventListener('click',()=>{showScreen('screenMenu');refreshMenu();});
 document.getElementById('nickInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btnPlay').click();});
 document.getElementById('btnStartGame').addEventListener('click',startGame);
 document.getElementById('btnStartRun').addEventListener('click',startRun);
 document.getElementById('btnShowRanking').addEventListener('click',()=>{renderRanking(null,null);showScreen('screenRanking');});
-document.getElementById('btnBackRanking').addEventListener('click',()=>showScreen('screenNick'));
+document.getElementById('btnBackRanking').addEventListener('click',()=>{showScreen('screenMenu');refreshMenu();});
 document.getElementById('btnPlayAgain').addEventListener('click',startGame);
 document.getElementById('btnResultRanking').addEventListener('click',()=>{const d=lastSavedRankData;renderRanking(d?d.nick:null,d?d.secs:null);showScreen('screenRanking');});
 
@@ -2257,6 +2275,11 @@ const STRINGS_GAME={
     btnBackRanking:'← Voltar',
     btnPlayAgain:'Jogar de novo',
     btnResultRanking:'🏆 Ranking',
+    btnResultMenu:'🏠 Menu',
+    menuPlay:'▶ Jogar',
+    menuUpgrades:'⬆ Upgrades',
+    menuSkins:'🎨 Skins (em breve)',
+    menuRanking:'🏆 Ranking',
     buffScreenTitle:'Escolha seus buffs',
     buffScreenSub:'Selecione 3 dos 5 para esta run',
     btn_start_run:'Iniciar ({n}/3)',
@@ -2319,6 +2342,11 @@ const STRINGS_GAME={
     btnBackRanking:'← Back',
     btnPlayAgain:'Play again',
     btnResultRanking:'🏆 Leaderboard',
+    btnResultMenu:'🏠 Menu',
+    menuPlay:'▶ Play',
+    menuUpgrades:'⬆ Upgrades',
+    menuSkins:'🎨 Skins (soon)',
+    menuRanking:'🏆 Leaderboard',
     buffScreenTitle:'Choose your buffs',
     buffScreenSub:'Pick 3 of 5 for this run',
     btn_start_run:'Start ({n}/3)',
