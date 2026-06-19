@@ -887,7 +887,8 @@ const MAP_BUFFS=[
   {id:'rebound',icon:'🔆',name:'Rebote',rar:'raro',selW:6,mapW:4,desc:'Sobrevive à próxima colisão.'},
   {id:'decoy',icon:'🧸',name:'Isca de Ursinho',rar:'raro',selW:5,mapW:4,desc:'Chamariz atrai fantasmas 6s.'},
 ];
-const ALL_BUFFS=[...PASSIVE_BUFFS.map(b=>({...b,type:'passive'})),...MAP_BUFFS.map(b=>({...b,type:'map'}))];
+// passivos removidos do fluxo do jogo (Etapa 6) — viraram atributos comprados com mel
+const ALL_BUFFS=[...MAP_BUFFS.map(b=>({...b,type:'map'}))];
 const RAR_LABEL={comum:'Comum',incomum:'Incomum',raro:'Raro'};
 const MAP_FX_TEXT={speed_temp:'+80% velocidade',dash:'arrancada!',freeze_all:'fantasmas congelados',ghost_slow:'fantasmas lentos',slow_time:'tempo lento',teleport:'teleporte!',swap:'troca de lugar',spirit_trap:'fantasma preso',fake_wall:'atravessa paredes',invisible:'invisível',light_burst:'empurrão',lightning:'fantasma eliminado',light_bomb:'área limpa',rebound:'rebote pronto',decoy:'isca lançada'};
 function rarColor(r){return r==='raro'?'#ff8a8a':r==='incomum'?'#8ab4ff':'#7CE0A0';}
@@ -1837,7 +1838,7 @@ function updateEffects(dt){
   if(ghostHideTimer>0){ghostHideTimer-=dt;if(ghostHideTimer<0)ghostHideTimer=0;}
   if(biomeAnnounceTimer>0){biomeAnnounceTimer-=dt;if(biomeAnnounceTimer<0)biomeAnnounceTimer=0;}
   if(jumpCd>0)jumpCd-=dt;
-  if(jumpActive){jumpTimer-=dt;if(jumpTimer<=0){jumpActive=false;jumpCd=jumpCdMax;resolveLandingInsideWall();const pl=passiveLevels['post_jump']||0;if(pl>0){postJumpTimer=PROG.post_jump_dur[pl-1];postJumpMax=postJumpTimer;postJumpSpd=PROG.post_jump_spd[pl-1];}}}
+  if(jumpActive){jumpTimer-=dt;if(jumpTimer<=0){jumpActive=false;jumpCd=jumpCdMax;resolveLandingInsideWall();}}
   if(bear.landingTarget){const t=bear.landingTarget,dx=t.x-bear.x,dy=t.y-bear.y,d=Math.hypot(dx,dy);if(d<6||(!t.glide&&canMove(bear.x,bear.y,bear.size))){bear.landingTarget=null;}else{const st=Math.min(d,8);bear.x+=(dx/d)*st;bear.y+=(dy/d)*st;}}
   notifications.forEach(n=>{n.life-=dt;n.y-=0.5;});notifications=notifications.filter(n=>n.life>0);
   updateJumpBtn();
@@ -1845,16 +1846,14 @@ function updateEffects(dt){
 function updateJumpBtn(){const btn=document.getElementById('btnJump');if(jumpActive){btn.classList.remove('cooling');btn.textContent='🦘';}else if(jumpCd>0){btn.classList.add('cooling');btn.textContent=Math.ceil(jumpCd)+'s';}else{btn.classList.remove('cooling');btn.textContent='🦘';}}
 
 // ====== PASSIVOS ======
+// aplica os atributos comprados com mel (saveData.attrs) ao estado da run
 function recalcPassives(){
-  const L=id=>passiveLevels[id]||0;
-  const sp=L('speed_base')?PROG.speed_base[L('speed_base')-1]:0;
-  if(bear)bear.speed=bear.baseSpeed*(1+sp);
-  jumpCdMax=L('jump_cd')?10*(1-PROG.jump_cd[L('jump_cd')-1]):10;
-  jumpDuration=L('jump_ext')?JUMP_DURATION+PROG.jump_ext[L('jump_ext')-1]:JUMP_DURATION;
-  itemCdReduction=L('item_cd')?PROG.item_cd[L('item_cd')-1]:0;
-  resistFrac=L('resist')?PROG.resist[L('resist')-1]:0;
-  lightStepsMult=L('light_steps')?1-PROG.light_steps[L('light_steps')-1]:1;
-  renderPassiveHud();
+  const lv=id=>attrLevel(id);
+  const sp = lv('speed_base')?ATTR_DEFS.speed_base.values[lv('speed_base')-1]:0;
+  if(bear) bear.speed = bear.baseSpeed*(1+sp);
+  jumpCdMax   = lv('jump_cd') ? 10*(1-ATTR_DEFS.jump_cd.values[lv('jump_cd')-1]) : 10;
+  jumpDuration= lv('jump_ext')? JUMP_DURATION+ATTR_DEFS.jump_ext.values[lv('jump_ext')-1] : JUMP_DURATION;
+  renderPassiveHud(); // agora só mostra estado de run (buffs fixos/escudo); ver Etapa 7
 }
 function collectPassive(id){
   const cur=passiveLevels[id]||0;
@@ -2203,20 +2202,13 @@ function togglePick(buff,card){
 function updateStartBtn(){const btn=document.getElementById('btnStartRun');btn.textContent=T('btn_start_run').replace('{n}',selectionPicks.length);btn.disabled=selectionPicks.length!==3;}
 function startRun(){
   if(selectionPicks.length!==3)return;
-  const passPicks=selectionPicks.filter(b=>b.type==='passive');
   chosenMapBuffs=selectionPicks.filter(b=>b.type==='map').map(b=>b.id);
-  spawnPool=[
-    ...PASSIVE_BUFFS.map(b=>({...b,type:'passive'})),
-    ...MAP_BUFFS.filter(b=>chosenMapBuffs.includes(b.id)).map(b=>({...b,type:'map'}))
-  ];
+  spawnPool=MAP_BUFFS.filter(b=>chosenMapBuffs.includes(b.id)).map(b=>({...b,type:'map'}));
   buildIcons=selectionPicks.map(b=>b.icon).join(' ');
   document.getElementById('buffScreen').classList.remove('active');
   initGame();
   centerCameraOnBear(true); // câmera já começa centrada no ursinho
-  // passivos escolhidos começam no nível 1
-  passPicks.forEach(b=>{passiveLevels[b.id]=1;});
-  if(passiveLevels['shield'])shieldCharges=PROG.shield[passiveLevels['shield']-1];
-  recalcPassives();
+  recalcPassives(); // aplica atributos comprados (mel) ao urso
   state='playing';
   document.getElementById('overlay').style.display='none';
   document.getElementById('joystick').style.display='block';
