@@ -1813,7 +1813,7 @@ function resolveGhostCollisions(){
   ghosts.forEach(g=>clampGhost(g));
 }
 function tryJump(){
-  if(bear.frozen>0)return;
+  if(bear.frozen>0||biomePhase==='choosing')return;
   if(!jumpActive){
     if(jumpCd>0)return;
     jumpsLeft=maxJumps()-1;
