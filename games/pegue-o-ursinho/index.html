@@ -855,27 +855,6 @@ const POISON_DURATION=2000; // ms
 const POISON_COOLDOWN=1000; // ms
 
 // ====== ESTRUTURA DE DADOS DOS BUFFS (roguelike novo) ======
-const PROG={
-  speed_base:[0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80],
-  jump_cd:[0.10,0.20,0.28,0.35,0.42,0.48,0.53,0.58,0.62,0.65],
-  jump_ext:[0.4,0.8,1.1,1.4,1.7,2.0,2.2,2.5,2.7,3.0],
-  shield:[1,2,3,4,5,6,7,8,9,10],
-  item_cd:[0.05,0.10,0.15,0.20,0.25,0.29,0.33,0.36,0.39,0.42],
-  resist:[0.08,0.16,0.23,0.30,0.36,0.42,0.47,0.52,0.56,0.60],
-  post_jump_spd:[0.50,0.55,0.60,0.65,0.70,0.76,0.82,0.88,0.94,1.00],
-  post_jump_dur:[2.0,2.2,2.4,2.6,2.8,3.0,3.2,3.4,3.7,4.0],
-  light_steps:[0.10,0.16,0.22,0.27,0.31,0.35,0.38,0.41,0.44,0.46],
-};
-const PASSIVE_BUFFS=[
-  {id:'speed_base',icon:'👟',name:'Velocidade Base',rar:'comum',selW:14,mapW:10,desc:'Velocidade permanente do ursinho.'},
-  {id:'jump_cd',icon:'⏱️',name:'CD do Pulo',rar:'incomum',selW:10,mapW:8,desc:'Reduz o cooldown do pulo.'},
-  {id:'jump_ext',icon:'🦘',name:'Pulo Estendido',rar:'incomum',selW:10,mapW:8,desc:'Aumenta a duração do pulo.'},
-  {id:'shield',icon:'🛡️',name:'Escudo',rar:'raro',selW:6,mapW:4,desc:'Absorve colisões com fantasma.'},
-  {id:'item_cd',icon:'🔄',name:'Recarga Acelerada',rar:'incomum',selW:10,mapW:7,desc:'Itens de mapa reaparecem mais rápido.'},
-  {id:'resist',icon:'👻',name:'Resist. Fantasmagórica',rar:'comum',selW:12,mapW:9,desc:'Reduz efeitos negativos.'},
-  {id:'post_jump',icon:'💨',name:'Recuperação Pós-Pulo',rar:'incomum',selW:9,mapW:7,desc:'Velocidade extra após o pulo.'},
-  {id:'light_steps',icon:'🐾',name:'Passos Leves',rar:'incomum',selW:10,mapW:8,desc:'Fantasmas te perseguem mais devagar.'},
-];
 // type:'map' = efeito instantâneo ao coletar · type:'fixed' = Buff Fixo (dispara em intervalo pela run)
 const MAP_BUFFS=[
   {id:'speed_temp',icon:'👟',type:'map',name:'Sapato Turbo',rar:'comum',selW:14,mapW:12,desc:'+80% velocidade por 4s.'},
@@ -929,7 +908,9 @@ function addMapToPool(id){
 let playerNick='Jogador',lastSavedRankData=null,buildIcons='';
 let map,state,elapsed,lastTime,bear,ghosts,notifications;
 let jumpCd,jumpActive,jumpTimer,nextGhostTime,jumpCdMax,jumpDuration;
-let chosenMapBuffs=[],passiveLevels={},selectionPicks=[];
+let chosenMapBuffs=[],selectionPicks=[];
+let jumpsLeft=0;
+const maxJumps=()=>(saveData.attrs.double_jump?2:1);
 let collectibles=[],spawnPool=[],spawnTimer=0;
 // economia do mel (run-local)
 let fixedBuffs=[];       // ids de buffs fixos ativos nesta run
@@ -1733,7 +1714,7 @@ function initGame(){
   elapsed=0;lastTime=null;notifications=[];ghosts=[];collectibles=[];
   jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=biomeEffective(BIOMES[0]).ghostSpawnRate;
   jumpCdMax=10;jumpDuration=JUMP_DURATION;
-  passiveLevels={};spawnTimer=SPAWN_INTERVAL_BASE;
+  spawnTimer=SPAWN_INTERVAL_BASE;
   runHoney=0;honeyDrops=[];honeySpawnTimer=HONEY_SPAWN_INTERVAL;honeyPassiveAcc=0;
   fixedBuffs=[];fixedTimers={};
   shieldCharges=0;itemCdReduction=0;resistFrac=0;lightStepsMult=1;
@@ -1831,7 +1812,18 @@ function resolveGhostCollisions(){
   }
   ghosts.forEach(g=>clampGhost(g));
 }
-function tryJump(){if(jumpCd>0||jumpActive||bear.frozen>0)return;jumpActive=true;jumpTimer=jumpDuration;addNotif('🦘 '+T('notif_jump'),'#aaffaa',bear.x,bear.y-28);}
+function tryJump(){
+  if(bear.frozen>0)return;
+  if(!jumpActive){
+    if(jumpCd>0)return;
+    jumpsLeft=maxJumps()-1;
+    jumpActive=true;jumpTimer=jumpDuration;
+    addNotif('🦘 '+T('notif_jump'),'#aaffaa',bear.x,bear.y-28);
+  } else if(jumpsLeft>0){
+    jumpsLeft--; jumpTimer=jumpDuration; // re-impulso no ar (renova a duração)
+    addNotif('⏫','#aaffaa',bear.x,bear.y-28);
+  }
+}
 function resolveLandingInsideWall(){
   if(canMove(bear.x,bear.y,bear.size))return;
   const sc=Math.floor(bear.x/TILE),sr=Math.floor(bear.y/TILE);let best=null,bd=Infinity;
@@ -1864,14 +1856,14 @@ function updateEffects(dt){
   if(ghostHideTimer>0){ghostHideTimer-=dt;if(ghostHideTimer<0)ghostHideTimer=0;}
   if(biomeAnnounceTimer>0){biomeAnnounceTimer-=dt;if(biomeAnnounceTimer<0)biomeAnnounceTimer=0;}
   if(jumpCd>0)jumpCd-=dt;
-  if(jumpActive){jumpTimer-=dt;if(jumpTimer<=0){jumpActive=false;jumpCd=jumpCdMax;resolveLandingInsideWall();}}
+  if(jumpActive){jumpTimer-=dt;if(jumpTimer<=0){jumpActive=false;jumpsLeft=0;jumpCd=jumpCdMax;resolveLandingInsideWall();}}
   if(bear.landingTarget){const t=bear.landingTarget,dx=t.x-bear.x,dy=t.y-bear.y,d=Math.hypot(dx,dy);if(d<6||(!t.glide&&canMove(bear.x,bear.y,bear.size))){bear.landingTarget=null;}else{const st=Math.min(d,8);bear.x+=(dx/d)*st;bear.y+=(dy/d)*st;}}
   notifications.forEach(n=>{n.life-=dt;n.y-=0.5;});notifications=notifications.filter(n=>n.life>0);
   updateJumpBtn();
 }
 function updateJumpBtn(){const btn=document.getElementById('btnJump');if(jumpActive){btn.classList.remove('cooling');btn.textContent='🦘';}else if(jumpCd>0){btn.classList.add('cooling');btn.textContent=Math.ceil(jumpCd)+'s';}else{btn.classList.remove('cooling');btn.textContent='🦘';}}
 
-// ====== PASSIVOS ======
+// ====== ATRIBUTOS DA RUN ======
 // aplica os atributos comprados com mel (saveData.attrs) ao estado da run
 function recalcPassives(){
   const lv=id=>attrLevel(id);
@@ -1879,16 +1871,7 @@ function recalcPassives(){
   if(bear) bear.speed = bear.baseSpeed*(1+sp);
   jumpCdMax   = lv('jump_cd') ? 10*(1-ATTR_DEFS.jump_cd.values[lv('jump_cd')-1]) : 10;
   jumpDuration= lv('jump_ext')? JUMP_DURATION+ATTR_DEFS.jump_ext.values[lv('jump_ext')-1] : JUMP_DURATION;
-  renderPassiveHud(); // agora só mostra estado de run (buffs fixos/escudo); ver Etapa 7
-}
-function collectPassive(id){
-  const cur=passiveLevels[id]||0;
-  const b=PASSIVE_BUFFS.find(x=>x.id===id);
-  if(cur>=10){addNotif(`${b.icon} ${buffName(id)} ${T('notif_max')}`,'#ffcf66',bear.x,bear.y-30,14);return;}
-  passiveLevels[id]=cur+1;
-  if(id==='shield')shieldCharges=PROG.shield[passiveLevels[id]-1];
-  recalcPassives();
-  addNotif(`${b.icon} ${buffName(id)} L${cur}→L${cur+1}`,'#ffe066',bear.x,bear.y-30,14);
+  renderPassiveHud(); // mostra estado de run (buffs fixos)
 }
 
 // ====== BUFFS DE MAPA (efeito instantâneo) ======
@@ -1957,7 +1940,7 @@ function updateCollectibles(dt){
     const col=collectibles[i];col.life-=dt;
     if(col.life<=0){collectibles.splice(i,1);continue;}
     if(Math.hypot(bear.x-col.x,bear.y-col.y)<bear.size+COLLECT_R){
-      if(col.type==='passive')collectPassive(col.id);else applyMapBuff(col.id,'bear');
+      applyMapBuff(col.id,'bear');
       collectibles.splice(i,1);continue;
     }
     if(col.type==='map'){
