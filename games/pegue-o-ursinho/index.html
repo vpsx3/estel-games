@@ -702,9 +702,18 @@ function availArea(){
 // O mundo continua em coordenadas de tiles (CW×CH). Em vez de mostrar o mapa
 // inteiro encolhido, o canvas vira uma "janela" em retrato com zoom fixo
 // centrada no ursinho — assim as sprites ficam grandes no celular.
-const TILES_ACROSS=9;          // tiles visíveis na largura (~2x vs. o mapa inteiro de 18 tiles)
-const PLAY_MAX_ASPECT=0.62;    // largura/altura máx. da área de jogo: mantém o formato retrato (mapa ~0.6)
-const camCoarsePointer=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart'in window);
+// ===== Tier de dispositivo (fonte única de verdade, calculado 1x no load) =====
+const IS_TOUCH=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart'in window);
+const DEVICE=IS_TOUCH?'mobile':'desktop';
+
+// ===== Config de câmera por dispositivo =====
+const CAM_CONFIG={
+  // retrato seguindo o urso nos 2 eixos — comportamento atual, NÃO ALTERAR
+  mobile:{ tilesAcross:9,  maxAspect:0.62, smooth:0.18 },
+  // panorâmica: largura inteira do mapa visível + scroll vertical
+  desktop:{ tilesAcross:18, maxAspect:1.78, smooth:0.18 },
+};
+const CAM=CAM_CONFIG[DEVICE];
 let dpr=1,viewCssW=CW,viewCssH=CH,pxPerWorld=1,camX=0,camY=0,camReady=false;
 function camClamp(v,a,b){return v<a?a:(v>b?b:v);}
 function resizeCanvas(){
@@ -712,19 +721,19 @@ function resizeCanvas(){
   const {w:vw,h:vh}=availArea();
   // área de jogo sempre em retrato: corta a largura se a tela for mais larga que o alvo (letterbox no desktop)
   let pw=vw,ph=vh;
-  if(pw/ph>PLAY_MAX_ASPECT)pw=Math.round(ph*PLAY_MAX_ASPECT);
+  if(pw/ph>CAM.maxAspect)pw=Math.round(ph*CAM.maxAspect);
   dpr=Math.min(window.devicePixelRatio||1,2.5);
   viewCssW=pw;viewCssH=ph;
   canvas.style.width=pw+'px';canvas.style.height=ph+'px';
   canvas.width=Math.max(1,Math.round(pw*dpr));canvas.height=Math.max(1,Math.round(ph*dpr));
   gc.style.width=pw+'px';gc.style.height=ph+'px';
-  pxPerWorld=pw/(TILES_ACROSS*TILE);
+  pxPerWorld=pw/(CAM.tilesAcross*TILE);
   // só re-centra se a câmera já foi inicializada (no startRun): evita tocar em `bear`
   // durante o carregamento, quando ele ainda está na TDZ (let declarado mais abaixo)
   if(camReady)centerCameraOnBear(true);
   // gate de orientação: em dispositivos de toque, pedir retrato quando o aparelho estiver na horizontal
   const rot=document.getElementById('rotateHint');
-  if(rot)rot.style.display=(camCoarsePointer&&vw>vh)?'flex':'none';
+  if(rot)rot.style.display=(IS_TOUCH&&vw>vh)?'flex':'none';
 }
 // alvo da câmera: centraliza no ursinho e trava nas bordas do mapa (sem mostrar fora dele)
 function cameraTarget(){
@@ -737,7 +746,7 @@ function centerCameraOnBear(snap){
   if(typeof bear==='undefined'||!bear)return;
   const t=cameraTarget();
   if(snap){camX=t.tx;camY=t.ty;camReady=true;}
-  else{camX+=(t.tx-camX)*0.18;camY+=(t.ty-camY)*0.18;} // suavização leve para não tremer
+  else{camX+=(t.tx-camX)*CAM.smooth;camY+=(t.ty-camY)*CAM.smooth;} // suavização leve para não tremer
 }
 // transform mundo->canvas: zoom (pxPerWorld) * densidade do dispositivo (dpr) + offset da câmera
 function applyWorldTransform(){
