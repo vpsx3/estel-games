@@ -42,6 +42,7 @@
   #fsHint.show{opacity:1;transform:translateX(-50%) translateY(0);}
   #timer{background:rgba(0,0,0,0.65);color:#a0e0ff;font-size:16px;font-weight:700;padding:5px 12px;border-radius:18px;backdrop-filter:blur(3px);}
   #ghostCount{background:rgba(0,0,0,0.65);color:#d0aaff;font-size:13px;font-weight:700;padding:5px 10px;border-radius:18px;backdrop-filter:blur(3px);}
+  #honeyHud{display:none;position:absolute;top:6px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.65);color:#ffcf66;font-size:15px;font-weight:800;padding:5px 12px;border-radius:18px;backdrop-filter:blur(3px);pointer-events:none;z-index:21;}
   /* HUD de passivos (esquerda) */
   #passiveHud{position:absolute;top:38px;left:8px;display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:20;}
   .phud-chip{display:flex;align-items:center;gap:5px;background:rgba(10,10,24,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:11px;padding:3px 9px 3px 7px;font-size:12px;color:#fff;backdrop-filter:blur(3px);}
@@ -156,6 +157,7 @@
       </button>
     </div>
   </div>
+  <div id="honeyHud">🍯 0</div>
   <div id="passiveHud"></div>
   <div id="fxHud"></div>
   <div id="joystick"><div id="joyKnob"></div></div>
@@ -786,6 +788,13 @@ const JUMP_DURATION=0.55;
 // ====== TUNING DE PACE (overhaul) ======
 const INITIAL_PACE = 0.5;          // urso e fantasmas começam a 50% da velocidade antiga
 const GHOST_PHASE_SCALING = 0.10;  // +10% velocidade de fantasma por fase concluída
+// ====== ECONOMIA DO MEL ======
+const HONEY_PASSIVE_RATE = 1;      // mel ganho por segundo sobrevivido
+const HONEY_PICKUP_VALUE = 5;      // mel por coleta no mapa
+const HONEY_SPAWN_INTERVAL = 12;   // segundos entre tentativas de spawn de mel
+const HONEY_MAX_ON_MAP = 3;        // máx. de potes de mel simultâneos no mapa
+const HONEY_LIFE = 14;             // segundos que um pote fica no mapa
+const HONEY_R = 12;                // raio de coleta (px)
 const SPAWN_INTERVAL_BASE=8, COLLECT_LIFE=10, MAX_COLLECT=4, COLLECT_R=12;
 const GHOST_PALETTES=[
   {body:'rgba(200,170,255,0.92)',eye:'#5522aa',glow:'rgba(150,100,255,0.6)'},
@@ -868,6 +877,11 @@ let map,state,elapsed,lastTime,bear,ghosts,notifications;
 let jumpCd,jumpActive,jumpTimer,nextGhostTime,jumpCdMax,jumpDuration;
 let chosenMapBuffs=[],passiveLevels={},selectionPicks=[];
 let collectibles=[],spawnPool=[],spawnTimer=0;
+// economia do mel (run-local)
+let runHoney=0;          // mel acumulado NESTA run (vira saldo no fim)
+let honeyDrops=[];       // potes de mel no mapa: {x,y,life,born}
+let honeySpawnTimer=0;
+let honeyPassiveAcc=0;   // acumulador fracionário do ganho passivo
 let shieldCharges=0,itemCdReduction=0,resistFrac=0,lightStepsMult=1;
 let postJumpTimer=0,postJumpSpd=0,postJumpMax=0;
 let bearBoostTimer=0,bearBoostMult=1,bearBoostMax=0;
@@ -1600,6 +1614,7 @@ function initGame(){
   jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=biomeEffective(BIOMES[0]).ghostSpawnRate;
   jumpCdMax=10;jumpDuration=JUMP_DURATION;
   passiveLevels={};spawnTimer=SPAWN_INTERVAL_BASE;
+  runHoney=0;honeyDrops=[];honeySpawnTimer=HONEY_SPAWN_INTERVAL;honeyPassiveAcc=0;
   shieldCharges=0;itemCdReduction=0;resistFrac=0;lightStepsMult=1;
   postJumpTimer=0;postJumpSpd=0;postJumpMax=0;
   bearBoostTimer=0;bearBoostMult=1;bearBoostMax=0;
@@ -1818,6 +1833,41 @@ function updateCollectibles(dt){
   }
 }
 
+// ====== ECONOMIA DO MEL ======
+function spawnHoney(){
+  let cells=freeCells().filter(({r,c})=>{
+    const x=c*TILE+TILE/2,y=r*TILE+TILE/2;
+    if(Math.hypot(x-bear.x,y-bear.y)<TILE*3)return false;
+    return !honeyDrops.some(h=>Math.hypot(h.x-x,h.y-y)<TILE*1.2);
+  });
+  if(!cells.length)cells=freeCells();
+  if(!cells.length)return;
+  const cell=cells[Math.floor(Math.random()*cells.length)];
+  honeyDrops.push({x:cell.c*TILE+TILE/2,y:cell.r*TILE+TILE/2,life:HONEY_LIFE,born:Math.random()*6});
+}
+function updateHoney(dt){
+  honeySpawnTimer-=dt;
+  if(honeySpawnTimer<=0){if(honeyDrops.length<HONEY_MAX_ON_MAP)spawnHoney();honeySpawnTimer=HONEY_SPAWN_INTERVAL;}
+  for(let i=honeyDrops.length-1;i>=0;i--){
+    const h=honeyDrops[i];h.life-=dt;
+    if(h.life<=0){honeyDrops.splice(i,1);continue;}
+    if(Math.hypot(bear.x-h.x,bear.y-h.y)<bear.size+HONEY_R){
+      runHoney+=HONEY_PICKUP_VALUE;
+      addNotif('🍯 +'+HONEY_PICKUP_VALUE,'#ffcf66',bear.x,bear.y-30,14);
+      honeyDrops.splice(i,1);
+    }
+  }
+}
+function drawHoney(){
+  for(const h of honeyDrops){
+    ctx.save();
+    const a=0.7+0.3*Math.sin((elapsed+h.born)*4);
+    ctx.globalAlpha=a;ctx.font='22px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('🍯',h.x,h.y+Math.sin((elapsed+h.born)*3)*2);
+    ctx.restore();
+  }
+}
+
 // ====== HUD ======
 function renderPassiveHud(){
   const el=document.getElementById('passiveHud');if(!el)return;
@@ -1999,7 +2049,9 @@ function gameLoop(ts){
   if(biomePhase==='warning'&&biomeElapsed>=BIOME_DURATION)executeBiomeTransition();
   const ghostEff=biomeEffective(BIOMES[currentBiome]);
   if(elapsed>=nextGhostTime){spawnGhost();nextGhostTime=elapsed+ghostEff.ghostSpawnRate;}
-  moveBear(dt);moveGhosts(dt);updateCollectibles(dt);updateEffects(dt);mechUpdate(dt);
+  moveBear(dt);moveGhosts(dt);updateCollectibles(dt);updateHoney(dt);updateEffects(dt);mechUpdate(dt);
+  honeyPassiveAcc += HONEY_PASSIVE_RATE*dt;
+  if(honeyPassiveAcc>=1){const inc=Math.floor(honeyPassiveAcc);runHoney+=inc;honeyPassiveAcc-=inc;}
   if(ghostHideTimer<=0)for(const g of ghosts){
     if(Math.hypot(bear.x-g.x,bear.y-g.y)<bear.size+g.size-5){
       if(bear.invuln>0)continue;
@@ -2013,7 +2065,7 @@ function gameLoop(ts){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   // mundo: câmera com zoom seguindo o ursinho
   applyWorldTransform();
-  drawMap();mechDrawUnder();drawCollectibles();drawDecoy();
+  drawMap();mechDrawUnder();drawCollectibles();drawHoney();drawDecoy();
   if(ghostHideTimer<=0){const ga=mechGhostAlpha();ctx.globalAlpha=ga;ghosts.forEach(g=>drawGhost(g));ctx.globalAlpha=1;}
   drawBear();mechDrawOver();drawNotifications();
   // HUD desenhada no canvas em espaço de tela (independente do zoom da câmera)
@@ -2022,6 +2074,7 @@ function gameLoop(ts){
   ctx.setTransform(1,0,0,1,0,0);
   document.getElementById('timer').textContent=formatTime(elapsed);
   document.getElementById('ghostCount').textContent=`👻 ×${ghosts.length}`;
+  document.getElementById('honeyHud').textContent=`🍯 ${runHoney}`;
   renderEffectsHud();
   requestAnimationFrame(gameLoop);
 }
@@ -2073,12 +2126,13 @@ function startRun(){
   state='playing';
   document.getElementById('overlay').style.display='none';
   document.getElementById('joystick').style.display='block';
+  document.getElementById('honeyHud').style.display='block';
   addNotif('Build: '+buildIcons,'#ffe066',bear.x,bear.y-40,16);
   startSession();
   lastTime=null;requestAnimationFrame(gameLoop);
 }
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('overlay').style.display='flex';document.getElementById('joystick').style.display='none';document.getElementById('buffScreen').classList.remove('active');}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('overlay').style.display='flex';document.getElementById('joystick').style.display='none';document.getElementById('buffScreen').classList.remove('active');document.getElementById('honeyHud').style.display='none';}
 async function renderRanking(hlNick,hlSec){
   document.getElementById('rankingBody').innerHTML=`<tr><td colspan="4" class="loading-msg">${T('rankingLoading')}</td></tr>`;
   const scores=await loadScores();const medals=['🥇','🥈','🥉'];const tbody=document.getElementById('rankingBody');
