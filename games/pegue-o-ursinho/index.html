@@ -783,6 +783,9 @@ async function saveScore(nick,seconds,numGhosts,biomeReached){
 function escapeHtml(str){return String(str).replace(/[&<>"'`]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[ch]));}
 
 const JUMP_DURATION=0.55;
+// ====== TUNING DE PACE (overhaul) ======
+const INITIAL_PACE = 0.5;          // urso e fantasmas começam a 50% da velocidade antiga
+const GHOST_PHASE_SCALING = 0.10;  // +10% velocidade de fantasma por fase concluída
 const SPAWN_INTERVAL_BASE=8, COLLECT_LIFE=10, MAX_COLLECT=4, COLLECT_R=12;
 const GHOST_PALETTES=[
   {body:'rgba(200,170,255,0.92)',eye:'#5522aa',glow:'rgba(150,100,255,0.6)'},
@@ -873,6 +876,7 @@ let invisibleTimer=0,invisibleMax=0,phaseTimer=0,phaseMax=0,reboundActive=false,
 // estado da Jornada do Ursinho (biomas)
 let currentBiome=0;        // índice em BIOMES[] (0–9)
 let cycleCount=0;          // ciclos completos (1→10) concluídos
+let phasesCleared=0;       // nº de trocas de mundo nesta run (reset em initGame)
 let biomeStartTime=0;      // valor de `elapsed` (em s, relógio do jogo) quando o bioma atual iniciou
 let biomePhase='playing';  // 'playing' | 'warning' | 'transitioning'
 let shakeFrames=0;         // frames restantes de tremor de tela na transição
@@ -900,13 +904,18 @@ function weightedRandom(types){
 function randomUnitDir(){const a=Math.random()*Math.PI*2;return{x:Math.cos(a),y:Math.sin(a)};}
 // multiplicador de dificuldade aplicado só no spawn (fantasmas existentes não são recalculados);
 // no jogo com biomas, a escala por tempo vem de biomeEffective (bioma atual + ciclo)
-function getDiffMult(){return biomeEffective(BIOMES[currentBiome]).ghostSpeed;}
+function getDiffMult(){
+  return biomeEffective(BIOMES[currentBiome]).ghostSpeed
+       * INITIAL_PACE
+       * (1 + GHOST_PHASE_SCALING * phasesCleared);
+}
 function makeGhost(tipo,pos){
   const tpl=GHOST_TYPES[tipo];
   return{
     x:pos.x,y:pos.y,
     speed:tpl.speed*getDiffMult(),
     baseSpeed:tpl.speed,
+    baseClassSpeed:tpl.speed,
     size:tpl.size,
     tipo,
     frozen:0,trapped:0,boostTimer:0,boostMult:1,facing:'south',
@@ -956,13 +965,17 @@ function executeBiomeTransition(){
   shakeFrames=3;        // tremor de tela por 3 frames
   ghostHideTimer=0.5;   // fantasmas somem por 500ms
   currentBiome=(currentBiome+1)%TOTAL_BIOMES;
+  phasesCleared++; // +10% de velocidade de fantasma por fase concluída
   if(currentBiome===0)cycleCount++; // completou 1→10, recomeça mais difícil
   const b=BIOMES[currentBiome];
   loadBiomeMap();
   collectibles=[];decoy=null;bear.landingTarget=null;
   placeBearSafe();
   // mantém os mesmos fantasmas (tipo, velocidade, estado); só reposiciona longe do urso no novo mapa
-  ghosts.forEach(g=>{const p=randomFreePosAway(bear,TILE*10);g.x=p.x;g.y=p.y;});
+  ghosts.forEach(g=>{
+    const p=randomFreePosAway(bear,TILE*10); g.x=p.x; g.y=p.y;
+    if(g.baseClassSpeed!=null) g.speed=g.baseClassSpeed*getDiffMult(); // re-scale por fase
+  });
   if(ghosts.length===0)spawnGhost(TILE*10); // garante pelo menos 1 fantasma no novo mundo
   bear.invuln=Math.max(bear.invuln,1); // transição nunca causa morte injusta
   biomeStartTime=elapsed;
@@ -1581,7 +1594,7 @@ function moveBearIce(dt){
 }
 
 function initGame(){
-  currentBiome=0;cycleCount=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;biomeAnnounceTimer=0;
+  currentBiome=0;cycleCount=0;phasesCleared=0;biomePhase='playing';biomeStartTime=0;shakeFrames=0;ghostHideTimer=0;biomeAnnounceTimer=0;
   loadBiomeMap();
   elapsed=0;lastTime=null;notifications=[];ghosts=[];collectibles=[];
   jumpCd=0;jumpActive=false;jumpTimer=0;nextGhostTime=biomeEffective(BIOMES[0]).ghostSpawnRate;
@@ -1593,7 +1606,7 @@ function initGame(){
   ghostSlowTimer=0;ghostSlowMult=1;ghostSlowMax=0;
   invisibleTimer=0;invisibleMax=0;phaseTimer=0;phaseMax=0;reboundActive=false;decoy=null;
   const bs=BIOMES[currentBiome].bearSpawn,gs=BIOMES[currentBiome].ghostSpawn;
-  bear={x:(bs.c+0.5)*TILE,y:(bs.r+0.5)*TILE,speed:3.3,baseSpeed:3.3,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south',moving:false,poisoned:false,poisonEnd:0,vx:0,vy:0,mushCd:0};
+  bear={x:(bs.c+0.5)*TILE,y:(bs.r+0.5)*TILE,speed:3.3*INITIAL_PACE,baseSpeed:3.3*INITIAL_PACE,size:14,frozen:0,invuln:0,landingTarget:null,facing:'south',moving:false,poisoned:false,poisonEnd:0,vx:0,vy:0,mushCd:0};
   ghosts.push(makeGhost('comum',{x:(gs.c+0.5)*TILE,y:(gs.r+0.5)*TILE})); // 1º fantasma da run é sempre comum
   mechReset();
   recalcPassives();
