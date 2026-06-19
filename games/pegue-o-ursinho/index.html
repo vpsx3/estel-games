@@ -206,6 +206,7 @@
       <h2 class="subtitle" id="resultTitle" data-i18n="result_title">O fantasma te pegou!</h2>
       <div class="result-time" id="resultTime">0:00</div>
       <div class="result-ghosts" id="resultGhosts"></div>
+      <div id="resultHoney" style="color:#ffcf66;font-size:14px;font-weight:700;margin-bottom:6px;text-align:center;"></div>
       <div id="resultBiome" style="color:#9fd09f;font-size:13px;margin-bottom:12px;text-align:center;"></div>
       <div id="resultRankMsg" style="color:#ffe066;font-size:13px;margin-bottom:12px;text-align:center;">Salvando...</div>
       <div class="btn-row">
@@ -882,6 +883,26 @@ let runHoney=0;          // mel acumulado NESTA run (vira saldo no fim)
 let honeyDrops=[];       // potes de mel no mapa: {x,y,life,born}
 let honeySpawnTimer=0;
 let honeyPassiveAcc=0;   // acumulador fracionário do ganho passivo
+
+// ====== PERSISTÊNCIA (saldo de mel + atributos comprados) ======
+const SAVE_KEY='estel_pou_save'; // pou = "pegue o ursinho"
+const DEFAULT_SAVE={
+  honey:0,
+  attrs:{ speed_base:0, jump_cd:0, jump_ext:0, double_jump:0, reroll:0 },
+  skins:{ owned:['default'], equipped:'default' } // reservado p/ spec futura de skins
+};
+let saveData=loadSave();
+function loadSave(){
+  try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return structuredClone(DEFAULT_SAVE);
+    const p=JSON.parse(raw);
+    return {
+      honey:Number(p.honey)||0,
+      attrs:Object.assign(structuredClone(DEFAULT_SAVE.attrs),p.attrs||{}),
+      skins:Object.assign(structuredClone(DEFAULT_SAVE.skins),p.skins||{})
+    };
+  }catch{return structuredClone(DEFAULT_SAVE);}
+}
+function persistSave(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(saveData));}catch{}}
 let shieldCharges=0,itemCdReduction=0,resistFrac=0,lightStepsMult=1;
 let postJumpTimer=0,postJumpSpd=0,postJumpMax=0;
 let bearBoostTimer=0,bearBoostMult=1,bearBoostMax=0;
@@ -2146,8 +2167,11 @@ async function endGame(){
   document.getElementById('passiveHud').innerHTML='';
   document.getElementById('fxHud').innerHTML='';
   joyVec.x=joyVec.y=0;joyVec.active=false;resetKnob();
+  saveData.honey += runHoney;
+  persistSave();
   const secs=Math.floor(elapsed),numGhosts=ghosts.length;
   document.getElementById('resultTime').textContent=formatTime(secs);
+  document.getElementById('resultHoney').textContent=`${T('result_honey')}: 🍯 +${runHoney}`;
   document.getElementById('resultGhosts').textContent=`${numGhosts} ${T('ghost_word')}${numGhosts>1?'s':''} · build ${buildIcons}`;
   const biome=BIOMES[currentBiome];
   const cycleStr=cycleCount>0?` · ${T('cycle_label')} ${cycleCount+1}`:'';
@@ -2257,6 +2281,7 @@ const STRINGS_GAME={
     result_rank1:'🏆 Novo recorde mundial! 1º lugar!',
     result_topN:'🏅 {n}º lugar no ranking global!',
     result_miss:'Não entrou no top 10. Tente de novo!',
+    result_honey:'Mel coletado',
     ghost_word:'fantasma',
     badge_new:'NOVO',
     biome_changing:'O mundo está mudando…',
@@ -2318,6 +2343,7 @@ const STRINGS_GAME={
     result_rank1:'🏆 New world record! 1st place!',
     result_topN:'🏅 {n}th place on the global leaderboard!',
     result_miss:'Not in the top 10. Try again!',
+    result_honey:'Honey collected',
     ghost_word:'ghost',
     badge_new:'NEW',
     biome_changing:'The world is changing…',
