@@ -90,6 +90,17 @@
   .btn-small{padding:8px 18px;font-size:13px;border-radius:20px;}
   .menu-btns{display:flex;flex-direction:column;gap:8px;align-items:center;}
   .menu-honey{font-size:18px;font-weight:800;color:#ffcf66;margin-bottom:12px;}
+  .up-balance{font-size:16px;font-weight:800;color:#ffcf66;margin-bottom:12px;}
+  #upgradeList{display:flex;flex-direction:column;gap:8px;width:100%;max-width:360px;margin-bottom:12px;}
+  .up-card{display:flex;align-items:center;gap:10px;background:#1a1a2e;border:2px solid #2a2a45;border-radius:12px;padding:9px 11px;}
+  .up-card.maxed{border-color:#ffd84d;box-shadow:0 0 10px rgba(255,216,77,0.3);}
+  .up-ic{font-size:26px;line-height:1;}
+  .up-info{flex:1;text-align:left;min-width:0;}
+  .up-name{font-size:13px;font-weight:700;color:#fff;}
+  .up-meta{font-size:11px;color:#9aa;margin-top:2px;}
+  .up-meta b{color:#ffe066;}
+  .up-buy{flex-shrink:0;}
+  .up-cost{font-size:11px;color:#ffcf66;font-weight:700;}
   #rankingTable{width:100%;border-collapse:collapse;margin-bottom:12px;}
   #rankingTable th{color:#a0aaff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
   #rankingTable td{padding:6px 8px;font-size:13px;color:#ddd;border-bottom:1px solid rgba(255,255,255,0.06);}
@@ -193,6 +204,12 @@
         <button class="btn btn-secondary" id="btnMenuSkins" data-i18n="menuSkins" disabled>🎨 Skins (em breve)</button>
         <button class="btn btn-secondary btn-small" id="btnMenuRanking" data-i18n="menuRanking">🏆 Ranking</button>
       </div>
+    </div>
+    <div class="screen" id="screenUpgrades">
+      <h2 class="subtitle" data-i18n="upgradesTitle">⬆ Upgrades</h2>
+      <div class="up-balance" id="upgradeBalance">🍯 0</div>
+      <div id="upgradeList"></div>
+      <button class="btn btn-secondary btn-small" id="btnBackUpgrades" data-i18n="btnBackRanking">← Voltar</button>
     </div>
     <div class="screen" id="screenHowto">
       <h2 class="subtitle" data-i18n="howtoSubtitle">Como jogar</h2>
@@ -916,6 +933,49 @@ function loadSave(){
   }catch{return structuredClone(DEFAULT_SAVE);}
 }
 function persistSave(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(saveData));}catch{}}
+
+// ====== ATRIBUTOS PERSISTENTES (comprados com mel) ======
+const ATTR_DEFS={
+  speed_base:{ icon:'👟', name:'Velocidade Base', maxLevel:10,
+    // +8% até +80% (linear, 8% por nível)
+    values:[0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80],
+    costs:[50,80,120,170,230,300,400,520,680,900] },
+  jump_cd:{ icon:'⏱️', name:'CD do Pulo', maxLevel:10,
+    // -10% até -65% de cooldown
+    values:[0.10,0.16,0.22,0.28,0.34,0.40,0.46,0.52,0.58,0.65],
+    costs:[50,80,120,170,230,300,400,520,680,900] },
+  jump_ext:{ icon:'🦘', name:'Pulo Estendido', maxLevel:10,
+    // +0.09s até +0.9s de duração (passos de 0.09s — curva limpa de 10 níveis)
+    values:[0.09,0.18,0.27,0.36,0.45,0.54,0.63,0.72,0.81,0.90],
+    costs:[50,80,120,170,230,300,400,520,680,900] },
+  double_jump:{ icon:'⏫', name:'Pulo Duplo', maxLevel:1, toggle:true,
+    costs:[2500] },   // custo muito alto
+  reroll:{ icon:'🔁', name:'Reroll', maxLevel:1, toggle:true,
+    costs:[3000] },   // custo muito alto
+};
+const ATTR_ORDER=['speed_base','jump_cd','jump_ext','double_jump','reroll'];
+const ATTR_EN={
+  speed_base:'Base Speed', jump_cd:'Jump Cooldown', jump_ext:'Extended Jump',
+  double_jump:'Double Jump', reroll:'Reroll',
+};
+function attrName(id){return (_lang==='en'&&ATTR_EN[id])?ATTR_EN[id]:ATTR_DEFS[id].name;}
+function attrLevel(id){return saveData.attrs[id]||0;}
+function attrNextCost(id){const d=ATTR_DEFS[id];const lv=attrLevel(id);if(lv>=d.maxLevel)return null;return d.costs[lv];}
+function attrEffectText(id,lv){
+  const d=ATTR_DEFS[id];
+  if(d.toggle)return '';
+  const v=d.values[lv]; // efeito no próximo nível (lv = nível atual, índice do próximo)
+  if(v==null)return '';
+  if(id==='speed_base')return '+'+Math.round(v*100)+'%';
+  if(id==='jump_cd')return '−'+Math.round(v*100)+'%';
+  if(id==='jump_ext')return '+'+v.toFixed(2)+'s';
+  return '';
+}
+function buyAttr(id){
+  const cost=attrNextCost(id);if(cost==null)return false;
+  if(saveData.honey<cost)return false;
+  saveData.honey-=cost; saveData.attrs[id]=attrLevel(id)+1; persistSave(); return true;
+}
 let shieldCharges=0,itemCdReduction=0,resistFrac=0,lightStepsMult=1;
 let postJumpTimer=0,postJumpSpd=0,postJumpMax=0;
 let bearBoostTimer=0,bearBoostMult=1,bearBoostMax=0;
@@ -2227,10 +2287,32 @@ document.addEventListener('keydown',e=>{keysDown[e.code]=true;if(['ArrowUp','Arr
 document.addEventListener('keyup',e=>{keysDown[e.code]=false;});
 document.getElementById('btnPlay').addEventListener('click',()=>{const v=document.getElementById('nickInput').value.trim();if(!v){document.getElementById('nickInput').focus();document.getElementById('nickInput').style.borderColor='#ff6060';return;}document.getElementById('nickInput').style.borderColor='';playerNick=v;showScreen('screenMenu');refreshMenu();});
 function refreshMenu(){document.getElementById('menuHoney').textContent=`🍯 ${saveData.honey}`;}
+function renderUpgrades(){
+  document.getElementById('upgradeBalance').textContent=`🍯 ${saveData.honey}`;
+  const list=document.getElementById('upgradeList');list.innerHTML='';
+  ATTR_ORDER.forEach(id=>{
+    const d=ATTR_DEFS[id];const lv=attrLevel(id);const cost=attrNextCost(id);const maxed=cost==null;
+    const card=document.createElement('div');card.className='up-card'+(maxed?' maxed':'');
+    let meta,btnHtml;
+    if(d.toggle){
+      meta=maxed?`<span style="color:#7CE0A0">✓ ${T('attr_unlock')}</span>`:T('attr_unlock');
+      btnHtml=maxed?'':`<button class="btn btn-primary btn-small up-buy"${saveData.honey<cost?' disabled':''}>${T('attr_unlock')}<br><span class="up-cost">🍯 ${cost}</span></button>`;
+    }else{
+      const lvlStr=`<b>${lv}</b>/${d.maxLevel}`;
+      meta=maxed?`${lvlStr} · ${T('attr_max')}`:`${lvlStr} · ${attrEffectText(id,lv)}`;
+      btnHtml=maxed?'':`<button class="btn btn-primary btn-small up-buy"${saveData.honey<cost?' disabled':''}>${T('attr_buy')}<br><span class="up-cost">🍯 ${cost}</span></button>`;
+    }
+    card.innerHTML=`<div class="up-ic">${d.icon}</div><div class="up-info"><div class="up-name">${escapeHtml(attrName(id))}</div><div class="up-meta">${meta}</div></div><div>${btnHtml}</div>`;
+    const btn=card.querySelector('.up-buy');
+    if(btn)btn.addEventListener('click',()=>{if(buyAttr(id)){refreshMenu();renderUpgrades();}});
+    list.appendChild(card);
+  });
+}
 document.getElementById('btnMenuPlay').addEventListener('click',startGame);
 document.getElementById('btnMenuUpgrades').addEventListener('click',()=>{renderUpgrades();showScreen('screenUpgrades');});
 document.getElementById('btnMenuRanking').addEventListener('click',()=>{renderRanking(null,null);showScreen('screenRanking');});
 document.getElementById('btnResultMenu').addEventListener('click',()=>{showScreen('screenMenu');refreshMenu();});
+document.getElementById('btnBackUpgrades').addEventListener('click',()=>{showScreen('screenMenu');refreshMenu();});
 document.getElementById('nickInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btnPlay').click();});
 document.getElementById('btnStartGame').addEventListener('click',startGame);
 document.getElementById('btnStartRun').addEventListener('click',startRun);
@@ -2280,6 +2362,11 @@ const STRINGS_GAME={
     menuUpgrades:'⬆ Upgrades',
     menuSkins:'🎨 Skins (em breve)',
     menuRanking:'🏆 Ranking',
+    upgradesTitle:'⬆ Upgrades',
+    attr_buy:'Comprar',
+    attr_unlock:'Desbloquear',
+    attr_max:'MÁX',
+    attr_locked_funds:'Mel insuficiente',
     buffScreenTitle:'Escolha seus buffs',
     buffScreenSub:'Selecione 3 dos 5 para esta run',
     btn_start_run:'Iniciar ({n}/3)',
@@ -2347,6 +2434,11 @@ const STRINGS_GAME={
     menuUpgrades:'⬆ Upgrades',
     menuSkins:'🎨 Skins (soon)',
     menuRanking:'🏆 Leaderboard',
+    upgradesTitle:'⬆ Upgrades',
+    attr_buy:'Buy',
+    attr_unlock:'Unlock',
+    attr_max:'MAX',
+    attr_locked_funds:'Not enough honey',
     buffScreenTitle:'Choose your buffs',
     buffScreenSub:'Pick 3 of 5 for this run',
     btn_start_run:'Start ({n}/3)',
