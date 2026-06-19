@@ -117,8 +117,8 @@
   .result-ghosts{color:#d0aaff;font-size:13px;margin-bottom:12px;}
   .btn-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
   /* seleção de buffs (pré-partida: 5 escolhe 3) */
-  #buffScreen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(12,12,26,0.96);border-radius:8px;padding:14px;z-index:50;overflow-y:auto;}
-  #buffScreen.active{display:flex;}
+  #buffScreen,#worldChoice{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(12,12,26,0.96);border-radius:8px;padding:14px;z-index:50;overflow-y:auto;}
+  #buffScreen.active,#worldChoice.active{display:flex;}
   .buff-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:2px;text-align:center;}
   .buff-sub{font-size:12px;color:#9090b0;margin-bottom:14px;text-align:center;}
   .buff-cards{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:600px;margin-bottom:14px;}
@@ -183,6 +183,12 @@
     <div class="buff-sub" id="buffScreenSub" data-i18n="buffScreenSub">Selecione 3 dos 5 para esta run</div>
     <div class="buff-cards" id="buffCards"></div>
     <button class="btn btn-primary" id="btnStartRun" disabled>Iniciar (0/3)</button>
+  </div>
+
+  <div id="worldChoice">
+    <div class="buff-title" data-i18n="worldChoiceTitle">Escolha um buff</div>
+    <div class="buff-cards" id="worldChoiceCards"></div>
+    <button class="btn btn-secondary" id="btnWorldReroll" data-i18n="btnReroll" style="display:none;">🔁 Reroll</button>
   </div>
 
   <div id="overlay">
@@ -908,6 +914,16 @@ function weightedPick(list,n){
   return out;
 }
 function weightedOne(list){const total=list.reduce((s,b)=>s+b.mapW,0);let r=Math.random()*total;for(const b of list){r-=b.mapW;if(r<=0)return b;}return list[list.length-1];}
+// universo selecionável (pré-partida e por mundo): exclui fixos já ativos
+function selectablePool(){
+  return MAP_BUFFS.filter(b=>!(b.type==='fixed'&&fixedBuffs.includes(b.id)));
+}
+function addMapToPool(id){
+  if(!spawnPool.some(b=>b.id===id)){
+    const def=MAP_BUFFS.find(b=>b.id===id);
+    if(def)spawnPool.push({...def});
+  }
+}
 
 // ====== ESTADO ======
 let playerNick='Jogador',lastSavedRankData=null,buildIcons='';
@@ -1096,11 +1112,12 @@ function executeBiomeTransition(){
   if(ghosts.length===0)spawnGhost(TILE*10); // garante pelo menos 1 fantasma no novo mundo
   bear.invuln=Math.max(bear.invuln,1); // transição nunca causa morte injusta
   biomeStartTime=elapsed;
-  biomePhase='playing';
   nextGhostTime=elapsed+biomeEffective(b).ghostSpawnRate;
-  biomeAnnounceTimer=BIOME_ANNOUNCE_DURATION; // nome do bioma só aparece aqui, na transição
   bear.vx=0;bear.vy=0;bear.mushCd=0;
   mechReset();
+  // pausa o jogo e abre a escolha de +1 buff; o anúncio do bioma dispara após a escolha
+  biomePhase='choosing';
+  openWorldChoice();
 }
 // anúncio do bioma desenhado no canvas durante alguns segundos após a transição
 function drawBiomeAnnounce(){
@@ -2158,6 +2175,7 @@ function formatTime(s){return`${Math.floor(s/60)}:${Math.floor(s%60).toString().
 
 function gameLoop(ts){
   if(state!=='playing')return;
+  if(biomePhase==='choosing'){lastTime=null;requestAnimationFrame(gameLoop);return;} // pausa real durante a escolha de buff
   if(!lastTime)lastTime=ts;
   const dt=Math.min((ts-lastTime)/1000,0.05);
   lastTime=ts;elapsed+=dt;
@@ -2166,6 +2184,7 @@ function gameLoop(ts){
   const biomeElapsed=elapsed-biomeStartTime;
   if(biomePhase==='playing'&&biomeElapsed>=BIOME_DURATION-BIOME_WARNING_TIME)biomePhase='warning';
   if(biomePhase==='warning'&&biomeElapsed>=BIOME_DURATION)executeBiomeTransition();
+  if(biomePhase==='choosing'){lastTime=null;requestAnimationFrame(gameLoop);return;} // entrou em escolha agora: não integra física neste frame
   const ghostEff=biomeEffective(BIOMES[currentBiome]);
   if(elapsed>=nextGhostTime){spawnGhost();nextGhostTime=elapsed+ghostEff.ghostSpawnRate;}
   moveBear(dt);moveGhosts(dt);updateCollectibles(dt);updateHoney(dt);updateEffects(dt);mechUpdate(dt);
@@ -2206,13 +2225,14 @@ function gameLoop(ts){
 function openSelection(){
   state='selection';
   selectionPicks=[];
+  fixedBuffs=[];fixedTimers={}; // pool de seleção cheio (sem resíduo da run anterior)
   document.getElementById('passiveHud').innerHTML='';
   document.getElementById('fxHud').innerHTML='';
-  const opts=weightedPick(ALL_BUFFS,5);
+  const opts=weightedPick(selectablePool(),5);
   const cards=document.getElementById('buffCards');cards.innerHTML='';
   opts.forEach(buff=>{
     const card=document.createElement('div');card.className='buff-card';card.dataset.id=buff.id;
-    const typeLabel=buff.type==='passive'?`<div class="ptype">${T('type_passive')}</div>`:`<div class="mtype">${T('type_map')}</div>`;
+    const typeLabel=buff.type==='fixed'?`<div class="ptype">${T('type_fixed')}</div>`:`<div class="mtype">${T('type_map')}</div>`;
     card.innerHTML=`<div class="selnum"></div><div class="buff-icon">${buff.icon}</div><div class="buff-name">${escapeHtml(buffName(buff.id))}</div><div class="buff-desc">${escapeHtml(buffDesc(buff.id))}</div><div class="buff-badge rar-${buff.rar}">${rarLabel(buff.rar)}</div>${typeLabel}`;
     card.addEventListener('click',()=>togglePick(buff,card));
     cards.appendChild(card);
@@ -2232,12 +2252,18 @@ function togglePick(buff,card){
 function updateStartBtn(){const btn=document.getElementById('btnStartRun');btn.textContent=T('btn_start_run').replace('{n}',selectionPicks.length);btn.disabled=selectionPicks.length!==3;}
 function startRun(){
   if(selectionPicks.length!==3)return;
-  chosenMapBuffs=selectionPicks.filter(b=>b.type==='map').map(b=>b.id);
-  spawnPool=MAP_BUFFS.filter(b=>chosenMapBuffs.includes(b.id)).map(b=>({...b,type:'map'}));
+  // separa a build inicial por tipo
+  const fixedPicks=selectionPicks.filter(b=>b.type==='fixed');
+  const mapPicks  =selectionPicks.filter(b=>b.type==='map');
+  // buffs de mapa escolhidos entram no pool de spawn da run
+  chosenMapBuffs=mapPicks.map(b=>b.id);
+  spawnPool=MAP_BUFFS.filter(b=>b.type==='map'&&chosenMapBuffs.includes(b.id)).map(b=>({...b}));
   buildIcons=selectionPicks.map(b=>b.icon).join(' ');
   document.getElementById('buffScreen').classList.remove('active');
   initGame();
   centerCameraOnBear(true); // câmera já começa centrada no ursinho
+  // ativa os fixos escolhidos na build inicial
+  fixedPicks.forEach(b=>activateFixed(b.id));
   recalcPassives(); // aplica atributos comprados (mel) ao urso
   state='playing';
   document.getElementById('overlay').style.display='none';
@@ -2246,6 +2272,50 @@ function startRun(){
   addNotif('Build: '+buildIcons,'#ffe066',bear.x,bear.y-40,16);
   startSession();
   lastTime=null;requestAnimationFrame(gameLoop);
+}
+
+// ====== ESCOLHA DE +1 BUFF A CADA TROCA DE MUNDO ======
+let rerollUsed=false;
+function renderWorldChoiceCards(){
+  const opts=weightedPick(selectablePool(),3);
+  const cards=document.getElementById('worldChoiceCards');cards.innerHTML='';
+  opts.forEach(buff=>{
+    const card=document.createElement('div');card.className='buff-card';card.dataset.id=buff.id;
+    const typeLabel=buff.type==='fixed'?`<div class="ptype">${T('type_fixed')}</div>`:`<div class="mtype">${T('type_map')}</div>`;
+    card.innerHTML=`<div class="buff-icon">${buff.icon}</div><div class="buff-name">${escapeHtml(buffName(buff.id))}</div><div class="buff-desc">${escapeHtml(buffDesc(buff.id))}</div><div class="buff-badge rar-${buff.rar}">${rarLabel(buff.rar)}</div>${typeLabel}`;
+    card.addEventListener('click',()=>pickWorldBuff(buff));
+    cards.appendChild(card);
+  });
+}
+function openWorldChoice(){
+  rerollUsed=false;
+  // pool esgotado (muitos fixos ativos): pula a escolha
+  if(selectablePool().length===0){resumeAfterChoice();return;}
+  renderWorldChoiceCards();
+  const rbtn=document.getElementById('btnWorldReroll');
+  rbtn.style.display=saveData.attrs.reroll?'inline-block':'none';
+  rbtn.disabled=false;
+  document.getElementById('worldChoice').classList.add('active');
+  document.getElementById('joystick').style.display='none';
+}
+function pickWorldBuff(buff){
+  if(buff.type==='fixed') activateFixed(buff.id);
+  else                    addMapToPool(buff.id); // passa a spawnar no mapa daqui pra frente
+  buildIcons+=' '+buff.icon;
+  resumeAfterChoice();
+}
+function worldReroll(){
+  if(rerollUsed)return;          // 1 reroll por escolha de mundo
+  rerollUsed=true;
+  renderWorldChoiceCards();
+  document.getElementById('btnWorldReroll').disabled=true;
+}
+function resumeAfterChoice(){
+  document.getElementById('worldChoice').classList.remove('active');
+  if(state==='playing')document.getElementById('joystick').style.display='block';
+  biomeAnnounceTimer=BIOME_ANNOUNCE_DURATION; // anúncio do bioma só após a escolha
+  biomePhase='playing';
+  lastTime=null; // evita dt gigante no próximo frame
 }
 
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('overlay').style.display='flex';document.getElementById('joystick').style.display='none';document.getElementById('buffScreen').classList.remove('active');document.getElementById('honeyHud').style.display='none';}
@@ -2338,6 +2408,7 @@ document.getElementById('btnBackUpgrades').addEventListener('click',()=>{showScr
 document.getElementById('nickInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btnPlay').click();});
 document.getElementById('btnStartGame').addEventListener('click',startGame);
 document.getElementById('btnStartRun').addEventListener('click',startRun);
+document.getElementById('btnWorldReroll').addEventListener('click',worldReroll);
 document.getElementById('btnShowRanking').addEventListener('click',()=>{renderRanking(null,null);showScreen('screenRanking');});
 document.getElementById('btnBackRanking').addEventListener('click',()=>{showScreen('screenMenu');refreshMenu();});
 document.getElementById('btnPlayAgain').addEventListener('click',startGame);
@@ -2425,6 +2496,9 @@ const STRINGS_GAME={
     rar_raro:'Raro',
     type_passive:'★ Passivo (empilha)',
     type_map:'◆ Item de Mapa',
+    type_fixed:'◇ Fixo',
+    worldChoiceTitle:'Escolha um buff',
+    btnReroll:'🔁 Reroll',
     fsHint:'O Safari do iPhone não permite esconder a barra do navegador. Para tela cheia real: Compartilhar → "Adicionar à Tela de Início".',
   },
   en:{
@@ -2497,6 +2571,9 @@ const STRINGS_GAME={
     rar_raro:'Rare',
     type_passive:'★ Passive (stackable)',
     type_map:'◆ Map Item',
+    type_fixed:'◇ Fixed',
+    worldChoiceTitle:'Choose a buff',
+    btnReroll:'🔁 Reroll',
     fsHint:'iPhone Safari can\'t hide the browser bar. For true fullscreen: Share → "Add to Home Screen".',
   },
 };
