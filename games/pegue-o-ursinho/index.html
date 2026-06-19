@@ -870,27 +870,33 @@ const PASSIVE_BUFFS=[
   {id:'post_jump',icon:'💨',name:'Recuperação Pós-Pulo',rar:'incomum',selW:9,mapW:7,desc:'Velocidade extra após o pulo.'},
   {id:'light_steps',icon:'🐾',name:'Passos Leves',rar:'incomum',selW:10,mapW:8,desc:'Fantasmas te perseguem mais devagar.'},
 ];
+// type:'map' = efeito instantâneo ao coletar · type:'fixed' = Buff Fixo (dispara em intervalo pela run)
 const MAP_BUFFS=[
-  {id:'speed_temp',icon:'👟',name:'Velocidade Temp.',rar:'comum',selW:14,mapW:12,desc:'+80% velocidade por 4s.'},
-  {id:'freeze_all',icon:'❄️',name:'Congelamento',rar:'comum',selW:13,mapW:10,desc:'Congela fantasmas por 4s.'},
-  {id:'teleport',icon:'🌀',name:'Teleporte',rar:'comum',selW:14,mapW:11,desc:'Teleporta para ponto seguro.'},
-  {id:'ghost_slow',icon:'🐌',name:'Fantasma Lento',rar:'comum',selW:13,mapW:10,desc:'Fantasmas 50% lentos por 5s.'},
-  {id:'dash',icon:'🏃',name:'Dash',rar:'comum',selW:14,mapW:11,desc:'Arrancada na direção atual.'},
-  {id:'spirit_trap',icon:'🕸️',name:'Armadilha',rar:'comum',selW:13,mapW:10,desc:'Prende o fantasma mais próximo 5s.'},
-  {id:'fake_wall',icon:'🧱',name:'Parede Falsa',rar:'incomum',selW:9,mapW:7,desc:'Atravessa paredes por 4s.'},
-  {id:'light_burst',icon:'💥',name:'Explosão de Luz',rar:'incomum',selW:10,mapW:8,desc:'Empurra fantasmas ao redor.'},
-  {id:'invisible',icon:'🫥',name:'Invisibilidade',rar:'incomum',selW:8,mapW:6,desc:'Fantasmas param de perseguir 5s.'},
-  {id:'slow_time',icon:'🕰️',name:'Tempo Lento',rar:'incomum',selW:10,mapW:8,desc:'Câmera lenta nos fantasmas 4s.'},
-  {id:'swap',icon:'🔀',name:'Troca de Lugar',rar:'incomum',selW:9,mapW:7,desc:'Troca com o fantasma mais distante.'},
-  {id:'lightning',icon:'⚡',name:'Raio',rar:'raro',selW:5,mapW:3,desc:'Elimina o fantasma mais próximo.'},
-  {id:'light_bomb',icon:'💣',name:'Bomba de Luz',rar:'raro',selW:5,mapW:3,desc:'Elimina fantasmas em área.'},
-  {id:'rebound',icon:'🔆',name:'Rebote',rar:'raro',selW:6,mapW:4,desc:'Sobrevive à próxima colisão.'},
-  {id:'decoy',icon:'🧸',name:'Isca de Ursinho',rar:'raro',selW:5,mapW:4,desc:'Chamariz atrai fantasmas 6s.'},
+  {id:'speed_temp',icon:'👟',type:'map',name:'Sapato Turbo',rar:'comum',selW:14,mapW:12,desc:'+80% velocidade por 4s.'},
+  {id:'freeze_all',icon:'❄️',type:'map',name:'Congelamento',rar:'comum',selW:13,mapW:10,desc:'Congela fantasmas por 4s.'},
+  {id:'teleport',icon:'🌀',type:'map',name:'Teleporte',rar:'comum',selW:14,mapW:11,desc:'Teleporta para ponto seguro.'},
+  {id:'ghost_slow',icon:'💤',type:'fixed',name:'Spray Sonolento',rar:'comum',selW:13,mapW:10,desc:'A cada 15s: −30% velocidade nos fantasmas.'},
+  {id:'dash',icon:'🏃',type:'map',name:'Dash',rar:'comum',selW:14,mapW:11,desc:'Arrancada na direção atual.'},
+  {id:'spirit_trap',icon:'🕸️',type:'fixed',name:'Lançador de Teia',rar:'comum',selW:13,mapW:10,desc:'A cada 15s: prende o fantasma mais próximo.'},
+  {id:'fake_wall',icon:'🧱',type:'map',name:'Parede Falsa',rar:'incomum',selW:9,mapW:7,desc:'Atravessa paredes por 4s.'},
+  {id:'light_burst',icon:'💥',type:'map',name:'Explosão de Luz',rar:'incomum',selW:10,mapW:8,desc:'Empurra fantasmas ao redor.'},
+  {id:'invisible',icon:'🫥',type:'map',name:'Invisibilidade',rar:'incomum',selW:8,mapW:6,desc:'Fantasmas param de perseguir 5s.'},
+  {id:'slow_time',icon:'🕰️',type:'map',name:'Tempo Lento',rar:'incomum',selW:10,mapW:8,desc:'Câmera lenta nos fantasmas 4s.'},
+  {id:'swap',icon:'🔀',type:'map',name:'Troca de Lugar',rar:'incomum',selW:9,mapW:7,desc:'Troca com o fantasma mais distante.'},
+  {id:'lightning',icon:'⚡',type:'fixed',name:'Raio',rar:'raro',selW:5,mapW:3,desc:'A cada 50s: elimina o fantasma mais próximo.'},
+  {id:'light_bomb',icon:'💣',type:'map',name:'Bomba de Luz',rar:'raro',selW:5,mapW:3,desc:'Elimina fantasmas em área.'},
+  {id:'rebound',icon:'🔆',type:'map',name:'Rebote',rar:'raro',selW:6,mapW:4,desc:'Sobrevive à próxima colisão.'},
+  {id:'decoy',icon:'🧸',type:'fixed',name:'Isca de Ursinho',rar:'raro',selW:5,mapW:4,desc:'A cada 30s: lança a isca.'},
+  {id:'shield',icon:'🛡️',type:'map',name:'Escudo',rar:'raro',selW:6,mapW:4,desc:'Absorve a próxima colisão (máx. 1 carga).'},
 ];
+// intervalos (s) dos Buffs Fixos
+const FIXED_INTERVALS={ ghost_slow:15, spirit_trap:15, lightning:50, decoy:30 };
+const SPRAY_SLOW_MULT=0.7;   // −30%
+const SPRAY_SLOW_DUR=3;      // duração do slow do spray (s)
 // passivos removidos do fluxo do jogo (Etapa 6) — viraram atributos comprados com mel
-const ALL_BUFFS=[...MAP_BUFFS.map(b=>({...b,type:'map'}))];
+const ALL_BUFFS=[...MAP_BUFFS.map(b=>({...b}))];
 const RAR_LABEL={comum:'Comum',incomum:'Incomum',raro:'Raro'};
-const MAP_FX_TEXT={speed_temp:'+80% velocidade',dash:'arrancada!',freeze_all:'fantasmas congelados',ghost_slow:'fantasmas lentos',slow_time:'tempo lento',teleport:'teleporte!',swap:'troca de lugar',spirit_trap:'fantasma preso',fake_wall:'atravessa paredes',invisible:'invisível',light_burst:'empurrão',lightning:'fantasma eliminado',light_bomb:'área limpa',rebound:'rebote pronto',decoy:'isca lançada'};
+const MAP_FX_TEXT={speed_temp:'+80% velocidade',dash:'arrancada!',freeze_all:'fantasmas congelados',ghost_slow:'fantasmas lentos',slow_time:'tempo lento',teleport:'teleporte!',swap:'troca de lugar',spirit_trap:'fantasma preso',fake_wall:'atravessa paredes',invisible:'invisível',light_burst:'empurrão',lightning:'fantasma eliminado',light_bomb:'área limpa',rebound:'rebote pronto',decoy:'isca lançada',shield:'escudo pronto'};
 function rarColor(r){return r==='raro'?'#ff8a8a':r==='incomum'?'#8ab4ff':'#7CE0A0';}
 function weightedPick(list,n){
   const pool=list.map(b=>({...b}));const out=[];
@@ -910,6 +916,8 @@ let jumpCd,jumpActive,jumpTimer,nextGhostTime,jumpCdMax,jumpDuration;
 let chosenMapBuffs=[],passiveLevels={},selectionPicks=[];
 let collectibles=[],spawnPool=[],spawnTimer=0;
 // economia do mel (run-local)
+let fixedBuffs=[];       // ids de buffs fixos ativos nesta run
+let fixedTimers={};      // {id: segundos até próximo disparo}
 let runHoney=0;          // mel acumulado NESTA run (vira saldo no fim)
 let honeyDrops=[];       // potes de mel no mapa: {x,y,life,born}
 let honeySpawnTimer=0;
@@ -1710,6 +1718,7 @@ function initGame(){
   jumpCdMax=10;jumpDuration=JUMP_DURATION;
   passiveLevels={};spawnTimer=SPAWN_INTERVAL_BASE;
   runHoney=0;honeyDrops=[];honeySpawnTimer=HONEY_SPAWN_INTERVAL;honeyPassiveAcc=0;
+  fixedBuffs=[];fixedTimers={};
   shieldCharges=0;itemCdReduction=0;resistFrac=0;lightStepsMult=1;
   postJumpTimer=0;postJumpSpd=0;postJumpMax=0;
   bearBoostTimer=0;bearBoostMult=1;bearBoostMax=0;
@@ -1891,6 +1900,22 @@ function applyMapBuff(id,target){
     case 'light_bomb':{for(let i=ghosts.length-1;i>=0;i--){if(Math.hypot(ghosts[i].x-bear.x,ghosts[i].y-bear.y)<TILE*3.5)ghosts.splice(i,1);}break;}
     case 'rebound':reboundActive=true;break;
     case 'decoy':decoy={x:bear.x,y:bear.y,life:6,maxLife:6};break;
+    case 'shield':shieldCharges=Math.min(1,shieldCharges+1);break; // máx 1 carga
+  }
+}
+
+// ====== BUFFS FIXOS (efeito permanente na run, dispara em intervalo) ======
+function activateFixed(id){
+  if(fixedBuffs.includes(id))return;
+  fixedBuffs.push(id); fixedTimers[id]=FIXED_INTERVALS[id];
+}
+function triggerFixed(id){
+  switch(id){
+    case 'ghost_slow': ghostSlowTimer=SPRAY_SLOW_DUR;ghostSlowMult=SPRAY_SLOW_MULT;ghostSlowMax=SPRAY_SLOW_DUR;
+      addNotif('💤 '+buffName(id),'#bfe0ff',bear.x,bear.y-30,13);break;
+    case 'spirit_trap':{const g=nearestGhost();if(g)g.trapped=5;break;}
+    case 'lightning':{const g=nearestGhost();if(g)ghosts.splice(ghosts.indexOf(g),1);break;}
+    case 'decoy': decoy={x:bear.x,y:bear.y,life:6,maxLife:6};break;
   }
 }
 
@@ -1962,13 +1987,13 @@ function drawHoney(){
 }
 
 // ====== HUD ======
+// HUD de Buffs Fixos ativos (esquerda): ícone + cooldown até o próximo disparo
 function renderPassiveHud(){
   const el=document.getElementById('passiveHud');if(!el)return;
-  const ids=Object.keys(passiveLevels).filter(k=>passiveLevels[k]>0);
-  el.innerHTML=ids.map(id=>{
-    const b=PASSIVE_BUFFS.find(x=>x.id===id);const lvl=passiveLevels[id];
-    const max=lvl>=10?' max':'';const lbl=lvl>=10?T('notif_max'):('L'+lvl);
-    return`<div class="phud-chip rar-${b.rar}${max}"><span class="pi">${b.icon}</span><b>${lbl}</b></div>`;
+  el.innerHTML=fixedBuffs.map(id=>{
+    const b=MAP_BUFFS.find(x=>x.id===id)||{icon:'?',rar:'comum'};
+    const cd=Math.max(0,Math.ceil(fixedTimers[id]||0));
+    return`<div class="phud-chip rar-${b.rar}"><span class="pi">${b.icon}</span><b>${cd}s</b></div>`;
   }).join('');
 }
 function activeEffects(){
@@ -1994,6 +2019,7 @@ function renderEffectsHud(){
     chips.push(`<div class="fxchip"><span class="fi">${e.icon}</span><span class="fn">${e.name}</span><span class="ft">${e.t.toFixed(1)}s</span><div class="fxbar"><div class="fxbarfill" style="width:${pct}%;background:${e.color}"></div></div></div>`);
   });
   document.getElementById('fxHud').innerHTML=chips.join('');
+  renderPassiveHud(); // atualiza cooldowns dos Buffs Fixos por frame
 }
 
 // ====== DESENHO ======
@@ -2145,6 +2171,10 @@ function gameLoop(ts){
   moveBear(dt);moveGhosts(dt);updateCollectibles(dt);updateHoney(dt);updateEffects(dt);mechUpdate(dt);
   honeyPassiveAcc += HONEY_PASSIVE_RATE*dt;
   if(honeyPassiveAcc>=1){const inc=Math.floor(honeyPassiveAcc);runHoney+=inc;honeyPassiveAcc-=inc;}
+  for(const id of fixedBuffs){
+    fixedTimers[id]-=dt;
+    if(fixedTimers[id]<=0){ triggerFixed(id); fixedTimers[id]=FIXED_INTERVALS[id]; }
+  }
   if(ghostHideTimer<=0)for(const g of ghosts){
     if(Math.hypot(bear.x-g.x,bear.y-g.y)<bear.size+g.size-5){
       if(bear.invuln>0)continue;
@@ -2486,26 +2516,26 @@ const BUFF_EN={
   speed_base:{name:'Base Speed',desc:"Permanently increases the bear's speed."},
   jump_cd:{name:'Jump Cooldown',desc:'Reduces the jump cooldown.'},
   jump_ext:{name:'Extended Jump',desc:'Increases jump duration.'},
-  shield:{name:'Shield',desc:'Absorbs ghost collisions.'},
   item_cd:{name:'Fast Recharge',desc:'Map items reappear faster.'},
   resist:{name:'Ghost Resistance',desc:'Reduces negative effects.'},
   post_jump:{name:'Post-Jump Recovery',desc:'Extra speed after jumping.'},
   light_steps:{name:'Light Steps',desc:'Ghosts chase you more slowly.'},
-  speed_temp:{name:'Temp. Speed',desc:'+80% speed for 4s.'},
+  speed_temp:{name:'Turbo Shoe',desc:'+80% speed for 4s.'},
   freeze_all:{name:'Freeze',desc:'Freezes ghosts for 4s.'},
   teleport:{name:'Teleport',desc:'Teleports to a safe spot.'},
-  ghost_slow:{name:'Ghost Slow',desc:'Ghosts 50% slower for 5s.'},
+  ghost_slow:{name:'Sleepy Spray',desc:'Every 15s: −30% ghost speed.'},
   dash:{name:'Dash',desc:'Dash in the current direction.'},
-  spirit_trap:{name:'Trap',desc:'Traps the nearest ghost for 5s.'},
+  spirit_trap:{name:'Web Launcher',desc:'Every 15s: traps the nearest ghost.'},
   fake_wall:{name:'Phase Through',desc:'Walk through walls for 4s.'},
   light_burst:{name:'Light Burst',desc:'Pushes nearby ghosts away.'},
   invisible:{name:'Invisibility',desc:'Ghosts stop chasing for 5s.'},
   slow_time:{name:'Slow Time',desc:'Ghosts in slow-mo for 4s.'},
   swap:{name:'Swap',desc:'Swap places with farthest ghost.'},
-  lightning:{name:'Lightning',desc:'Eliminates the nearest ghost.'},
+  lightning:{name:'Lightning',desc:'Every 50s: eliminates the nearest ghost.'},
   light_bomb:{name:'Light Bomb',desc:'Eliminates ghosts in an area.'},
   rebound:{name:'Rebound',desc:'Survive the next collision.'},
-  decoy:{name:'Decoy Bear',desc:'Lure attracts ghosts for 6s.'},
+  decoy:{name:'Decoy Bear',desc:'Every 30s: deploys the decoy.'},
+  shield:{name:'Shield',desc:'Absorbs the next collision (max 1 charge).'},
 };
 const MAP_FX_EN={
   speed_temp:'+80% speed',
@@ -2523,6 +2553,7 @@ const MAP_FX_EN={
   light_bomb:'area cleared',
   rebound:'rebound ready',
   decoy:'decoy deployed',
+  shield:'shield ready',
 };
 let _lang='pt';
 function T(key){return (STRINGS_GAME[_lang]&&STRINGS_GAME[_lang][key])??(STRINGS_GAME.pt[key]??key);}
