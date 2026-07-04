@@ -47,6 +47,7 @@
     display: flex; align-items: center; justify-content: center;
   }
   .palbtn canvas { pointer-events: none; }
+  .palbtn.locked { opacity: 0.35; filter: grayscale(1); }
   .palbtn .cd {
     position: absolute; left: 0; bottom: 0; width: 100%; height: 0%;
     background: rgba(10, 12, 18, 0.75); pointer-events: none;
@@ -2294,6 +2295,7 @@ const el = {};
 const paletteBtns = new Map();
 let portraitCtx = null;
 let inspectorTimer = 0;
+let lockedFeedAt = -Infinity;
 
 function initUI(g, cb) {
   game = g; callbacks = cb;
@@ -2303,6 +2305,7 @@ function initUI(g, cb) {
   }
   portraitCtx = el.portrait.getContext('2d');
   buildPalette();
+  game.onDiscover = id => unlockPaletteBtn(id);
 
   document.querySelectorAll('.speedbtn').forEach(b => {
     b.addEventListener('click', () => {
@@ -2325,6 +2328,8 @@ function setGame(g) {
   game = g;
   el.seedText.textContent = `seed ${g.seedText}`;
   el.feed.innerHTML = '';
+  buildPalette(); // reconstrói respeitando game.discovered
+  game.onDiscover = id => unlockPaletteBtn(id);
   selectCreature(null);
   selectTool('inspect');
   document.querySelectorAll('.speedbtn').forEach(o => o.classList.toggle('active', o.dataset.speed === '1'));
@@ -2345,15 +2350,54 @@ function buildPalette() {
   for (const def of ELEMENTS) {
     const b = document.createElement('button');
     b.className = 'palbtn';
-    b.title = def.name + (def.rare ? ' (cooldown)' : '');
-    b.appendChild(iconCanvas(def.id));
+    const locked = def.fused && !game.discovered.has(def.id);
+    if (locked) {
+      b.classList.add('locked');
+      b.title = '???';
+      b.appendChild(lockedIcon());
+    } else {
+      b.title = def.name + (def.rare ? ' (cooldown)' : '');
+      b.appendChild(iconCanvas(def.id));
+    }
     const cd = document.createElement('div');
     cd.className = 'cd';
     b.appendChild(cd);
-    b.addEventListener('click', () => selectTool(def.id));
+    b.addEventListener('click', () => {
+      if (b.classList.contains('locked')) {
+        const now = performance.now();
+        if (now - lockedFeedAt > 2000) {
+          lockedFeedAt = now;
+          pushFeed('🔒 Descubra este elemento fundindo outros dois', '#888');
+        }
+        return;
+      }
+      selectTool(def.id);
+    });
     el.palette.appendChild(b);
     paletteBtns.set(def.id, b);
   }
+}
+
+// Ícone "?" dos elementos ainda não descobertos
+function lockedIcon() {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 28;
+  const c = cv.getContext('2d');
+  c.fillStyle = '#666';
+  c.font = 'bold 16px "Segoe UI", system-ui, sans-serif';
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText('?', 14, 15);
+  return cv;
+}
+
+// Desbloqueio ao vivo quando uma fusão é descoberta
+function unlockPaletteBtn(id) {
+  const b = paletteBtns.get(id);
+  if (!b || !b.classList.contains('locked')) return;
+  b.classList.remove('locked');
+  const def = ELEMENTS[id];
+  b.title = def.name + (def.rare ? ' (cooldown)' : '');
+  b.querySelector('canvas').replaceWith(iconCanvas(id));
 }
 
 function selectTool(tool) {
@@ -2610,9 +2654,9 @@ function updateHUD() {
   const m = Math.floor(game.time / 60), s = Math.floor(game.time % 60);
   el.worldTime.textContent = `${m}:${String(s).padStart(2, '0')}`;
 
-  // cooldowns dos raros
+  // cooldowns (raros e fundidos: qualquer elemento com cooldown > 0)
   for (const def of ELEMENTS) {
-    if (!def.rare) continue;
+    if (!(def.cooldown > 0)) continue;
     const b = paletteBtns.get(def.id);
     const cd = b.querySelector('.cd');
     const rem = game.cooldowns[def.id] || 0;
@@ -2892,7 +2936,7 @@ class Game {
 
   pour(elem, wx, wy) {
     const def = ELEMENTS[elem];
-    if (def.rare) {
+    if (def.cooldown > 0) {
       if ((this.cooldowns[elem] || 0) > 0) return;
       this.cooldowns[elem] = def.cooldown;
     }
