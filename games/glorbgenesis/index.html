@@ -260,6 +260,12 @@ __m.elements = (() => {
 const E = {
   WOOD: 0, STONE: 1, GLASS: 2, FIRE: 3, WATER: 4, AIR: 5, LIGHTNING: 6,
   ICE: 7, POISON: 8, SLIME: 9, METAL: 10, GOLD: 11, DIAMOND: 12,
+  // Tier 2 (fusões)
+  LAVA: 13, STEEL: 14, PLASMA: 15, SMOKE: 16, MUD: 17, MIST: 18, RUST: 19,
+  SNOW: 20, GLACIER: 21, MAGNET: 22, STORM: 23, ACID: 24, SULFUR: 25,
+  FUNGUS: 26, MOSS: 27, PRISM: 28, RELIC: 29,
+  // Tier 3
+  OBSIDIAN: 30, MIASMA: 31,
 };
 
 const ELEMENTS = [
@@ -276,11 +282,31 @@ const ELEMENTS = [
   { id: E.METAL,     key: 'metal',     name: 'Metal',    color: '#b9c4d0', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 0 },
   { id: E.GOLD,      key: 'gold',      name: 'Ouro',     color: '#ffc832', tags: ['precioso', 'maleável', 'condutor'],     rare: false, cooldown: 0 },
   { id: E.DIAMOND,   key: 'diamond',   name: 'Diamante', color: '#c8f4ff', tags: ['precioso', 'duríssimo', 'raro'],        rare: true,  cooldown: 3.5 },
+  // Tier 2/3 — só existem via fusão (bloqueados na paleta até a descoberta)
+  { id: E.LAVA,     key: 'lava',     name: 'Lava',       color: '#ff4a1a', tags: ['energia', 'destrutivo', 'fluido'],      rare: false, cooldown: 4, fused: true },
+  { id: E.STEEL,    key: 'steel',    name: 'Aço',        color: '#8a99a8', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 4, fused: true },
+  { id: E.PLASMA,   key: 'plasma',   name: 'Plasma',     color: '#ff4ae0', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 8, fused: true },
+  { id: E.SMOKE,    key: 'smoke',    name: 'Fumaça',     color: '#6a6a72', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 4, fused: true },
+  { id: E.MUD,      key: 'mud',      name: 'Lama',       color: '#7a5a34', tags: ['fluido', 'fértil', 'lento'],            rare: false, cooldown: 4, fused: true },
+  { id: E.MIST,     key: 'mist',     name: 'Névoa',      color: '#cfe2e6', tags: ['fluido', 'oculto'],                     rare: false, cooldown: 4, fused: true },
+  { id: E.RUST,     key: 'rust',     name: 'Ferrugem',   color: '#b0622a', tags: ['corrosivo'],                            rare: false, cooldown: 4, fused: true },
+  { id: E.SNOW,     key: 'snow',     name: 'Neve',       color: '#eef6ff', tags: ['frio', 'leve'],                         rare: false, cooldown: 4, fused: true },
+  { id: E.GLACIER,  key: 'glacier',  name: 'Geleira',    color: '#86c4e8', tags: ['frio', 'estrutural'],                   rare: false, cooldown: 4, fused: true },
+  { id: E.MAGNET,   key: 'magnet',   name: 'Ímã',        color: '#5060a0', tags: ['condutor', 'atrativo'],                 rare: false, cooldown: 4, fused: true },
+  { id: E.STORM,    key: 'storm',    name: 'Tempestade', color: '#8f82e0', tags: ['energia', 'volátil'],                   rare: false, cooldown: 4, fused: true },
+  { id: E.ACID,     key: 'acid',     name: 'Ácido',      color: '#c8e42a', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 4, fused: true },
+  { id: E.SULFUR,   key: 'sulfur',   name: 'Enxofre',    color: '#e6d44e', tags: ['tóxico', 'inflamável'],                 rare: false, cooldown: 4, fused: true },
+  { id: E.FUNGUS,   key: 'fungus',   name: 'Cogumelo',   color: '#c07ad0', tags: ['orgânico', 'mutagênico'],               rare: false, cooldown: 4, fused: true },
+  { id: E.MOSS,     key: 'moss',     name: 'Musgo',      color: '#4f8f3c', tags: ['orgânico', 'vital'],                    rare: false, cooldown: 4, fused: true },
+  { id: E.PRISM,    key: 'prism',    name: 'Prisma',     color: '#dcc4f4', tags: ['frágil', 'translúcido'],                rare: false, cooldown: 4, fused: true },
+  { id: E.RELIC,    key: 'relic',    name: 'Relíquia',   color: '#ffdf6a', tags: ['precioso', 'sagrado', 'raro'],          rare: true,  cooldown: 8, fused: true },
+  { id: E.OBSIDIAN, key: 'obsidian', name: 'Obsidiana',  color: '#5a4a7a', tags: ['estrutural', 'duríssimo', 'raro'],      rare: true,  cooldown: 8, fused: true },
+  { id: E.MIASMA,   key: 'miasma',   name: 'Miasma',     color: '#8fae52', tags: ['tóxico', 'volátil', 'raro'],            rare: true,  cooldown: 8, fused: true },
 ];
 
-const FLAMMABLE = new Set([E.WOOD, E.SLIME]);
-const CONDUCTIVE = new Set([E.METAL, E.GOLD]);
-const STRUCTURAL = new Set([E.WOOD, E.STONE, E.METAL, E.GLASS, E.ICE, E.GOLD, E.DIAMOND]);
+const FLAMMABLE = new Set([E.WOOD, E.SLIME, E.SULFUR, E.FUNGUS]);
+const CONDUCTIVE = new Set([E.METAL, E.GOLD, E.STEEL, E.MAGNET]);
+const STRUCTURAL = new Set([E.WOOD, E.STONE, E.METAL, E.GLASS, E.ICE, E.GOLD, E.DIAMOND, E.STEEL, E.GLACIER, E.OBSIDIAN]);
 
 // ---------------------------------------------------------------------------
 // Matriz declarativa de reações entre depósitos adjacentes.
@@ -2210,6 +2236,118 @@ function iconCanvas(id) {
       c.closePath(); c.fill();
       c.strokeStyle = '#fff'; c.lineWidth = 1;
       c.beginPath(); c.moveTo(10, 12); c.lineTo(14, 8); c.lineTo(18, 12); c.stroke(); break;
+    case E.LAVA:
+      c.beginPath(); c.moveTo(14, 5); c.quadraticCurveTo(22, 15, 14, 22);
+      c.quadraticCurveTo(6, 15, 14, 5); c.fill();
+      c.fillStyle = '#ffe27a'; c.beginPath(); c.arc(14, 15, 3, 0, 7); c.fill(); break;
+    case E.STEEL:
+      c.fillRect(6, 9, 16, 10);
+      c.strokeStyle = '#fff'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(6, 12.5); c.lineTo(22, 12.5); c.moveTo(6, 15.5); c.lineTo(22, 15.5); c.stroke(); break;
+    case E.PLASMA:
+      c.beginPath(); c.arc(cx, cy, 7, 0, 7); c.fill();
+      c.beginPath();
+      for (const [dx, dy] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+        c.moveTo(cx + dx * 8, cy + dy * 8); c.lineTo(cx + dx * 11, cy + dy * 11);
+      }
+      c.stroke(); break;
+    case E.SMOKE:
+      c.globalAlpha = 0.6;
+      c.beginPath(); c.arc(10, 19, 4.5, 0, 7); c.fill();
+      c.beginPath(); c.arc(14, 13, 4.5, 0, 7); c.fill();
+      c.beginPath(); c.arc(18, 7, 4, 0, 7); c.fill();
+      c.globalAlpha = 1; break;
+    case E.MUD:
+      c.beginPath(); c.ellipse(cx, 19, 9, 4, 0, 0, 7); c.fill();
+      c.beginPath(); c.arc(11, 13, 1.8, 0, 7); c.arc(17, 11, 1.4, 0, 7); c.fill(); break;
+    case E.MIST:
+      c.globalAlpha = 0.7; c.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {
+        const y = 9 + i * 5;
+        c.beginPath(); c.moveTo(5, y); c.quadraticCurveTo(10, y - 3, 14, y); c.quadraticCurveTo(18, y + 3, 23, y); c.stroke();
+      }
+      c.globalAlpha = 1; break;
+    case E.RUST:
+      c.save(); c.translate(cx, cy); c.rotate(0.3);
+      c.fillRect(-6, -6, 12, 12);
+      c.globalCompositeOperation = 'destination-out';
+      for (const [dx, dy] of [[-6, -6], [6, -6], [-6, 6], [6, 6]]) {
+        c.beginPath(); c.arc(dx, dy, 2.5, 0, 7); c.fill();
+      }
+      c.globalCompositeOperation = 'source-over';
+      c.restore(); break;
+    case E.SNOW:
+      c.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {
+        const a = i * Math.PI / 3 + Math.PI / 6;
+        c.beginPath();
+        c.moveTo(cx - Math.cos(a) * 8, cy - Math.sin(a) * 8);
+        c.lineTo(cx + Math.cos(a) * 8, cy + Math.sin(a) * 8);
+        c.stroke();
+      }
+      break;
+    case E.GLACIER:
+      c.beginPath(); c.moveTo(4, 20); c.lineTo(11, 7); c.lineTo(16, 13); c.lineTo(20, 9); c.lineTo(24, 20);
+      c.closePath(); c.fill();
+      c.strokeStyle = '#3f8cff'; c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(3, 21); c.lineTo(25, 21); c.stroke(); break;
+    case E.MAGNET:
+      c.lineWidth = 4;
+      c.beginPath(); c.arc(cx, 12, 7, Math.PI, 0); c.stroke();
+      c.beginPath(); c.moveTo(7, 12); c.lineTo(7, 20); c.moveTo(21, 12); c.lineTo(21, 20); c.stroke();
+      c.strokeStyle = '#d0d8ff';
+      c.beginPath(); c.moveTo(7, 17); c.lineTo(7, 21); c.moveTo(21, 17); c.lineTo(21, 21); c.stroke(); break;
+    case E.STORM:
+      c.beginPath(); c.arc(11, 10, 5, 0, 7); c.fill();
+      c.beginPath(); c.arc(17, 9, 4.5, 0, 7); c.fill();
+      c.fillRect(7, 9, 14, 5);
+      c.fillStyle = '#ffe94a';
+      c.beginPath(); c.moveTo(15, 15); c.lineTo(11, 20); c.lineTo(14, 20); c.lineTo(11, 25);
+      c.lineTo(17, 19); c.lineTo(14, 19); c.closePath(); c.fill(); break;
+    case E.ACID:
+      c.beginPath(); c.moveTo(14, 5); c.quadraticCurveTo(22, 15, 14, 22);
+      c.quadraticCurveTo(6, 15, 14, 5); c.fill();
+      c.strokeStyle = '#0b0d12'; c.lineWidth = 1.2;
+      c.beginPath(); c.arc(12, 13, 1.8, 0, 7); c.stroke();
+      c.beginPath(); c.arc(16, 16, 1.4, 0, 7); c.stroke(); break;
+    case E.SULFUR:
+      c.beginPath(); c.moveTo(cx, 5); c.lineTo(23, cy); c.lineTo(cx, 23); c.lineTo(5, cy);
+      c.closePath(); c.fill();
+      c.fillStyle = '#7a6a1a'; c.beginPath(); c.arc(cx, cy, 2.2, 0, 7); c.fill(); break;
+    case E.FUNGUS:
+      c.beginPath(); c.arc(cx, 13, 8, Math.PI, 0); c.closePath(); c.fill();
+      c.fillStyle = '#e8d8f0'; c.fillRect(11.5, 13, 5, 9); break;
+    case E.MOSS:
+      for (const [mx, mr] of [[8, 4], [14, 4.5], [20, 4]]) {
+        c.beginPath(); c.arc(mx, 19, mr, Math.PI, 0); c.closePath(); c.fill();
+      }
+      break;
+    case E.PRISM:
+      c.lineWidth = 2;
+      c.beginPath(); c.moveTo(14, 6); c.lineTo(23, 21); c.lineTo(5, 21); c.closePath(); c.stroke();
+      c.strokeStyle = '#fff'; c.lineWidth = 1.2;
+      c.beginPath(); c.moveTo(11, 17); c.lineTo(17, 11); c.stroke(); break;
+    case E.RELIC:
+      c.beginPath();
+      c.moveTo(cx, 5); c.quadraticCurveTo(cx + 2, cy - 2, 23, cy); c.quadraticCurveTo(cx + 2, cy + 2, cx, 23);
+      c.quadraticCurveTo(cx - 2, cy + 2, 5, cy); c.quadraticCurveTo(cx - 2, cy - 2, cx, 5);
+      c.fill();
+      c.lineWidth = 1.5;
+      c.beginPath(); c.arc(cx, cy, 11, 0, 7); c.stroke(); break;
+    case E.OBSIDIAN:
+      c.beginPath(); c.moveTo(cx, 4); c.lineTo(20, cy); c.lineTo(cx, 24); c.lineTo(8, cy);
+      c.closePath(); c.fill();
+      c.strokeStyle = 'rgba(255,255,255,0.35)'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(cx, 4); c.lineTo(cx, 24); c.stroke();
+      c.fillStyle = '#fff'; c.fillRect(13, 6, 2, 3); break;
+    case E.MIASMA:
+      c.globalAlpha = 0.55;
+      c.beginPath(); c.arc(10, 16, 5, 0, 7); c.fill();
+      c.beginPath(); c.arc(17, 13, 5.5, 0, 7); c.fill();
+      c.beginPath(); c.arc(13, 9, 4, 0, 7); c.fill();
+      c.globalAlpha = 1;
+      c.fillStyle = '#3a4a1a';
+      c.beginPath(); c.arc(11, 15, 1.2, 0, 7); c.arc(17, 12, 1.2, 0, 7); c.arc(14, 19, 1.2, 0, 7); c.fill(); break;
   }
   return cv;
 }
