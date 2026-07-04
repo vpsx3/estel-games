@@ -101,6 +101,7 @@
   #inspFaction { font-size: 12px; margin-top: 3px; }
   #inspParents { font-size: 11px; color: #9aa; margin-top: 2px; }
   #inspTraits { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+  #inspGifts { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
   .trait {
     border: 1px solid #555; border-radius: 10px; padding: 1px 8px;
     font-size: 11px; color: #d5d8e0; background: rgba(0,0,0,0.3);
@@ -176,6 +177,7 @@
     </div>
   </div>
   <div id="inspTraits"></div>
+  <div id="inspGifts"></div>
   <div id="inspAbsorbed"></div>
 </div>
 
@@ -912,7 +914,7 @@ __m.evolution = (() => {
 // a escolha rola no RNG individual da criatura, então o mesmo elemento gera
 // resultados diferentes em criaturas diferentes.
 
-const { E, elemName } = __m.elements;
+const { E, elemName, elemColor } = __m.elements;
 // Cada mutação: { id, name, apply(c) } — apply altera stats/flags/bodyPlan.
 const MUTATION_POOLS = {
   [E.FIRE]: [
@@ -1193,9 +1195,76 @@ const MUTATION_POOLS = {
 function clamp01(v) { return Math.max(0, Math.min(1, v)); }
 function mixHue(a, b, t) { return a + (b - a) * t; }
 
+// ---------------------------------------------------------------------------
+// Dons Elementais: 1 dom único por elemento, despertado na PRIMEIRA absorção.
+// Permanentes (exceto o Dom das Cinzas, consumível), não herdados pelos filhos
+// e fora do pool de mutações. A maioria é comportamental: os hooks em
+// creature.js/main.js checam c.gifts.has(E.X); `apply` cobre a parte imediata.
+// ---------------------------------------------------------------------------
+const ELEMENT_GIFTS = {
+  [E.WOOD]:      { name: 'Dom da Semente' },
+  [E.STONE]:     { name: 'Dom da Rocha' },
+  [E.GLASS]:     { name: 'Dom do Reflexo' },
+  [E.FIRE]:      { name: 'Dom da Chama' },
+  [E.WATER]:     { name: 'Dom da Correnteza', apply(c) { c.aquatic = true; } },
+  [E.AIR]:       { name: 'Dom do Vento' },
+  [E.LIGHTNING]: { name: 'Dom da Descarga' },
+  [E.ICE]:       { name: 'Dom do Gelo' },
+  [E.POISON]:    { name: 'Dom da Toxina' },
+  [E.SLIME]:     { name: 'Dom da Gosma' },
+  [E.METAL]:     { name: 'Dom do Ferro', apply(c) { c.stats.defense += 2; } },
+  [E.GOLD]:      { name: 'Dom de Midas' },
+  [E.DIAMOND]:   { name: 'Dom Adamantino' },
+  [E.LAVA]:      { name: 'Dom Magmático' },
+  [E.STEEL]:     { name: 'Dom do Aço' },
+  [E.PLASMA]:    { name: 'Dom do Plasma' },
+  [E.SMOKE]:     { name: 'Dom da Fumaça' },
+  [E.MUD]:       { name: 'Dom do Lodo' },
+  [E.MIST]:      { name: 'Dom da Névoa' },
+  [E.RUST]:      { name: 'Dom da Corrosão' },
+  [E.SNOW]:      { name: 'Dom da Neve' },
+  [E.GLACIER]:   { name: 'Dom Glacial' },
+  [E.MAGNET]:    { name: 'Dom Magnético' },
+  [E.STORM]:     { name: 'Dom da Tempestade' },
+  [E.ACID]:      { name: 'Dom Ácido' },
+  [E.SULFUR]:    { name: 'Dom Sulfúrico' },
+  [E.FUNGUS]:    { name: 'Dom Fúngico', apply(c) { c.sporeParent = true; } },
+  [E.MOSS]:      { name: 'Dom do Musgo' },
+  [E.PRISM]:     { name: 'Dom Prismático', apply(c) { c.immunities.add(E.LIGHTNING); } },
+  [E.RELIC]:     { name: 'Dom da Relíquia' },
+  [E.OBSIDIAN]:  { name: 'Dom Obsidiano', apply(c) { c.stats.defense += 4; c.immunities.add(E.LAVA); } },
+  [E.MIASMA]:    { name: 'Dom Miasmático' },
+  [E.CHARCOAL]:  { name: 'Dom do Carvão' },
+  [E.VAPOR]:     { name: 'Dom do Vapor' },
+  [E.BLIZZARD]:  { name: 'Dom da Nevasca' },
+  [E.ASH]:       { name: 'Dom das Cinzas' },
+  [E.SWAMP]:     { name: 'Dom do Pântano' },
+  [E.MERCURY]:   { name: 'Dom do Mercúrio' },
+  [E.ELECTRUM]:  { name: 'Dom do Eletro', apply(c) { c.temperament.greed = Math.min(1, c.temperament.greed + 0.2); } },
+  [E.GUNPOWDER]: { name: 'Dom da Pólvora' },
+  [E.AURORA]:    { name: 'Dom da Aurora' },
+  [E.PLAGUE]:    { name: 'Dom da Praga' },
+  [E.STARCORE]:  { name: 'Dom Estelar', apply(c) { c.contactDamage += 3; } },
+  [E.ETHER]:     { name: 'Dom Etéreo', apply(c) { c.floaty = true; } },
+  [E.MONOLITH]:  { name: 'Dom do Monólito' },
+};
+
+// Desperta o dom do elemento na criatura (só avisa se ela está no inspetor).
+function grantGift(creature, elem, game) {
+  const gift = ELEMENT_GIFTS[elem];
+  if (!gift || creature.gifts.has(elem)) return;
+  creature.gifts.add(elem);
+  if (gift.apply) gift.apply(creature);
+  if (game.selected === creature) game.feed(`✨ ${creature.name} despertou: ${gift.name}`, elemColor(elem));
+}
+
 // Absorve `elem`: rola uma mutação nova (sem repetir) no RNG da criatura.
 function absorbElement(creature, elem, game) {
   creature.absorbed[elem] = (creature.absorbed[elem] || 0) + 1;
+  // primeira absorção do elemento também desperta o dom único dele
+  if (creature.absorbed[elem] === 1) grantGift(creature, elem, game);
+  // Dom Fúngico: absorver alimenta
+  if (creature.gifts.has(E.FUNGUS) && creature.rng.chance(0.2)) creature.hp = Math.min(creature.stats.maxHp, creature.hp + 5);
   const pool = MUTATION_POOLS[elem] || [];
   const owned = new Set(creature.traits.map(t => t.id));
   const options = pool.filter(m => !owned.has(m.id));
@@ -1214,7 +1283,7 @@ function absorbElement(creature, elem, game) {
   return mut;
 }
 
-return { MUTATION_POOLS, absorbElement };
+return { MUTATION_POOLS, ELEMENT_GIFTS, absorbElement };
 })();
 
 // ==== src/building.js ====
@@ -1318,9 +1387,11 @@ const VEHICLE_STATS = {
 // Consome a carga da criatura e materializa uma construção (ou equipa arma/veículo).
 function attemptBuild(game, c, tx, ty) {
   // elemento mais carregado (precisa ter o suficiente dele)
+  // Dom do Monólito: constrói 2× mais rápido (metade do custo/carga)
+  const need = c.gifts.has(E.MONOLITH) ? Math.max(1, BUILD_THRESHOLD / 2) : BUILD_THRESHOLD;
   let elem = -1, n = 0;
   for (const [k, v] of Object.entries(c.carry)) if (v > n) { n = v; elem = +k; }
-  if (elem === -1 || n < BUILD_THRESHOLD) return;
+  if (elem === -1 || n < need) return;
   const world = game.world;
 
   // ponte precisa de água por perto
@@ -1339,7 +1410,7 @@ function attemptBuild(game, c, tx, ty) {
   const choice = c.rng.weighted(opts);
 
   // paga o custo
-  c.carry[elem] -= BUILD_THRESHOLD;
+  c.carry[elem] -= need;
   if (c.carry[elem] <= 0) delete c.carry[elem];
   c.carryTotal = Object.values(c.carry).reduce((a, b) => a + b, 0);
 
@@ -1360,6 +1431,8 @@ function attemptBuild(game, c, tx, ty) {
   if (world.buildingAt.has(i)) return;
 
   const b = new Building(game, choice.type, bx, by, elem, c.faction, c);
+  // Dom do Monólito: construções erguidas por ela nascem reforçadas
+  if (c.gifts.has(E.MONOLITH)) { b.maxHp *= 1.5; b.hp = b.maxHp; }
   game.addBuilding(b);
   if (game.buildings.length <= 24 || game.envRng.chance(0.25)) {
     game.feed(`🔨 ${c.name} construiu ${b.label}`, elemColor(elem));
@@ -1460,8 +1533,11 @@ function tryEncounter(game, a, b) {
   const wantsGold = c => (c.carry[E.GOLD] || 0) > 0 || (c.seekTile && c.seekTile.elem === E.GOLD);
   const goldTension = (wantsGold(a) && wantsGold(b))
     ? 0.3 * (a.temperament.greed + b.temperament.greed) / 2 : 0;
+  // Dom da Relíquia: acalma a agressão efetiva de quem encara a portadora
+  const aggrA = a.temperament.aggression - (b.gifts.has(E.RELIC) ? 0.3 : 0);
+  const aggrB = b.temperament.aggression - (a.gifts.has(E.RELIC) ? 0.3 : 0);
   const hostScore =
-    (a.temperament.aggression + b.temperament.aggression) / 2 +
+    (aggrA + aggrB) / 2 +
     (a.scary + b.scary) * 0.35 +
     (a.shiny * b.temperament.greed + b.shiny * a.temperament.greed) * 0.5 + // ouro atiça ganância
     goldTension -
@@ -1775,6 +1851,17 @@ class Creature {
     this.ashUsed = false;
     this.inEther = false;     // flutuação transitória no raio do éter
     this.electrumShock = 0;   // cooldown individual do choque do eletro
+    // dons elementais: status e temporizadores
+    this.gifts = new Set();       // ids de elemento cujos dons despertou
+    this.giftTimers = {};         // cooldowns por dom
+    this.dots = [];               // dano contínuo [{dps, t, src, ignoreDefense, hops}]
+    this.chillTimer = 0;          // lentidão de status (×0.7 enquanto > 0)
+    this.frozenTimer = 0;         // congelamento total (Dom da Nevasca)
+    this.stillTime = 0;           // tempo parado (dons da Semente/Névoa/Musgo)
+    this.charcoalStacks = 0;      // acúmulo do Dom do Carvão (máx +5)
+    this.giftVeil = false;        // véu efetivo do Dom da Névoa
+    this.plateStripped = false;   // já perdeu 1 placa para o Dom da Corrosão
+    this.depositDamageTick = false; // dano sendo aplicado pelo tile (Dom Etéreo)
 
     // herança de traits (~70% cada) + reaplicação de efeitos
     if (pa) {
@@ -1855,11 +1942,26 @@ class Creature {
     }
     if (this.age > this.stats.lifespan) return game.kill(this, 'de velhice');
 
+    // status contínuos (dots) e temporizadores de dons
+    if (this.dots.length) {
+      for (let i = this.dots.length - 1; i >= 0; i--) {
+        const dot = this.dots[i];
+        dot.t -= dt;
+        this.hurt(dot.dps * dt, null, dot.src); // attacker null: dots não reativam efeitos on-hit
+        if (dot.t <= 0) this.dots.splice(i, 1);
+      }
+      if (!this.alive) return;
+    }
+    if (this.chillTimer > 0) this.chillTimer -= dt;
+    if (this.frozenTimer > 0) this.frozenTimer -= dt;
+    for (const k in this.giftTimers) if (this.giftTimers[k] > 0) this.giftTimers[k] -= dt;
+
     // dano/efeito do tile atual
     this.inMist = false;
     this.inEther = false;
     if (this.electrumShock > 0) this.electrumShock -= dt;
     const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
+    this.depositDamageTick = true;
     if (world.inBounds(tx, ty)) {
       const d = world.dep[world.idx(tx, ty)];
       if (d === E.FIRE && !this.immunities.has(E.FIRE)) this.hurt(9 * dt, null, 'queimado');
@@ -1901,6 +2003,7 @@ class Creature {
         }
       }
     }
+    this.depositDamageTick = false;
     if (!this.alive) return;
     if (this.regen > 0) this.hp = Math.min(this.stats.maxHp, this.hp + this.regen * dt);
 
@@ -1958,7 +2061,103 @@ class Creature {
 
     this.behave(dt);
     this.move(dt);
+    if (this.gifts.size) this.updateGifts(dt);
+    if (!this.alive) return;
     this.emitTraitParticles(dt);
+  }
+
+  // Dons contínuos (hook upd): rodam depois do movimento, quando há dons.
+  updateGifts(dt) {
+    const game = this.game, world = game.world, rng = this.rng, gifts = this.gifts;
+    const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
+    const inB = world.inBounds(tx, ty);
+    const ti = inB ? world.idx(tx, ty) : -1;
+    const dep = inB ? world.dep[ti] : -1;
+    const tileEmpty = inB && dep === -1 && !world.buildingAt.has(ti);
+
+    // Dom da Névoa: véu efetivo enquanto parada há ≥2s
+    this.giftVeil = gifts.has(E.MIST) && this.stillTime >= 2;
+    // Dom da Semente: parada há ≥3s pode plantar madeira
+    if (gifts.has(E.WOOD) && this.stillTime >= 3 && tileEmpty && rng.chance(0.05 * dt * 60)) world.setDep(ti, E.WOOD, 0);
+    // Dom da Gosma: deixa slime pelo caminho
+    if (gifts.has(E.SLIME) && tileEmpty && rng.chance(0.03 * dt * 60)) world.setDep(ti, E.SLIME, 0);
+    // Dom do Lodo: fugindo, deixa lama para atrasar o perseguidor
+    if (gifts.has(E.MUD) && this.state === 'flee' && tileEmpty && rng.chance(0.05 * dt * 60)) world.setDep(ti, E.MUD, 0);
+    // Dom Glacial: fugindo, deposita geleira no tile que acabou de deixar
+    if (gifts.has(E.GLACIER) && this.state === 'flee' && (this.giftTimers.glacier || 0) <= 0 && tileEmpty) {
+      this.giftTimers.glacier = 18;
+      world.setDep(ti, E.GLACIER, 0);
+    }
+    // Dom do Musgo: regen extra parada
+    if (gifts.has(E.MOSS) && this.stillTime > 0.5) this.hp = Math.min(this.stats.maxHp, this.hp + 1 * dt);
+    // Dom do Pântano: cura em lama/pântano/água
+    if (gifts.has(E.SWAMP) && (dep === E.MUD || dep === E.SWAMP || (inB && world.terrain[ti] === T.WATER))) {
+      this.hp = Math.min(this.stats.maxHp, this.hp + 3 * dt);
+    }
+    // Dom da Fumaça: abaixo de 30% hp solta fumaça e acelera por 3s
+    if (gifts.has(E.SMOKE) && this.hp < this.stats.maxHp * 0.3 && (this.giftTimers.smoke || 0) <= 0) {
+      this.giftTimers.smoke = 25; // vel ×1.4 enquanto o timer está acima de 22
+      if (tileEmpty) world.setDep(ti, E.SMOKE, rng.range(6, 9));
+    }
+    // Dom do Vento: rajada periódica empurra os vizinhos
+    if (gifts.has(E.AIR) && (this.giftTimers.air || 0) <= 0) {
+      this.giftTimers.air = 12;
+      const W = world.w * TILE, H = world.h * TILE;
+      for (const o of game.hash.query(this.x, this.y, 50)) {
+        if (o === this || !o.alive) continue;
+        const d = Math.max(1, this.dist(o));
+        o.x = Math.max(8, Math.min(W - 8, o.x + (o.x - this.x) / d * 24));
+        o.y = Math.max(8, Math.min(H - 8, o.y + (o.y - this.y) / d * 24));
+      }
+      game.sparkBurst(this.x, this.y, '#c9e6e2', 6);
+    }
+    // Dom da Tempestade: raio periódico no inimigo mais próximo
+    if (gifts.has(E.STORM) && (this.giftTimers.storm || 0) <= 0) {
+      let best = null, bd = 100;
+      for (const o of game.hash.query(this.x, this.y, 100)) {
+        if (o === this || !o.alive || (this.faction && o.faction === this.faction)) continue;
+        const d = this.dist(o);
+        if (d < bd) { bd = d; best = o; }
+      }
+      if (best) {
+        this.giftTimers.storm = 20;
+        world.lightningStrike(Math.floor(best.x / TILE), Math.floor(best.y / TILE), rng, game, 1);
+      }
+    }
+    // Dom Miasmático: aura de dano em inimigos colados
+    if (gifts.has(E.MIASMA)) {
+      for (const o of game.hash.query(this.x, this.y, 20)) {
+        if (o !== this && o.alive && (!this.faction || o.faction !== this.faction)) o.hurt(2 * dt, null, `pelo miasma de ${this.name}`);
+      }
+    }
+    // Dom do Carvão: forja lenta perto de fogo/lava (máx +5 de força)
+    if (gifts.has(E.CHARCOAL) && this.charcoalStacks < 5 && (this.giftTimers.charcoal || 0) <= 0 && inB) {
+      let nearFire = false;
+      outer: for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = tx + dx, ny = ty + dy;
+          if (!world.inBounds(nx, ny)) continue;
+          const nd = world.dep[world.idx(nx, ny)];
+          if (nd === E.FIRE || nd === E.LAVA) { nearFire = true; break outer; }
+        }
+      }
+      if (nearFire) { this.giftTimers.charcoal = 10; this.charcoalStacks++; this.stats.strength += 1; }
+    }
+    // Dom da Aurora: cura aliados de facção por perto
+    if (gifts.has(E.AURORA) && this.faction) {
+      for (const o of game.hash.query(this.x, this.y, 60)) {
+        if (o !== this && o.alive && o.faction === this.faction) o.hp = Math.min(o.stats.maxHp, o.hp + 0.5 * dt);
+      }
+    }
+    // Dom Estelar: puxa inimigos para o próprio corpo
+    if (gifts.has(E.STARCORE)) {
+      for (const o of game.hash.query(this.x, this.y, 60)) {
+        if (o === this || !o.alive || (this.faction && o.faction === this.faction)) continue;
+        const d = Math.max(1, this.dist(o));
+        o.x += (this.x - o.x) / d * 6 * dt;
+        o.y += (this.y - o.y) / d * 6 * dt;
+      }
+    }
   }
 
   // Ímã atrai corpos condutores/metálicos; relíquia atrai qualquer criatura
@@ -2061,8 +2260,8 @@ class Creature {
         this.fleeFrom = o; this.fleeTimer = 2.5; this.state = 'flee';
         return;
       }
-      // névoa esconde presas do predador
-      if ((o.inMist || o.mistVeil) && this.rng.chance(0.8)) continue;
+      // névoa esconde presas do predador (inclui o véu do Dom da Névoa)
+      if ((o.inMist || o.mistVeil || o.giftVeil) && this.rng.chance(0.8)) continue;
       if (hostileFaction && this.dist(o) < 46) { this.engage(o); return; }
     }
 
@@ -2078,9 +2277,11 @@ class Creature {
     if (this.state === 'fight' || this.state === 'flee') return;
 
     // construir se carregando o suficiente de um mesmo elemento
+    // (Dom do Monólito: constrói 2× mais rápido — precisa de metade da carga)
     let maxCarry = 0;
     for (const v of Object.values(this.carry)) if (v > maxCarry) maxCarry = v;
-    if (maxCarry >= BUILD_THRESHOLD && this.state !== 'build') {
+    const buildNeed = this.gifts.has(E.MONOLITH) ? Math.max(1, BUILD_THRESHOLD / 2) : BUILD_THRESHOLD;
+    if (maxCarry >= buildNeed && this.state !== 'build') {
       this.pickBuildSpot();
       if (this.buildSpot) { this.state = 'build'; return; }
     }
@@ -2173,9 +2374,11 @@ class Creature {
         const reach = this.bodyPlan.size + t.bodyPlan.size + 4;
         if (this.dist(t) < reach && this.attackCd <= 0) {
           this.attackCd = 0.8;
-          const dmg = Math.max(1, this.attack + this.contactDamage - t.stats.defense * 0.55);
+          const defMul = this.gifts.has(E.STEEL) ? 0.5 : 1; // Dom do Aço ignora metade da defesa
+          const dmg = Math.max(1, this.attack + this.contactDamage - t.stats.defense * 0.55 * defMul);
           t.hurt(dmg, this, `em combate com ${this.name}`);
           game.hitSpark(t.x, t.y, this.dominantElem);
+          if (this.gifts.size) this.applyAttackGifts(t);
           if (this.chainDamage) {
             for (const o of game.hash.query(t.x, t.y, 40)) {
               if (o !== t && o !== this && o.alive && (!this.faction || o.faction !== this.faction)) {
@@ -2234,7 +2437,8 @@ class Creature {
             this.heading = Math.atan2(b.y - this.y, b.x - this.x);
             if (Math.hypot(b.x - this.x, b.y - this.y) < TILE) {
               this.attackCd -= dt;
-              if (this.attackCd <= 0) { this.attackCd = 0.8; b.hp -= this.attack; this.game.hitSpark(b.x, b.y, this.dominantElem); }
+              // Dom da Corrosão: dano dobrado contra construções
+              if (this.attackCd <= 0) { this.attackCd = 0.8; b.hp -= this.attack * (this.gifts.has(E.RUST) ? 2 : 1); this.game.hitSpark(b.x, b.y, this.dominantElem); }
             }
           } else { this.raidTarget = null; this.state = 'wander'; }
         }
@@ -2254,10 +2458,28 @@ class Creature {
     const world = this.game.world;
     let f = this.ignoreTerrain || this.floaty || this.inEther ? 1 : world.moveFactorAtPx(this.x, this.y);
     if (this.aquatic && world.terrainAtPx(this.x, this.y) === T.WATER) f = Math.max(f, 1.05);
+    // dons de movimento: imunidades a lentidão e bônus por tile
+    if (this.gifts.size) {
+      if (this.gifts.has(E.WATER) && world.terrainAtPx(this.x, this.y) === T.WATER) f = Math.max(f, 1.6); // Dom da Correnteza
+      const mtx = Math.floor(this.x / TILE), mty = Math.floor(this.y / TILE);
+      const md = world.inBounds(mtx, mty) ? world.dep[world.idx(mtx, mty)] : -1;
+      if (md !== -1 && !(this.ignoreTerrain || this.floaty || this.inEther)) {
+        if (this.gifts.has(E.SLIME) && md === E.SLIME) f /= 0.75;             // Dom da Gosma
+        if (this.gifts.has(E.MUD) && md === E.MUD) f /= 0.5;                  // Dom do Lodo
+        if (this.gifts.has(E.MUD) && md === E.SWAMP) f /= 0.55;
+        if (this.gifts.has(E.SNOW)) {                                          // Dom da Neve
+          if (md === E.SNOW) f /= 0.85;
+          if (md === E.SNOW || md === E.ICE || md === E.GLACIER) f *= 1.15;
+        }
+      }
+    }
     let sp = this.stats.speed * f;
     if (this.vehicle) sp *= this.vehicle.speedMul;
     if (this.dashTime > 0) sp *= this.dashType === 'electric' ? 2.6 : 1.9;
     if (this.state === 'fight' && this.target && this.target.slowAura) sp *= 0.7;
+    if (this.chillTimer > 0) sp *= 0.7;
+    if ((this.giftTimers.smoke || 0) > 22) sp *= 1.4; // fuga fumegante (Dom da Fumaça)
+    if (this.frozenTimer > 0) sp = 0;
     this.x += Math.cos(this.heading) * sp * dt;
     this.y += Math.sin(this.heading) * sp * dt;
     const m = 8, W = world.w * TILE, H = world.h * TILE;
@@ -2267,12 +2489,50 @@ class Creature {
     if (this.y > H - m) { this.y = H - m; this.heading = -this.heading; }
     this.animPhase += sp * dt * 0.12;
     this.speedNow = sp;
+    // tempo parado (dons da Semente/Névoa/Musgo)
+    if (sp < 5) this.stillTime += dt; else this.stillTime = 0;
   }
 
   emitTraitParticles(dt) {
     const game = this.game;
     for (const p of this.bodyPlan.particles) {
       if (game.fxRng.chance(dt * 2.2)) game.traitParticle(this, p);
+    }
+  }
+
+  // Dons ofensivos (hook atk): efeitos extras ao acertar um golpe corpo-a-corpo.
+  applyAttackGifts(t) {
+    const game = this.game, world = game.world, rng = this.rng, gifts = this.gifts;
+    if (t.alive) {
+      if (gifts.has(E.FIRE)) t.dots.push({ dps: 2, t: 2, src: `queimado pela chama de ${this.name}` });
+      if (gifts.has(E.POISON)) t.dots.push({ dps: 1, t: 3, src: `envenenado por ${this.name}` });
+      if (gifts.has(E.ACID)) t.dots.push({ dps: 2, t: 2, src: `corroído por ${this.name}`, ignoreDefense: true });
+      if (gifts.has(E.PLAGUE)) t.dots.push({ dps: 1, t: 5, src: `infectado pela praga de ${this.name}`, hops: 1 });
+      if (gifts.has(E.ICE)) t.chillTimer = 2;
+      if (gifts.has(E.BLIZZARD) && rng.chance(0.3)) t.frozenTimer = 1;
+      if (gifts.has(E.RUST) && t.bodyPlan.plates >= 1 && !t.plateStripped) { t.plateStripped = true; t.bodyPlan.plates -= 1; }
+    }
+    if (gifts.has(E.LAVA) && rng.chance(0.3)) {
+      const ltx = Math.floor(t.x / TILE), lty = Math.floor(t.y / TILE);
+      if (world.inBounds(ltx, lty)) {
+        const li = world.idx(ltx, lty);
+        if (!world.buildingAt.has(li)) world.setDep(li, E.LAVA, 3);
+      }
+    }
+    // Dom do Plasma: a cada 15s o próximo golpe estoura +8 em área
+    if (gifts.has(E.PLASMA) && (this.giftTimers.plasma || 0) <= 0) {
+      this.giftTimers.plasma = 15;
+      game.sparkBurst(t.x, t.y, '#ff4ae0', 6);
+      for (const o of game.hash.query(t.x, t.y, 30)) {
+        if (o !== this && o.alive && (!this.faction || o.faction !== this.faction)) o.hurt(8, null, `pelo plasma de ${this.name}`);
+      }
+    }
+    // Dom da Pólvora: explosão ocasional no alvo (poupa a própria facção)
+    if (gifts.has(E.GUNPOWDER) && rng.chance(0.15)) {
+      game.sparkBurst(t.x, t.y, '#ffb36a', 8);
+      for (const o of game.hash.query(t.x, t.y, 25)) {
+        if (o !== this && o.alive && (!this.faction || o.faction !== this.faction)) o.hurt(10, null, `pela pólvora de ${this.name}`);
+      }
     }
   }
 
@@ -2309,6 +2569,50 @@ class Creature {
 
   hurt(dmg, attacker, cause) {
     if (!this.alive) return;
+    if (this.gifts.size) {
+      // Dom Etéreo: o 1º tick de dano de depósito ativa fase imune de 3s (cooldown 20s)
+      if (this.depositDamageTick && this.gifts.has(E.ETHER)) {
+        const et = this.giftTimers.ether || 0;
+        if (et > 17) return; // fase etérea ativa
+        if (et <= 0) { this.giftTimers.ether = 20; this.game.absorbPuff(this.x, this.y, '#d8ccff'); return; }
+      }
+      if (attacker) {
+        // Dom do Mercúrio: esquiva total ocasional
+        if (this.gifts.has(E.MERCURY) && this.rng.chance(0.25)) return;
+        // Dom Adamantino: anula 1 golpe a cada 30s (flash branco)
+        if (this.gifts.has(E.DIAMOND) && (this.giftTimers.diamond || 0) <= 0) {
+          this.giftTimers.diamond = 30;
+          this.game.sparkBurst(this.x, this.y, '#ffffff', 8);
+          return;
+        }
+        if (this.gifts.has(E.STONE)) dmg *= 0.85; // Dom da Rocha
+        if (this.gifts.has(E.LIGHTNING) && this.rng.chance(0.3)) attacker.hurt(5, null, `pela descarga de ${this.name}`);
+        if (this.gifts.has(E.METAL)) attacker.hurt(1, null, `pelo ferro de ${this.name}`);
+        // Dom Magnético: repele agressores condutores
+        if (this.gifts.has(E.MAGNET) && attacker.conductive && attacker.alive) {
+          const d = Math.max(1, this.dist(attacker));
+          attacker.x += (attacker.x - this.x) / d * 20;
+          attacker.y += (attacker.y - this.y) / d * 20;
+          attacker.hurt(2, null, `pelo campo magnético de ${this.name}`);
+        }
+        if (this.gifts.has(E.SWAMP) && attacker.alive) attacker.dots.push({ dps: 1, t: 2, src: `pelo lodo de ${this.name}` });
+        // Dom do Vapor: solta vapor ao ser golpeada
+        if (this.gifts.has(E.VAPOR) && this.rng.chance(0.25)) {
+          const world = this.game.world;
+          const vtx = Math.floor(this.x / TILE), vty = Math.floor(this.y / TILE);
+          if (world.inBounds(vtx, vty)) {
+            const vi = world.idx(vtx, vty);
+            if (world.dep[vi] === -1 && !world.buildingAt.has(vi)) world.setDep(vi, E.VAPOR, 5);
+          }
+        }
+      }
+    }
+    // contágio da praga: quem toca o infectado herda o dot (1 salto)
+    if (attacker && this.dots.length) {
+      for (const dot of this.dots) {
+        if (dot.hops > 0) { dot.hops = 0; attacker.dots.push({ dps: dot.dps, t: dot.t, src: dot.src }); break; }
+      }
+    }
     this.hp -= dmg;
     // sangue corrosivo respinga no agressor (attacker=null evita recursão)
     if (this.acidBlood && attacker && dmg > 1) attacker.hurt(2, null, 'por sangue corrosivo');
@@ -2888,6 +3192,7 @@ __m.ui = (() => {
 // HUD, paleta de elementos (ícones desenhados em canvas), feed de eventos e inspetor.
 
 const { ELEMENTS, E, elemName, elemColor } = __m.elements;
+const { ELEMENT_GIFTS } = __m.evolution;
 const { drawCreature } = __m.render;
 let game = null;
 let callbacks = null;
@@ -3364,6 +3669,7 @@ function refreshBuildingInspector() {
   document.getElementById('inspParents').textContent = `Construída por ${b.builder ? b.builder.name : '?'}`;
   document.getElementById('inspStats').textContent = `HP ${Math.ceil(b.hp)}/${b.maxHp}`;
   document.getElementById('inspTraits').innerHTML = '';
+  document.getElementById('inspGifts').innerHTML = '';
   const ab = document.getElementById('inspAbsorbed');
   if (b.burning > 0) { ab.textContent = '🔥 em chamas'; ab.style.color = '#ff6a2a'; }
   else { ab.textContent = ''; ab.style.color = ''; }
@@ -3405,6 +3711,16 @@ function refreshInspector(force) {
     s.style.borderColor = elemColor(t.element);
     s.textContent = t.name;
     tr.appendChild(s);
+  }
+  // dons elementais despertados (abaixo dos traits)
+  const gi = document.getElementById('inspGifts');
+  gi.innerHTML = '';
+  for (const g of c.gifts) {
+    const s = document.createElement('span');
+    s.className = 'trait';
+    s.style.borderColor = elemColor(g);
+    s.textContent = '✨ ' + ELEMENT_GIFTS[g].name;
+    gi.appendChild(s);
   }
   const ab = document.getElementById('inspAbsorbed');
   const parts = [];
@@ -3580,6 +3896,15 @@ class Game {
       this.feed(`♻ ${c.name} renasceu das cinzas`, '#7d7468');
       return;
     }
+    // Dom das Cinzas: revive 1 única vez e o dom é consumido
+    // (independente e cumulativo com a mutação ashRebirth)
+    if (c.hp <= 0 && c.gifts.has(E.ASH)) {
+      c.gifts.delete(E.ASH);
+      c.hp = c.stats.maxHp * 0.25;
+      this.smokeAt(c.x, c.y);
+      this.feed(`♻ ${c.name} renasceu das cinzas`, '#7d7468');
+      return;
+    }
     // slime elástico: divide-se ao invés de morrer (uma vez)
     if (c.splitOnDeath && !c.hasSplit) {
       c.hasSplit = true; c.splitOnDeath = false;
@@ -3599,6 +3924,25 @@ class Game {
         if (o !== c && o.alive) o.hurt(12, null, 'pela explosão póstuma');
       }
       this.sparkBurst(c.x, c.y, '#e6d44e', 8);
+    }
+    // Dom Sulfúrico: explosão ao morrer (dobra o raio se também é explosivo póstumo)
+    if (c.gifts.has(E.SULFUR)) {
+      const r = c.deathBurst ? 80 : 40;
+      for (const o of this.hash.query(c.x, c.y, r)) {
+        if (o !== c && o.alive) o.hurt(15, null, 'pela explosão sulfúrica');
+      }
+      this.sparkBurst(c.x, c.y, '#e6d44e', 10);
+    }
+    // dons de caça do matador: Midas (chance de ouro) e Eletro (presas viram ouro)
+    if (attacker && attacker.alive && attacker.gifts.size) {
+      const vtx = Math.floor(c.x / TILE), vty = Math.floor(c.y / TILE);
+      if (this.world.inBounds(vtx, vty)) {
+        const vi = this.world.idx(vtx, vty);
+        if (!this.world.buildingAt.has(vi)) {
+          if (attacker.gifts.has(E.ELECTRUM)) this.world.setDep(vi, E.GOLD, 0);
+          else if (attacker.gifts.has(E.GOLD) && attacker.rng.chance(0.25)) this.world.setDep(vi, E.GOLD, 0);
+        }
+      }
     }
     this.killCount++;
     if (attacker) this.combatKills++;
@@ -3696,6 +4040,16 @@ class Game {
     }
     this.spawnP(x, y, 0, 0, 0.25, 'rgba(255,240,150,0.9)', r * 0.7);
     for (const c of this.hash.query(x, y, r)) {
+      // Dom Prismático: absorve o raio e cura
+      if (c.gifts.has(E.PRISM)) { c.hp = Math.min(c.stats.maxHp, c.hp + 5); continue; }
+      // Dom do Reflexo: anula o raio e o re-dispara num tile vizinho
+      if (c.gifts.has(E.GLASS) && (c.giftTimers.glass || 0) <= 0) {
+        c.giftTimers.glass = 20;
+        const rtx = Math.floor(c.x / TILE) + this.envRng.int(-1, 1);
+        const rty = Math.floor(c.y / TILE) + this.envRng.int(-1, 1);
+        this.world.lightningStrike(rtx, rty, this.envRng, this, 1);
+        continue;
+      }
       if (!c.immunities.has(E.LIGHTNING)) c.hurt(dmg, null, 'eletrocutado por um raio');
     }
   }
