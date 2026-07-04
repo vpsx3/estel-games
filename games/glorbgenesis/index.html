@@ -1577,6 +1577,7 @@ class Creature {
 
     this.hp = this.stats.maxHp;
     this.age = 0;
+    this.driftT = 0;
     this.carry = {}; this.carryTotal = 0;
     this.faction = null;
     this.weapon = null;
@@ -1634,6 +1635,15 @@ class Creature {
   update(dt) {
     const game = this.game, world = game.world, rng = this.rng;
     this.age += dt;
+    if (this.archetype && this.archetype.id === 'imprevisivel') {
+      this.driftT += dt;
+      if (this.driftT >= 20) {
+        this.driftT = 0;
+        const keys = Object.keys(this.temperament);
+        const k = rng.pick(keys);
+        this.temperament[k] = clamp01(this.temperament[k] + rng.range(-0.10, 0.10));
+      }
+    }
     if (this.age > this.stats.lifespan) return game.kill(this, 'de velhice');
 
     // dano/efeito do tile atual
