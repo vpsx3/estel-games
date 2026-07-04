@@ -1001,6 +1001,84 @@ const MUTATION_POOLS = {
     { id: 'putrid_immunity', name: 'Imunidade Pútrida', apply(c) { c.immunities.add(E.POISON); c.immunities.add(E.MIASMA); } },
     { id: 'sickly_aspect', name: 'Aspecto Doentio', apply(c) { c.bodyPlan.hue = 80; c.bodyPlan.sat = 40; c.bodyPlan.light = 38; } },
   ],
+  [E.CHARCOAL]: [
+    { id: 'charcoal_skin', name: 'Pele de Carvão', apply(c) { c.stats.defense += 3; c.bodyPlan.sat = 0; c.bodyPlan.light = 15; } },
+    { id: 'inner_ember', name: 'Brasa Interna', apply(c) { c.contactDamage += 2; c.bodyPlan.glow = '#ff6a2a'; } },
+    { id: 'slow_burn', name: 'Combustão Lenta', apply(c) { c.stats.lifespan += 80; } },
+    { id: 'soot', name: 'Fuligem', apply(c) { c.scary += 0.2; c.addParticleTrait('smoke', '#3a3a3a'); } },
+  ],
+  [E.VAPOR]: [
+    { id: 'vapor_body', name: 'Corpo de Vapor', apply(c) { c.bodyPlan.alpha = Math.max(0.45, c.bodyPlan.alpha - 0.3); c.floaty = true; } },
+    { id: 'scalding_breath', name: 'Sopro Escaldante', apply(c) { c.contactDamage += 2; } },
+    { id: 'condensation', name: 'Condensação', apply(c) { c.regen += 0.4; } },
+    { id: 'personal_cloud', name: 'Nuvem Pessoal', apply(c) { c.addParticleTrait('puff', '#e8f0f2'); c.scary -= 0.15; } },
+  ],
+  [E.BLIZZARD]: [
+    { id: 'blizzard_child', name: 'Filho da Nevasca', apply(c) { c.immunities.add(E.ICE); c.immunities.add(E.SNOW); c.immunities.add(E.BLIZZARD); } },
+    { id: 'cutting_wind', name: 'Vento Cortante', apply(c) { c.stats.strength += 3; c.stats.speed *= 1.1; } },
+    { id: 'polar_mantle', name: 'Manto Polar', apply(c) { c.stats.maxHp += 14; c.hp += 14; } },
+    { id: 'blizzard_aura', name: 'Aura de Nevasca', apply(c) { c.slowAura = true; c.bodyPlan.aura = 'rgba(216,236,255,0.30)'; } },
+  ],
+  [E.ASH]: [
+    { id: 'ash_rebirth', name: 'Renascido das Cinzas', apply(c) { c.ashRebirth = true; } },
+    { id: 'gray_skin', name: 'Pele Cinzenta', apply(c) { c.stats.defense += 2; c.bodyPlan.sat = 0; c.bodyPlan.light = 45; } },
+    { id: 'living_compost', name: 'Adubo Vivo', apply(c) { c.regen += 0.5; } },
+    { id: 'lesser_phoenix', name: 'Fênix Menor', apply(c) { c.immunities.add(E.FIRE); c.bodyPlan.glow = '#ff9a3a'; } },
+  ],
+  [E.SWAMP]: [
+    { id: 'amphibian', name: 'Anfíbio', apply(c) { c.aquatic = true; } },
+    { id: 'swamp_skin', name: 'Pele Pantanosa', apply(c) { c.immunities.add(E.POISON); c.bodyPlan.hue = 90; c.bodyPlan.sat = 40; } },
+    { id: 'quagmire', name: 'Atoleiro', apply(c) { c.slowAura = true; } },
+    { id: 'bog_vigor', name: 'Vigor do Brejo', apply(c) { c.stats.maxHp += 12; c.hp += 12; c.regen += 0.3; } },
+  ],
+  [E.MERCURY]: [
+    { id: 'quicksilver_blood', name: 'Sangue de Mercúrio', apply(c) { c.stats.speed *= 1.2; } },
+    { id: 'fluid_body_hg', name: 'Corpo Fluido', apply(c) { c.bodyPlan.alpha = 0.85; c.stats.defense += 2; } },
+    { id: 'toxic_touch', name: 'Toque Tóxico', apply(c) { c.contactDamage += 2; c.immunities.add(E.POISON); } },
+    { id: 'liquid_mirror', name: 'Espelho Líquido', apply(c) { c.shiny += 0.5; c.conductive = true; } },
+  ],
+  [E.ELECTRUM]: [
+    { id: 'living_wealth', name: 'Riqueza Viva', apply(c) { c.shiny += 0.6; c.temperament.greed = Math.min(1, c.temperament.greed + 0.25); } },
+    { id: 'golden_charge', name: 'Carga Dourada', apply(c) { c.chainDamage = true; c.bodyPlan.glow = '#ffe88a'; } },
+    { id: 'greed_magnet', name: 'Ímã de Cobiça', apply(c) { c.scary -= 0.2; c.temperament.sociability = Math.min(1, c.temperament.sociability + 0.2); } },
+    { id: 'voltage', name: 'Voltagem', apply(c) { c.stats.speed *= 1.12; c.contactDamage += 1; } },
+  ],
+  [E.GUNPOWDER]: [
+    { id: 'short_fuse', name: 'Pavio Curto', apply(c) { c.temperament.aggression = Math.min(1, c.temperament.aggression + 0.3); c.stats.strength += 3; } },
+    { id: 'explosive_body', name: 'Corpo Explosivo', apply(c) { c.deathBurst = true; } },
+    { id: 'ready_spark', name: 'Faísca Pronta', apply(c) { c.dashType = 'electric'; } },
+    { id: 'grained', name: 'Granulado', apply(c) { c.stats.defense += 2; c.bodyPlan.pattern = 'spots'; c.bodyPlan.patternColor = '#5a4a3a'; } },
+  ],
+  [E.PLAGUE]: [
+    { id: 'pestilent', name: 'Pestilento', apply(c) { c.contactDamage += 3; c.scary += 0.4; } },
+    { id: 'host', name: 'Hospedeiro', apply(c) { c.plagueTrail = true; } },
+    { id: 'sick_resilience', name: 'Resiliência Doentia', apply(c) { c.immunities.add(E.POISON); c.immunities.add(E.MIASMA); c.immunities.add(E.PLAGUE); c.regen += 0.3; } },
+    { id: 'swarm', name: 'Enxame', apply(c) { c.splitOnDeath = true; } },
+  ],
+  [E.AURORA]: [
+    { id: 'aurora_touch', name: 'Toque da Aurora', apply(c) { c.regen += 0.8; } },
+    { id: 'boreal_light', name: 'Luz Boreal', apply(c) { c.bodyPlan.glow = '#a0ffd8'; c.shiny += 0.5; c.scary -= 0.3; } },
+    { id: 'blessed', name: 'Abençoado', apply(c) { c.stats.maxHp += 15; c.hp += 15; c.temperament.sociability = Math.min(1, c.temperament.sociability + 0.2); } },
+    { id: 'polar_veil', name: 'Véu Polar', apply(c) { c.bodyPlan.alpha = Math.max(0.5, c.bodyPlan.alpha - 0.2); c.immunities.add(E.ICE); } },
+  ],
+  [E.STARCORE]: [
+    { id: 'stellar_heart', name: 'Coração Estelar', apply(c) { c.stats.maxHp += 30; c.hp += 30; } },
+    { id: 'own_gravity', name: 'Gravidade Própria', apply(c) { c.magneticBody = true; } },
+    { id: 'solar_glare', name: 'Fulgor Solar', apply(c) { c.bodyPlan.glow = '#ff9a3a'; c.contactDamage += 3; c.scary += 0.3; } },
+    { id: 'dense_matter', name: 'Matéria Densa', apply(c) { c.stats.defense += 5; c.stats.speed *= 0.9; } },
+  ],
+  [E.ETHER]: [
+    { id: 'ethereal_ether', name: 'Etéreo', apply(c) { c.floaty = true; c.bodyPlan.alpha = Math.max(0.4, c.bodyPlan.alpha - 0.35); } },
+    { id: 'healing_touch', name: 'Toque Curativo', apply(c) { c.regen += 1.0; } },
+    { id: 'serenity', name: 'Serenidade', apply(c) { c.temperament.aggression = Math.max(0, c.temperament.aggression - 0.3); c.temperament.sociability = Math.min(1, c.temperament.sociability + 0.3); } },
+    { id: 'old_soul', name: 'Alma Antiga', apply(c) { c.stats.lifespan += 120; } },
+  ],
+  [E.MONOLITH]: [
+    { id: 'monolithic_skin', name: 'Pele Monolítica', apply(c) { c.stats.defense += 7; c.stats.speed *= 0.85; } },
+    { id: 'unshakable_will', name: 'Vontade Inabalável', apply(c) { c.stats.maxHp += 25; c.hp += 25; } },
+    { id: 'born_builder', name: 'Construtor Nato', apply(c) { c.temperament.industriousness = Math.min(1, c.temperament.industriousness + 0.35); } },
+    { id: 'ancestral_presence', name: 'Presença Ancestral', apply(c) { c.scary += 0.2; c.shiny += 0.3; c.temperament.sociability = Math.min(1, c.temperament.sociability + 0.15); } },
+  ],
 };
 
 function clamp01(v) { return Math.max(0, Math.min(1, v)); }
@@ -1584,6 +1662,8 @@ class Creature {
     this.mistVeil = false;
     this.inMist = false;
     this.relicTimer = 0;
+    this.ashRebirth = false;
+    this.ashUsed = false;
 
     // herança de traits (~70% cada) + reaplicação de efeitos
     if (pa) {
@@ -3323,6 +3403,14 @@ class Game {
 
   kill(c, cause, attacker) {
     if (!c.alive) return;
+    // renascido das cinzas: cancela a morte uma única vez
+    if (c.ashRebirth && !c.ashUsed && c.hp <= 0) {
+      c.ashUsed = true;
+      c.hp = c.stats.maxHp * 0.25;
+      this.smokeAt(c.x, c.y);
+      this.feed(`♻ ${c.name} renasceu das cinzas`, '#7d7468');
+      return;
+    }
     // slime elástico: divide-se ao invés de morrer (uma vez)
     if (c.splitOnDeath && !c.hasSplit) {
       c.hasSplit = true; c.splitOnDeath = false;
