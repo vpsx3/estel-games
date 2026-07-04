@@ -461,6 +461,7 @@ const ACTIVE_ELEMS = new Set([
   E.FIRE, E.AIR, E.WATER, E.POISON, E.ICE,
   E.LAVA, E.PLASMA, E.SMOKE, E.MIST, E.STORM, E.ACID, E.RUST, E.MIASMA, E.SNOW, E.FUNGUS, E.MUD,
   E.VAPOR, E.BLIZZARD, E.ASH, E.MERCURY, E.PLAGUE, E.AURORA, E.STARCORE, E.ETHER,
+  E.WOOD, // floresta viva: acorda brevemente ao ser criado (remoção rápida)
 ]);
 // Elementos com vida limitada: depLife conta até expirar.
 const TIMED = new Set([
@@ -711,6 +712,12 @@ class World {
           if (this.dep[ni] === E.PRISM && depth < 2 && rng.chance(0.7)) {
             this.lightningStrike(nx + rng.int(-2, 2), ny + rng.int(-2, 2), rng, game, 2, depth + 1);
           }
+          // efeitos únicos: VIDRO (ricochete) e DIAMANTE (prisma natural, mais raro)
+          // — versões mais fracas do prisma, compartilhando o mesmo limite de depth
+          if ((this.dep[ni] === E.GLASS || this.dep[ni] === E.DIAMOND) && depth < 2 &&
+              rng.chance(this.dep[ni] === E.GLASS ? 0.5 : 0.3)) {
+            this.lightningStrike(nx + rng.int(-1, 1), ny + rng.int(-1, 1), rng, game, 1, depth + 1);
+          }
           const nb = this.buildingAt.get(ni);
           if ((this.dep[ni] >= 0 && CONDUCTIVE.has(this.dep[ni])) || (nb && CONDUCTIVE.has(nb.element))) {
             if (nb) nb.hp -= 14;
@@ -875,6 +882,16 @@ class World {
         // cinza fértil: pode brotar madeira ou musgo; senão logo assenta
         if (rng.chance(0.004)) toSet.push([i, rng.chance(0.5) ? E.WOOD : E.MOSS, 0]);
         else if (rng.chance(0.15)) toClear.push(i);
+      } else if (elem === E.WOOD) {
+        // efeito único: MADEIRA — floresta viva espalha devagar em terreno plano
+        if (rng.chance(0.0008)) {
+          const nx = x + rng.int(-1, 1), ny = y + rng.int(-1, 1);
+          if (this.inBounds(nx, ny)) {
+            const ni = this.idx(nx, ny);
+            if (this.dep[ni] === -1 && !this.buildingAt.has(ni) && this.terrain[ni] === T.PLAIN) toSet.push([ni, E.WOOD, 0]);
+          }
+        }
+        if (rng.chance(0.3)) toClear.push(i); // remoção rápida: não infla o conjunto ativo
       } else if (elem === E.POISON || elem === E.ICE || elem === E.SNOW) {
         if (inert && rng.chance(0.2)) toClear.push(i); // nada mais a reagir por perto
       } else if (elem === E.MUD) {
@@ -2607,6 +2624,19 @@ class Creature {
         }
       }
     }
+    // efeito único: PEDRA — abrigo: pedra adjacente à vítima amortece dano de combate
+    if (attacker) {
+      const world = this.game.world;
+      const stx = Math.floor(this.x / TILE), sty = Math.floor(this.y / TILE);
+      outer: for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          const nx = stx + dx, ny = sty + dy;
+          if (!world.inBounds(nx, ny)) continue;
+          if (world.dep[world.idx(nx, ny)] === E.STONE) { dmg *= 0.92; break outer; }
+        }
+      }
+    }
     // contágio da praga: quem toca o infectado herda o dot (1 salto)
     if (attacker && this.dots.length) {
       for (const dot of this.dots) {
@@ -4050,7 +4080,12 @@ class Game {
         this.world.lightningStrike(rtx, rty, this.envRng, this, 1);
         continue;
       }
-      if (!c.immunities.has(E.LIGHTNING)) c.hurt(dmg, null, 'eletrocutado por um raio');
+      if (!c.immunities.has(E.LIGHTNING)) {
+        // efeito único: METAL — amplificador: raio dói mais sobre tile de metal
+        const ctx2 = Math.floor(c.x / TILE), cty2 = Math.floor(c.y / TILE);
+        const onMetal = this.world.inBounds(ctx2, cty2) && this.world.dep[this.world.idx(ctx2, cty2)] === E.METAL;
+        c.hurt(dmg * (onMetal ? 1.5 : 1), null, 'eletrocutado por um raio');
+      }
     }
   }
   notifyFusion(elem, px, py) {
@@ -4060,6 +4095,7 @@ class Game {
     this.feed(`🧪 Elemento descoberto: ${elemName(elem)}!`, elemColor(elem));
     this.onDiscover && this.onDiscover(elem);
   }
+  // efeito único: OURO — cobiça: despertar ouro atrai os gananciosos da região
   notifyGold(x, y) {
     const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
     for (const c of this.hash.query(x, y, 140)) {
