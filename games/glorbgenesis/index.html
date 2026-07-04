@@ -1492,6 +1492,7 @@ class Creature {
     this.dashCd = rng.range(2, 5);
     this.dashTime = 0;
     this.reproTimer = this.isFirst ? rng.range(12, 18) : rng.range(20, 34);
+    this.produceTimer = rng.range(24, 40);
     this.animPhase = rng.angle();
     this.alive = true;
     this.dominantElem = -1;
@@ -1574,6 +1575,23 @@ class Creature {
     // reprodução
     this.reproTimer -= dt;
     if (this.reproTimer <= 0) this.tryReproduce();
+
+    // produção: devolve ao mapa cópias dos elementos que absorveu
+    this.produceTimer -= dt;
+    if (this.produceTimer <= 0) {
+      this.produceTimer = rng.range(24, 40);
+      const elems = Object.entries(this.absorbed).filter(([k, v]) => v >= 1);
+      if (elems.length && rng.chance(0.5)) {
+        // sorteio ponderado pela contagem de absorções
+        const total = elems.reduce((s, [, v]) => s + v, 0);
+        let roll = rng.next() * total, elem = +elems[0][0];
+        for (const [k, v] of elems) { roll -= v; if (roll <= 0) { elem = +k; break; } }
+        const ptx = Math.floor(this.x / TILE), pty = Math.floor(this.y / TILE);
+        if (elem === E.LIGHTNING) game.world.lightningStrike(ptx, pty, rng, game, 3);
+        else game.world.pour(elem, ptx, pty, 1, rng, game);
+        game.smokeAt(this.x, this.y);
+      }
+    }
 
     // dash elétrico / salto
     if (this.dashType) {
