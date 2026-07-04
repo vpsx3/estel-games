@@ -1033,6 +1033,7 @@ class Building {
     this.y = ty * TILE + TILE / 2;
     this.element = elem;
     this.faction = faction || null;
+    this.builder = builder || null;
     this.maxHp = (HP_BY_ELEM[elem] || 30) * (type === 'tower' ? 1.5 : 1);
     this.hp = this.maxHp;
     this.burning = 0;
@@ -2578,7 +2579,7 @@ function initUI(g, cb) {
     game.brush.radius = parseInt(el.brushSize.value, 10);
     el.brushSizeVal.textContent = el.brushSize.value;
   });
-  document.getElementById('btnCloseInspector').addEventListener('click', () => selectCreature(null));
+  document.getElementById('btnCloseInspector').addEventListener('click', () => { selectCreature(null); selectBuilding(null); });
 }
 
 function setGame(g) {
@@ -2587,6 +2588,7 @@ function setGame(g) {
   el.feed.innerHTML = '';
   buildPalette(); // reconstrói respeitando game.discovered
   game.onDiscover = id => unlockPaletteBtn(id);
+  selectBuilding(null);
   selectCreature(null);
   selectTool('inspect');
   el.lensBtn.classList.remove('active');
@@ -2862,16 +2864,54 @@ function pushFeed(msg, color) {
   setTimeout(() => { d.remove(); }, 12000);
 }
 
+let selectedBuilding = null;
+
 function selectCreature(c) {
   game.selected = c;
-  el.inspector.classList.toggle('hidden', !c);
+  if (c) selectedBuilding = null;
+  el.inspector.classList.toggle('hidden', !c && !selectedBuilding);
   if (c) refreshInspector(true);
+}
+
+// Inspetor de construções: reusa o painel do inspetor de criaturas.
+// selectCreature e selectBuilding são mutuamente exclusivos.
+function selectBuilding(b) {
+  selectedBuilding = b || null;
+  if (b) game.selected = null;
+  el.inspector.classList.toggle('hidden', !b && !game.selected);
+  if (b) refreshBuildingInspector();
+}
+
+function refreshBuildingInspector() {
+  const b = selectedBuilding;
+  if (!b) return;
+  document.getElementById('inspName').textContent = b.label;
+  document.getElementById('inspAge').textContent = '';
+  const f = document.getElementById('inspFaction');
+  if (b.faction) { f.textContent = `⚑ ${b.faction.name}`; f.style.color = b.faction.color; }
+  else { f.textContent = 'sem facção'; f.style.color = '#777'; }
+  document.getElementById('inspParents').textContent = `Construída por ${b.builder ? b.builder.name : '?'}`;
+  document.getElementById('inspStats').textContent = `HP ${Math.ceil(b.hp)}/${b.maxHp}`;
+  document.getElementById('inspTraits').innerHTML = '';
+  const ab = document.getElementById('inspAbsorbed');
+  if (b.burning > 0) { ab.textContent = '🔥 em chamas'; ab.style.color = '#ff6a2a'; }
+  else { ab.textContent = ''; ab.style.color = ''; }
+  // retrato estático: quadrado na cor do elemento
+  const ctx = portraitCtx;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, 110, 110);
+  ctx.fillStyle = '#141821'; ctx.fillRect(0, 0, 110, 110);
+  ctx.fillStyle = elemColor(b.element);
+  ctx.fillRect(39, 39, 32, 32);
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(39.5, 39.5, 31, 31);
 }
 
 function refreshInspector(force) {
   const c = game.selected;
   if (!c) return;
   if (!c.alive) { selectCreature(null); return; }
+  document.getElementById('inspAbsorbed').style.color = '';
   const mins = Math.floor(c.age / 60), secs = Math.floor(c.age % 60);
   document.getElementById('inspName').textContent = c.name + (c.isFirst ? ' ★ (o Primeiro)' : '');
   document.getElementById('inspAge').textContent = `idade ${mins}m${String(secs).padStart(2, '0')}s · ❤ ${Math.ceil(c.hp)}/${Math.ceil(c.stats.maxHp)}`;
@@ -2940,10 +2980,18 @@ function updateHUD() {
   }
 
   inspectorTimer -= 1;
-  if (game.selected && inspectorTimer <= 0) { inspectorTimer = 6; refreshInspector(); }
+  if (inspectorTimer <= 0) {
+    inspectorTimer = 6;
+    if (game.selected) refreshInspector();
+    else if (selectedBuilding) {
+      // fecha se a construção foi destruída; senão atualiza HP/estado
+      if (game.buildings.indexOf(selectedBuilding) === -1) selectBuilding(null);
+      else refreshBuildingInspector();
+    }
+  }
 }
 
-return { initUI, setGame, pushFeed, selectCreature, updateHUD, selectTool };
+return { initUI, setGame, pushFeed, selectCreature, selectBuilding, updateHUD, selectTool };
 })();
 
 // ==== src/main.js ====
@@ -2957,7 +3005,7 @@ const { Creature } = __m.creature;
 const { MUTATION_POOLS } = __m.evolution;
 const { societyTick } = __m.society;
 const { render, buildTerrainCanvas } = __m.render;
-const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectTool } = __m.ui;
+const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool } = __m.ui;
 const STEP = 1 / 30;
 
 class SpatialHash {
@@ -3300,6 +3348,12 @@ function pickCreature(w) {
   return best;
 }
 
+function pickBuilding(w) {
+  const tx = Math.floor(w.x / TILE), ty = Math.floor(w.y / TILE);
+  if (!game.world.inBounds(tx, ty)) return null;
+  return game.world.buildingAt.get(game.world.idx(tx, ty)) || null;
+}
+
 canvas.addEventListener('mousedown', e => {
   const w = toWorld(e.offsetX, e.offsetY);
   if (e.button === 1 || e.button === 2) {
@@ -3308,7 +3362,9 @@ canvas.addEventListener('mousedown', e => {
   }
   else if (e.button === 0) {
     if (game.tool === 'inspect') {
-      selectCreature(pickCreature(w));
+      const c = pickCreature(w);
+      if (c) selectCreature(c);
+      else selectBuilding(pickBuilding(w)); // vazio fecha o inspetor
     } else {
       pouring = true;
       game.pour(game.tool, w.x, w.y);
@@ -3417,9 +3473,12 @@ canvas.addEventListener('touchmove', e => {
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
   if (e.touches.length === 0) {
-    // toque curto e parado com a lupa: seleciona a criatura tocada
+    // toque curto e parado com a lupa: seleciona a criatura (ou construção) tocada
     if (touchMode === 'pan' && !tapMoved && performance.now() - tapTime < 350) {
-      selectCreature(pickCreature(toWorld(tapX, tapY)));
+      const w = toWorld(tapX, tapY);
+      const c = pickCreature(w);
+      if (c) selectCreature(c);
+      else selectBuilding(pickBuilding(w));
     }
     pouring = false; game.brush.visible = false; touchMode = null;
   } else if (e.touches.length === 1) {
