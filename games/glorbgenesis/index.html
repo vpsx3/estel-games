@@ -90,6 +90,7 @@
   #inspName { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 3px; }
   #inspAge, #inspStats, #inspAbsorbed { color: #9aa3b5; font-size: 11.5px; margin-top: 3px; }
   #inspFaction { font-size: 12px; margin-top: 3px; }
+  #inspParents { font-size: 11px; color: #9aa; margin-top: 2px; }
   #inspTraits { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
   .trait {
     border: 1px solid #555; border-radius: 10px; padding: 1px 8px;
@@ -160,6 +161,7 @@
       <div id="inspName"></div>
       <div id="inspAge"></div>
       <div id="inspFaction"></div>
+      <div id="inspParents"></div>
       <div id="inspStats"></div>
     </div>
   </div>
@@ -1392,11 +1394,26 @@ function baseStats(rng) {
   };
 }
 
-function inheritPlan(rng, plan) {
+function inheritPlan(rng, plan, planB) {
   const p = JSON.parse(JSON.stringify(plan));
-  // ~70% conservado; jitter + mutação visual obrigatória
-  p.hue = (p.hue + rng.range(-25, 25) + 360) % 360;
-  p.size = Math.max(4.5, Math.min(11, p.size + rng.range(-0.8, 0.8)));
+  if (planB) {
+    // dois pais: mescla campo a campo
+    let dh = planB.hue - plan.hue;
+    if (dh > 180) dh -= 360; else if (dh < -180) dh += 360;
+    p.hue = (plan.hue + dh / 2 + rng.range(-15, 15) + 360) % 360; // média circular (menor arco)
+    p.size = Math.max(4.5, Math.min(11, (plan.size + planB.size) / 2 + rng.range(-0.6, 0.6)));
+    if (rng.chance(0.5)) p.eyes = planB.eyes;
+    if (rng.chance(0.5)) p.limbs = planB.limbs;
+    if (rng.chance(0.5)) p.pattern = planB.pattern;
+    if (rng.chance(0.5)) p.patternColor = planB.patternColor;
+    const shapeSrc = rng.chance(0.5) ? planB : plan;
+    p.shape = shapeSrc.shape;
+    p.blobOffsets = shapeSrc.blobOffsets.slice();
+  } else {
+    // um pai só: ~70% conservado; jitter + mutação visual obrigatória
+    p.hue = (p.hue + rng.range(-25, 25) + 360) % 360;
+    p.size = Math.max(4.5, Math.min(11, p.size + rng.range(-0.8, 0.8)));
+  }
   if (rng.chance(0.3)) p.eyes = Math.max(1, Math.min(5, p.eyes + rng.sign()));
   if (rng.chance(0.3)) p.limbs = Math.max(0, Math.min(8, p.limbs + rng.sign()));
   if (rng.chance(0.15)) p.shape = rng.pick(['blob', 'segment', 'radial']);
@@ -1435,8 +1452,9 @@ class Creature {
     this.isFirst = !!opts.isFirst;
 
     const pa = opts.parentA, pb = opts.parentB;
+    this.parents = pa ? [pa.name, pb ? pb.name : null] : null;
     if (pa) {
-      this.basePlan = inheritPlan(rng, pa.basePlan);
+      this.basePlan = inheritPlan(rng, pa.basePlan, pb && pb.basePlan);
       this.temperament = inheritTemperament(rng, pa.temperament, pb && pb.temperament);
       this.stats = baseStats(rng);
       const src = pb && rng.chance(0.5) ? pb : pa;
@@ -2860,6 +2878,9 @@ function refreshInspector(force) {
   const f = document.getElementById('inspFaction');
   if (c.faction) { f.textContent = `⚑ ${c.faction.name}`; f.style.color = c.faction.color; }
   else { f.textContent = 'sem facção'; f.style.color = '#777'; }
+  const pr = document.getElementById('inspParents');
+  if (c.parents) pr.textContent = `Filho(a) de ${c.parents[0]}` + (c.parents[1] ? ` e ${c.parents[1]}` : '');
+  else pr.textContent = c.isFirst ? 'Origem: O Primeiro' : '';
   document.getElementById('inspStats').textContent =
     `vel ${c.stats.speed.toFixed(0)} · força ${c.attack.toFixed(1)} · def ${c.stats.defense.toFixed(1)}`
     + (c.weapon ? ` · ${c.weapon.name}` : '') + (c.vehicle ? ` · ${c.vehicle.name}` : '');
