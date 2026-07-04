@@ -387,6 +387,14 @@ function fuseLife(elem, rng) {
   if (elem === E.MIASMA) return 25;
   return 0;
 }
+
+// Elementos com comportamento ambiental próprio: entram em `active` ao despejar.
+const ACTIVE_ELEMS = new Set([
+  E.FIRE, E.AIR, E.WATER, E.POISON, E.ICE,
+  E.LAVA, E.PLASMA, E.SMOKE, E.MIST, E.STORM, E.ACID, E.RUST, E.MIASMA, E.SNOW, E.FUNGUS, E.MUD,
+]);
+// Elementos com vida limitada: depLife conta até expirar.
+const TIMED = new Set([E.FIRE, E.AIR, E.LAVA, E.PLASMA, E.SMOKE, E.MIST, E.STORM, E.ACID, E.MIASMA]);
 const WORLD_W = 192;
 const WORLD_H = 192;
 const TILE = 16;
@@ -421,6 +429,8 @@ class World {
     this.depLife = new Float32Array(this.w * this.h);   // vida de fogo/ar
     this.active = new Set();      // tiles com comportamento ambiental pendente
     this.buildingAt = new Map();  // idx -> Building
+    this.magnetTiles = new Set(); // tiles com ímã (campo de atração)
+    this.relicTiles = new Set();  // tiles com relíquia
 
     const hNoise = makeNoise(rng.fork(), 64);
     const mNoise = makeNoise(rng.fork(), 64);
@@ -457,13 +467,20 @@ class World {
     const d = this.dep[i];
     if (d === E.ICE) f *= 1.3;        // escorregadio
     else if (d === E.SLIME) f *= 0.75; // pegajoso
+    else if (d === E.MUD) f *= 0.5;
+    else if (d === E.SNOW) f *= 0.85;
+    else if (d === E.GLACIER) f *= 1.35;
+    else if (d === E.LAVA) f *= 0.6;
     return f;
   }
 
   setDep(i, elem, life) {
     this.dep[i] = elem;
     this.depLife[i] = life !== undefined ? life : 0;
-    if (elem === E.FIRE || elem === E.AIR || elem === E.WATER || elem === E.POISON || elem === E.ICE) {
+    this.magnetTiles.delete(i); this.relicTiles.delete(i);
+    if (elem === E.MAGNET) this.magnetTiles.add(i);
+    else if (elem === E.RELIC) this.relicTiles.add(i);
+    if (ACTIVE_ELEMS.has(elem)) {
       this.active.add(i);
     } else if (FUSE[elem]) {
       // elemento passivo com par de fusão adjacente: acorda para poder fundir
@@ -482,6 +499,8 @@ class World {
   clearDep(i) {
     this.dep[i] = -1;
     this.active.delete(i);
+    this.magnetTiles.delete(i);
+    this.relicTiles.delete(i);
   }
 
   // Despeja `elem` num raio de tiles ao redor de (tx,ty). Raio especial: raio-relâmpago.
@@ -503,7 +522,7 @@ class World {
         }
         if (elem === E.FIRE) this.setDep(i, E.FIRE, rng.range(3, 6));
         else if (elem === E.AIR) this.setDep(i, E.AIR, rng.range(1.5, 3));
-        else this.setDep(i, elem);
+        else this.setDep(i, elem, fuseLife(elem, rng));
         if (elem === E.GOLD) game.notifyGold(x * TILE + TILE / 2, y * TILE + TILE / 2);
       }
     }
@@ -516,8 +535,25 @@ class World {
     }
   }
 
+  // Explosão de enxofre: fogo em área, dano em construções e criaturas próximas.
+  sulfurExplosion(tx, ty, rng, game) {
+    const px = tx * TILE + TILE / 2, py = ty * TILE + TILE / 2;
+    game.lightningAt(px, py, 30, 20); // flash + onda de choque
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        const x = tx + dx, y = ty + dy;
+        if (!this.inBounds(x, y)) continue;
+        const i = this.idx(x, y);
+        const b = this.buildingAt.get(i);
+        if (b) b.hp -= 40;
+        if (this.dep[i] !== -1) this.setDep(i, E.FIRE, rng.range(2, 4));
+      }
+    }
+    for (const c of game.hash.query(px, py, 2.5 * TILE)) c.hurt(30, null, 'pela explosão de enxofre');
+  }
+
   // Raio: dano em área, vitrifica areia, conduz por metal/ouro (depósitos e construções).
-  lightningStrike(tx, ty, rng, game, maxChain) {
+  lightningStrike(tx, ty, rng, game, maxChain, depth = 0) {
     const visited = new Set();
     const queue = [[tx, ty]];
     let chained = 0;
@@ -549,6 +585,10 @@ class World {
           if (!this.inBounds(nx, ny)) continue;
           const ni = this.idx(nx, ny);
           if (visited.has(ni)) continue;
+          // prisma refrata o raio para outro ponto (recursão limitada)
+          if (this.dep[ni] === E.PRISM && depth < 2 && rng.chance(0.7)) {
+            this.lightningStrike(nx + rng.int(-2, 2), ny + rng.int(-2, 2), rng, game, 2, depth + 1);
+          }
           const nb = this.buildingAt.get(ni);
           if ((this.dep[ni] >= 0 && CONDUCTIVE.has(this.dep[ni])) || (nb && CONDUCTIVE.has(nb.element))) {
             if (nb) nb.hp -= 14;
@@ -570,20 +610,32 @@ class World {
       if (elem === -1) { toClear.push(i); continue; }
       const x = i % this.w, y = (i / this.w) | 0;
 
-      // vida limitada de fogo e ar
-      if (elem === E.FIRE || elem === E.AIR) {
+      // vida limitada de fogo, ar e elementos fundidos voláteis
+      if (TIMED.has(elem)) {
         this.depLife[i] -= dt;
         if (this.depLife[i] <= 0) {
-          toSet.push([i, -1]);
-          if (elem === E.FIRE) game.smokeAt(x * TILE + 8, y * TILE + 8);
+          if (elem === E.LAVA) {
+            // lava esfria em pedra; no deserto pode vitrificar
+            const glass = this.terrain[i] === T.DESERT && !rng.chance(0.7);
+            toSet.push([i, glass ? E.GLASS : E.STONE, 0]);
+          } else {
+            toSet.push([i, -1]);
+            if (elem === E.FIRE || elem === E.PLASMA) game.smokeAt(x * TILE + 8, y * TILE + 8);
+          }
           continue;
         }
       }
-      if (elem === E.FIRE) game.flameAt(x * TILE + 8, y * TILE + 8, rng);
+      if (elem === E.FIRE || elem === E.LAVA) game.flameAt(x * TILE + 8, y * TILE + 8, rng);
+
+      // tempestade: raios reduzidos caem por perto
+      if (elem === E.STORM && rng.chance(0.12)) {
+        this.lightningStrike(x + rng.int(-3, 3), y + rng.int(-3, 3), rng, game, 2);
+      }
 
       // reações com vizinhos (matriz declarativa REACT)
       const table = REACT[elem];
       let inert = true;
+      let rustHasMetal = false;
       for (let dy = -1; dy <= 1; dy++) {
         for (let dx = -1; dx <= 1; dx++) {
           if (!dx && !dy) continue;
@@ -591,12 +643,18 @@ class World {
           if (!this.inBounds(nx, ny)) continue;
           const ni = this.idx(nx, ny);
           const nElem = this.dep[ni];
-          // fogo incendeia construções inflamáveis vizinhas
-          if (elem === E.FIRE) {
+          // fogo e lava incendeiam construções inflamáveis vizinhas
+          if (elem === E.FIRE || elem === E.LAVA) {
             const nb = this.buildingAt.get(ni);
             if (nb && FLAMMABLE.has(nb.element)) this.igniteBuilding(nb, game);
             // fogo derrete construções de gelo
-            if (nb && nb.element === E.ICE) nb.hp -= 20 * dt * 4;
+            if (elem === E.FIRE && nb && nb.element === E.ICE) nb.hp -= 20 * dt * 4;
+          }
+          // enxofre vizinho de fogo detona (reação especial, não é fusão)
+          if (elem === E.FIRE && nElem === E.SULFUR) {
+            this.sulfurExplosion(nx, ny, rng, game);
+            inert = false;
+            continue;
           }
           // fusões: o par a×b vira o produto (prioridade sobre REACT neste tick)
           if (nElem !== -1) {
@@ -610,6 +668,28 @@ class World {
               }
               inert = false; // fusão possível pendente, continua ativo
             }
+          }
+          // efeitos ambientais dos elementos de fusão sobre vizinhos
+          if (elem === E.LAVA) {
+            if (nElem !== -1 && FLAMMABLE.has(nElem) && rng.chance(0.3)) toSet.push([ni, E.FIRE, rng.range(3, 5)]);
+            else if (nElem === -1 && !this.buildingAt.has(ni) && rng.chance(0.1)) toSet.push([ni, E.LAVA, this.depLife[i] * 0.7]);
+          } else if (elem === E.PLASMA) {
+            if (nElem !== -1 && nElem !== E.OBSIDIAN && nElem !== E.DIAMOND && rng.chance(0.5)) toSet.push([ni, -1]);
+          } else if (elem === E.RUST) {
+            if (nElem === E.METAL || nElem === E.STEEL) {
+              rustHasMetal = true;
+              if (rng.chance(0.2)) toSet.push([ni, E.RUST, 0]);
+            }
+            const nb = this.buildingAt.get(ni);
+            if (nb && (nb.element === E.METAL || nb.element === E.STEEL)) { rustHasMetal = true; nb.hp -= 4 * dt; }
+          } else if (elem === E.SNOW) {
+            if (nElem === E.WATER && rng.chance(0.1)) { toSet.push([ni, E.ICE, 0]); inert = false; }
+          } else if (elem === E.ACID) {
+            if ((nElem === E.STONE || nElem === E.METAL || nElem === E.GLASS || nElem === E.STEEL) && rng.chance(0.25)) toSet.push([ni, -1]);
+            const nb = this.buildingAt.get(ni);
+            if (nb && nb.element !== E.OBSIDIAN) nb.hp -= 6 * dt;
+          } else if (elem === E.MIASMA) {
+            if (nElem === -1 && !this.buildingAt.has(ni) && rng.chance(0.05)) toSet.push([ni, E.MIASMA, this.depLife[i] * 0.6]);
           }
           if (nElem === -1 || !table) continue;
           const rule = table[nElem];
@@ -639,9 +719,24 @@ class World {
           }
         }
         if (rng.chance(0.15) && inert) toClear.push(i); // assenta (vira passivo)
-      } else if (elem === E.POISON || elem === E.ICE) {
+      } else if (elem === E.POISON || elem === E.ICE || elem === E.SNOW) {
         if (inert && rng.chance(0.2)) toClear.push(i); // nada mais a reagir por perto
-      } else if (elem !== E.FIRE && elem !== E.AIR) {
+      } else if (elem === E.MUD) {
+        // lama fértil: pode brotar madeira nos primeiros ticks, depois assenta
+        if (rng.chance(0.002)) toSet.push([i, E.WOOD, 0]);
+        else if (rng.chance(0.2)) toClear.push(i);
+      } else if (elem === E.FUNGUS) {
+        if (rng.chance(0.001)) {
+          const nx = x + rng.int(-1, 1), ny = y + rng.int(-1, 1);
+          if (this.inBounds(nx, ny)) {
+            const ni = this.idx(nx, ny);
+            if (this.dep[ni] === -1 && !this.buildingAt.has(ni) && this.terrain[ni] === T.PLAIN) toSet.push([ni, E.FUNGUS, 0]);
+          }
+        }
+        if (rng.chance(0.2)) toClear.push(i);
+      } else if (elem === E.RUST) {
+        if (!rustHasMetal) toClear.push(i); // sem metal por perto: inerte
+      } else if (!TIMED.has(elem)) {
         // tile passivo acordado só para uma fusão: dorme quando nada por perto
         if (inert && rng.chance(0.2)) toClear.push(i);
       }
@@ -1366,6 +1461,8 @@ class Creature {
     this.plagueTrail = false;
     this.magneticBody = false;
     this.mistVeil = false;
+    this.inMist = false;
+    this.relicTimer = 0;
 
     // herança de traits (~70% cada) + reaplicação de efeitos
     if (pa) {
@@ -1436,14 +1533,35 @@ class Creature {
     if (this.age > this.stats.lifespan) return game.kill(this, 'de velhice');
 
     // dano/efeito do tile atual
+    this.inMist = false;
     const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
     if (world.inBounds(tx, ty)) {
       const d = world.dep[world.idx(tx, ty)];
       if (d === E.FIRE && !this.immunities.has(E.FIRE)) this.hurt(9 * dt, null, 'queimado');
       else if (d === E.POISON && !this.immunities.has(E.POISON)) this.hurt(4.5 * dt, null, 'envenenado');
+      else if (d === E.LAVA && !this.immunities.has(E.LAVA) && !this.immunities.has(E.FIRE)) this.hurt(14 * dt, null, 'derretido pela lava');
+      else if (d === E.PLASMA) this.hurt(40 * dt, null, 'desintegrado por plasma');
+      else if (d === E.ACID && !this.immunities.has(E.ACID)) this.hurt((this.immunities.has(E.POISON) ? 4 : 8) * dt, null, 'corroído por ácido');
+      else if (d === E.MIASMA && !this.immunities.has(E.MIASMA) && !this.immunities.has(E.POISON)) this.hurt(4.5 * dt, null, 'consumido pelo miasma');
+      else if (d === E.MOSS) this.hp = Math.min(this.stats.maxHp, this.hp + 2 * dt);
+      else if (d === E.FUNGUS && this.rng.chance(0.02 * dt)) this.gainRandomMutation();
+      else if (d === E.SMOKE && this.rng.chance(0.5 * dt)) { this.target = null; this.seekTile = null; } // cegueira
+      else if (d === E.MIST) this.inMist = true;
     }
     if (!this.alive) return;
     if (this.regen > 0) this.hp = Math.min(this.stats.maxHp, this.hp + this.regen * dt);
+
+    // rastros deixados por mutações de fusão
+    if ((this.fireTrail || this.plagueTrail) && world.inBounds(tx, ty)) {
+      const ti = world.idx(tx, ty);
+      if (world.dep[ti] === -1 && !world.buildingAt.has(ti)) {
+        if (this.fireTrail && rng.chance(0.02 * dt * 60)) world.setDep(ti, E.FIRE, rng.range(1.5, 2.5));
+        else if (this.plagueTrail && rng.chance(0.02 * dt * 60)) world.setDep(ti, E.MIASMA, 8);
+      }
+    }
+    // campos de atração: ímã, relíquia e corpo magnético
+    this.applyFieldPulls(dt);
+    if (!this.alive) return;
 
     // percepção periódica
     this.senseTimer -= dt;
@@ -1473,6 +1591,66 @@ class Creature {
     this.emitTraitParticles(dt);
   }
 
+  // Ímã atrai corpos condutores/metálicos; relíquia atrai qualquer criatura
+  // (e converte em Devoto quem fica por perto); corpo magnético puxa condutores.
+  applyFieldPulls(dt) {
+    const world = this.game.world;
+    if (world.magnetTiles.size && (this.conductive || this.bodyPlan.metallicLimbs || this.bodyPlan.plates >= 2)) {
+      const m = this.nearestFieldTile(world.magnetTiles, 60);
+      if (m) { this.x += (m.x - this.x) / m.d * 12 * dt; this.y += (m.y - this.y) / m.d * 12 * dt; }
+    }
+    if (world.relicTiles.size) {
+      const r = this.nearestFieldTile(world.relicTiles, 100);
+      if (r) {
+        this.x += (r.x - this.x) / r.d * 8 * dt;
+        this.y += (r.y - this.y) / r.d * 8 * dt;
+        if (r.d < 20) {
+          this.relicTimer += dt;
+          if (this.relicTimer >= 3 && !this.traits.some(t => t.id === 'devoto')) {
+            this.temperament.sociability = Math.min(1, this.temperament.sociability + 0.2);
+            this.shiny += 0.3;
+            this.traits.push({ id: 'devoto', name: 'Devoto', element: E.RELIC });
+          }
+        }
+      }
+    }
+    if (this.magneticBody) {
+      for (const o of this.game.hash.query(this.x, this.y, 40)) {
+        if (o === this || !o.alive || !o.conductive) continue;
+        const d = Math.max(1, this.dist(o));
+        o.x += (this.x - o.x) / d * 10 * dt;
+        o.y += (this.y - o.y) / d * 10 * dt;
+      }
+    }
+  }
+
+  nearestFieldTile(tiles, radius) {
+    const world = this.game.world;
+    let bx = 0, by = 0, bd2 = radius * radius, found = false;
+    for (const i of tiles) {
+      const x = (i % world.w) * TILE + TILE / 2, y = ((i / world.w) | 0) * TILE + TILE / 2;
+      const d2 = (x - this.x) ** 2 + (y - this.y) ** 2;
+      if (d2 < bd2) { bd2 = d2; bx = x; by = y; found = true; }
+    }
+    return found ? { x: bx, y: by, d: Math.max(1, Math.sqrt(bd2)) } : null;
+  }
+
+  // Mutação de um pool aleatório (cogumelo/esporos): sem contar absorção,
+  // sem feed global — só avisa se a criatura está aberta no inspetor.
+  gainRandomMutation() {
+    const game = this.game, rng = this.rng;
+    const poolKey = +rng.pick(Object.keys(game.mutationPools));
+    const pool = game.mutationPools[poolKey] || [];
+    const owned = new Set(this.traits.map(t => t.id));
+    const options = pool.filter(m => !owned.has(m.id));
+    if (options.length === 0) return;
+    const mut = rng.pick(options);
+    mut.apply(this);
+    this.traits.push({ id: mut.id, name: mut.name, element: poolKey });
+    this.refreshDominant();
+    if (game.selected === this) game.feed(`🍄 ${this.name} mutou: ${mut.name}!`, '#c07ad0');
+  }
+
   sense() {
     const game = this.game;
     if (this.state === 'fight' && this.target && this.target.alive) return;
@@ -1487,6 +1665,8 @@ class Creature {
         this.fleeFrom = o; this.fleeTimer = 2.5; this.state = 'flee';
         return;
       }
+      // névoa esconde presas do predador
+      if ((o.inMist || o.mistVeil) && this.rng.chance(0.8)) continue;
       if (hostileFaction && this.dist(o) < 46) { this.engage(o); return; }
     }
 
@@ -1725,12 +1905,15 @@ class Creature {
     const a = rng.angle();
     const child = new Creature(game, this.x + Math.cos(a) * 14, this.y + Math.sin(a) * 14, { parentA: this, parentB: mate });
     game.addCreature(child);
+    if (this.sporeParent) child.gainRandomMutation(); // esporos: trait extra no filhote
     game.feed(`🐣 ${child.name} nasceu de ${this.name}${mate ? ' e ' + mate.name : ''}`, '#8fd18f');
   }
 
   hurt(dmg, attacker, cause) {
     if (!this.alive) return;
     this.hp -= dmg;
+    // sangue corrosivo respinga no agressor (attacker=null evita recursão)
+    if (this.acidBlood && attacker && dmg > 1) attacker.hurt(2, null, 'por sangue corrosivo');
     if (this.hp <= 0) this.game.kill(this, cause || 'em combate', attacker);
     else if (attacker && this.state !== 'fight' && this.state !== 'flee') {
       if (this.temperament.aggression > 0.35 || this.attack >= attacker.attack) this.engage(attacker);
@@ -2788,6 +2971,13 @@ class Game {
       return;
     }
     c.alive = false;
+    // explosivo póstumo: estilhaços atingem quem estiver perto
+    if (c.deathBurst) {
+      for (const o of this.hash.query(c.x, c.y, 40)) {
+        if (o !== c && o.alive) o.hurt(12, null, 'pela explosão póstuma');
+      }
+      this.sparkBurst(c.x, c.y, '#e6d44e', 8);
+    }
     this.killCount++;
     if (attacker) this.combatKills++;
     const i = this.creatures.indexOf(c);
