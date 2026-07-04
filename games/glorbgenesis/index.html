@@ -332,10 +332,39 @@ r(E.AIR, E.POISON, E.AIR, -1, 'ar dissipa veneno');
 r(E.ICE, E.WATER, E.ICE, E.ICE, 'gelo congela a água');
 r(E.ICE, E.FIRE, E.WATER, E.FIRE, 'fogo derrete gelo');
 
+// ---------------------------------------------------------------------------
+// Fusões: quando tile ativo `a` encontra vizinho `b`, AMBOS viram o produto.
+// Pares que já reagem na REACT (fogo×água, água×veneno) ficam de fora.
+// ---------------------------------------------------------------------------
+const FUSE = {};
+function fu(a, b, product) {
+  (FUSE[a] ||= {})[b] = product;
+  (FUSE[b] ||= {})[a] = product;
+}
+fu(E.FIRE, E.STONE, E.LAVA);
+fu(E.FIRE, E.METAL, E.STEEL);
+fu(E.FIRE, E.LIGHTNING, E.PLASMA);
+fu(E.FIRE, E.AIR, E.SMOKE);
+fu(E.WATER, E.STONE, E.MUD);
+fu(E.WATER, E.AIR, E.MIST);
+fu(E.WATER, E.METAL, E.RUST);
+fu(E.ICE, E.AIR, E.SNOW);
+fu(E.ICE, E.STONE, E.GLACIER);
+fu(E.LIGHTNING, E.METAL, E.MAGNET);
+fu(E.LIGHTNING, E.AIR, E.STORM);
+fu(E.POISON, E.SLIME, E.ACID);
+fu(E.POISON, E.STONE, E.SULFUR);
+fu(E.WOOD, E.SLIME, E.FUNGUS);
+fu(E.WOOD, E.WATER, E.MOSS);
+fu(E.GLASS, E.LIGHTNING, E.PRISM);
+fu(E.GOLD, E.DIAMOND, E.RELIC);
+fu(E.LAVA, E.WATER, E.OBSIDIAN);   // Tier 3
+fu(E.MIST, E.POISON, E.MIASMA);    // Tier 3
+
 function elemName(id) { return ELEMENTS[id].name; }
 function elemColor(id) { return ELEMENTS[id].color; }
 
-return { E, ELEMENTS, FLAMMABLE, CONDUCTIVE, STRUCTURAL, REACT, elemName, elemColor };
+return { E, ELEMENTS, FLAMMABLE, CONDUCTIVE, STRUCTURAL, REACT, FUSE, elemName, elemColor };
 })();
 
 // ==== src/world.js ====
@@ -343,8 +372,20 @@ __m.world = (() => {
 // Grid do mundo, terreno procedural (value noise feito à mão),
 // depósitos de elementos no chão e o tick ambiental de reações.
 
-const { E, REACT, CONDUCTIVE, FLAMMABLE } = __m.elements;
+const { E, REACT, FUSE, CONDUCTIVE, FLAMMABLE } = __m.elements;
 const { RNG } = __m.rng;
+
+// Vida inicial de depósitos criados por fusão (0 = permanente/passivo).
+function fuseLife(elem, rng) {
+  if (elem === E.LAVA) return rng.range(12, 18);
+  if (elem === E.PLASMA) return rng.range(2, 3);
+  if (elem === E.SMOKE) return rng.range(6, 9);
+  if (elem === E.MIST) return rng.range(20, 30);
+  if (elem === E.STORM) return rng.range(15, 20);
+  if (elem === E.ACID) return rng.range(10, 15);
+  if (elem === E.MIASMA) return 25;
+  return 0;
+}
 const WORLD_W = 192;
 const WORLD_H = 192;
 const TILE = 16;
@@ -423,6 +464,18 @@ class World {
     this.depLife[i] = life !== undefined ? life : 0;
     if (elem === E.FIRE || elem === E.AIR || elem === E.WATER || elem === E.POISON || elem === E.ICE) {
       this.active.add(i);
+    } else if (FUSE[elem]) {
+      // elemento passivo com par de fusão adjacente: acorda para poder fundir
+      const x = i % this.w, y = (i / this.w) | 0;
+      outer: for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          const nx = x + dx, ny = y + dy;
+          if (!this.inBounds(nx, ny)) continue;
+          const nd = this.dep[this.idx(nx, ny)];
+          if (nd !== -1 && FUSE[elem][nd] !== undefined) { this.active.add(i); break outer; }
+        }
+      }
     }
   }
   clearDep(i) {
@@ -481,6 +534,12 @@ class World {
         this.setDep(i, E.GLASS);
       }
       if (this.dep[i] === E.WOOD && rng.chance(0.5)) this.setDep(i, E.FIRE, rng.range(2, 4));
+      // fusões desencadeadas pelo raio (o raio nunca vira depósito no chão)
+      const strikeFuse = (FUSE[E.LIGHTNING] || {})[this.dep[i]];
+      if (strikeFuse !== undefined && rng.chance(0.4)) {
+        this.setDep(i, strikeFuse, fuseLife(strikeFuse, rng));
+        game.notifyFusion(strikeFuse, px, py);
+      }
       // condução em cadeia por vizinhos condutores
       for (let dy = -1; dy <= 1; dy++) {
         for (let dx = -1; dx <= 1; dx++) {
@@ -538,6 +597,19 @@ class World {
             // fogo derrete construções de gelo
             if (nb && nb.element === E.ICE) nb.hp -= 20 * dt * 4;
           }
+          // fusões: o par a×b vira o produto (prioridade sobre REACT neste tick)
+          if (nElem !== -1) {
+            const fuseTo = (FUSE[elem] || {})[nElem];
+            if (fuseTo !== undefined) {
+              if (rng.chance(0.4)) {
+                toSet.push([i, fuseTo, fuseLife(fuseTo, rng)]);
+                toSet.push([ni, fuseTo, fuseLife(fuseTo, rng)]);
+                game.notifyFusion(fuseTo, x * TILE + 8, y * TILE + 8);
+                continue;
+              }
+              inert = false; // fusão possível pendente, continua ativo
+            }
+          }
           if (nElem === -1 || !table) continue;
           const rule = table[nElem];
           if (!rule) continue;
@@ -568,6 +640,9 @@ class World {
         if (rng.chance(0.15) && inert) toClear.push(i); // assenta (vira passivo)
       } else if (elem === E.POISON || elem === E.ICE) {
         if (inert && rng.chance(0.2)) toClear.push(i); // nada mais a reagir por perto
+      } else if (elem !== E.FIRE && elem !== E.AIR) {
+        // tile passivo acordado só para uma fusão: dorme quando nada por perto
+        if (inert && rng.chance(0.2)) toClear.push(i);
       }
     }
     for (const i of toClear) this.active.delete(i);
@@ -2557,7 +2632,7 @@ __m.main = (() => {
 
 const { RNG, hashString } = __m.rng;
 const { World, TILE, T } = __m.world;
-const { E, ELEMENTS, elemColor } = __m.elements;
+const { E, ELEMENTS, elemName, elemColor } = __m.elements;
 const { Creature } = __m.creature;
 const { MUTATION_POOLS } = __m.evolution;
 const { societyTick } = __m.society;
@@ -2627,6 +2702,11 @@ class Game {
     this.killCount = 0;
     this.combatKills = 0;
     this.combatCount = 0;
+
+    // fusões descobertas: meta-progressão global, persiste entre mundos/seeds
+    this.discovered = new Set();
+    try { for (const id of JSON.parse(localStorage.getItem('glorb_fusions') || '[]')) this.discovered.add(id); } catch (e) {}
+    this.onDiscover = null;
 
     // o Primeiro: surge num ponto aleatório fora d'água (determinístico pela seed)
     const spawnRng = master.fork();
@@ -2762,6 +2842,13 @@ class Game {
     for (const c of this.hash.query(x, y, r)) {
       if (!c.immunities.has(E.LIGHTNING)) c.hurt(dmg, null, 'eletrocutado por um raio');
     }
+  }
+  notifyFusion(elem, px, py) {
+    if (this.discovered.has(elem)) return;
+    this.discovered.add(elem);
+    try { localStorage.setItem('glorb_fusions', JSON.stringify([...this.discovered])); } catch (e) {}
+    this.feed(`🧪 Elemento descoberto: ${elemName(elem)}!`, elemColor(elem));
+    this.onDiscover && this.onDiscover(elem);
   }
   notifyGold(x, y) {
     const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
