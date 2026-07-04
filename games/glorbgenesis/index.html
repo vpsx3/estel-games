@@ -1390,6 +1390,45 @@ function baseBodyPlan(rng) {
   };
 }
 
+const ARCHETYPES = [
+  { id: 'valente',      name: 'Valente',      w: 6, anchors: { aggression: 0.85 } },
+  { id: 'ousado',       name: 'Ousado',       w: 5, anchors: { aggression: 0.70, curiosity: 0.85 } },
+  { id: 'pacifico',     name: 'Pacífico',     w: 6, anchors: { aggression: 0.15 } },
+  { id: 'diplomata',    name: 'Diplomata',    w: 5, anchors: { sociability: 0.85, aggression: 0.30 } },
+  { id: 'curioso',      name: 'Curioso',      w: 7, anchors: { curiosity: 0.85 } },
+  { id: 'mistico',      name: 'Místico',      w: 4, anchors: { curiosity: 0.85, industriousness: 0.15 } },
+  { id: 'construtor',   name: 'Construtor',   w: 7, anchors: { industriousness: 0.85 } },
+  { id: 'trabalhador',  name: 'Trabalhador',  w: 5, anchors: { industriousness: 0.85, curiosity: 0.30 } },
+  { id: 'inventivo',    name: 'Inventivo',    w: 5, anchors: { curiosity: 0.70, industriousness: 0.85 } },
+  { id: 'coletor',      name: 'Coletor',      w: 5, anchors: { industriousness: 0.85, greed: 0.70 } },
+  { id: 'ganancioso',   name: 'Ganancioso',   w: 6, anchors: { greed: 0.85 } },
+  { id: 'trapaceiro',   name: 'Trapaceiro',   w: 4, anchors: { greed: 0.85, curiosity: 0.70, sociability: 0.15 } },
+  { id: 'vaidoso',      name: 'Vaidoso',      w: 4, anchors: { sociability: 0.70, greed: 0.85 } },
+  { id: 'cauteloso',    name: 'Cauteloso',    w: 5, anchors: { aggression: 0.15, curiosity: 0.30, industriousness: 0.70 } },
+  { id: 'medroso',      name: 'Medroso',      w: 5, anchors: { aggression: 0.15, curiosity: 0.15 } },
+  { id: 'solitario',    name: 'Solitário',    w: 5, anchors: { sociability: 0.15, curiosity: 0.70 } },
+  { id: 'gregario',     name: 'Gregário',     w: 7, anchors: { sociability: 0.85 } },
+  { id: 'protetor',     name: 'Protetor',     w: 5, anchors: { aggression: 0.70, sociability: 0.85, greed: 0.15 } },
+  { id: 'predador',     name: 'Predador',     w: 4, anchors: { aggression: 0.85, sociability: 0.15 } },
+  { id: 'imprevisivel', name: 'Imprevisível', w: 3, anchors: {} },
+];
+
+function rollArchetype(rng) {
+  let total = 0;
+  for (const a of ARCHETYPES) total += a.w;
+  let r = rng.next() * total;
+  for (const a of ARCHETYPES) { r -= a.w; if (r <= 0) return a; }
+  return ARCHETYPES[ARCHETYPES.length - 1];
+}
+
+function archetypeTemperament(rng, arch) {
+  const t = baseTemperament(rng);
+  for (const k of Object.keys(arch.anchors)) {
+    t[k] = clamp01(arch.anchors[k] + rng.range(-0.12, 0.12));
+  }
+  return t;
+}
+
 function baseTemperament(rng) {
   return {
     aggression: rng.next(), sociability: rng.next(), curiosity: rng.next(),
