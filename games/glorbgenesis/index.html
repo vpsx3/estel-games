@@ -167,7 +167,7 @@
   <div id="inspAbsorbed"></div>
 </div>
 
-<div id="hint"><span class="fine">arraste com botão direito para mover · scroll para zoom · clique com um elemento para despejar</span><span class="coarse">arraste com 1 dedo para mover a câmera · 2 dedos: pan + pinça para zoom · com um elemento, o dedo despeja</span></div>
+<div id="hint"><span class="fine">arraste com botão direito para mover · WASD move a câmera · clique direito volta à lupa · scroll para zoom · clique com um elemento para despejar</span><span class="coarse">arraste com 1 dedo para mover a câmera · 2 dedos: pan + pinça para zoom · com um elemento, o dedo despeja</span></div>
 
 <!-- BUNDLE:START (gerado por build.mjs — não editar à mão) -->
 <script>
@@ -2922,7 +2922,7 @@ function updateHUD() {
   if (game.selected && inspectorTimer <= 0) { inspectorTimer = 6; refreshInspector(); }
 }
 
-return { initUI, setGame, pushFeed, selectCreature, updateHUD };
+return { initUI, setGame, pushFeed, selectCreature, updateHUD, selectTool };
 })();
 
 // ==== src/main.js ====
@@ -2936,7 +2936,7 @@ const { Creature } = __m.creature;
 const { MUTATION_POOLS } = __m.evolution;
 const { societyTick } = __m.society;
 const { render, buildTerrainCanvas } = __m.render;
-const { initUI, setGame, pushFeed, updateHUD, selectCreature } = __m.ui;
+const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectTool } = __m.ui;
 const STEP = 1 / 30;
 
 class SpatialHash {
@@ -3259,6 +3259,16 @@ function toWorld(mx, my) {
 }
 
 let pouring = false, panning = false, lastMx = 0, lastMy = 0, pourCd = 0;
+let rcX = 0, rcY = 0; // origem do clique direito (clique parado volta à lupa)
+
+// câmera WASD (desktop)
+const heldKeys = new Set();
+window.addEventListener('keydown', e => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+  heldKeys.add(e.key.toLowerCase());
+});
+window.addEventListener('keyup', e => heldKeys.delete(e.key.toLowerCase()));
+window.addEventListener('blur', () => heldKeys.clear());
 
 function pickCreature(w) {
   let best = null, bd = 18 / cam.zoom + 8;
@@ -3271,7 +3281,10 @@ function pickCreature(w) {
 
 canvas.addEventListener('mousedown', e => {
   const w = toWorld(e.offsetX, e.offsetY);
-  if (e.button === 1 || e.button === 2) { panning = true; }
+  if (e.button === 1 || e.button === 2) {
+    panning = true;
+    if (e.button === 2) { rcX = e.clientX; rcY = e.clientY; }
+  }
   else if (e.button === 0) {
     if (game.tool === 'inspect') {
       selectCreature(pickCreature(w));
@@ -3283,7 +3296,11 @@ canvas.addEventListener('mousedown', e => {
   }
   lastMx = e.offsetX; lastMy = e.offsetY;
 });
-window.addEventListener('mouseup', () => { pouring = false; panning = false; });
+window.addEventListener('mouseup', e => {
+  // clique direito parado (sem arrasto) volta para a lupa
+  if (e.button === 2 && Math.hypot(e.clientX - rcX, e.clientY - rcY) < 5) selectTool('inspect');
+  pouring = false; panning = false;
+});
 canvas.addEventListener('mouseleave', () => { game.brush.visible = false; });
 canvas.addEventListener('mousemove', e => {
   const w = toWorld(e.offsetX, e.offsetY);
@@ -3422,6 +3439,19 @@ function frame(now) {
   if (pouring && game.tool !== 'inspect') {
     pourCd -= dtReal;
     if (pourCd <= 0) { game.pour(game.tool, game.brush.x, game.brush.y); pourCd = 0.09; }
+  }
+
+  // câmera WASD
+  const PAN_SPEED = 420;
+  let pdx = 0, pdy = 0;
+  if (heldKeys.has('w')) pdy -= 1;
+  if (heldKeys.has('s')) pdy += 1;
+  if (heldKeys.has('a')) pdx -= 1;
+  if (heldKeys.has('d')) pdx += 1;
+  if (pdx || pdy) {
+    cam.x += pdx * PAN_SPEED * dtReal / cam.zoom;
+    cam.y += pdy * PAN_SPEED * dtReal / cam.zoom;
+    clampCam();
   }
 
   simAcc += dtReal * game.speed;
