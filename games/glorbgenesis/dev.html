@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glorbgenesis</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0b0d12; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; color: #d5d8e0; font-size: 13px; }
+  #game { display: block; cursor: crosshair; }
+
+  .panel {
+    position: fixed; background: rgba(16, 19, 27, 0.88);
+    border: 1px solid #262b38; border-radius: 8px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* topo */
+  #topbar {
+    top: 8px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px;
+    padding: 6px 14px; white-space: nowrap; z-index: 10;
+  }
+  #topbar .stat { color: #9aa3b5; }
+  #topbar .stat b { color: #e8ebf2; font-weight: 600; }
+  #seedText { color: #7f8aa3; font-family: monospace; }
+  #seedInput {
+    width: 110px; background: #0d1017; border: 1px solid #2a3040; color: #cfd4e0;
+    border-radius: 5px; padding: 3px 6px; font-family: monospace; font-size: 12px;
+  }
+  button {
+    background: #1b2130; color: #cfd4e0; border: 1px solid #2c3346;
+    border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 12px;
+  }
+  button:hover { background: #252d40; }
+  button.active { background: #3a4666; border-color: #5a6a99; color: #fff; }
+
+  /* paleta */
+  #paletteWrap {
+    left: 8px; top: 50%; transform: translateY(-50%);
+    padding: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: center;
+  }
+  #palette { display: flex; flex-direction: column; gap: 4px; }
+  .palbtn {
+    width: 38px; height: 38px; padding: 3px; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .palbtn canvas { pointer-events: none; }
+  .palbtn .cd {
+    position: absolute; left: 0; bottom: 0; width: 100%; height: 0%;
+    background: rgba(10, 12, 18, 0.75); pointer-events: none;
+  }
+  #brushRow { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #8a93a8; font-size: 11px; }
+  #brushSize { width: 36px; writing-mode: vertical-lr; direction: rtl; height: 70px; }
+
+  /* feed de eventos */
+  #feed {
+    position: fixed; right: 10px; top: 54px; width: 300px; z-index: 10;
+    display: flex; flex-direction: column; gap: 5px; pointer-events: none;
+  }
+  .feeditem {
+    background: rgba(16, 19, 27, 0.85); border-left: 3px solid #888;
+    border-radius: 4px; padding: 5px 9px; font-size: 12px; line-height: 1.35;
+    animation: feedin 0.25s ease-out; transition: opacity 3s;
+  }
+  .feeditem.fading { opacity: 0; }
+  @keyframes feedin { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* inspetor */
+  #inspector {
+    right: 10px; bottom: 10px; width: 300px; padding: 12px; z-index: 11;
+  }
+  #inspector.hidden { display: none; }
+  #inspector .row { display: flex; gap: 12px; }
+  #portrait { border-radius: 8px; border: 1px solid #262b38; flex-shrink: 0; }
+  #inspName { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+  #inspAge, #inspStats, #inspAbsorbed { color: #9aa3b5; font-size: 11.5px; margin-top: 3px; }
+  #inspFaction { font-size: 12px; margin-top: 3px; }
+  #inspTraits { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .trait {
+    border: 1px solid #555; border-radius: 10px; padding: 1px 8px;
+    font-size: 11px; color: #d5d8e0; background: rgba(0,0,0,0.3);
+  }
+  .dim { color: #667; font-size: 11px; }
+  #btnCloseInspector { position: absolute; top: 6px; right: 6px; padding: 1px 7px; }
+
+  #hint {
+    position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%);
+    color: #5a6377; font-size: 11px; z-index: 5; pointer-events: none;
+  }
+
+  #homeLink {
+    position: fixed; top: 8px; left: 8px; z-index: 10;
+    padding: 6px 12px; text-decoration: none; color: #9aa3b5;
+    font-weight: 700; font-size: 13px; letter-spacing: 0.5px;
+  }
+  #homeLink:hover { color: #fff; }
+  #homeLink .dot { color: #7878ff; }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<a id="homeLink" class="panel" href="/" title="voltar ao portal">estel<span class="dot">.</span>games</a>
+
+<div id="topbar" class="panel">
+  <span id="seedText">seed —</span>
+  <input id="seedInput" placeholder="seed…">
+  <button id="btnNewWorld">Novo Mundo</button>
+  <span class="stat"><b id="pop">pop 1</b></span>
+  <span class="stat"><b id="factions">facções 0</b></span>
+  <span class="stat">⏱ <b id="worldTime">0:00</b></span>
+  <span>
+    <button class="speedbtn" data-speed="0">⏸</button>
+    <button class="speedbtn active" data-speed="1">1×</button>
+    <button class="speedbtn" data-speed="2">2×</button>
+    <button class="speedbtn" data-speed="4">4×</button>
+  </span>
+</div>
+
+<div id="paletteWrap" class="panel">
+  <div id="palette"></div>
+  <div id="brushRow">
+    <span>pincel <b id="brushSizeVal">2</b></span>
+    <input id="brushSize" type="range" min="1" max="4" value="2">
+  </div>
+</div>
+
+<div id="feed"></div>
+
+<div id="inspector" class="panel hidden">
+  <button id="btnCloseInspector">✕</button>
+  <div class="row">
+    <canvas id="portrait" width="110" height="110"></canvas>
+    <div>
+      <div id="inspName"></div>
+      <div id="inspAge"></div>
+      <div id="inspFaction"></div>
+      <div id="inspStats"></div>
+    </div>
+  </div>
+  <div id="inspTraits"></div>
+  <div id="inspAbsorbed"></div>
+</div>
+
+<div id="hint">arraste com botão direito para mover · scroll para zoom · clique com um elemento para despejar</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,2688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glorbgenesis</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0b0d12; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; color: #d5d8e0; font-size: 13px; }
+  #game { display: block; cursor: crosshair; }
+
+  .panel {
+    position: fixed; background: rgba(16, 19, 27, 0.88);
+    border: 1px solid #262b38; border-radius: 8px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* topo */
+  #topbar {
+    top: 8px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px;
+    padding: 6px 14px; white-space: nowrap; z-index: 10;
+  }
+  #topbar .stat { color: #9aa3b5; }
+  #topbar .stat b { color: #e8ebf2; font-weight: 600; }
+  #seedText { color: #7f8aa3; font-family: monospace; }
+  #seedInput {
+    width: 110px; background: #0d1017; border: 1px solid #2a3040; color: #cfd4e0;
+    border-radius: 5px; padding: 3px 6px; font-family: monospace; font-size: 12px;
+  }
+  button {
+    background: #1b2130; color: #cfd4e0; border: 1px solid #2c3346;
+    border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 12px;
+  }
+  button:hover { background: #252d40; }
+  button.active { background: #3a4666; border-color: #5a6a99; color: #fff; }
+
+  /* paleta */
+  #paletteWrap {
+    left: 8px; top: 50%; transform: translateY(-50%);
+    padding: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: center;
+  }
+  #palette { display: flex; flex-direction: column; gap: 4px; }
+  .palbtn {
+    width: 38px; height: 38px; padding: 3px; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .palbtn canvas { pointer-events: none; }
+  .palbtn .cd {
+    position: absolute; left: 0; bottom: 0; width: 100%; height: 0%;
+    background: rgba(10, 12, 18, 0.75); pointer-events: none;
+  }
+  #brushRow { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #8a93a8; font-size: 11px; }
+  #brushSize { width: 36px; writing-mode: vertical-lr; direction: rtl; height: 70px; }
+
+  /* feed de eventos */
+  #feed {
+    position: fixed; right: 10px; top: 54px; width: 300px; z-index: 10;
+    display: flex; flex-direction: column; gap: 5px; pointer-events: none;
+  }
+  .feeditem {
+    background: rgba(16, 19, 27, 0.85); border-left: 3px solid #888;
+    border-radius: 4px; padding: 5px 9px; font-size: 12px; line-height: 1.35;
+    animation: feedin 0.25s ease-out; transition: opacity 3s;
+  }
+  .feeditem.fading { opacity: 0; }
+  @keyframes feedin { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* inspetor */
+  #inspector {
+    right: 10px; bottom: 10px; width: 300px; padding: 12px; z-index: 11;
+  }
+  #inspector.hidden { display: none; }
+  #inspector .row { display: flex; gap: 12px; }
+  #portrait { border-radius: 8px; border: 1px solid #262b38; flex-shrink: 0; }
+  #inspName { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+  #inspAge, #inspStats, #inspAbsorbed { color: #9aa3b5; font-size: 11.5px; margin-top: 3px; }
+  #inspFaction { font-size: 12px; margin-top: 3px; }
+  #inspTraits { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .trait {
+    border: 1px solid #555; border-radius: 10px; padding: 1px 8px;
+    font-size: 11px; color: #d5d8e0; background: rgba(0,0,0,0.3);
+  }
+  .dim { color: #667; font-size: 11px; }
+  #btnCloseInspector { position: absolute; top: 6px; right: 6px; padding: 1px 7px; }
+
+  #hint {
+    position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%);
+    color: #5a6377; font-size: 11px; z-index: 5; pointer-events: none;
+  }
+
+  #homeLink {
+    position: fixed; top: 8px; left: 8px; z-index: 10;
+    padding: 6px 12px; text-decoration: none; color: #9aa3b5;
+    font-weight: 700; font-size: 13px; letter-spacing: 0.5px;
+  }
+  #homeLink:hover { color: #fff; }
+  #homeLink .dot { color: #7878ff; }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<a id="homeLink" class="panel" href="/" title="voltar ao portal">estel<span class="dot">.</span>games</a>
+
+<div id="topbar" class="panel">
+  <span id="seedText">seed —</span>
+  <input id="seedInput" placeholder="seed…">
+  <button id="btnNewWorld">Novo Mundo</button>
+  <span class="stat"><b id="pop">pop 1</b></span>
+  <span class="stat"><b id="factions">facções 0</b></span>
+  <span class="stat">⏱ <b id="worldTime">0:00</b></span>
+  <span>
+    <button class="speedbtn" data-speed="0">⏸</button>
+    <button class="speedbtn active" data-speed="1">1×</button>
+    <button class="speedbtn" data-speed="2">2×</button>
+    <button class="speedbtn" data-speed="4">4×</button>
+  </span>
+</div>
+
+<div id="paletteWrap" class="panel">
+  <div id="palette"></div>
+  <div id="brushRow">
+    <span>pincel <b id="brushSizeVal">2</b></span>
+    <input id="brushSize" type="range" min="1" max="4" value="2">
+  </div>
+</div>
+
+<div id="feed"></div>
+
+<div id="inspector" class="panel hidden">
+  <button id="btnCloseInspector">✕</button>
+  <div class="row">
+    <canvas id="portrait" width="110" height="110"></canvas>
+    <div>
+      <div id="inspName"></div>
+      <div id="inspAge"></div>
+      <div id="inspFaction"></div>
+      <div id="inspStats"></div>
+    </div>
+  </div>
+  <div id="inspTraits"></div>
+  <div id="inspAbsorbed"></div>
+</div>
+
+<div id="hint">arraste com botão direito para mover · scroll para zoom · clique com um elemento para despejar</div>
+
+<!-- BUNDLE:START (gerado por build.mjs — não editar à mão) -->
+<script>
+(() => {
+'use strict';
+const __m = {};
+// ==== src/rng.js ====
+__m.rng = (() => {
+// PRNG seedado (mulberry32). Math.random() é proibido na simulação —
+// todo aleatório passa por instâncias de RNG derivadas da seed do mundo.
+
+function hashString(str) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+class RNG {
+  constructor(seed) {
+    this.s = (seed >>> 0) || 1;
+  }
+
+  // mulberry32
+  next() {
+    this.s = (this.s + 0x6D2B79F5) >>> 0;
+    let t = this.s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+
+  range(a, b) { return a + this.next() * (b - a); }
+  int(a, b) { return Math.floor(this.range(a, b + 1)); } // inclusivo
+  pick(arr) { return arr[Math.floor(this.next() * arr.length)]; }
+  chance(p) { return this.next() < p; }
+  angle() { return this.next() * Math.PI * 2; }
+  sign() { return this.next() < 0.5 ? -1 : 1; }
+
+  // nova seed derivada, para dar RNG individual a criaturas/subsistemas
+  fork() { return new RNG(Math.floor(this.next() * 4294967296)); }
+
+  weighted(entries) {
+    // entries: [{w: number, ...}]
+    let total = 0;
+    for (const e of entries) total += e.w;
+    let r = this.next() * total;
+    for (const e of entries) {
+      r -= e.w;
+      if (r <= 0) return e;
+    }
+    return entries[entries.length - 1];
+  }
+
+  shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(this.next() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+}
+
+return { hashString, RNG };
+})();
+
+// ==== src/names.js ====
+__m.names = (() => {
+// Gerador procedural de nomes para criaturas e facções.
+
+const ONSETS = ['Gl', 'Bl', 'Zr', 'Kr', 'M', 'F', 'Sn', 'Vr', 'T', 'Z', 'Pl', 'Gr', 'N', 'B', 'Squ', 'Dr', 'Y', 'Fl', 'Br', 'Qu'];
+const VOWELS = ['o', 'a', 'e', 'i', 'u', 'oo', 'ee', 'ou', 'ie', 'ua'];
+const MIDS = ['rb', 'lm', 'zz', 'mb', 'nk', 'rg', 'bl', 'p', 'g', 'd', 'lb', 'v', 'x', 'squ', 'rp'];
+const ENDS = ['p', 'b', 'rp', 'sh', 'x', 'm', 'g', 'k', 'lo', 'ba', 'zo', 'ni', 'ti', 'lu', 'ra', ''];
+
+function creatureName(rng) {
+  let n = rng.pick(ONSETS) + rng.pick(VOWELS);
+  if (rng.chance(0.55)) n += rng.pick(MIDS) + rng.pick(VOWELS);
+  n += rng.pick(ENDS);
+  return n;
+}
+
+const FACTION_ROOTS = ['Brasa', 'Gelume', 'Vidral', 'Ferrume', 'Aurax', 'Limo', 'Petra', 'Ventania', 'Fulgor', 'Umbra', 'Toxina', 'Cintila', 'Rocha', 'Bruma', 'Chispa', 'Orvale', 'Gluma', 'Zarpa'];
+const FACTION_SUFFIX = ['', ' Rubra', ' Antiga', ' Errante', ' Prima', ' do Norte', ' Voraz', ' Serena', ' Furiosa', ' Oculta', ' Dourada', ' Gelada'];
+
+function factionName(rng, used) {
+  for (let i = 0; i < 40; i++) {
+    const n = rng.pick(FACTION_ROOTS) + rng.pick(FACTION_SUFFIX);
+    if (!used.has(n)) { used.add(n); return n; }
+  }
+  // fallback: nome sintético único
+  const n = rng.pick(FACTION_ROOTS) + '-' + rng.int(10, 99);
+  used.add(n);
+  return n;
+}
+
+return { creatureName, factionName };
+})();
+
+// ==== src/elements.js ====
+__m.elements = (() => {
+// Definição dos 13 elementos e a matriz declarativa de reações elemento×elemento.
+
+const E = {
+  WOOD: 0, STONE: 1, GLASS: 2, FIRE: 3, WATER: 4, AIR: 5, LIGHTNING: 6,
+  ICE: 7, POISON: 8, SLIME: 9, METAL: 10, GOLD: 11, DIAMOND: 12,
+};
+
+const ELEMENTS = [
+  { id: E.WOOD,      key: 'wood',      name: 'Madeira',  color: '#9a6a35', tags: ['orgânico', 'estrutural', 'inflamável'], rare: false, cooldown: 0 },
+  { id: E.STONE,     key: 'stone',     name: 'Pedra',    color: '#8d8d96', tags: ['estrutural', 'pesado'],                 rare: false, cooldown: 0 },
+  { id: E.GLASS,     key: 'glass',     name: 'Vidro',    color: '#a8dce8', tags: ['frágil', 'translúcido', 'cortante'],    rare: false, cooldown: 0 },
+  { id: E.FIRE,      key: 'fire',      name: 'Fogo',     color: '#ff6a2a', tags: ['energia', 'destrutivo', 'volátil'],     rare: false, cooldown: 0 },
+  { id: E.WATER,     key: 'water',     name: 'Água',     color: '#3f8cff', tags: ['fluido', 'vital'],                      rare: false, cooldown: 0 },
+  { id: E.AIR,       key: 'air',       name: 'Ar',       color: '#c9e6e2', tags: ['fluido', 'leve', 'volátil'],            rare: false, cooldown: 0 },
+  { id: E.LIGHTNING, key: 'lightning', name: 'Raio',     color: '#ffe94a', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 2.5 },
+  { id: E.ICE,       key: 'ice',       name: 'Gelo',     color: '#9fd8ff', tags: ['frio', 'frágil', 'lento'],              rare: false, cooldown: 0 },
+  { id: E.POISON,    key: 'poison',    name: 'Veneno',   color: '#7dc832', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 0 },
+  { id: E.SLIME,     key: 'slime',     name: 'Slime',    color: '#5fe07a', tags: ['orgânico', 'elástico', 'pegajoso'],     rare: false, cooldown: 0 },
+  { id: E.METAL,     key: 'metal',     name: 'Metal',    color: '#b9c4d0', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 0 },
+  { id: E.GOLD,      key: 'gold',      name: 'Ouro',     color: '#ffc832', tags: ['precioso', 'maleável', 'condutor'],     rare: false, cooldown: 0 },
+  { id: E.DIAMOND,   key: 'diamond',   name: 'Diamante', color: '#c8f4ff', tags: ['precioso', 'duríssimo', 'raro'],        rare: true,  cooldown: 3.5 },
+];
+
+const FLAMMABLE = new Set([E.WOOD, E.SLIME]);
+const CONDUCTIVE = new Set([E.METAL, E.GOLD]);
+const STRUCTURAL = new Set([E.WOOD, E.STONE, E.METAL, E.GLASS, E.ICE, E.GOLD, E.DIAMOND]);
+
+// ---------------------------------------------------------------------------
+// Matriz declarativa de reações entre depósitos adjacentes.
+// REACT[a] lista o que acontece quando um tile ativo do elemento `a`
+// encontra um vizinho do elemento `b`:
+//   { self, other } — novo elemento do próprio tile / do vizinho.
+//   Valor -1 = remover depósito; undefined = sem mudança.
+// Processada em world.envTick(). Fácil de estender: basta adicionar linhas.
+// ---------------------------------------------------------------------------
+const REACT = {};
+function r(a, b, self, other, desc) {
+  (REACT[a] ||= {})[b] = { self, other, desc };
+}
+
+r(E.FIRE, E.WOOD, E.FIRE, E.FIRE, 'fogo se espalha pela madeira');
+r(E.FIRE, E.SLIME, E.FIRE, E.FIRE, 'fogo queima slime');
+r(E.FIRE, E.ICE, E.FIRE, E.WATER, 'fogo derrete gelo em água');
+r(E.FIRE, E.WATER, -1, E.WATER, 'água evapora/apaga o fogo');
+r(E.WATER, E.FIRE, E.WATER, -1, 'água apaga fogo');
+r(E.WATER, E.POISON, E.POISON, E.POISON, 'veneno contamina a água');
+r(E.POISON, E.WATER, E.POISON, E.POISON, 'veneno contamina a água');
+r(E.AIR, E.POISON, E.AIR, -1, 'ar dissipa veneno');
+r(E.ICE, E.WATER, E.ICE, E.ICE, 'gelo congela a água');
+r(E.ICE, E.FIRE, E.WATER, E.FIRE, 'fogo derrete gelo');
+
+function elemName(id) { return ELEMENTS[id].name; }
+function elemColor(id) { return ELEMENTS[id].color; }
+
+return { E, ELEMENTS, FLAMMABLE, CONDUCTIVE, STRUCTURAL, REACT, elemName, elemColor };
+})();
+
+// ==== src/world.js ====
+__m.world = (() => {
+// Grid do mundo, terreno procedural (value noise feito à mão),
+// depósitos de elementos no chão e o tick ambiental de reações.
+
+const { E, REACT, CONDUCTIVE, FLAMMABLE } = __m.elements;
+const { RNG } = __m.rng;
+const WORLD_W = 192;
+const WORLD_H = 192;
+const TILE = 16;
+
+const T = { PLAIN: 0, ROCKY: 1, WATER: 2, DESERT: 3 };
+const TERRAIN_SPEED = [1.0, 0.72, 0.45, 0.88];
+
+// --- value noise à mão -------------------------------------------------
+function makeNoise(rng, size) {
+  const g = new Float32Array(size * size);
+  for (let i = 0; i < g.length; i++) g[i] = rng.next();
+  const at = (x, y) => g[((y % size + size) % size) * size + ((x % size + size) % size)];
+  return function noise(x, y) {
+    const x0 = Math.floor(x), y0 = Math.floor(y);
+    const fx = x - x0, fy = y - y0;
+    const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+    const a = at(x0, y0), b = at(x0 + 1, y0), c = at(x0, y0 + 1), d = at(x0 + 1, y0 + 1);
+    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+  };
+}
+
+class World {
+  constructor(seed) {
+    this.seed = seed;
+    this.w = WORLD_W;
+    this.h = WORLD_H;
+    const rng = new RNG(seed ^ 0x9e3779b9);
+
+    this.terrain = new Uint8Array(this.w * this.h);
+    this.shade = new Float32Array(this.w * this.h); // variação cosmética
+    this.dep = new Int16Array(this.w * this.h).fill(-1); // elemento no chão (-1 = nada)
+    this.depLife = new Float32Array(this.w * this.h);   // vida de fogo/ar
+    this.active = new Set();      // tiles com comportamento ambiental pendente
+    this.buildingAt = new Map();  // idx -> Building
+
+    const hNoise = makeNoise(rng.fork(), 64);
+    const mNoise = makeNoise(rng.fork(), 64);
+    const detail = rng.fork();
+    for (let y = 0; y < this.h; y++) {
+      for (let x = 0; x < this.w; x++) {
+        const i = y * this.w + x;
+        const hgt = 0.65 * hNoise(x / 24, y / 24) + 0.35 * hNoise(x / 7 + 100, y / 7 + 100);
+        const moist = mNoise(x / 30 + 50, y / 30 + 50);
+        let t = T.PLAIN;
+        if (hgt < 0.36) t = T.WATER;
+        else if (hgt > 0.68) t = T.ROCKY;
+        else if (moist < 0.34) t = T.DESERT;
+        this.terrain[i] = t;
+        this.shade[i] = detail.range(-0.05, 0.05);
+      }
+    }
+  }
+
+  idx(tx, ty) { return ty * this.w + tx; }
+  inBounds(tx, ty) { return tx >= 0 && ty >= 0 && tx < this.w && ty < this.h; }
+  terrainAtPx(x, y) {
+    const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
+    if (!this.inBounds(tx, ty)) return T.ROCKY;
+    return this.terrain[this.idx(tx, ty)];
+  }
+  moveFactorAtPx(x, y) {
+    const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
+    if (!this.inBounds(tx, ty)) return 0.4;
+    const i = this.idx(tx, ty);
+    let f = TERRAIN_SPEED[this.terrain[i]];
+    const b = this.buildingAt.get(i);
+    if (b && (b.type === 'bridge' || b.type === 'floor')) f = Math.max(f, 1);
+    const d = this.dep[i];
+    if (d === E.ICE) f *= 1.3;        // escorregadio
+    else if (d === E.SLIME) f *= 0.75; // pegajoso
+    return f;
+  }
+
+  setDep(i, elem, life) {
+    this.dep[i] = elem;
+    this.depLife[i] = life !== undefined ? life : 0;
+    if (elem === E.FIRE || elem === E.AIR || elem === E.WATER || elem === E.POISON || elem === E.ICE) {
+      this.active.add(i);
+    }
+  }
+  clearDep(i) {
+    this.dep[i] = -1;
+    this.active.delete(i);
+  }
+
+  // Despeja `elem` num raio de tiles ao redor de (tx,ty). Raio especial: raio-relâmpago.
+  pour(elem, tx, ty, radius, rng, game) {
+    if (elem === E.LIGHTNING) {
+      this.lightningStrike(tx, ty, rng, game, 10);
+      return;
+    }
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        if (dx * dx + dy * dy > radius * radius + 0.5) continue;
+        const x = tx + dx, y = ty + dy;
+        if (!this.inBounds(x, y)) continue;
+        if (!rng.chance(0.75)) continue; // pincel orgânico, não bloco cheio
+        const i = this.idx(x, y);
+        if (this.buildingAt.has(i)) {
+          if (elem === E.FIRE) this.igniteBuilding(this.buildingAt.get(i), game);
+          continue;
+        }
+        if (elem === E.FIRE) this.setDep(i, E.FIRE, rng.range(3, 6));
+        else if (elem === E.AIR) this.setDep(i, E.AIR, rng.range(1.5, 3));
+        else this.setDep(i, elem);
+        if (elem === E.GOLD) game.notifyGold(x * TILE + TILE / 2, y * TILE + TILE / 2);
+      }
+    }
+  }
+
+  igniteBuilding(b, game) {
+    if (b.element === E.WOOD && !b.burning) {
+      b.burning = 4;
+      game.feed(`🔥 ${b.label} pegou fogo!`, '#ff6a2a');
+    }
+  }
+
+  // Raio: dano em área, vitrifica areia, conduz por metal/ouro (depósitos e construções).
+  lightningStrike(tx, ty, rng, game, maxChain) {
+    const visited = new Set();
+    const queue = [[tx, ty]];
+    let chained = 0;
+    while (queue.length && chained < maxChain) {
+      const [x, y] = queue.shift();
+      if (!this.inBounds(x, y)) continue;
+      const i = this.idx(x, y);
+      if (visited.has(i)) continue;
+      visited.add(i);
+      chained++;
+      const px = x * TILE + TILE / 2, py = y * TILE + TILE / 2;
+      game.lightningAt(px, py, chained === 1 ? 26 : 14, chained === 1 ? 24 : 12);
+      // vitrificação: deserto vira depósito de vidro
+      if (this.terrain[i] === T.DESERT && this.dep[i] === -1 && rng.chance(0.6)) {
+        this.setDep(i, E.GLASS);
+      }
+      if (this.dep[i] === E.WOOD && rng.chance(0.5)) this.setDep(i, E.FIRE, rng.range(2, 4));
+      // condução em cadeia por vizinhos condutores
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          const nx = x + dx, ny = y + dy;
+          if (!this.inBounds(nx, ny)) continue;
+          const ni = this.idx(nx, ny);
+          if (visited.has(ni)) continue;
+          const nb = this.buildingAt.get(ni);
+          if ((this.dep[ni] >= 0 && CONDUCTIVE.has(this.dep[ni])) || (nb && CONDUCTIVE.has(nb.element))) {
+            if (nb) nb.hp -= 14;
+            queue.push([nx, ny]);
+          }
+        }
+      }
+    }
+  }
+
+  // Tick ambiental (~4x/s): processa a matriz de reações nos tiles ativos.
+  envTick(game, dt) {
+    if (this.active.size === 0) return;
+    const rng = game.envRng;
+    const toClear = [];
+    const toSet = [];
+    for (const i of this.active) {
+      const elem = this.dep[i];
+      if (elem === -1) { toClear.push(i); continue; }
+      const x = i % this.w, y = (i / this.w) | 0;
+
+      // vida limitada de fogo e ar
+      if (elem === E.FIRE || elem === E.AIR) {
+        this.depLife[i] -= dt;
+        if (this.depLife[i] <= 0) {
+          toSet.push([i, -1]);
+          if (elem === E.FIRE) game.smokeAt(x * TILE + 8, y * TILE + 8);
+          continue;
+        }
+      }
+      if (elem === E.FIRE) game.flameAt(x * TILE + 8, y * TILE + 8, rng);
+
+      // reações com vizinhos (matriz declarativa REACT)
+      const table = REACT[elem];
+      let inert = true;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          const nx = x + dx, ny = y + dy;
+          if (!this.inBounds(nx, ny)) continue;
+          const ni = this.idx(nx, ny);
+          const nElem = this.dep[ni];
+          // fogo incendeia construções inflamáveis vizinhas
+          if (elem === E.FIRE) {
+            const nb = this.buildingAt.get(ni);
+            if (nb && FLAMMABLE.has(nb.element)) this.igniteBuilding(nb, game);
+            // fogo derrete construções de gelo
+            if (nb && nb.element === E.ICE) nb.hp -= 20 * dt * 4;
+          }
+          if (nElem === -1 || !table) continue;
+          const rule = table[nElem];
+          if (!rule) continue;
+          if (rng.chance(elem === E.FIRE ? 0.35 : 0.5)) {
+            if (rule.other !== undefined && rule.other !== nElem) {
+              toSet.push([ni, rule.other, rule.other === E.FIRE ? rng.range(3, 5) : 0]);
+              inert = false;
+            }
+            if (rule.self !== undefined && rule.self !== elem) {
+              toSet.push([i, rule.self, rule.self === E.FIRE ? rng.range(3, 5) : 0]);
+              inert = false;
+            }
+          } else {
+            inert = false; // reação possível pendente, continua ativo
+          }
+        }
+      }
+
+      // água recém-despejada espalha um pouco e assenta
+      if (elem === E.WATER) {
+        if (rng.chance(0.25)) {
+          const nx = x + rng.int(-1, 1), ny = y + rng.int(-1, 1);
+          if (this.inBounds(nx, ny)) {
+            const ni = this.idx(nx, ny);
+            if (this.dep[ni] === -1 && !this.buildingAt.has(ni) && rng.chance(0.4)) toSet.push([ni, E.WATER]);
+          }
+        }
+        if (rng.chance(0.15) && inert) toClear.push(i); // assenta (vira passivo)
+      } else if (elem === E.POISON || elem === E.ICE) {
+        if (inert && rng.chance(0.2)) toClear.push(i); // nada mais a reagir por perto
+      }
+    }
+    for (const i of toClear) this.active.delete(i);
+    for (const [i, elem, life] of toSet) {
+      if (elem === -1) this.clearDep(i);
+      else this.setDep(i, elem, life);
+    }
+  }
+}
+
+return { WORLD_W, WORLD_H, TILE, T, TERRAIN_SPEED, World };
+})();
+
+// ==== src/evolution.js ====
+__m.evolution = (() => {
+// Absorção de elemento -> mutação. Cada elemento tem um pool de 4+ mutações;
+// a escolha rola no RNG individual da criatura, então o mesmo elemento gera
+// resultados diferentes em criaturas diferentes.
+
+const { E, elemName } = __m.elements;
+// Cada mutação: { id, name, apply(c) } — apply altera stats/flags/bodyPlan.
+const MUTATION_POOLS = {
+  [E.FIRE]: [
+    { id: 'flame_tail', name: 'Cauda Flamejante', apply(c) { c.bodyPlan.tail = { type: 'flame', color: '#ff6a2a' }; c.contactDamage += 3; c.addParticleTrait('flame', '#ff8a3a'); } },
+    { id: 'fire_immune', name: 'Imunidade ao Fogo', apply(c) { c.immunities.add(E.FIRE); c.bodyPlan.hue = mixHue(c.bodyPlan.hue, 22, 0.4); } },
+    { id: 'boiling_blood', name: 'Sangue Fervente', apply(c) { c.temperament.aggression = clamp01(c.temperament.aggression + 0.3); c.bodyPlan.glow = '#ff3a2a'; } },
+    { id: 'ember_skin', name: 'Pele de Brasa', apply(c) { c.bodyPlan.hue = 18; c.bodyPlan.sat = 85; c.stats.strength += 3; } },
+    { id: 'smolder', name: 'Fumegante', apply(c) { c.addParticleTrait('smoke', '#777'); c.stats.strength += 1; c.contactDamage += 1; } },
+  ],
+  [E.METAL]: [
+    { id: 'metal_plates', name: 'Placas de Metal', apply(c) { c.bodyPlan.plates += 2; c.stats.defense += 4; c.stats.speed *= 0.85; } },
+    { id: 'metal_limbs', name: 'Membros Metálicos', apply(c) { c.bodyPlan.limbs = Math.min(8, c.bodyPlan.limbs + 2); c.bodyPlan.metallicLimbs = true; c.stats.strength += 3; } },
+    { id: 'conductor', name: 'Corpo Condutor', apply(c) { c.conductive = true; c.stats.defense += 2; c.bodyPlan.sat = Math.max(8, c.bodyPlan.sat - 30); } },
+    { id: 'polished_shell', name: 'Carapaça Polida', apply(c) { c.bodyPlan.sat = 6; c.bodyPlan.light = 68; c.stats.defense += 3; } },
+    { id: 'heavy_core', name: 'Núcleo Pesado', apply(c) { c.stats.maxHp += 12; c.hp += 12; c.stats.speed *= 0.9; c.bodyPlan.size += 1; } },
+  ],
+  [E.ICE]: [
+    { id: 'frost_aura', name: 'Aura Congelante', apply(c) { c.bodyPlan.aura = 'rgba(140,210,255,0.30)'; c.slowAura = true; } },
+    { id: 'crystal_body', name: 'Corpo Cristalino', apply(c) { c.bodyPlan.alpha = 0.7; c.bodyPlan.hue = 198; c.bodyPlan.crystal = true; c.stats.defense += 3; } },
+    { id: 'cold_blood', name: 'Sangue Frio', apply(c) { c.stats.speed *= 0.8; c.stats.maxHp += 16; c.hp += 16; } },
+    { id: 'ice_spikes', name: 'Espinhos de Gelo', apply(c) { c.bodyPlan.spikes += 3; c.bodyPlan.spikeColor = '#bfe6ff'; c.contactDamage += 2; } },
+    { id: 'cold_immune', name: 'Imunidade ao Frio', apply(c) { c.immunities.add(E.ICE); c.addParticleTrait('snow', '#dff2ff'); } },
+  ],
+  [E.POISON]: [
+    { id: 'toxic_spikes', name: 'Espinhos Tóxicos', apply(c) { c.bodyPlan.spikes += 3; c.bodyPlan.spikeColor = '#7dc832'; c.contactDamage += 3; } },
+    { id: 'poison_immune', name: 'Imunidade a Veneno', apply(c) { c.immunities.add(E.POISON); } },
+    { id: 'sickly_hue', name: 'Pele Doentia', apply(c) { c.bodyPlan.hue = 82; c.bodyPlan.sat = 60; c.bodyPlan.light = 42; c.scary += 0.4; } },
+    { id: 'acid_slobber', name: 'Baba Corrosiva', apply(c) { c.contactDamage += 2; c.addParticleTrait('drip', '#7dc832'); } },
+    { id: 'putrid_breath', name: 'Hálito Pútrido', apply(c) { c.scary += 0.3; c.temperament.sociability = clamp01(c.temperament.sociability - 0.2); } },
+  ],
+  [E.GOLD]: [
+    { id: 'golden_body', name: 'Corpo Dourado', apply(c) { c.bodyPlan.hue = 46; c.bodyPlan.sat = 90; c.bodyPlan.light = 60; c.bodyPlan.glow = '#ffc832'; c.shiny += 0.5; } },
+    { id: 'glittering_greed', name: 'Ganância Cintilante', apply(c) { c.temperament.greed = clamp01(c.temperament.greed + 0.35); c.addParticleTrait('spark', '#ffd75a'); } },
+    { id: 'gleaming_crown', name: 'Coroa Reluzente', apply(c) { c.bodyPlan.antennae = Math.min(4, c.bodyPlan.antennae + 2); c.bodyPlan.antennaColor = '#ffc832'; c.temperament.sociability = clamp01(c.temperament.sociability + 0.2); c.shiny += 0.3; } },
+    { id: 'midas_touch', name: 'Toque de Midas', apply(c) { c.temperament.greed = clamp01(c.temperament.greed + 0.2); c.temperament.industriousness = clamp01(c.temperament.industriousness + 0.2); } },
+  ],
+  [E.SLIME]: [
+    { id: 'elastic_body', name: 'Corpo Elástico', apply(c) { c.splitOnDeath = true; c.bodyPlan.wobble = Math.min(1, c.bodyPlan.wobble + 0.5); } },
+    { id: 'sticky', name: 'Aderente', apply(c) { c.ignoreTerrain = true; c.bodyPlan.pattern = 'spots'; c.bodyPlan.patternColor = '#5fe07a'; } },
+    { id: 'goo_membrane', name: 'Membrana Gosmenta', apply(c) { c.stats.maxHp += 10; c.hp += 10; c.bodyPlan.wobble = Math.min(1, c.bodyPlan.wobble + 0.3); c.bodyPlan.size += 1; } },
+    { id: 'goo_green', name: 'Verde Gosma', apply(c) { c.bodyPlan.hue = 135; c.bodyPlan.sat = 70; c.regen += 0.4; c.addParticleTrait('drip', '#5fe07a'); } },
+  ],
+  [E.AIR]: [
+    { id: 'floaty', name: 'Flutuação', apply(c) { c.floaty = true; c.stats.speed *= 1.15; } },
+    { id: 'ethereal', name: 'Corpo Etéreo', apply(c) { c.bodyPlan.alpha = Math.max(0.45, c.bodyPlan.alpha - 0.3); c.stats.defense += 2; } },
+    { id: 'wind_feet', name: 'Pés de Vento', apply(c) { c.stats.speed *= 1.25; c.bodyPlan.limbs = Math.min(8, c.bodyPlan.limbs + 1); } },
+    { id: 'cloud_hop', name: 'Salto Nebuloso', apply(c) { c.dashType = 'hop'; c.addParticleTrait('puff', '#dfeeec'); } },
+  ],
+  [E.LIGHTNING]: [
+    { id: 'electric_dash', name: 'Dash Elétrico', apply(c) { c.dashType = 'electric'; c.addParticleTrait('spark', '#ffe94a'); } },
+    { id: 'chain_damage', name: 'Dano em Cadeia', apply(c) { c.chainDamage = true; c.contactDamage += 2; } },
+    { id: 'sparking_fur', name: 'Pelagem Faiscante', apply(c) { c.addParticleTrait('spark', '#fff27a'); c.stats.speed *= 1.1; c.bodyPlan.glow = '#ffe94a'; } },
+    { id: 'turbo_nerves', name: 'Nervos Turbo', apply(c) { c.stats.speed *= 1.3; } },
+  ],
+  [E.DIAMOND]: [
+    { id: 'adamant_body', name: 'Corpo Adamantino', apply(c) { c.stats.defense += 10; c.bodyPlan.crystal = true; c.bodyPlan.hue = 190; c.bodyPlan.light = 80; c.shiny += 0.6; } },
+    { id: 'bright_facets', name: 'Facetas Brilhantes', apply(c) { c.addParticleTrait('spark', '#e0fbff'); c.shiny += 0.6; c.temperament.sociability = clamp01(c.temperament.sociability + 0.15); } },
+    { id: 'diamond_heart', name: 'Coração de Diamante', apply(c) { c.stats.maxHp += 30; c.hp += 30; } },
+  ],
+  [E.WATER]: [
+    { id: 'regeneration', name: 'Regeneração', apply(c) { c.regen += 0.8; c.addParticleTrait('drip', '#3f8cff'); } },
+    { id: 'fluid_body', name: 'Corpo Fluido', apply(c) { c.bodyPlan.hue = 210; c.bodyPlan.wobble = Math.min(1, c.bodyPlan.wobble + 0.3); c.aquatic = true; } },
+    { id: 'hydrated', name: 'Hidratado', apply(c) { c.stats.maxHp += 10; c.hp += 10; c.bodyPlan.size += 1; } },
+    { id: 'flame_dampener', name: 'Apaga-Chamas', apply(c) { c.immunities.add(E.FIRE); c.bodyPlan.sat = Math.min(100, c.bodyPlan.sat + 10); } },
+  ],
+  [E.WOOD]: [
+    { id: 'camouflage', name: 'Camuflagem', apply(c) { c.bodyPlan.hue = 95; c.bodyPlan.sat = 35; c.bodyPlan.pattern = 'spots'; c.bodyPlan.patternColor = '#5a4326'; c.scary -= 0.2; } },
+    { id: 'thick_bark', name: 'Casca Grossa', apply(c) { c.stats.defense += 3; c.bodyPlan.pattern = 'stripes'; c.bodyPlan.patternColor = '#6a4a26'; } },
+    { id: 'branches', name: 'Galhos', apply(c) { c.bodyPlan.antennae = Math.min(4, c.bodyPlan.antennae + 2); c.bodyPlan.antennaColor = '#9a6a35'; c.stats.strength += 2; } },
+    { id: 'roots', name: 'Raízes', apply(c) { c.regen += 0.5; } },
+  ],
+  [E.STONE]: [
+    { id: 'sturdy', name: 'Robustez', apply(c) { c.stats.maxHp += 14; c.hp += 14; c.stats.defense += 2; c.stats.speed *= 0.9; } },
+    { id: 'rocky_skin', name: 'Pele Rochosa', apply(c) { c.bodyPlan.sat = 8; c.bodyPlan.light = 48; c.bodyPlan.plates += 1; c.stats.defense += 2; } },
+    { id: 'stone_fists', name: 'Punhos de Pedra', apply(c) { c.stats.strength += 4; c.bodyPlan.limbs = Math.max(2, c.bodyPlan.limbs); } },
+    { id: 'mountain_still', name: 'Imóvel como Montanha', apply(c) { c.stats.defense += 6; c.stats.speed *= 0.75; c.bodyPlan.size += 2; } },
+  ],
+  [E.GLASS]: [
+    { id: 'reflective_body', name: 'Corpo Refletivo', apply(c) { c.bodyPlan.alpha = 0.65; c.bodyPlan.crystal = true; c.stats.defense += 2; c.shiny += 0.3; } },
+    { id: 'cutting_spikes', name: 'Espinhos Cortantes', apply(c) { c.bodyPlan.spikes += 4; c.bodyPlan.spikeColor = '#cfeef5'; c.contactDamage += 3; } },
+    { id: 'fragile_lethal', name: 'Frágil e Letal', apply(c) { c.stats.strength += 6; c.stats.maxHp = Math.max(10, c.stats.maxHp - 8); c.hp = Math.min(c.hp, c.stats.maxHp); } },
+    { id: 'prism', name: 'Prisma', apply(c) { c.bodyPlan.prism = true; c.addParticleTrait('spark', '#bfe8ff'); c.shiny += 0.4; } },
+  ],
+};
+
+function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+function mixHue(a, b, t) { return a + (b - a) * t; }
+
+// Absorve `elem`: rola uma mutação nova (sem repetir) no RNG da criatura.
+function absorbElement(creature, elem, game) {
+  creature.absorbed[elem] = (creature.absorbed[elem] || 0) + 1;
+  const pool = MUTATION_POOLS[elem] || [];
+  const owned = new Set(creature.traits.map(t => t.id));
+  const options = pool.filter(m => !owned.has(m.id));
+  const rng = creature.rng;
+  if (options.length === 0) {
+    // já tem tudo desse elemento: só reforça stats levemente
+    creature.stats.maxHp += 2;
+    creature.hp += 2;
+    return null;
+  }
+  const mut = options[Math.floor(rng.next() * options.length)];
+  mut.apply(creature);
+  creature.traits.push({ id: mut.id, name: mut.name, element: elem });
+  creature.refreshDominant();
+  game.feed(`✨ ${creature.name} absorveu ${elemName(elem)} e ganhou ${mut.name}!`, '#c9a6ff');
+  return mut;
+}
+
+return { MUTATION_POOLS, absorbElement };
+})();
+
+// ==== src/building.js ====
+__m.building = (() => {
+// Construções procedurais: estruturas, objetos, armas e veículos.
+// O que construir é sorteado de uma tabela ponderada por elemento carregado + temperamento.
+
+const { E, elemName, elemColor, FLAMMABLE, STRUCTURAL } = __m.elements;
+const { TILE, T } = __m.world;
+const BUILD_THRESHOLD = 2;
+
+const TYPE_NAMES = {
+  wall: 'Parede', floor: 'Piso', tower: 'Torre', house: 'Casa', bridge: 'Ponte',
+  campfire: 'Fogueira', totem: 'Totem', chest: 'Baú', sculpture: 'Escultura',
+};
+
+const HP_BY_ELEM = {
+  [E.WOOD]: 30, [E.STONE]: 60, [E.GLASS]: 18, [E.ICE]: 24, [E.METAL]: 80,
+  [E.GOLD]: 40, [E.DIAMOND]: 150, [E.SLIME]: 26, [E.WATER]: 20, [E.FIRE]: 20,
+  [E.AIR]: 15, [E.POISON]: 22, [E.LIGHTNING]: 25,
+};
+
+let nextBid = 1;
+
+class Building {
+  constructor(game, type, tx, ty, elem, faction, builder) {
+    this.id = nextBid++;
+    this.type = type;
+    this.tx = tx; this.ty = ty;
+    this.x = tx * TILE + TILE / 2;
+    this.y = ty * TILE + TILE / 2;
+    this.element = elem;
+    this.faction = faction || null;
+    this.maxHp = (HP_BY_ELEM[elem] || 30) * (type === 'tower' ? 1.5 : 1);
+    this.hp = this.maxHp;
+    this.burning = 0;
+    this.gold = type === 'chest' ? 1 : 0;
+    this.seed = builder ? Math.floor(builder.rng.next() * 4294967296) : game.envRng.int(0, 1e9);
+    this.height = type === 'tower' ? 2.2 : type === 'house' ? 1.4 : 1;
+  }
+
+  get label() { return `${TYPE_NAMES[this.type]} de ${elemName(this.element)}`; }
+
+  update(game, dt) {
+    if (this.burning > 0) {
+      this.burning -= dt;
+      this.hp -= 9 * dt;
+      if (game.fxRng.chance(dt * 6)) game.flameAt(this.x + game.fxRng.range(-5, 5), this.y + game.fxRng.range(-6, 2), game.fxRng);
+      // fogo se espalha para construções/depósitos inflamáveis vizinhos
+      if (game.fxRng.chance(dt * 1.2)) {
+        const world = game.world;
+        const nx = this.tx + game.envRng.int(-1, 1), ny = this.ty + game.envRng.int(-1, 1);
+        if (world.inBounds(nx, ny)) {
+          const ni = world.idx(nx, ny);
+          const nb = world.buildingAt.get(ni);
+          if (nb && FLAMMABLE.has(nb.element)) world.igniteBuilding(nb, game);
+          else if (world.dep[ni] === E.WOOD || world.dep[ni] === E.SLIME) world.setDep(ni, E.FIRE, game.envRng.range(3, 5));
+        }
+      }
+    }
+    if (this.hp <= 0) game.removeBuilding(this, this.burning > 0 ? 'queimou até o chão' : 'foi destruída');
+  }
+}
+
+function buildOptions(c, elem, waterNearby) {
+  const t = c.temperament;
+  const opts = [];
+  const add = (type, w, elems) => {
+    if (w > 0 && (!elems || elems.includes(elem))) opts.push({ type, w });
+  };
+  const structural = STRUCTURAL.has(elem);
+  if (structural) {
+    add('wall', 1 + t.industriousness);
+    add('floor', 0.7 + t.industriousness * 0.5);
+  }
+  add('tower', 0.5 + t.aggression * 0.9, [E.STONE, E.METAL]);
+  add('house', 1 + t.sociability * 1.2, [E.WOOD, E.STONE]);
+  add('campfire', 0.8, [E.WOOD]);
+  if (waterNearby) add('bridge', 1.2, [E.WOOD, E.STONE]);
+  add('totem', c.faction ? 1.0 : 0.25);
+  add('chest', t.greed * 1.6, [E.WOOD, E.GOLD]);
+  add('sculpture', 0.5 + t.curiosity * 0.9);
+  if (!c.weapon) add('weapon', 0.5 + t.aggression * 1.8, [E.GLASS, E.METAL, E.DIAMOND]);
+  if (!c.vehicle) add('vehicle', 0.3 + t.curiosity * 0.7, [E.METAL, E.WOOD, E.ICE, E.AIR]);
+  return opts;
+}
+
+const WEAPON_STATS = {
+  [E.GLASS]: { name: 'Lâmina de Vidro', atk: 4 },
+  [E.METAL]: { name: 'Lança de Metal', atk: 6 },
+  [E.DIAMOND]: { name: 'Lâmina de Diamante', atk: 11 },
+};
+const VEHICLE_STATS = {
+  [E.METAL]: { name: 'Carrinho de Metal', speedMul: 1.22 },
+  [E.WOOD]: { name: 'Carroça de Madeira', speedMul: 1.18 },
+  [E.ICE]: { name: 'Trenó de Gelo', speedMul: 1.32 },
+  [E.AIR]: { name: 'Planador', speedMul: 1.38 },
+};
+
+// Consome a carga da criatura e materializa uma construção (ou equipa arma/veículo).
+function attemptBuild(game, c, tx, ty) {
+  // elemento mais carregado (precisa ter o suficiente dele)
+  let elem = -1, n = 0;
+  for (const [k, v] of Object.entries(c.carry)) if (v > n) { n = v; elem = +k; }
+  if (elem === -1 || n < BUILD_THRESHOLD) return;
+  const world = game.world;
+
+  // ponte precisa de água por perto
+  let waterTile = null;
+  outer: for (let dy = -2; dy <= 2; dy++) {
+    for (let dx = -2; dx <= 2; dx++) {
+      const x = tx + dx, y = ty + dy;
+      if (world.inBounds(x, y) && world.terrain[world.idx(x, y)] === T.WATER && !world.buildingAt.has(world.idx(x, y))) {
+        waterTile = { x, y }; break outer;
+      }
+    }
+  }
+
+  const opts = buildOptions(c, elem, !!waterTile);
+  if (opts.length === 0) return;
+  const choice = c.rng.weighted(opts);
+
+  // paga o custo
+  c.carry[elem] -= BUILD_THRESHOLD;
+  if (c.carry[elem] <= 0) delete c.carry[elem];
+  c.carryTotal = Object.values(c.carry).reduce((a, b) => a + b, 0);
+
+  if (choice.type === 'weapon') {
+    c.weapon = { ...WEAPON_STATS[elem], element: elem };
+    game.feed(`⚔️ ${c.name} forjou ${c.weapon.name}!`, elemColor(elem));
+    return;
+  }
+  if (choice.type === 'vehicle') {
+    c.vehicle = { ...VEHICLE_STATS[elem], element: elem };
+    game.feed(`🛞 ${c.name} montou em um(a) ${c.vehicle.name}!`, elemColor(elem));
+    return;
+  }
+
+  let bx = tx, by = ty;
+  if (choice.type === 'bridge' && waterTile) { bx = waterTile.x; by = waterTile.y; }
+  const i = world.idx(bx, by);
+  if (world.buildingAt.has(i)) return;
+
+  const b = new Building(game, choice.type, bx, by, elem, c.faction, c);
+  game.addBuilding(b);
+  if (game.buildings.length <= 24 || game.envRng.chance(0.25)) {
+    game.feed(`🔨 ${c.name} construiu ${b.label}`, elemColor(elem));
+  }
+}
+
+return { BUILD_THRESHOLD, TYPE_NAMES, Building, attemptBuild };
+})();
+
+// ==== src/society.js ====
+__m.society = (() => {
+// Relações entre criaturas: encontros, facções, guerra e aliança.
+
+const { factionName } = __m.names;
+const { E } = __m.elements;
+let nextFid = 1;
+
+class Faction {
+  constructor(game, founderA, founderB) {
+    this.id = nextFid++;
+    this.game = game;
+    this.name = factionName(game.societyRng, game.usedFactionNames);
+    this.hue = game.societyRng.int(0, 360);
+    this.color = `hsl(${this.hue},70%,60%)`;
+    this.members = [];
+    this.buildings = [];
+    this.relations = new Map(); // factionId -> { state: 'neutral'|'war'|'ally', heat: number }
+    this.addMember(founderA);
+    if (founderB) this.addMember(founderB);
+  }
+
+  addMember(c) {
+    if (c.faction === this) return;
+    if (c.faction) c.faction.removeMember(c);
+    c.faction = this;
+    this.members.push(c);
+  }
+
+  removeMember(c) {
+    const i = this.members.indexOf(c);
+    if (i >= 0) this.members.splice(i, 1);
+    if (c.faction === this) c.faction = null;
+  }
+
+  relationWith(other) {
+    let r = this.relations.get(other.id);
+    if (!r) { r = { state: 'neutral', heat: 0 }; this.relations.set(other.id, r); }
+    return r;
+  }
+
+  isAtWar(other) {
+    if (!other || other === this) return false;
+    return this.relationWith(other).state === 'war';
+  }
+
+  center() {
+    let sx = 0, sy = 0, n = 0;
+    for (const b of this.buildings) { sx += b.x; sy += b.y; n++; }
+    if (n === 0) {
+      for (const m of this.members) { sx += m.x; sy += m.y; n++; }
+    }
+    return n ? { x: sx / n, y: sy / n } : { x: 0, y: 0 };
+  }
+
+  nearestBuilding(x, y) {
+    let best = null, bd = Infinity;
+    for (const b of this.buildings) {
+      const d = (b.x - x) ** 2 + (b.y - y) ** 2;
+      if (d < bd) { bd = d; best = b; }
+    }
+    return best;
+  }
+
+  avgTemperament(key) {
+    if (this.members.length === 0) return 0.5;
+    let s = 0;
+    for (const m of this.members) s += m.temperament[key];
+    return s / this.members.length;
+  }
+}
+
+function similarity(a, b) {
+  let dh = Math.abs(a.bodyPlan.hue - b.bodyPlan.hue);
+  if (dh > 180) dh = 360 - dh;
+  let shared = 0;
+  for (const t of a.traits) if (b.traits.some(o => o.id === t.id)) shared++;
+  return (1 - dh / 180) * 0.6 + Math.min(1, shared / 3) * 0.4;
+}
+
+// Encontro entre duas criaturas: aliança, neutro ou hostilidade.
+function tryEncounter(game, a, b) {
+  const rng = game.societyRng;
+  a.encounterCd = rng.range(9, 18);
+  b.encounterCd = rng.range(9, 18);
+
+  const sim = similarity(a, b);
+  // disputa por ouro: dois gananciosos atrás do mesmo tesouro se estranham
+  const wantsGold = c => (c.carry[E.GOLD] || 0) > 0 || (c.seekTile && c.seekTile.elem === E.GOLD);
+  const goldTension = (wantsGold(a) && wantsGold(b))
+    ? 0.3 * (a.temperament.greed + b.temperament.greed) / 2 : 0;
+  const hostScore =
+    (a.temperament.aggression + b.temperament.aggression) / 2 +
+    (a.scary + b.scary) * 0.35 +
+    (a.shiny * b.temperament.greed + b.shiny * a.temperament.greed) * 0.5 + // ouro atiça ganância
+    goldTension -
+    sim * 0.25;
+  const allyScore =
+    (a.temperament.sociability + b.temperament.sociability) / 2 +
+    sim * 0.4 -
+    (a.scary + b.scary) * 0.4;
+
+  const r = rng.next();
+  if (hostScore > 0.56 + r * 0.3) {
+    a.engage(b);
+    if (game.envRng.chance(0.5)) game.feed(`⚔️ ${a.name} atacou ${b.name}!`, '#ff7a6a');
+    return 'hostile';
+  }
+  if (allyScore > 0.46 + r * 0.28) {
+    if (a.faction && b.faction && a.faction !== b.faction) {
+      // duas facções se aproximam
+      const ra = a.faction.relationWith(b.faction);
+      const rb = b.faction.relationWith(a.faction);
+      if (ra.state === 'neutral') { ra.heat -= 0.4; rb.heat -= 0.4; }
+    } else if (a.faction || b.faction) {
+      const f = a.faction || b.faction;
+      const joiner = a.faction ? b : a;
+      if (f.members.length < 24) {
+        f.addMember(joiner);
+        game.feed(`🤝 ${joiner.name} juntou-se à facção ${f.name}`, f.color);
+      }
+    } else if (rng.chance(0.55)) {
+      const f = new Faction(game, a, b);
+      game.factions.push(f);
+      game.feed(`🏳️ ${a.name} e ${b.name} fundaram a facção ${f.name}!`, f.color);
+    }
+    return 'ally';
+  }
+  return 'neutral';
+}
+
+// Tick da sociedade (~a cada 8s): relações entre facções derivam com o tempo.
+function societyTick(game) {
+  const rng = game.societyRng;
+  const fs = game.factions.filter(f => f.members.length >= 2);
+  for (let i = 0; i < fs.length; i++) {
+    for (let j = i + 1; j < fs.length; j++) {
+      const A = fs[i], B = fs[j];
+      const rA = A.relationWith(B);
+      const rb = B.relationWith(A);
+      const aggr = (A.avgTemperament('aggression') + B.avgTemperament('aggression')) / 2;
+      const soc = (A.avgTemperament('sociability') + B.avgTemperament('sociability')) / 2;
+      const greed = (A.avgTemperament('greed') + B.avgTemperament('greed')) / 2;
+      rA.heat += (aggr * 0.6 + greed * 0.3 - soc * 0.5) * rng.range(0.2, 0.7) + rng.range(-0.18, 0.22);
+      rA.heat *= 0.97;
+      rA.heat = Math.max(-2, Math.min(2, rA.heat));
+      rb.heat = rA.heat; // relação simétrica
+
+      const bothEstablished = A.members.length >= 3 && B.members.length >= 3;
+      const alreadyAtWar = f => {
+        for (const [, rel] of f.relations) if (rel.state === 'war') return true;
+        return false;
+      };
+      if (rA.state !== 'war' && rA.heat > 0.8 && bothEstablished &&
+          !((alreadyAtWar(A) || alreadyAtWar(B)) && rng.chance(0.7))) {
+        rA.state = rb.state = 'war';
+        rA.heat = rb.heat = 2; // guerra dura um tempo até esfriar
+        game.feed(`🔥 A facção ${A.name} declarou guerra à facção ${B.name}!`, '#ff5a4a');
+      } else if (rA.state !== 'ally' && rA.heat < -0.8) {
+        rA.state = rb.state = 'ally';
+        game.feed(`🕊️ As facções ${A.name} e ${B.name} formaram uma aliança`, '#8fd1ff');
+      } else if (rA.state === 'war' && rA.heat < 0.25) {
+        rA.state = rb.state = 'neutral';
+        rA.heat = rb.heat = -0.5; // rancor esquecido: demora para nova guerra
+        game.feed(`🏳️ Paz entre ${A.name} e ${B.name}`, '#cfcfcf');
+      }
+
+      // guerra: designa raides
+      if (rA.state === 'war') {
+        assignRaiders(game, A, B, rng);
+        assignRaiders(game, B, A, rng);
+      }
+    }
+  }
+}
+
+function assignRaiders(game, from, to, rng) {
+  if (to.members.length === 0 && to.buildings.length === 0) return;
+  for (const m of from.members) {
+    if (m.alive && m.temperament.aggression > 0.45 && m.state !== 'fight' && rng.chance(0.4)) {
+      m.raidTarget = { faction: to };
+      m.state = 'raid';
+    }
+  }
+}
+
+return { Faction, tryEncounter, societyTick };
+})();
+
+// ==== src/creature.js ====
+__m.creature = (() => {
+// Classe Creature: DNA (genome), corpo procedural, comportamento e combate.
+
+const { E, elemColor } = __m.elements;
+const { TILE, T } = __m.world;
+const { absorbElement } = __m.evolution;
+const { creatureName } = __m.names;
+const { tryEncounter } = __m.society;
+const { attemptBuild, BUILD_THRESHOLD } = __m.building;
+let nextId = 1;
+
+function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+
+function baseBodyPlan(rng) {
+  const blobOffsets = [];
+  for (let i = 0; i < 8; i++) blobOffsets.push(rng.range(-0.14, 0.14));
+  const spots = [];
+  for (let i = 0; i < 5; i++) spots.push({ a: rng.angle(), d: rng.range(0.1, 0.75), r: rng.range(0.12, 0.3) });
+  return {
+    shape: rng.pick(['blob', 'blob', 'segment', 'radial']),
+    size: rng.range(5.5, 8),
+    hue: rng.range(0, 360), sat: rng.range(18, 45), light: rng.range(45, 62),
+    eyes: rng.int(1, 3),
+    limbs: rng.int(0, 4),
+    wobble: rng.range(0.25, 0.6),
+    spikes: 0, plates: 0, antennae: 0, antennaColor: null, spikeColor: null,
+    tail: null, glow: null, aura: null,
+    alpha: 1, crystal: false, prism: false, metallicLimbs: false,
+    pattern: rng.chance(0.35) ? rng.pick(['stripes', 'spots']) : 'none',
+    patternColor: `hsl(${rng.int(0, 360)},40%,30%)`,
+    particles: [],
+    blobOffsets, spots,
+    phase: rng.angle(),
+  };
+}
+
+function baseTemperament(rng) {
+  return {
+    aggression: rng.next(), sociability: rng.next(), curiosity: rng.next(),
+    industriousness: rng.next(), greed: rng.next(),
+  };
+}
+
+function baseStats(rng) {
+  return {
+    maxHp: rng.range(22, 32), speed: rng.range(26, 40),
+    strength: rng.range(3, 6), defense: rng.range(1, 3),
+    lifespan: rng.range(260, 460),
+  };
+}
+
+function inheritPlan(rng, plan) {
+  const p = JSON.parse(JSON.stringify(plan));
+  // ~70% conservado; jitter + mutação visual obrigatória
+  p.hue = (p.hue + rng.range(-25, 25) + 360) % 360;
+  p.size = Math.max(4.5, Math.min(11, p.size + rng.range(-0.8, 0.8)));
+  if (rng.chance(0.3)) p.eyes = Math.max(1, Math.min(5, p.eyes + rng.sign()));
+  if (rng.chance(0.3)) p.limbs = Math.max(0, Math.min(8, p.limbs + rng.sign()));
+  if (rng.chance(0.15)) p.shape = rng.pick(['blob', 'segment', 'radial']);
+  if (rng.chance(0.25)) p.pattern = rng.pick(['none', 'stripes', 'spots']);
+  for (let i = 0; i < 8; i++) p.blobOffsets[i] += rng.range(-0.05, 0.05);
+  p.phase = rng.angle();
+  return p;
+}
+
+function inheritTemperament(rng, ta, tb) {
+  const out = {};
+  const keys = Object.keys(ta);
+  for (const k of keys) {
+    const base = tb ? (ta[k] + tb[k]) / 2 : ta[k];
+    out[k] = clamp01(base + rng.range(-0.15, 0.15));
+  }
+  // mutação forte ocasional: um eixo do temperamento é sorteado do zero
+  // (evita que a espécie inteira convirja para o temperamento do Primeiro)
+  if (rng.chance(0.25)) out[rng.pick(keys)] = rng.next();
+  return out;
+}
+
+class Creature {
+  // opts: { isFirst, parentA, parentB, forcedSeed }
+  constructor(game, x, y, opts = {}) {
+    this.id = nextId++;
+    this.game = game;
+    this.x = x; this.y = y;
+    this.heading = 0;
+    this.rng = opts.forcedSeed !== undefined
+      ? new game.RNGClass(opts.forcedSeed)
+      : game.creatureSeedRng.fork();
+    const rng = this.rng;
+    this.heading = rng.angle();
+    this.name = creatureName(rng);
+    this.isFirst = !!opts.isFirst;
+
+    const pa = opts.parentA, pb = opts.parentB;
+    if (pa) {
+      this.basePlan = inheritPlan(rng, pa.basePlan);
+      this.temperament = inheritTemperament(rng, pa.temperament, pb && pb.temperament);
+      this.stats = baseStats(rng);
+      const src = pb && rng.chance(0.5) ? pb : pa;
+      for (const k of Object.keys(this.stats)) {
+        this.stats[k] = this.stats[k] * 0.3 + src.baseStatsSnapshot[k] * 0.7;
+      }
+    } else {
+      this.basePlan = baseBodyPlan(rng);
+      this.temperament = baseTemperament(rng);
+      this.stats = baseStats(rng);
+    }
+    this.baseStatsSnapshot = { ...this.stats };
+    this.bodyPlan = JSON.parse(JSON.stringify(this.basePlan));
+
+    // flags/efeitos de traits
+    this.traits = [];
+    this.absorbed = {};
+    this.immunities = new Set();
+    this.contactDamage = 0;
+    this.regen = 0;
+    this.scary = 0;
+    this.shiny = 0;
+    this.floaty = false;
+    this.aquatic = false;
+    this.ignoreTerrain = false;
+    this.conductive = false;
+    this.chainDamage = false;
+    this.slowAura = false;
+    this.dashType = null;
+    this.splitOnDeath = false;
+    this.hasSplit = false;
+
+    // herança de traits (~70% cada) + reaplicação de efeitos
+    if (pa) {
+      const pool = [...pa.traits, ...(pb ? pb.traits.filter(t => !pa.traits.some(o => o.id === t.id)) : [])];
+      for (const t of pool) {
+        if (rng.chance(0.7)) this.inheritTrait(t);
+      }
+    }
+
+    this.hp = this.stats.maxHp;
+    this.age = 0;
+    this.carry = {}; this.carryTotal = 0;
+    this.faction = null;
+    this.weapon = null;
+    this.vehicle = null;
+
+    this.state = 'wander';
+    this.target = null;        // criatura inimiga
+    this.seekTile = null;      // {tx,ty,mode:'absorb'|'collect'}
+    this.buildSpot = null;
+    this.raidTarget = null;
+    this.fleeFrom = null; this.fleeTimer = 0;
+    this.senseTimer = rng.range(0, 0.5);
+    this.wanderTimer = 0;
+    this.encounterCd = rng.range(2, 6);
+    this.attackCd = 0;
+    this.dashCd = rng.range(2, 5);
+    this.dashTime = 0;
+    this.reproTimer = this.isFirst ? rng.range(12, 18) : rng.range(20, 34);
+    this.animPhase = rng.angle();
+    this.alive = true;
+    this.dominantElem = -1;
+
+    // filhote herda a facção do pai (nem sempre — e facções têm tamanho máximo)
+    if (pa && pa.faction && pa.faction.members.length < 24 && rng.chance(0.75)) {
+      pa.faction.addMember(this);
+    }
+  }
+
+  inheritTrait(t) {
+    if (this.traits.some(o => o.id === t.id)) return;
+    const pool = this.game.mutationPools[t.element] || [];
+    const mut = pool.find(m => m.id === t.id);
+    if (!mut) return;
+    mut.apply(this);
+    this.traits.push({ ...t });
+    this.absorbed[t.element] = (this.absorbed[t.element] || 0); // marca linhagem sem contar absorção
+  }
+
+  addParticleTrait(type, color) {
+    if (this.bodyPlan.particles.length < 4) this.bodyPlan.particles.push({ type, color });
+  }
+
+  refreshDominant() {
+    let best = -1, bestN = 0;
+    for (const [k, v] of Object.entries(this.absorbed)) {
+      if (v > bestN) { bestN = v; best = +k; }
+    }
+    if (best === -1 && this.traits.length) best = this.traits[this.traits.length - 1].element;
+    this.dominantElem = best;
+  }
+
+  get attack() { return this.stats.strength + (this.weapon ? this.weapon.atk : 0) + this.contactDamage * 0.5; }
+
+  update(dt) {
+    const game = this.game, world = game.world, rng = this.rng;
+    this.age += dt;
+    if (this.age > this.stats.lifespan) return game.kill(this, 'de velhice');
+
+    // dano/efeito do tile atual
+    const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
+    if (world.inBounds(tx, ty)) {
+      const d = world.dep[world.idx(tx, ty)];
+      if (d === E.FIRE && !this.immunities.has(E.FIRE)) this.hurt(9 * dt, null, 'queimado');
+      else if (d === E.POISON && !this.immunities.has(E.POISON)) this.hurt(4.5 * dt, null, 'envenenado');
+    }
+    if (!this.alive) return;
+    if (this.regen > 0) this.hp = Math.min(this.stats.maxHp, this.hp + this.regen * dt);
+
+    // percepção periódica
+    this.senseTimer -= dt;
+    this.encounterCd -= dt;
+    if (this.senseTimer <= 0) {
+      this.senseTimer = 0.5 + rng.next() * 0.3;
+      this.sense();
+    }
+
+    // reprodução
+    this.reproTimer -= dt;
+    if (this.reproTimer <= 0) this.tryReproduce();
+
+    // dash elétrico / salto
+    if (this.dashType) {
+      this.dashCd -= dt;
+      this.dashTime -= dt;
+      if (this.dashCd <= 0) {
+        this.dashCd = rng.range(3, 7);
+        this.dashTime = 0.35;
+        if (this.dashType === 'electric') game.sparkBurst(this.x, this.y, '#ffe94a', 5);
+      }
+    }
+
+    this.behave(dt);
+    this.move(dt);
+    this.emitTraitParticles(dt);
+  }
+
+  sense() {
+    const game = this.game;
+    if (this.state === 'fight' && this.target && this.target.alive) return;
+
+    // fugir de criaturas assustadoras / inimigos fortes
+    const near = game.hash.query(this.x, this.y, 60);
+    for (const o of near) {
+      if (o === this || !o.alive) continue;
+      const hostileFaction = this.faction && o.faction && this.faction.isAtWar(o.faction);
+      if ((o.scary > 0.3 && this.temperament.aggression < 0.5 && o.scary > this.scary) ||
+          (hostileFaction && o.attack > this.attack * 1.6)) {
+        this.fleeFrom = o; this.fleeTimer = 2.5; this.state = 'flee';
+        return;
+      }
+      if (hostileFaction && this.dist(o) < 46) { this.engage(o); return; }
+    }
+
+    // encontro social
+    if (this.encounterCd <= 0) {
+      for (const o of near) {
+        if (o === this || !o.alive || o.encounterCd > 0) continue;
+        if (this.faction && this.faction === o.faction) continue;
+        if (this.dist(o) < 30) { tryEncounter(game, this, o); break; }
+      }
+    }
+
+    if (this.state === 'fight' || this.state === 'flee') return;
+
+    // construir se carregando o suficiente de um mesmo elemento
+    let maxCarry = 0;
+    for (const v of Object.values(this.carry)) if (v > maxCarry) maxCarry = v;
+    if (maxCarry >= BUILD_THRESHOLD && this.state !== 'build') {
+      this.pickBuildSpot();
+      if (this.buildSpot) { this.state = 'build'; return; }
+    }
+    if (this.state === 'build' && this.buildSpot) return;
+    if (this.state === 'raid' && this.raidTarget) return;
+
+    // procurar depósitos de elementos
+    if (!this.seekTile) this.findDeposit();
+    this.state = this.seekTile ? 'seek' : 'wander';
+  }
+
+  findDeposit() {
+    const world = this.game.world, rng = this.rng;
+    const ctx = Math.floor(this.x / TILE), cty = Math.floor(this.y / TILE);
+    const greedy = this.temperament.greed > 0.5;
+    const R = greedy ? 8 : 5;
+    let best = null, bestScore = 0;
+    for (let dy = -R; dy <= R; dy++) {
+      for (let dx = -R; dx <= R; dx++) {
+        const x = ctx + dx, y = cty + dy;
+        if (!world.inBounds(x, y)) continue;
+        const i = world.idx(x, y);
+        const d = world.dep[i];
+        if (d === -1 || d === E.AIR && world.depLife[i] < 0.5) continue;
+        if (d === E.FIRE && !this.immunities.has(E.FIRE) && this.temperament.curiosity < 0.75) continue;
+        if (d === E.POISON && !this.immunities.has(E.POISON) && this.temperament.curiosity < 0.7) continue;
+        const distW = 1 / (1 + Math.abs(dx) + Math.abs(dy));
+        let w = distW;
+        if (d === E.GOLD) w *= 1 + this.temperament.greed * 4;
+        if (d === E.DIAMOND) w *= 1.5;
+        const jitter = 0.5 + rng.next();
+        if (w * jitter > bestScore) { bestScore = w * jitter; best = { tx: x, ty: y, elem: d }; }
+      }
+    }
+    if (!best) return;
+    // ABSORVER ou COLETAR?
+    let mode;
+    const absorbDesire = this.temperament.curiosity * (0.6 + rng.next() * 0.8);
+    const collectDesire = this.temperament.industriousness * (0.6 + rng.next() * 0.8) + this.temperament.greed * (best.elem === E.GOLD ? 0.6 : 0);
+    mode = absorbDesire >= collectDesire ? 'absorb' : 'collect';
+    if (best.elem === E.DIAMOND && this.stats.strength < 8) mode = 'collect'; // duríssimo: exige força para absorver
+    if (this.carryTotal >= BUILD_THRESHOLD + 2) mode = 'absorb';
+    best.mode = mode;
+    this.seekTile = best;
+  }
+
+  pickBuildSpot() {
+    const world = this.game.world, rng = this.rng;
+    let ox = this.x, oy = this.y;
+    if (this.faction && this.faction.buildings.length > 0 && rng.chance(0.7)) {
+      const c = this.faction.center();
+      ox = c.x + rng.range(-3, 3) * TILE; oy = c.y + rng.range(-3, 3) * TILE;
+    }
+    const ctx = Math.floor(ox / TILE), cty = Math.floor(oy / TILE);
+    for (let ring = 0; ring < 6; ring++) {
+      for (let attempt = 0; attempt < 6; attempt++) {
+        const x = ctx + rng.int(-ring - 1, ring + 1), y = cty + rng.int(-ring - 1, ring + 1);
+        if (!world.inBounds(x, y)) continue;
+        const i = world.idx(x, y);
+        if (world.buildingAt.has(i)) continue;
+        if (world.terrain[i] === T.WATER) continue;
+        this.buildSpot = { tx: x, ty: y };
+        return;
+      }
+    }
+    this.buildSpot = null;
+  }
+
+  behave(dt) {
+    const game = this.game;
+    switch (this.state) {
+      case 'flee': {
+        this.fleeTimer -= dt;
+        if (!this.fleeFrom || !this.fleeFrom.alive || this.fleeTimer <= 0) { this.state = 'wander'; this.fleeFrom = null; break; }
+        this.heading = Math.atan2(this.y - this.fleeFrom.y, this.x - this.fleeFrom.x);
+        break;
+      }
+      case 'fight': {
+        const t = this.target;
+        if (!t || !t.alive) { this.state = 'wander'; this.target = null; break; }
+        // ferido demais: foge ao invés de lutar até a morte
+        if (this.hp < this.stats.maxHp * 0.25 && this.temperament.aggression < 0.7) {
+          this.fleeFrom = t; this.fleeTimer = 4; this.state = 'flee'; this.target = null;
+          break;
+        }
+        this.heading = Math.atan2(t.y - this.y, t.x - this.x);
+        this.attackCd -= dt;
+        const reach = this.bodyPlan.size + t.bodyPlan.size + 4;
+        if (this.dist(t) < reach && this.attackCd <= 0) {
+          this.attackCd = 0.8;
+          const dmg = Math.max(1, this.attack + this.contactDamage - t.stats.defense * 0.55);
+          t.hurt(dmg, this, `em combate com ${this.name}`);
+          game.hitSpark(t.x, t.y, this.dominantElem);
+          if (this.chainDamage) {
+            for (const o of game.hash.query(t.x, t.y, 40)) {
+              if (o !== t && o !== this && o.alive && (!this.faction || o.faction !== this.faction)) {
+                o.hurt(dmg * 0.4, this, `por dano em cadeia de ${this.name}`);
+                game.sparkBurst(o.x, o.y, '#ffe94a', 3);
+              }
+            }
+          }
+          if (t.alive && t.contactDamage > 0) this.hurt(t.contactDamage * 0.6, t, `pelos espinhos de ${t.name}`);
+        }
+        break;
+      }
+      case 'seek': {
+        const s = this.seekTile;
+        if (!s) { this.state = 'wander'; break; }
+        const px = s.tx * TILE + TILE / 2, py = s.ty * TILE + TILE / 2;
+        this.heading = Math.atan2(py - this.y, px - this.x);
+        const world = game.world, i = world.idx(s.tx, s.ty);
+        if (world.dep[i] !== s.elem) { this.seekTile = null; this.state = 'wander'; break; }
+        if (Math.hypot(px - this.x, py - this.y) < TILE * 0.7) {
+          world.clearDep(i);
+          if (s.mode === 'absorb') {
+            absorbElement(this, s.elem, game);
+            game.absorbPuff(this.x, this.y, elemColor(s.elem));
+          } else {
+            this.carry[s.elem] = (this.carry[s.elem] || 0) + 1;
+            this.carryTotal++;
+          }
+          this.seekTile = null; this.state = 'wander';
+        }
+        break;
+      }
+      case 'build': {
+        const b = this.buildSpot;
+        if (!b) { this.state = 'wander'; break; }
+        const px = b.tx * TILE + TILE / 2, py = b.ty * TILE + TILE / 2;
+        this.heading = Math.atan2(py - this.y, px - this.x);
+        if (Math.hypot(px - this.x, py - this.y) < TILE * 0.9) {
+          attemptBuild(game, this, b.tx, b.ty);
+          this.buildSpot = null; this.state = 'wander';
+        }
+        break;
+      }
+      case 'raid': {
+        const r = this.raidTarget;
+        if (!r || !this.faction || !this.faction.isAtWar(r.faction)) { this.raidTarget = null; this.state = 'wander'; break; }
+        const c = r.faction.center();
+        this.heading = Math.atan2(c.y - this.y, c.x - this.x);
+        // ao chegar na vila: atacar construção ou inimigo próximo
+        if (Math.hypot(c.x - this.x, c.y - this.y) < 60) {
+          for (const o of this.game.hash.query(this.x, this.y, 70)) {
+            if (o.alive && o.faction === r.faction) { this.engage(o); return; }
+          }
+          const b = r.faction.nearestBuilding(this.x, this.y);
+          if (b) {
+            this.heading = Math.atan2(b.y - this.y, b.x - this.x);
+            if (Math.hypot(b.x - this.x, b.y - this.y) < TILE) {
+              this.attackCd -= dt;
+              if (this.attackCd <= 0) { this.attackCd = 0.8; b.hp -= this.attack; this.game.hitSpark(b.x, b.y, this.dominantElem); }
+            }
+          } else { this.raidTarget = null; this.state = 'wander'; }
+        }
+        break;
+      }
+      default: { // wander
+        this.wanderTimer -= dt;
+        if (this.wanderTimer <= 0) {
+          this.wanderTimer = this.rng.range(0.8, 2.4);
+          this.heading += this.rng.range(-1.4, 1.4);
+        }
+      }
+    }
+  }
+
+  move(dt) {
+    const world = this.game.world;
+    let f = this.ignoreTerrain || this.floaty ? 1 : world.moveFactorAtPx(this.x, this.y);
+    if (this.aquatic && world.terrainAtPx(this.x, this.y) === T.WATER) f = Math.max(f, 1.05);
+    let sp = this.stats.speed * f;
+    if (this.vehicle) sp *= this.vehicle.speedMul;
+    if (this.dashTime > 0) sp *= this.dashType === 'electric' ? 2.6 : 1.9;
+    if (this.state === 'fight' && this.target && this.target.slowAura) sp *= 0.7;
+    this.x += Math.cos(this.heading) * sp * dt;
+    this.y += Math.sin(this.heading) * sp * dt;
+    const m = 8, W = world.w * TILE, H = world.h * TILE;
+    if (this.x < m) { this.x = m; this.heading = Math.PI - this.heading; }
+    if (this.x > W - m) { this.x = W - m; this.heading = Math.PI - this.heading; }
+    if (this.y < m) { this.y = m; this.heading = -this.heading; }
+    if (this.y > H - m) { this.y = H - m; this.heading = -this.heading; }
+    this.animPhase += sp * dt * 0.12;
+    this.speedNow = sp;
+  }
+
+  emitTraitParticles(dt) {
+    const game = this.game;
+    for (const p of this.bodyPlan.particles) {
+      if (game.fxRng.chance(dt * 2.2)) game.traitParticle(this, p);
+    }
+  }
+
+  engage(other) {
+    if (!other.alive) return;
+    if (this.target !== other) this.game.combatCount++;
+    this.target = other; this.state = 'fight';
+    if (other.state !== 'fight' || !other.target || !other.target.alive) {
+      other.target = this; other.state = 'fight';
+    }
+  }
+
+  tryReproduce() {
+    const game = this.game, rng = this.rng;
+    this.reproTimer = rng.range(22, 38);
+    if (this.age < 8 || !this.alive) return;
+    if (game.creatures.length >= game.popCap) return;
+    // fertilidade cai com densidade local (cap populacional suave)
+    const neighbors = game.hash.query(this.x, this.y, 90).length;
+    if (rng.chance(Math.min(0.9, neighbors / 12))) { this.reproTimer = rng.range(10, 18); return; }
+    // reprodução mista se aliado próximo
+    let mate = null;
+    if (this.faction) {
+      for (const o of game.hash.query(this.x, this.y, 50)) {
+        if (o !== this && o.alive && o.faction === this.faction && o.age > 8) { mate = o; break; }
+      }
+    }
+    const a = rng.angle();
+    const child = new Creature(game, this.x + Math.cos(a) * 14, this.y + Math.sin(a) * 14, { parentA: this, parentB: mate });
+    game.addCreature(child);
+    game.feed(`🐣 ${child.name} nasceu de ${this.name}${mate ? ' e ' + mate.name : ''}`, '#8fd18f');
+  }
+
+  hurt(dmg, attacker, cause) {
+    if (!this.alive) return;
+    this.hp -= dmg;
+    if (this.hp <= 0) this.game.kill(this, cause || 'em combate', attacker);
+    else if (attacker && this.state !== 'fight' && this.state !== 'flee') {
+      if (this.temperament.aggression > 0.35 || this.attack >= attacker.attack) this.engage(attacker);
+      else { this.fleeFrom = attacker; this.fleeTimer = 3; this.state = 'flee'; }
+    }
+  }
+
+  dist(o) { return Math.hypot(o.x - this.x, o.y - this.y); }
+}
+
+return { Creature };
+})();
+
+// ==== src/render.js ====
+__m.render = (() => {
+// Renderização: terreno, depósitos, construções, criaturas procedurais e partículas.
+// Tudo desenhado em canvas — nenhum asset externo.
+
+const { E, ELEMENTS, elemColor } = __m.elements;
+const { TILE, T } = __m.world;
+const TERRAIN_COLORS = {
+  [T.PLAIN]: [38, 51, 42],
+  [T.ROCKY]: [51, 52, 61],
+  [T.WATER]: [26, 48, 76],
+  [T.DESERT]: [74, 68, 51],
+};
+
+function buildTerrainCanvas(world) {
+  const cv = document.createElement('canvas');
+  cv.width = world.w; cv.height = world.h;
+  const c = cv.getContext('2d');
+  const img = c.createImageData(world.w, world.h);
+  for (let i = 0; i < world.terrain.length; i++) {
+    const base = TERRAIN_COLORS[world.terrain[i]];
+    const sh = 1 + world.shade[i];
+    img.data[i * 4] = base[0] * sh;
+    img.data[i * 4 + 1] = base[1] * sh;
+    img.data[i * 4 + 2] = base[2] * sh;
+    img.data[i * 4 + 3] = 255;
+  }
+  c.putImageData(img, 0, 0);
+  return cv;
+}
+
+function render(game, ctx, cam, t) {
+  const { world } = game;
+  const vw = ctx.canvas.width, vh = ctx.canvas.height;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#0b0d12';
+  ctx.fillRect(0, 0, vw, vh);
+
+  ctx.setTransform(cam.zoom, 0, 0, cam.zoom, -cam.x * cam.zoom, -cam.y * cam.zoom);
+  ctx.imageSmoothingEnabled = false;
+
+  // terreno (offscreen 1px/tile, escalado)
+  ctx.drawImage(game.terrainCanvas, 0, 0, world.w, world.h, 0, 0, world.w * TILE, world.h * TILE);
+
+  // rect visível em tiles (culling)
+  const tx0 = Math.max(0, Math.floor(cam.x / TILE));
+  const ty0 = Math.max(0, Math.floor(cam.y / TILE));
+  const tx1 = Math.min(world.w - 1, Math.ceil((cam.x + vw / cam.zoom) / TILE));
+  const ty1 = Math.min(world.h - 1, Math.ceil((cam.y + vh / cam.zoom) / TILE));
+
+  // depósitos
+  for (let ty = ty0; ty <= ty1; ty++) {
+    for (let tx = tx0; tx <= tx1; tx++) {
+      const i = ty * world.w + tx;
+      const d = world.dep[i];
+      if (d !== -1) drawDeposit(ctx, d, tx, ty, i, t);
+    }
+  }
+
+  // construções (com culling)
+  const x0 = cam.x - TILE * 3, y0 = cam.y - TILE * 3;
+  const x1 = cam.x + vw / cam.zoom + TILE * 3, y1 = cam.y + vh / cam.zoom + TILE * 3;
+  for (const b of game.buildings) {
+    if (b.x < x0 || b.x > x1 || b.y < y0 || b.y > y1) continue;
+    drawBuilding(ctx, b, t);
+  }
+
+  // criaturas
+  for (const c of game.creatures) {
+    if (c.x < x0 || c.x > x1 || c.y < y0 || c.y > y1) continue;
+    drawCreature(ctx, c, t);
+  }
+
+  // partículas
+  for (const p of game.particles) {
+    const a = Math.max(0, p.life / p.maxLife);
+    ctx.globalAlpha = a;
+    if (p.type === 'bolt') {
+      ctx.strokeStyle = p.color; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x2, p.y2); ctx.stroke();
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (0.4 + 0.6 * a), 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // seleção do inspetor
+  if (game.selected && game.selected.alive) {
+    const s = game.selected;
+    ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.bodyPlan.size + 7, 0, 7); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // cursor do pincel
+  if (game.brush.visible && game.tool !== 'inspect') {
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 1 / cam.zoom;
+    ctx.beginPath();
+    ctx.arc(game.brush.x, game.brush.y, game.brush.radius * TILE, 0, 7);
+    ctx.stroke();
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+// hash barato para variação por tile
+function h2(i) { let x = (i * 2654435761) >>> 0; x ^= x >>> 13; return (x % 1000) / 1000; }
+
+function drawDeposit(ctx, d, tx, ty, i, t) {
+  const px = tx * TILE, py = ty * TILE;
+  const cx = px + TILE / 2, cy = py + TILE / 2;
+  const v = h2(i);
+  const col = elemColor(d);
+  switch (d) {
+    case E.FIRE: {
+      const fl = 0.7 + 0.3 * Math.sin(t * 9 + v * 20);
+      ctx.fillStyle = '#ff9a3a';
+      ctx.beginPath();
+      ctx.moveTo(cx - 5, py + 14);
+      ctx.quadraticCurveTo(cx - 6, py + 6, cx, py + 14 - 10 * fl);
+      ctx.quadraticCurveTo(cx + 6, py + 6, cx + 5, py + 14);
+      ctx.fill();
+      ctx.fillStyle = '#ffe27a';
+      ctx.beginPath(); ctx.arc(cx, py + 11, 2.4 * fl, 0, 7); ctx.fill();
+      break;
+    }
+    case E.WATER: case E.POISON: {
+      ctx.fillStyle = col; ctx.globalAlpha = 0.55;
+      ctx.beginPath(); ctx.ellipse(cx, cy, 7, 5.5, 0, 0, 7); ctx.fill();
+      ctx.globalAlpha = 1;
+      break;
+    }
+    case E.AIR: {
+      ctx.strokeStyle = col; ctx.globalAlpha = 0.45; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, 4 + 2 * Math.sin(t * 3 + v * 9), 0.5, 4.5); ctx.stroke();
+      ctx.globalAlpha = 1;
+      break;
+    }
+    case E.ICE: case E.GLASS: {
+      ctx.fillStyle = col; ctx.globalAlpha = 0.5;
+      ctx.fillRect(px + 3, py + 3, 10, 10);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+      ctx.strokeRect(px + 3.5, py + 3.5, 9, 9);
+      break;
+    }
+    case E.DIAMOND: {
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 6); ctx.lineTo(cx + 5, cy); ctx.lineTo(cx, cy + 6); ctx.lineTo(cx - 5, cy);
+      ctx.closePath(); ctx.fill();
+      if ((t * 2 + v * 7) % 3 < 0.4) { ctx.fillStyle = '#fff'; ctx.fillRect(cx - 1, cy - 4, 2, 2); }
+      break;
+    }
+    case E.GOLD: {
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(cx, cy + 1, 5, 0, 7); ctx.fill();
+      if ((t * 1.6 + v * 5) % 2.5 < 0.3) { ctx.fillStyle = '#fff8d0'; ctx.fillRect(cx + 1, cy - 3, 2, 2); }
+      break;
+    }
+    case E.METAL: {
+      ctx.fillStyle = col;
+      ctx.fillRect(px + 4, py + 5, 9, 7);
+      ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(px + 4, py + 5, 9, 2);
+      break;
+    }
+    case E.SLIME: {
+      ctx.fillStyle = col; ctx.globalAlpha = 0.8;
+      const w = 1 + 0.12 * Math.sin(t * 4 + v * 12);
+      ctx.beginPath(); ctx.ellipse(cx, cy + 2, 6 * w, 5 / w, 0, 0, 7); ctx.fill();
+      ctx.globalAlpha = 1;
+      break;
+    }
+    default: { // madeira, pedra
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx + (v - 0.5) * 3, cy + 1, 5.5, 4.5, v * 3, 0, 7);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.beginPath(); ctx.ellipse(cx + (v - 0.5) * 3 + 1, cy + 2, 3, 2, v * 3, 0, 7); ctx.fill();
+    }
+  }
+}
+
+function elemFill(ctx, elem) {
+  ctx.fillStyle = elemColor(elem);
+  ctx.globalAlpha = (elem === E.GLASS || elem === E.ICE) ? 0.55 : 1;
+}
+
+function drawBuilding(ctx, b, t) {
+  const px = b.tx * TILE, py = b.ty * TILE;
+  const cx = b.x, cy = b.y;
+  const col = elemColor(b.element);
+  ctx.save();
+  switch (b.type) {
+    case 'wall':
+      elemFill(ctx, b.element);
+      ctx.fillRect(px + 1, py + 1, TILE - 2, TILE - 2);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.strokeRect(px + 1.5, py + 1.5, TILE - 3, TILE - 3);
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.beginPath(); ctx.moveTo(px + 2, py + 8); ctx.lineTo(px + 14, py + 8); ctx.stroke();
+      break;
+    case 'floor': case 'bridge':
+      elemFill(ctx, b.element);
+      ctx.globalAlpha *= 0.75;
+      ctx.fillRect(px + 0.5, py + 0.5, TILE - 1, TILE - 1);
+      ctx.globalAlpha = 0.3; ctx.strokeStyle = '#000';
+      ctx.beginPath();
+      ctx.moveTo(px + 5, py + 1); ctx.lineTo(px + 5, py + 15);
+      ctx.moveTo(px + 11, py + 1); ctx.lineTo(px + 11, py + 15);
+      ctx.stroke();
+      break;
+    case 'tower': {
+      elemFill(ctx, b.element);
+      ctx.fillRect(px + 3, py - 14, 10, 28);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(px + 3, py + 8, 10, 6);
+      ctx.fillStyle = col;
+      ctx.fillRect(px + 1, py - 18, 14, 5);
+      if (b.faction) { ctx.fillStyle = b.faction.color; ctx.fillRect(px + 6, py - 24, 6, 4); }
+      break;
+    }
+    case 'house': {
+      elemFill(ctx, b.element);
+      ctx.fillRect(px + 2, py + 4, 12, 10);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = shadeColor(col, -30);
+      ctx.beginPath(); ctx.moveTo(px + 1, py + 5); ctx.lineTo(px + 8, py - 4); ctx.lineTo(px + 15, py + 5); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(px + 6, py + 9, 4, 5);
+      break;
+    }
+    case 'campfire': {
+      ctx.fillStyle = '#6a4a26';
+      ctx.fillRect(px + 3, py + 9, 10, 3);
+      const fl = 0.7 + 0.3 * Math.sin(t * 10 + b.id);
+      ctx.fillStyle = '#ff9a3a';
+      ctx.beginPath();
+      ctx.moveTo(cx - 4, py + 10); ctx.quadraticCurveTo(cx, py + 10 - 12 * fl, cx + 4, py + 10);
+      ctx.fill();
+      ctx.fillStyle = '#ffe27a';
+      ctx.beginPath(); ctx.arc(cx, py + 8, 2 * fl, 0, 7); ctx.fill();
+      break;
+    }
+    case 'totem': {
+      const rr = mulberryLite(b.seed);
+      for (let k = 0; k < 3; k++) {
+        ctx.fillStyle = k % 2 ? shadeColor(col, -25) : col;
+        const w = 10 - k * 2 + rr() * 2;
+        ctx.fillRect(cx - w / 2, py + 10 - (k + 1) * 7, w, 7);
+      }
+      if (b.faction) { ctx.fillStyle = b.faction.color; ctx.fillRect(cx - 2, py - 15, 8, 5); }
+      break;
+    }
+    case 'chest': {
+      ctx.fillStyle = '#7a5a30';
+      ctx.fillRect(px + 3, py + 6, 10, 8);
+      ctx.fillStyle = '#ffc832';
+      ctx.fillRect(px + 3, py + 9, 10, 2);
+      ctx.fillRect(px + 7, py + 8, 2, 4);
+      break;
+    }
+    case 'sculpture': {
+      const rr = mulberryLite(b.seed);
+      let yy = py + 14;
+      const n = 2 + Math.floor(rr() * 3);
+      for (let k = 0; k < n; k++) {
+        const w = 4 + rr() * 9, hh = 3 + rr() * 5;
+        elemFill(ctx, b.element);
+        if (rr() < 0.5) ctx.fillRect(cx - w / 2 + (rr() - 0.5) * 4, yy - hh, w, hh);
+        else { ctx.beginPath(); ctx.arc(cx + (rr() - 0.5) * 5, yy - hh / 2, w / 2, 0, 7); ctx.fill(); }
+        yy -= hh;
+      }
+      ctx.globalAlpha = 1;
+      break;
+    }
+  }
+  ctx.globalAlpha = 1;
+  // marca de facção
+  if (b.faction && (b.type === 'wall' || b.type === 'house')) {
+    ctx.fillStyle = b.faction.color;
+    ctx.fillRect(px + 2, py + 2, 3, 3);
+  }
+  // dano
+  if (b.hp < b.maxHp * 0.5) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px + 4, py + 4); ctx.lineTo(px + 9, py + 10); ctx.lineTo(px + 7, py + 13); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function mulberryLite(seed) {
+  let s = seed >>> 0;
+  return function () {
+    s = (s + 0x6D2B79F5) >>> 0;
+    let x = s;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shadeColor(hex, amt) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.max(0, Math.min(255, (n >> 16) + amt));
+  const g = Math.max(0, Math.min(255, ((n >> 8) & 255) + amt));
+  const b = Math.max(0, Math.min(255, (n & 255) + amt));
+  return `rgb(${r},${g},${b})`;
+}
+
+// ---------------------------------------------------------------------------
+// Criatura procedural — o corpo inteiro sai do bodyPlan, nada de sprites.
+// ---------------------------------------------------------------------------
+function drawCreature(ctx, c, t, portrait = false) {
+  const bp = c.bodyPlan;
+  const s = bp.size;
+  const wob = Math.sin(t * 3.2 + bp.phase) * bp.wobble * 0.12;
+  const moving = !portrait && c.speedNow > 4;
+  const squash = moving ? 1 + Math.sin(c.animPhase * 2) * 0.12 : 1 + wob;
+  const sx = s * squash, sy = s / squash;
+  const hd = portrait ? -0.35 : c.heading;
+  const bodyColor = `hsla(${bp.hue},${bp.sat}%,${bp.light}%,${bp.alpha})`;
+
+  ctx.save();
+  ctx.translate(c.x, c.y);
+
+  // veículo (desenhado sob a criatura)
+  if (c.vehicle && !portrait) drawVehicle(ctx, c, s, t);
+
+  // sombra
+  const floatOff = c.floaty ? -3 - Math.sin(t * 2.5 + bp.phase) * 1.5 : 0;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath(); ctx.ellipse(0, s * 0.75, sx * 0.8, s * 0.3, 0, 0, 7); ctx.fill();
+  ctx.translate(0, floatOff);
+
+  // aura
+  if (bp.aura) {
+    ctx.fillStyle = bp.aura;
+    ctx.beginPath(); ctx.arc(0, 0, s + 5 + Math.sin(t * 2 + bp.phase) * 1.5, 0, 7); ctx.fill();
+  }
+
+  // cauda
+  if (bp.tail) {
+    const ta = hd + Math.PI;
+    const txx = Math.cos(ta) * (sx + 2), tyy = Math.sin(ta) * (sy + 2);
+    if (bp.tail.type === 'flame') {
+      const fl = 0.75 + 0.25 * Math.sin(t * 11 + bp.phase);
+      ctx.fillStyle = bp.tail.color;
+      ctx.beginPath();
+      ctx.moveTo(txx * 0.6, tyy * 0.6);
+      ctx.lineTo(txx + Math.cos(ta + 0.5) * 4, tyy + Math.sin(ta + 0.5) * 4);
+      ctx.lineTo(txx * (1.6 + fl * 0.6), tyy * (1.6 + fl * 0.6));
+      ctx.lineTo(txx + Math.cos(ta - 0.5) * 4, tyy + Math.sin(ta - 0.5) * 4);
+      ctx.closePath(); ctx.fill();
+    } else {
+      ctx.strokeStyle = bp.tail.color; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(txx * 0.5, tyy * 0.5);
+      ctx.quadraticCurveTo(txx * 1.3, tyy * 1.3 + Math.sin(t * 4) * 3, txx * 1.8, tyy * 1.8);
+      ctx.stroke();
+    }
+  }
+
+  // membros (perninhas)
+  if (bp.limbs > 0) {
+    ctx.strokeStyle = bp.metallicLimbs ? '#b9c4d0' : `hsla(${bp.hue},${bp.sat}%,${Math.max(10, bp.light - 18)}%,${bp.alpha})`;
+    ctx.lineWidth = 2;
+    for (let i = 0; i < bp.limbs; i++) {
+      const a = hd + Math.PI / 2 + (i - (bp.limbs - 1) / 2) * (Math.PI / Math.max(3, bp.limbs)) * (i % 2 ? 1 : -1) + (i % 2 ? 0 : Math.PI);
+      const step = moving ? Math.sin(c.animPhase * 2.2 + i * 1.7) * 2 : Math.sin(t * 2 + i) * 0.6;
+      const lx = Math.cos(a) * sx, ly = Math.sin(a) * sy;
+      ctx.beginPath();
+      ctx.moveTo(lx * 0.7, ly * 0.7);
+      ctx.lineTo(lx * 1.35 + step, ly * 1.35 + Math.abs(step) * 0.5 + 1.5);
+      ctx.stroke();
+    }
+  }
+
+  // glow
+  if (bp.glow) { ctx.shadowColor = bp.glow; ctx.shadowBlur = 9; }
+
+  // corpo (blob / segmentado / radial)
+  ctx.fillStyle = bodyColor;
+  if (bp.shape === 'segment') {
+    for (let k = 2; k >= 0; k--) {
+      const f = 1 - k * 0.25;
+      const ox = -Math.cos(hd) * k * s * 0.95, oy = -Math.sin(hd) * k * s * 0.95;
+      ctx.beginPath(); ctx.ellipse(ox, oy, sx * f, sy * f, 0, 0, 7); ctx.fill();
+    }
+  } else if (bp.shape === 'radial') {
+    const lobes = 5 + (bp.blobOffsets[0] > 0 ? 1 : 0);
+    ctx.beginPath();
+    for (let i = 0; i <= 24; i++) {
+      const a = (i / 24) * Math.PI * 2;
+      const r = s * (1 + 0.22 * Math.sin(a * lobes + t * 1.5 * bp.wobble));
+      const x = Math.cos(a) * r * squash, y = Math.sin(a) * r / squash;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath(); ctx.fill();
+  } else { // blob irregular
+    ctx.beginPath();
+    for (let i = 0; i <= 16; i++) {
+      const a = (i / 16) * Math.PI * 2;
+      const off = bp.blobOffsets[i % 8];
+      const r = s * (1 + off + Math.sin(a * 2 + t * 2.4 * bp.wobble + bp.phase) * 0.05);
+      const x = Math.cos(a) * r * squash, y = Math.sin(a) * r / squash;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+
+  // brilho cristalino / prisma
+  if (bp.crystal) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-sx * 0.4, -sy * 0.5); ctx.lineTo(sx * 0.1, -sy * 0.1); ctx.lineTo(-sx * 0.1, sy * 0.3); ctx.stroke();
+  }
+  if (bp.prism) {
+    ctx.strokeStyle = `hsla(${(t * 90) % 360},80%,70%,0.8)`; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(0, 0, s * 0.65, t % 7, (t % 7) + 1.6); ctx.stroke();
+  }
+
+  // padrão (listras/manchas)
+  if (bp.pattern === 'stripes') {
+    ctx.save();
+    ctx.beginPath(); ctx.ellipse(0, 0, sx, sy, 0, 0, 7); ctx.clip();
+    ctx.strokeStyle = bp.patternColor; ctx.lineWidth = 2; ctx.globalAlpha = 0.6 * bp.alpha;
+    for (let i = -2; i <= 2; i++) {
+      ctx.beginPath(); ctx.moveTo(i * s * 0.45 - s, -s); ctx.lineTo(i * s * 0.45 + s * 0.4, s); ctx.stroke();
+    }
+    ctx.restore();
+  } else if (bp.pattern === 'spots') {
+    ctx.fillStyle = bp.patternColor; ctx.globalAlpha = 0.55 * bp.alpha;
+    for (const sp of bp.spots) {
+      ctx.beginPath();
+      ctx.arc(Math.cos(sp.a) * sx * sp.d, Math.sin(sp.a) * sy * sp.d, s * sp.r, 0, 7);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // placas
+  if (bp.plates > 0) {
+    ctx.fillStyle = 'rgba(190,200,212,0.9)';
+    for (let i = 0; i < bp.plates; i++) {
+      const a = hd + Math.PI + (i - (bp.plates - 1) / 2) * 0.7;
+      ctx.save();
+      ctx.translate(Math.cos(a) * sx * 0.55, Math.sin(a) * sy * 0.55);
+      ctx.rotate(a);
+      ctx.fillRect(-2.4, -3, 4.8, 6);
+      ctx.restore();
+    }
+  }
+
+  // espinhos
+  if (bp.spikes > 0) {
+    ctx.fillStyle = bp.spikeColor || '#ddd';
+    for (let i = 0; i < bp.spikes; i++) {
+      const a = bp.phase + (i / bp.spikes) * Math.PI * 2;
+      const bx = Math.cos(a) * sx * 0.9, by = Math.sin(a) * sy * 0.9;
+      ctx.beginPath();
+      ctx.moveTo(bx + Math.cos(a + 1.7) * 2, by + Math.sin(a + 1.7) * 2);
+      ctx.lineTo(bx + Math.cos(a) * 5, by + Math.sin(a) * 5);
+      ctx.lineTo(bx + Math.cos(a - 1.7) * 2, by + Math.sin(a - 1.7) * 2);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  // antenas
+  if (bp.antennae > 0) {
+    ctx.strokeStyle = bp.antennaColor || bodyColor; ctx.lineWidth = 1.5;
+    ctx.fillStyle = bp.antennaColor || bodyColor;
+    for (let i = 0; i < bp.antennae; i++) {
+      const a = hd + (i - (bp.antennae - 1) / 2) * 0.5;
+      const ex = Math.cos(a) * (sx + 6), ey = Math.sin(a) * (sy + 6) - 4;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * sx * 0.6, Math.sin(a) * sy * 0.6 - 2);
+      ctx.quadraticCurveTo(ex * 0.7, ey * 0.7 - 3, ex, ey);
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(ex, ey, 1.6, 0, 7); ctx.fill();
+    }
+  }
+
+  // olhos
+  const eyeSpread = Math.min(1.1, 0.35 + bp.eyes * 0.16);
+  for (let i = 0; i < bp.eyes; i++) {
+    const off = bp.eyes === 1 ? 0 : (i / (bp.eyes - 1) - 0.5) * eyeSpread;
+    const a = hd + off;
+    const ex = Math.cos(a) * sx * 0.5, ey = Math.sin(a) * sy * 0.5 - s * 0.15;
+    const er = s * (bp.eyes > 3 ? 0.16 : 0.22);
+    ctx.fillStyle = '#f2f2f2';
+    ctx.beginPath(); ctx.arc(ex, ey, er, 0, 7); ctx.fill();
+    ctx.fillStyle = '#15151c';
+    ctx.beginPath(); ctx.arc(ex + Math.cos(hd) * er * 0.4, ey + Math.sin(hd) * er * 0.4, er * 0.5, 0, 7); ctx.fill();
+  }
+
+  // arma equipada
+  if (c.weapon && !portrait) {
+    const wa = hd + 0.8;
+    const wc = elemColor(c.weapon.element);
+    ctx.strokeStyle = wc; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(wa) * sx * 0.8, Math.sin(wa) * sy * 0.8);
+    ctx.lineTo(Math.cos(wa) * (sx + 9), Math.sin(wa) * (sy + 9) - 4);
+    ctx.stroke();
+    ctx.fillStyle = wc;
+    ctx.beginPath();
+    const tipx = Math.cos(wa) * (sx + 9), tipy = Math.sin(wa) * (sy + 9) - 4;
+    ctx.moveTo(tipx, tipy - 3); ctx.lineTo(tipx + 2.5, tipy + 2); ctx.lineTo(tipx - 2.5, tipy + 2);
+    ctx.closePath(); ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawVehicle(ctx, c, s, t) {
+  const v = c.vehicle;
+  const col = elemColor(v.element);
+  ctx.fillStyle = col;
+  if (v.element === E.AIR) { // planador
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath(); ctx.ellipse(0, s * 0.5, s * 1.7, s * 0.4, 0, 0, 7); ctx.fill();
+    ctx.globalAlpha = 1;
+  } else if (v.element === E.ICE) { // trenó
+    ctx.globalAlpha = 0.7;
+    ctx.fillRect(-s, s * 0.4, s * 2, 3);
+    ctx.globalAlpha = 1;
+  } else { // carrinho
+    ctx.fillRect(-s, s * 0.3, s * 2, 4);
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(-s * 0.6, s * 0.55 + 3, 2.5, 0, 7); ctx.arc(s * 0.6, s * 0.55 + 3, 2.5, 0, 7); ctx.fill();
+  }
+}
+
+return { buildTerrainCanvas, render, drawCreature };
+})();
+
+// ==== src/ui.js ====
+__m.ui = (() => {
+// HUD, paleta de elementos (ícones desenhados em canvas), feed de eventos e inspetor.
+
+const { ELEMENTS, E, elemName, elemColor } = __m.elements;
+const { drawCreature } = __m.render;
+let game = null;
+let callbacks = null;
+const el = {};
+const paletteBtns = new Map();
+let portraitCtx = null;
+let inspectorTimer = 0;
+
+function initUI(g, cb) {
+  game = g; callbacks = cb;
+  for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime',
+    'palette', 'feed', 'inspector', 'brushSize', 'brushSizeVal', 'portrait']) {
+    el[id] = document.getElementById(id);
+  }
+  portraitCtx = el.portrait.getContext('2d');
+  buildPalette();
+
+  document.querySelectorAll('.speedbtn').forEach(b => {
+    b.addEventListener('click', () => {
+      game.setSpeed(parseFloat(b.dataset.speed));
+      document.querySelectorAll('.speedbtn').forEach(o => o.classList.toggle('active', o === b));
+    });
+  });
+  el.btnNewWorld.addEventListener('click', () => callbacks.onNewWorld(el.seedInput.value.trim() || null));
+  el.seedInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') callbacks.onNewWorld(el.seedInput.value.trim() || null);
+  });
+  el.brushSize.addEventListener('input', () => {
+    game.brush.radius = parseInt(el.brushSize.value, 10);
+    el.brushSizeVal.textContent = el.brushSize.value;
+  });
+  document.getElementById('btnCloseInspector').addEventListener('click', () => selectCreature(null));
+}
+
+function setGame(g) {
+  game = g;
+  el.seedText.textContent = `seed ${g.seedText}`;
+  el.feed.innerHTML = '';
+  selectCreature(null);
+  selectTool('inspect');
+  document.querySelectorAll('.speedbtn').forEach(o => o.classList.toggle('active', o.dataset.speed === '1'));
+}
+
+function buildPalette() {
+  el.palette.innerHTML = '';
+  paletteBtns.clear();
+
+  const inspect = document.createElement('button');
+  inspect.className = 'palbtn';
+  inspect.title = 'Inspecionar criatura';
+  inspect.appendChild(iconCanvas(-1));
+  inspect.addEventListener('click', () => selectTool('inspect'));
+  el.palette.appendChild(inspect);
+  paletteBtns.set('inspect', inspect);
+
+  for (const def of ELEMENTS) {
+    const b = document.createElement('button');
+    b.className = 'palbtn';
+    b.title = def.name + (def.rare ? ' (cooldown)' : '');
+    b.appendChild(iconCanvas(def.id));
+    const cd = document.createElement('div');
+    cd.className = 'cd';
+    b.appendChild(cd);
+    b.addEventListener('click', () => selectTool(def.id));
+    el.palette.appendChild(b);
+    paletteBtns.set(def.id, b);
+  }
+}
+
+function selectTool(tool) {
+  game.tool = tool;
+  for (const [k, b] of paletteBtns) b.classList.toggle('active', k === tool);
+}
+
+// Ícones dos elementos gerados 100% em canvas
+function iconCanvas(id) {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 28;
+  const c = cv.getContext('2d');
+  const cx = 14, cy = 14;
+  if (id === -1) { // lupa do inspetor
+    c.strokeStyle = '#ddd'; c.lineWidth = 2.4;
+    c.beginPath(); c.arc(12, 12, 6, 0, 7); c.stroke();
+    c.beginPath(); c.moveTo(17, 17); c.lineTo(23, 23); c.stroke();
+    return cv;
+  }
+  const col = elemColor(id);
+  c.fillStyle = col; c.strokeStyle = col; c.lineWidth = 2;
+  switch (id) {
+    case E.WOOD:
+      c.save(); c.translate(cx, cy); c.rotate(-0.5);
+      c.fillRect(-9, -4, 18, 8);
+      c.fillStyle = '#5a3a1a'; c.beginPath(); c.arc(-9, 0, 4, 0, 7); c.fill();
+      c.restore(); break;
+    case E.STONE:
+      c.beginPath(); c.moveTo(5, 20); c.lineTo(8, 9); c.lineTo(15, 6); c.lineTo(22, 12); c.lineTo(20, 20);
+      c.closePath(); c.fill(); break;
+    case E.GLASS:
+      c.globalAlpha = 0.5; c.fillRect(7, 6, 14, 16); c.globalAlpha = 1;
+      c.strokeStyle = '#fff'; c.lineWidth = 1.4;
+      c.beginPath(); c.moveTo(10, 19) ; c.lineTo(17, 8); c.stroke(); break;
+    case E.FIRE:
+      c.beginPath(); c.moveTo(9, 21); c.quadraticCurveTo(6, 12, 14, 5);
+      c.quadraticCurveTo(14, 11, 19, 12); c.quadraticCurveTo(23, 17, 19, 21); c.closePath(); c.fill();
+      c.fillStyle = '#ffe27a'; c.beginPath(); c.arc(14, 18, 3, 0, 7); c.fill(); break;
+    case E.WATER:
+      c.beginPath(); c.moveTo(14, 5); c.quadraticCurveTo(22, 15, 14, 22);
+      c.quadraticCurveTo(6, 15, 14, 5); c.fill(); break;
+    case E.AIR:
+      c.lineWidth = 2.2;
+      c.beginPath(); c.moveTo(5, 10); c.quadraticCurveTo(17, 6, 20, 11); c.stroke();
+      c.beginPath(); c.moveTo(6, 16); c.quadraticCurveTo(19, 13, 22, 18); c.stroke(); break;
+    case E.LIGHTNING:
+      c.beginPath(); c.moveTo(16, 4); c.lineTo(9, 15); c.lineTo(14, 15); c.lineTo(11, 24);
+      c.lineTo(20, 12); c.lineTo(15, 12); c.closePath(); c.fill(); break;
+    case E.ICE:
+      c.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {
+        const a = i * Math.PI / 3;
+        c.beginPath();
+        c.moveTo(cx - Math.cos(a) * 9, cy - Math.sin(a) * 9);
+        c.lineTo(cx + Math.cos(a) * 9, cy + Math.sin(a) * 9);
+        c.stroke();
+      }
+      break;
+    case E.POISON:
+      c.beginPath(); c.moveTo(14, 6); c.quadraticCurveTo(21, 15, 14, 21);
+      c.quadraticCurveTo(7, 15, 14, 6); c.fill();
+      c.fillStyle = '#bff26a'; c.beginPath(); c.arc(12, 14, 1.7, 0, 7); c.arc(16, 17, 1.3, 0, 7); c.fill(); break;
+    case E.SLIME:
+      c.beginPath(); c.ellipse(cx, 16, 9, 7, 0, 0, 7); c.fill();
+      c.fillStyle = '#15151c';
+      c.beginPath(); c.arc(11, 14, 1.5, 0, 7); c.arc(17, 14, 1.5, 0, 7); c.fill(); break;
+    case E.METAL:
+      c.fillRect(6, 8, 16, 12);
+      c.fillStyle = 'rgba(255,255,255,0.5)'; c.fillRect(6, 8, 16, 3);
+      c.fillStyle = '#556'; c.fillRect(8, 16, 2, 2); c.fillRect(18, 16, 2, 2); break;
+    case E.GOLD:
+      c.beginPath(); c.arc(cx, cy, 8, 0, 7); c.fill();
+      c.strokeStyle = '#fff2b0'; c.lineWidth = 1.5;
+      c.beginPath(); c.arc(cx, cy, 5, 0, 7); c.stroke(); break;
+    case E.DIAMOND:
+      c.beginPath(); c.moveTo(14, 4); c.lineTo(22, 12); c.lineTo(14, 24); c.lineTo(6, 12);
+      c.closePath(); c.fill();
+      c.strokeStyle = '#fff'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(10, 12); c.lineTo(14, 8); c.lineTo(18, 12); c.stroke(); break;
+  }
+  return cv;
+}
+
+function pushFeed(msg, color) {
+  const d = document.createElement('div');
+  d.className = 'feeditem';
+  d.style.borderLeftColor = color || '#888';
+  d.textContent = msg;
+  el.feed.prepend(d);
+  while (el.feed.children.length > 8) el.feed.lastChild.remove();
+  setTimeout(() => { d.classList.add('fading'); }, 9000);
+  setTimeout(() => { d.remove(); }, 12000);
+}
+
+function selectCreature(c) {
+  game.selected = c;
+  el.inspector.classList.toggle('hidden', !c);
+  if (c) refreshInspector(true);
+}
+
+function refreshInspector(force) {
+  const c = game.selected;
+  if (!c) return;
+  if (!c.alive) { selectCreature(null); return; }
+  const mins = Math.floor(c.age / 60), secs = Math.floor(c.age % 60);
+  document.getElementById('inspName').textContent = c.name + (c.isFirst ? ' ★ (o Primeiro)' : '');
+  document.getElementById('inspAge').textContent = `idade ${mins}m${String(secs).padStart(2, '0')}s · ❤ ${Math.ceil(c.hp)}/${Math.ceil(c.stats.maxHp)}`;
+  const f = document.getElementById('inspFaction');
+  if (c.faction) { f.textContent = `⚑ ${c.faction.name}`; f.style.color = c.faction.color; }
+  else { f.textContent = 'sem facção'; f.style.color = '#777'; }
+  document.getElementById('inspStats').textContent =
+    `vel ${c.stats.speed.toFixed(0)} · força ${c.attack.toFixed(1)} · def ${c.stats.defense.toFixed(1)}`
+    + (c.weapon ? ` · ${c.weapon.name}` : '') + (c.vehicle ? ` · ${c.vehicle.name}` : '');
+  const tr = document.getElementById('inspTraits');
+  tr.innerHTML = '';
+  if (c.traits.length === 0) tr.innerHTML = '<span class="dim">nenhum trait ainda</span>';
+  for (const t of c.traits) {
+    const s = document.createElement('span');
+    s.className = 'trait';
+    s.style.borderColor = elemColor(t.element);
+    s.textContent = t.name;
+    tr.appendChild(s);
+  }
+  const ab = document.getElementById('inspAbsorbed');
+  const parts = [];
+  for (const [k, v] of Object.entries(c.absorbed)) if (v > 0) parts.push(`${elemName(+k)} ×${v}`);
+  ab.textContent = parts.length ? 'absorveu: ' + parts.join(', ') : 'não absorveu elementos';
+
+  // retrato procedural ampliado
+  const ctx = portraitCtx;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, 110, 110);
+  ctx.fillStyle = '#141821'; ctx.fillRect(0, 0, 110, 110);
+  const scale = 42 / Math.max(8, c.bodyPlan.size + (c.bodyPlan.spikes ? 5 : 0));
+  ctx.setTransform(scale, 0, 0, scale, 55 - c.x * scale, 62 - c.y * scale);
+  drawCreature(ctx, c, performance.now() / 1000, true);
+}
+
+function updateHUD() {
+  el.pop.textContent = `pop ${game.creatures.length}`;
+  el.factions.textContent = `facções ${game.factions.filter(f => f.members.length > 1).length}`;
+  const m = Math.floor(game.time / 60), s = Math.floor(game.time % 60);
+  el.worldTime.textContent = `${m}:${String(s).padStart(2, '0')}`;
+
+  // cooldowns dos raros
+  for (const def of ELEMENTS) {
+    if (!def.rare) continue;
+    const b = paletteBtns.get(def.id);
+    const cd = b.querySelector('.cd');
+    const rem = game.cooldowns[def.id] || 0;
+    cd.style.height = rem > 0 ? `${(rem / def.cooldown) * 100}%` : '0%';
+  }
+
+  inspectorTimer -= 1;
+  if (game.selected && inspectorTimer <= 0) { inspectorTimer = 6; refreshInspector(); }
+}
+
+return { initUI, setGame, pushFeed, selectCreature, updateHUD };
+})();
+
+// ==== src/main.js ====
+__m.main = (() => {
+// Bootstrap, game loop, câmera, input e orquestração dos sistemas.
+
+const { RNG, hashString } = __m.rng;
+const { World, TILE, T } = __m.world;
+const { E, ELEMENTS, elemColor } = __m.elements;
+const { Creature } = __m.creature;
+const { MUTATION_POOLS } = __m.evolution;
+const { societyTick } = __m.society;
+const { render, buildTerrainCanvas } = __m.render;
+const { initUI, setGame, pushFeed, updateHUD, selectCreature } = __m.ui;
+const STEP = 1 / 30;
+
+class SpatialHash {
+  constructor(cell = 48) { this.cell = cell; this.map = new Map(); }
+  rebuild(creatures) {
+    this.map.clear();
+    for (const c of creatures) {
+      const k = ((c.x / this.cell) | 0) + ',' + ((c.y / this.cell) | 0);
+      let a = this.map.get(k);
+      if (!a) { a = []; this.map.set(k, a); }
+      a.push(c);
+    }
+  }
+  query(x, y, r) {
+    const out = [];
+    const c0x = ((x - r) / this.cell) | 0, c1x = ((x + r) / this.cell) | 0;
+    const c0y = ((y - r) / this.cell) | 0, c1y = ((y + r) / this.cell) | 0;
+    const r2 = r * r;
+    for (let cy = c0y; cy <= c1y; cy++) {
+      for (let cx = c0x; cx <= c1x; cx++) {
+        const a = this.map.get(cx + ',' + cy);
+        if (!a) continue;
+        for (const c of a) {
+          const dx = c.x - x, dy = c.y - y;
+          if (dx * dx + dy * dy <= r2) out.push(c);
+        }
+      }
+    }
+    return out;
+  }
+}
+
+class Game {
+  constructor(seed, seedText) {
+    this.seedText = seedText;
+    this.RNGClass = RNG;
+    this.mutationPools = MUTATION_POOLS;
+    const master = new RNG(seed);
+    this.worldSeed = Math.floor(master.next() * 4294967296);
+    this.creatureSeedRng = master.fork();
+    this.envRng = master.fork();
+    this.fxRng = master.fork();
+    this.societyRng = master.fork();
+    this.pourRng = master.fork();
+
+    this.world = new World(this.worldSeed);
+    this.terrainCanvas = buildTerrainCanvas(this.world);
+    this.creatures = [];
+    this.buildings = [];
+    this.factions = [];
+    this.particles = [];
+    this.usedFactionNames = new Set();
+    this.popCap = 220;
+    this.time = 0;
+    this.speed = 1;
+    this.envAcc = 0;
+    this.societyAcc = 0;
+    this.cooldowns = {};
+    this.tool = 'inspect';
+    this.brush = { x: 0, y: 0, radius: 2, visible: false };
+    this.selected = null;
+    this.killCount = 0;
+    this.combatKills = 0;
+    this.combatCount = 0;
+
+    // o Primeiro: surge num ponto aleatório fora d'água (determinístico pela seed)
+    const spawnRng = master.fork();
+    let sx = 0, sy = 0;
+    for (let i = 0; i < 400; i++) {
+      const tx = spawnRng.int(20, this.world.w - 20), ty = spawnRng.int(20, this.world.h - 20);
+      if (this.world.terrain[this.world.idx(tx, ty)] !== T.WATER) {
+        sx = tx * TILE + TILE / 2; sy = ty * TILE + TILE / 2;
+        break;
+      }
+    }
+    this.first = new Creature(this, sx, sy, { isFirst: true });
+    this.creatures.push(this.first);
+    this.hash = new SpatialHash();
+    this.hash.rebuild(this.creatures);
+  }
+
+  feed(msg, color) { pushFeed(msg, color); }
+  setSpeed(s) { this.speed = s; }
+
+  addCreature(c) { this.creatures.push(c); }
+
+  kill(c, cause, attacker) {
+    if (!c.alive) return;
+    // slime elástico: divide-se ao invés de morrer (uma vez)
+    if (c.splitOnDeath && !c.hasSplit) {
+      c.hasSplit = true; c.splitOnDeath = false;
+      c.hp = c.stats.maxHp * 0.4;
+      if (this.creatures.length < this.popCap) {
+        const twin = new Creature(this, c.x + 8, c.y + 8, { parentA: c });
+        twin.bodyPlan.size = Math.max(4, c.bodyPlan.size - 1.5);
+        this.addCreature(twin);
+        this.feed(`🫧 ${c.name} dividiu-se ao invés de morrer! Surgiu ${twin.name}`, '#5fe07a');
+      }
+      return;
+    }
+    c.alive = false;
+    this.killCount++;
+    if (attacker) this.combatKills++;
+    const i = this.creatures.indexOf(c);
+    if (i >= 0) this.creatures.splice(i, 1);
+    if (c.faction) c.faction.removeMember(c);
+    if (this.selected === c) selectCreature(null);
+    // partículas do elemento dominante
+    const col = c.dominantElem >= 0 ? elemColor(c.dominantElem) : `hsl(${c.bodyPlan.hue},50%,60%)`;
+    for (let k = 0; k < 14; k++) {
+      const a = this.fxRng.angle(), sp = this.fxRng.range(12, 45);
+      this.spawnP(c.x, c.y, Math.cos(a) * sp, Math.sin(a) * sp, this.fxRng.range(0.4, 0.9), col, 2);
+    }
+    const mins = (c.age / 60).toFixed(c.age < 120 ? 1 : 0);
+    if (c.isFirst) this.feed(`☠️ O Primeiro, ${c.name}, morreu ${cause} aos ${mins} min de idade`, '#ffd0d0');
+    else if (attacker) this.feed(`☠️ ${c.name} foi morto por ${attacker.name}`, '#ff8a7a');
+    else if (this.fxRng.chance(0.6)) this.feed(`☠️ ${c.name} morreu ${cause}`, '#c0a0a0');
+  }
+
+  addBuilding(b) {
+    this.buildings.push(b);
+    this.world.buildingAt.set(this.world.idx(b.tx, b.ty), b);
+    if (b.faction) b.faction.buildings.push(b);
+  }
+
+  removeBuilding(b, cause) {
+    const i = this.buildings.indexOf(b);
+    if (i < 0) return;
+    this.buildings.splice(i, 1);
+    this.world.buildingAt.delete(this.world.idx(b.tx, b.ty));
+    if (b.faction) {
+      const j = b.faction.buildings.indexOf(b);
+      if (j >= 0) b.faction.buildings.splice(j, 1);
+    }
+    const col = elemColor(b.element);
+    for (let k = 0; k < 10; k++) {
+      const a = this.fxRng.angle(), sp = this.fxRng.range(8, 30);
+      this.spawnP(b.x, b.y, Math.cos(a) * sp, Math.sin(a) * sp - 10, this.fxRng.range(0.3, 0.8), col, 2);
+    }
+    if (b.burning > 0) {
+      const idx = this.world.idx(b.tx, b.ty);
+      if (this.envRng.chance(0.5)) this.world.setDep(idx, E.FIRE, this.envRng.range(2, 4));
+      this.feed(`💥 ${b.label} ${cause}`, '#ff9a6a');
+    }
+  }
+
+  // ---- partículas -------------------------------------------------------
+  spawnP(x, y, vx, vy, life, color, size, type) {
+    if (this.particles.length > 700) return;
+    this.particles.push({ x, y, vx, vy, life, maxLife: life, color, size: size || 2, type: type || 'dot', x2: 0, y2: 0 });
+  }
+  flameAt(x, y, rng) {
+    if (!rng.chance(0.25)) return;
+    this.spawnP(x + rng.range(-4, 4), y, rng.range(-3, 3), rng.range(-22, -10), rng.range(0.3, 0.7), rng.chance(0.5) ? '#ff9a3a' : '#ffd75a', rng.range(1.2, 2.4));
+  }
+  smokeAt(x, y) {
+    this.spawnP(x, y, this.fxRng.range(-3, 3), -12, 0.8, 'rgba(150,150,150,0.6)', 2.6);
+  }
+  sparkBurst(x, y, color, n) {
+    for (let k = 0; k < n; k++) {
+      const a = this.fxRng.angle(), sp = this.fxRng.range(20, 60);
+      this.spawnP(x, y, Math.cos(a) * sp, Math.sin(a) * sp, 0.3, color, 1.4);
+    }
+  }
+  hitSpark(x, y, elem) {
+    this.sparkBurst(x, y, elem >= 0 ? elemColor(elem) : '#fff', 4);
+  }
+  absorbPuff(x, y, color) {
+    for (let k = 0; k < 8; k++) {
+      const a = (k / 8) * Math.PI * 2;
+      this.spawnP(x + Math.cos(a) * 6, y + Math.sin(a) * 6, Math.cos(a) * -14, Math.sin(a) * -14, 0.5, color, 2);
+    }
+  }
+  traitParticle(c, p) {
+    const r = this.fxRng;
+    const x = c.x + r.range(-4, 4), y = c.y + r.range(-4, 4);
+    switch (p.type) {
+      case 'flame': this.spawnP(x, y, r.range(-3, 3), -16, 0.5, p.color, 1.8); break;
+      case 'smoke': this.spawnP(x, y - 4, r.range(-2, 2), -10, 0.9, 'rgba(140,140,140,0.5)', 2.2); break;
+      case 'spark': this.spawnP(x, y, r.range(-25, 25), r.range(-25, 25), 0.25, p.color, 1.3); break;
+      case 'drip': this.spawnP(x, y + 3, 0, 18, 0.5, p.color, 1.6); break;
+      case 'puff': this.spawnP(x, y, r.range(-6, 6), r.range(-6, 0), 0.6, p.color, 2.4); break;
+      case 'snow': this.spawnP(x, y - 6, r.range(-4, 4), 8, 0.9, p.color, 1.4); break;
+    }
+  }
+  lightningAt(x, y, r, dmg) {
+    // visual: raio caindo do céu em segmentos
+    let px = x + this.fxRng.range(-14, 14), py = y - 80;
+    for (let k = 0; k < 4; k++) {
+      const nx = k === 3 ? x : px + this.fxRng.range(-12, 12);
+      const ny = py + 20;
+      const p = { x: px, y: py, x2: nx, y2: ny, vx: 0, vy: 0, life: 0.35, maxLife: 0.35, color: '#ffe94a', size: 1, type: 'bolt' };
+      if (this.particles.length < 750) this.particles.push(p);
+      px = nx; py = ny;
+    }
+    this.spawnP(x, y, 0, 0, 0.25, 'rgba(255,240,150,0.9)', r * 0.7);
+    for (const c of this.hash.query(x, y, r)) {
+      if (!c.immunities.has(E.LIGHTNING)) c.hurt(dmg, null, 'eletrocutado por um raio');
+    }
+  }
+  notifyGold(x, y) {
+    const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
+    for (const c of this.hash.query(x, y, 140)) {
+      if (c.temperament.greed > 0.45 && c.state !== 'fight' && c.state !== 'flee') {
+        c.seekTile = { tx, ty, elem: E.GOLD, mode: c.temperament.curiosity > c.temperament.industriousness ? 'absorb' : 'collect' };
+        c.state = 'seek';
+      }
+    }
+  }
+
+  // ---- tick de simulação -------------------------------------------------
+  tick(dt) {
+    this.time += dt;
+    this.hash.rebuild(this.creatures);
+
+    const cs = this.creatures.slice();
+    for (const c of cs) if (c.alive) c.update(dt);
+
+    const bs = this.buildings.slice();
+    for (const b of bs) b.update(this, dt);
+
+    this.envAcc += dt;
+    if (this.envAcc >= 0.25) { this.world.envTick(this, this.envAcc); this.envAcc = 0; }
+
+    this.societyAcc += dt;
+    if (this.societyAcc >= 8) { societyTick(this); this.societyAcc = 0; }
+
+    for (const [k, v] of Object.entries(this.cooldowns)) {
+      if (v > 0) this.cooldowns[k] = Math.max(0, v - dt);
+    }
+
+    // partículas
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.life -= dt;
+      if (p.life <= 0) { this.particles.splice(i, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt;
+    }
+  }
+
+  pour(elem, wx, wy) {
+    const def = ELEMENTS[elem];
+    if (def.rare) {
+      if ((this.cooldowns[elem] || 0) > 0) return;
+      this.cooldowns[elem] = def.cooldown;
+    }
+    const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
+    this.world.pour(elem, tx, ty, elem === E.DIAMOND ? 0 : this.brush.radius, this.pourRng, this);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Bootstrap + loop + input
+// ---------------------------------------------------------------------------
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let game = null;
+const cam = { x: 0, y: 0, zoom: 1.6 };
+
+function newSeed() {
+  // fora da simulação: só para escolher a seed inicial do mundo
+  return (Date.now() ^ (performance.now() * 1000)) >>> 0;
+}
+
+function startWorld(seedStr) {
+  let seed, text;
+  if (seedStr) {
+    seed = /^\d+$/.test(seedStr) ? (parseInt(seedStr, 10) >>> 0) : hashString(seedStr);
+    text = seedStr;
+  } else {
+    seed = newSeed();
+    text = String(seed);
+  }
+  game = new Game(seed, text);
+  window.__game = game; // handle de debug/observação (não usado pela simulação)
+  setGame(game);
+  cam.zoom = 1.6;
+  cam.x = game.first.x - canvas.width / 2 / cam.zoom;
+  cam.y = game.first.y - canvas.height / 2 / cam.zoom;
+  clampCam();
+  game.feed(`🌱 O Primeiro, ${game.first.name}, surgiu no mundo (seed ${text})`, '#a0e8a0');
+}
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+function clampCam() {
+  const W = game.world.w * TILE, H = game.world.h * TILE;
+  const vw = canvas.width / cam.zoom, vh = canvas.height / cam.zoom;
+  cam.x = Math.max(-vw * 0.3, Math.min(W - vw * 0.7, cam.x));
+  cam.y = Math.max(-vh * 0.3, Math.min(H - vh * 0.7, cam.y));
+}
+
+function toWorld(mx, my) {
+  return { x: cam.x + mx / cam.zoom, y: cam.y + my / cam.zoom };
+}
+
+let pouring = false, panning = false, lastMx = 0, lastMy = 0, pourCd = 0;
+
+canvas.addEventListener('mousedown', e => {
+  const w = toWorld(e.offsetX, e.offsetY);
+  if (e.button === 1 || e.button === 2) { panning = true; }
+  else if (e.button === 0) {
+    if (game.tool === 'inspect') {
+      let best = null, bd = 18 / cam.zoom + 8;
+      for (const c of game.creatures) {
+        const d = Math.hypot(c.x - w.x, c.y - w.y);
+        if (d < bd) { bd = d; best = c; }
+      }
+      selectCreature(best);
+    } else {
+      pouring = true;
+      game.pour(game.tool, w.x, w.y);
+      pourCd = 0.08;
+    }
+  }
+  lastMx = e.offsetX; lastMy = e.offsetY;
+});
+window.addEventListener('mouseup', () => { pouring = false; panning = false; });
+canvas.addEventListener('mouseleave', () => { game.brush.visible = false; });
+canvas.addEventListener('mousemove', e => {
+  const w = toWorld(e.offsetX, e.offsetY);
+  game.brush.x = w.x; game.brush.y = w.y; game.brush.visible = true;
+  if (panning) {
+    cam.x -= (e.offsetX - lastMx) / cam.zoom;
+    cam.y -= (e.offsetY - lastMy) / cam.zoom;
+    clampCam();
+  }
+  lastMx = e.offsetX; lastMy = e.offsetY;
+});
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const before = toWorld(e.offsetX, e.offsetY);
+  cam.zoom = Math.max(0.5, Math.min(5, cam.zoom * (e.deltaY < 0 ? 1.12 : 1 / 1.12)));
+  const after = toWorld(e.offsetX, e.offsetY);
+  cam.x += before.x - after.x;
+  cam.y += before.y - after.y;
+  clampCam();
+}, { passive: false });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+initUIOnce();
+function initUIOnce() {
+  // Game precisa existir antes do initUI (referências de brush/tool)
+  startWorldBootstrap();
+}
+function startWorldBootstrap() {
+  let seed = newSeed();
+  game = new Game(seed, String(seed));
+  window.__game = game;
+  initUI(game, { onNewWorld: s => startWorld(s) });
+  setGame(game);
+  cam.x = game.first.x - canvas.width / 2 / cam.zoom;
+  cam.y = game.first.y - canvas.height / 2 / cam.zoom;
+  clampCam();
+  game.feed(`🌱 O Primeiro, ${game.first.name}, surgiu no mundo (seed ${game.seedText})`, '#a0e8a0');
+}
+
+let last = performance.now(), simAcc = 0;
+function frame(now) {
+  const dtReal = Math.min(0.1, (now - last) / 1000);
+  last = now;
+
+  // despejo contínuo enquanto arrasta
+  if (pouring && game.tool !== 'inspect') {
+    pourCd -= dtReal;
+    if (pourCd <= 0) { game.pour(game.tool, game.brush.x, game.brush.y); pourCd = 0.09; }
+  }
+
+  simAcc += dtReal * game.speed;
+  let steps = 0;
+  while (simAcc >= STEP && steps < 8) { game.tick(STEP); simAcc -= STEP; steps++; }
+  if (steps === 8) simAcc = 0; // não deixa acumular atraso
+
+  render(game, ctx, cam, now / 1000);
+  updateHUD();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+})();
+})();
+</script>
+<!-- BUNDLE:END -->
+</body>
+</html>
