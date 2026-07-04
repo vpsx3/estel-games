@@ -1429,6 +1429,24 @@ function archetypeTemperament(rng, arch) {
   return t;
 }
 
+// Atribui o rótulo cujas âncoras melhor descrevem um temperamento herdado.
+// Bônus de 0.03 por eixo ancorado favorece arquétipos mais específicos em empates.
+// Se nenhum arquétipo descreve bem (score bruto < 0.72), a criatura é Imprevisível.
+function classifyArchetype(t) {
+  let best = null, bestAdj = -1;
+  for (const a of ARCHETYPES) {
+    const keys = Object.keys(a.anchors);
+    if (keys.length === 0) continue; // imprevisivel é o fallback
+    let s = 0;
+    for (const k of keys) s += 1 - Math.abs(t[k] - a.anchors[k]);
+    const raw = s / keys.length;
+    if (raw < 0.72) continue;
+    const adj = raw + 0.03 * keys.length;
+    if (adj > bestAdj) { bestAdj = adj; best = a; }
+  }
+  return best || ARCHETYPES.find(a => a.id === 'imprevisivel');
+}
+
 function baseTemperament(rng) {
   return {
     aggression: rng.next(), sociability: rng.next(), curiosity: rng.next(),
@@ -1506,6 +1524,7 @@ class Creature {
     if (pa) {
       this.basePlan = inheritPlan(rng, pa.basePlan, pb && pb.basePlan);
       this.temperament = inheritTemperament(rng, pa.temperament, pb && pb.temperament);
+      this.archetype = classifyArchetype(this.temperament);
       this.stats = baseStats(rng);
       const src = pb && rng.chance(0.5) ? pb : pa;
       for (const k of Object.keys(this.stats)) {
@@ -1513,7 +1532,8 @@ class Creature {
       }
     } else {
       this.basePlan = baseBodyPlan(rng);
-      this.temperament = baseTemperament(rng);
+      this.archetype = rollArchetype(rng);
+      this.temperament = archetypeTemperament(rng, this.archetype);
       this.stats = baseStats(rng);
     }
     this.baseStatsSnapshot = { ...this.stats };
