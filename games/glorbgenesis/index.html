@@ -69,17 +69,24 @@
   #brushRow { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #8a93a8; font-size: 11px; }
   #brushSize { width: 36px; writing-mode: vertical-lr; direction: rtl; height: 70px; }
 
-  /* feed de eventos */
-  #feed {
-    position: fixed; right: 10px; top: 54px; width: 300px; z-index: 10;
-    display: flex; flex-direction: column; gap: 5px; pointer-events: none;
+  /* feed de eventos: aba recolhida por padrão para não poluir a tela */
+  #feedTab {
+    position: fixed; right: 10px; top: 8px; z-index: 12;
+    padding: 6px 12px;
   }
+  #feed {
+    position: fixed; right: 10px; top: 44px; width: 300px; z-index: 11;
+    display: flex; flex-direction: column; gap: 5px;
+    max-height: calc(100vh - 60px); overflow-y: auto;
+    padding: 8px;
+  }
+  #feed.hidden { display: none; }
   .feeditem {
     background: rgba(16, 19, 27, 0.85); border-left: 3px solid #888;
     border-radius: 4px; padding: 5px 9px; font-size: 12px; line-height: 1.35;
-    animation: feedin 0.25s ease-out; transition: opacity 3s;
+    animation: feedin 0.25s ease-out; flex-shrink: 0;
   }
-  .feeditem.fading { opacity: 0; }
+  #feed .dim { padding: 2px 4px; }
   @keyframes feedin { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
 
   /* inspetor */
@@ -153,7 +160,8 @@
   </div>
 </div>
 
-<div id="feed"></div>
+<button id="feedTab" class="panel" title="Log de eventos">📜 Eventos</button>
+<div id="feed" class="panel hidden"></div>
 
 <div id="inspector" class="panel hidden">
   <button id="btnCloseInspector">✕</button>
@@ -2556,9 +2564,10 @@ let lockedFeedAt = -Infinity;
 function initUI(g, cb) {
   game = g; callbacks = cb;
   for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime',
-    'palette', 'feed', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend']) {
+    'palette', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend']) {
     el[id] = document.getElementById(id);
   }
+  el.feedTab.addEventListener('click', () => setFeedOpen(!feedOpen));
   portraitCtx = el.portrait.getContext('2d');
   buildPalette();
   game.onDiscover = id => unlockPaletteBtn(id);
@@ -2588,6 +2597,8 @@ function setGame(g) {
   game = g;
   el.seedText.textContent = `seed ${g.seedText}`;
   el.feed.innerHTML = '';
+  feedUnread = 0;
+  updateFeedTab();
   buildPalette(); // reconstrói respeitando game.discovered
   game.onDiscover = id => unlockPaletteBtn(id);
   selectBuilding(null);
@@ -2855,15 +2866,33 @@ function iconCanvas(id) {
   return cv;
 }
 
+// Log de eventos em aba: fechado por padrão, o botão 📜 mostra não-lidos.
+let feedOpen = false;
+let feedUnread = 0;
+
 function pushFeed(msg, color) {
   const d = document.createElement('div');
   d.className = 'feeditem';
   d.style.borderLeftColor = color || '#888';
   d.textContent = msg;
   el.feed.prepend(d);
-  while (el.feed.children.length > 8) el.feed.lastChild.remove();
-  setTimeout(() => { d.classList.add('fading'); }, 9000);
-  setTimeout(() => { d.remove(); }, 12000);
+  while (el.feed.children.length > 60) el.feed.lastChild.remove();
+  if (!feedOpen) {
+    feedUnread = Math.min(99, feedUnread + 1);
+    updateFeedTab();
+  }
+}
+
+function setFeedOpen(open) {
+  feedOpen = open;
+  el.feed.classList.toggle('hidden', !open);
+  el.feedTab.classList.toggle('active', open);
+  if (open) feedUnread = 0;
+  updateFeedTab();
+}
+
+function updateFeedTab() {
+  el.feedTab.textContent = feedUnread > 0 ? `📜 Eventos (${feedUnread})` : '📜 Eventos';
 }
 
 let selectedBuilding = null;
