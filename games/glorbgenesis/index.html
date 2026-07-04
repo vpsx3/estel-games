@@ -406,6 +406,21 @@ fu(E.GLASS, E.LIGHTNING, E.PRISM);
 fu(E.GOLD, E.DIAMOND, E.RELIC);
 fu(E.LAVA, E.WATER, E.OBSIDIAN);   // Tier 3
 fu(E.MIST, E.POISON, E.MIASMA);    // Tier 3
+// Tier 3 — pelo menos um ingrediente Tier 2
+fu(E.WOOD, E.SMOKE, E.CHARCOAL);
+fu(E.LAVA, E.ICE, E.VAPOR);
+fu(E.SNOW, E.STORM, E.BLIZZARD);
+fu(E.LAVA, E.AIR, E.ASH);
+fu(E.MUD, E.MOSS, E.SWAMP);
+fu(E.STEEL, E.WATER, E.MERCURY);
+fu(E.GOLD, E.STORM, E.ELECTRUM);
+// Tier 4 — pelo menos um ingrediente Tier 3
+fu(E.CHARCOAL, E.SULFUR, E.GUNPOWDER);
+fu(E.BLIZZARD, E.PLASMA, E.AURORA);
+fu(E.MIASMA, E.FUNGUS, E.PLAGUE);
+fu(E.OBSIDIAN, E.PLASMA, E.STARCORE);
+fu(E.VAPOR, E.RELIC, E.ETHER);
+fu(E.OBSIDIAN, E.RELIC, E.MONOLITH);
 
 function elemName(id) { return ELEMENTS[id].name; }
 function elemColor(id) { return ELEMENTS[id].color; }
@@ -430,6 +445,12 @@ function fuseLife(elem, rng) {
   if (elem === E.STORM) return rng.range(15, 20);
   if (elem === E.ACID) return rng.range(10, 15);
   if (elem === E.MIASMA) return 25;
+  if (elem === E.VAPOR) return rng.range(8, 12);
+  if (elem === E.BLIZZARD) return rng.range(15, 22);
+  if (elem === E.AURORA) return rng.range(20, 30);
+  if (elem === E.PLAGUE) return 18;
+  if (elem === E.STARCORE) return 10;
+  if (elem === E.ETHER) return 25;
   return 0;
 }
 
@@ -437,9 +458,13 @@ function fuseLife(elem, rng) {
 const ACTIVE_ELEMS = new Set([
   E.FIRE, E.AIR, E.WATER, E.POISON, E.ICE,
   E.LAVA, E.PLASMA, E.SMOKE, E.MIST, E.STORM, E.ACID, E.RUST, E.MIASMA, E.SNOW, E.FUNGUS, E.MUD,
+  E.VAPOR, E.BLIZZARD, E.ASH, E.MERCURY, E.PLAGUE, E.AURORA, E.STARCORE, E.ETHER,
 ]);
 // Elementos com vida limitada: depLife conta até expirar.
-const TIMED = new Set([E.FIRE, E.AIR, E.LAVA, E.PLASMA, E.SMOKE, E.MIST, E.STORM, E.ACID, E.MIASMA]);
+const TIMED = new Set([
+  E.FIRE, E.AIR, E.LAVA, E.PLASMA, E.SMOKE, E.MIST, E.STORM, E.ACID, E.MIASMA,
+  E.VAPOR, E.BLIZZARD, E.PLAGUE, E.AURORA, E.STARCORE, E.ETHER,
+]);
 const WORLD_W = 192;
 const WORLD_H = 192;
 const TILE = 16;
@@ -476,6 +501,11 @@ class World {
     this.buildingAt = new Map();  // idx -> Building
     this.magnetTiles = new Set(); // tiles com ímã (campo de atração)
     this.relicTiles = new Set();  // tiles com relíquia
+    this.electrumTiles = new Set();  // tiles com eletro (atração + choque)
+    this.auroraTiles = new Set();    // tiles com aurora (cura + mutação)
+    this.starcoreTiles = new Set();  // tiles com núcleo estelar (atração + dano)
+    this.etherTiles = new Set();     // tiles com éter (cura + flutuação)
+    this.monolithTiles = new Set();  // tiles com monólito (atração + construção)
 
     const hNoise = makeNoise(rng.fork(), 64);
     const mNoise = makeNoise(rng.fork(), 64);
@@ -516,15 +546,25 @@ class World {
     else if (d === E.SNOW) f *= 0.85;
     else if (d === E.GLACIER) f *= 1.35;
     else if (d === E.LAVA) f *= 0.6;
+    else if (d === E.SWAMP) f *= 0.55;
+    else if (d === E.MERCURY) f *= 0.8;
+    else if (d === E.ASH) f *= 0.9;
+    else if (d === E.BLIZZARD) f *= 0.6;
     return f;
   }
 
   setDep(i, elem, life) {
     this.dep[i] = elem;
     this.depLife[i] = life !== undefined ? life : 0;
-    this.magnetTiles.delete(i); this.relicTiles.delete(i);
+    this.magnetTiles.delete(i); this.relicTiles.delete(i); this.electrumTiles.delete(i);
+    this.auroraTiles.delete(i); this.starcoreTiles.delete(i); this.etherTiles.delete(i); this.monolithTiles.delete(i);
     if (elem === E.MAGNET) this.magnetTiles.add(i);
     else if (elem === E.RELIC) this.relicTiles.add(i);
+    else if (elem === E.ELECTRUM) this.electrumTiles.add(i);
+    else if (elem === E.AURORA) this.auroraTiles.add(i);
+    else if (elem === E.STARCORE) this.starcoreTiles.add(i);
+    else if (elem === E.ETHER) this.etherTiles.add(i);
+    else if (elem === E.MONOLITH) this.monolithTiles.add(i);
     if (ACTIVE_ELEMS.has(elem)) {
       this.active.add(i);
     } else if (FUSE[elem]) {
@@ -546,6 +586,11 @@ class World {
     this.active.delete(i);
     this.magnetTiles.delete(i);
     this.relicTiles.delete(i);
+    this.electrumTiles.delete(i);
+    this.auroraTiles.delete(i);
+    this.starcoreTiles.delete(i);
+    this.etherTiles.delete(i);
+    this.monolithTiles.delete(i);
   }
 
   // Despeja `elem` num raio de tiles ao redor de (tx,ty). Raio especial: raio-relâmpago.
@@ -597,6 +642,34 @@ class World {
     for (const c of game.hash.query(px, py, 2.5 * TILE)) c.hurt(30, null, 'pela explosão de enxofre');
   }
 
+  // Explosão de pólvora: raio 3 tiles, cascata por fila (nunca recursão).
+  // Também usada pelo Núcleo Estelar ao expirar (valores idênticos).
+  gunpowderExplosion(tx, ty, rng, game) {
+    const queue = [[tx, ty]];
+    const done = new Set();
+    while (queue.length) {
+      const [x, y] = queue.shift();
+      if (!this.inBounds(x, y)) continue;
+      const start = this.idx(x, y);
+      if (done.has(start)) continue;
+      done.add(start);
+      const px = x * TILE + TILE / 2, py = y * TILE + TILE / 2;
+      game.lightningAt(px, py, 40, 25); // flash + onda de choque
+      for (let dy = -3; dy <= 3; dy++) {
+        for (let dx = -3; dx <= 3; dx++) {
+          const nx = x + dx, ny = y + dy;
+          if (!this.inBounds(nx, ny)) continue;
+          const i = this.idx(nx, ny);
+          const b = this.buildingAt.get(i);
+          if (b) b.hp -= 60;
+          if (this.dep[i] === E.GUNPOWDER && !done.has(i)) { queue.push([nx, ny]); continue; }
+          if (this.dep[i] !== -1 && this.dep[i] !== E.MONOLITH) this.setDep(i, E.FIRE, rng.range(2, 4));
+        }
+      }
+      for (const c of game.hash.query(px, py, 3.5 * TILE)) c.hurt(45, null, 'pela explosão de pólvora');
+    }
+  }
+
   // Raio: dano em área, vitrifica areia, conduz por metal/ouro (depósitos e construções).
   lightningStrike(tx, ty, rng, game, maxChain, depth = 0) {
     const visited = new Set();
@@ -616,6 +689,8 @@ class World {
         this.setDep(i, E.GLASS);
       }
       if (this.dep[i] === E.WOOD && rng.chance(0.5)) this.setDep(i, E.FIRE, rng.range(2, 4));
+      // pólvora atingida por raio detona
+      if (this.dep[i] === E.GUNPOWDER) { this.gunpowderExplosion(x, y, rng, game); continue; }
       // fusões desencadeadas pelo raio (o raio nunca vira depósito no chão)
       const strikeFuse = (FUSE[E.LIGHTNING] || {})[this.dep[i]];
       if (strikeFuse !== undefined && rng.chance(0.4)) {
@@ -663,6 +738,16 @@ class World {
             // lava esfria em pedra; no deserto pode vitrificar
             const glass = this.terrain[i] === T.DESERT && !rng.chance(0.7);
             toSet.push([i, glass ? E.GLASS : E.STONE, 0]);
+          } else if (elem === E.VAPOR) {
+            // vapor condensa em névoa ou dissipa
+            if (rng.chance(0.4)) toSet.push([i, E.MIST, fuseLife(E.MIST, rng)]);
+            else toSet.push([i, -1]);
+          } else if (elem === E.BLIZZARD) {
+            toSet.push([i, E.SNOW, 0]);
+          } else if (elem === E.STARCORE) {
+            // colapso: explosão idêntica à da pólvora e o tile vira obsidiana
+            this.gunpowderExplosion(x, y, rng, game);
+            toSet.push([i, E.OBSIDIAN, 0]);
           } else {
             toSet.push([i, -1]);
             if (elem === E.FIRE || elem === E.PLASMA) game.smokeAt(x * TILE + 8, y * TILE + 8);
@@ -701,6 +786,18 @@ class World {
             inert = false;
             continue;
           }
+          // pólvora vizinha de fogo detona (tratada como o enxofre)
+          if (elem === E.FIRE && nElem === E.GUNPOWDER) {
+            this.gunpowderExplosion(nx, ny, rng, game);
+            inert = false;
+            continue;
+          }
+          // carvão incendiado queima 3× mais tempo que a madeira
+          if (elem === E.FIRE && nElem === E.CHARCOAL) {
+            if (rng.chance(0.35)) toSet.push([ni, E.FIRE, rng.range(12, 18)]);
+            inert = false;
+            continue;
+          }
           // fusões: o par a×b vira o produto (prioridade sobre REACT neste tick)
           if (nElem !== -1) {
             const fuseTo = (FUSE[elem] || {})[nElem];
@@ -716,10 +813,11 @@ class World {
           }
           // efeitos ambientais dos elementos de fusão sobre vizinhos
           if (elem === E.LAVA) {
-            if (nElem !== -1 && FLAMMABLE.has(nElem) && rng.chance(0.3)) toSet.push([ni, E.FIRE, rng.range(3, 5)]);
+            if (nElem === E.GUNPOWDER && rng.chance(0.3)) this.gunpowderExplosion(nx, ny, rng, game);
+            else if (nElem !== -1 && FLAMMABLE.has(nElem) && rng.chance(0.3)) toSet.push([ni, E.FIRE, nElem === E.CHARCOAL ? rng.range(12, 18) : rng.range(3, 5)]);
             else if (nElem === -1 && !this.buildingAt.has(ni) && rng.chance(0.1)) toSet.push([ni, E.LAVA, this.depLife[i] * 0.7]);
           } else if (elem === E.PLASMA) {
-            if (nElem !== -1 && nElem !== E.OBSIDIAN && nElem !== E.DIAMOND && rng.chance(0.5)) toSet.push([ni, -1]);
+            if (nElem !== -1 && nElem !== E.OBSIDIAN && nElem !== E.DIAMOND && nElem !== E.MONOLITH && rng.chance(0.5)) toSet.push([ni, -1]);
           } else if (elem === E.RUST) {
             if (nElem === E.METAL || nElem === E.STEEL) {
               rustHasMetal = true;
@@ -732,9 +830,16 @@ class World {
           } else if (elem === E.ACID) {
             if ((nElem === E.STONE || nElem === E.METAL || nElem === E.GLASS || nElem === E.STEEL) && rng.chance(0.25)) toSet.push([ni, -1]);
             const nb = this.buildingAt.get(ni);
-            if (nb && nb.element !== E.OBSIDIAN) nb.hp -= 6 * dt;
+            if (nb && nb.element !== E.OBSIDIAN && nb.element !== E.MONOLITH) nb.hp -= 6 * dt;
           } else if (elem === E.MIASMA) {
             if (nElem === -1 && !this.buildingAt.has(ni) && rng.chance(0.05)) toSet.push([ni, E.MIASMA, this.depLife[i] * 0.6]);
+          } else if (elem === E.VAPOR) {
+            if (nElem === -1 && !this.buildingAt.has(ni) && rng.chance(0.15)) toSet.push([ni, E.VAPOR, this.depLife[i] * 0.6]);
+          } else if (elem === E.BLIZZARD) {
+            if (nElem === -1 && !this.buildingAt.has(ni) && rng.chance(0.2)) toSet.push([ni, E.SNOW, 0]);
+            else if (nElem === E.WATER && rng.chance(0.3)) toSet.push([ni, E.ICE, 0]);
+          } else if (elem === E.PLAGUE) {
+            if (nElem === -1 && !this.buildingAt.has(ni) && rng.chance(0.07)) toSet.push([ni, E.PLAGUE, this.depLife[i] * 0.7]);
           }
           if (nElem === -1 || !table) continue;
           const rule = table[nElem];
@@ -754,16 +859,20 @@ class World {
         }
       }
 
-      // água recém-despejada espalha um pouco e assenta
-      if (elem === E.WATER) {
+      // água (e mercúrio, que flui igual) recém-despejada espalha um pouco e assenta
+      if (elem === E.WATER || elem === E.MERCURY) {
         if (rng.chance(0.25)) {
           const nx = x + rng.int(-1, 1), ny = y + rng.int(-1, 1);
           if (this.inBounds(nx, ny)) {
             const ni = this.idx(nx, ny);
-            if (this.dep[ni] === -1 && !this.buildingAt.has(ni) && rng.chance(0.4)) toSet.push([ni, E.WATER]);
+            if (this.dep[ni] === -1 && !this.buildingAt.has(ni) && rng.chance(0.4)) toSet.push([ni, elem]);
           }
         }
         if (rng.chance(0.15) && inert) toClear.push(i); // assenta (vira passivo)
+      } else if (elem === E.ASH) {
+        // cinza fértil: pode brotar madeira ou musgo; senão logo assenta
+        if (rng.chance(0.004)) toSet.push([i, rng.chance(0.5) ? E.WOOD : E.MOSS, 0]);
+        else if (rng.chance(0.15)) toClear.push(i);
       } else if (elem === E.POISON || elem === E.ICE || elem === E.SNOW) {
         if (inert && rng.chance(0.2)) toClear.push(i); // nada mais a reagir por perto
       } else if (elem === E.MUD) {
@@ -1664,6 +1773,8 @@ class Creature {
     this.relicTimer = 0;
     this.ashRebirth = false;
     this.ashUsed = false;
+    this.inEther = false;     // flutuação transitória no raio do éter
+    this.electrumShock = 0;   // cooldown individual do choque do eletro
 
     // herança de traits (~70% cada) + reaplicação de efeitos
     if (pa) {
@@ -1746,6 +1857,8 @@ class Creature {
 
     // dano/efeito do tile atual
     this.inMist = false;
+    this.inEther = false;
+    if (this.electrumShock > 0) this.electrumShock -= dt;
     const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
     if (world.inBounds(tx, ty)) {
       const d = world.dep[world.idx(tx, ty)];
@@ -1759,6 +1872,34 @@ class Creature {
       else if (d === E.FUNGUS && this.rng.chance(0.02 * dt)) this.gainRandomMutation();
       else if (d === E.SMOKE && this.rng.chance(0.5 * dt)) { this.target = null; this.seekTile = null; } // cegueira
       else if (d === E.MIST) this.inMist = true;
+      else if (d === E.VAPOR && this.rng.chance(0.25 * dt)) { this.target = null; this.seekTile = null; } // névoa quente ofusca
+      else if (d === E.BLIZZARD && !this.immunities.has(E.ICE) && !this.immunities.has(E.SNOW) && !this.immunities.has(E.BLIZZARD)) this.hurt(2 * dt, null, 'congelado pela nevasca');
+      else if (d === E.SWAMP) {
+        // pântano nutre criaturas orgânicas e envenena as demais
+        const ORGANIC = [E.WOOD, E.SLIME, E.MOSS, E.FUNGUS, E.MUD, E.SWAMP];
+        if (this.traits.some(t => ORGANIC.includes(t.element))) this.hp = Math.min(this.stats.maxHp, this.hp + 2 * dt);
+        else if (!this.immunities.has(E.POISON)) this.hurt(1.5 * dt, null, 'consumido pelo pântano');
+      }
+      else if (d === E.MERCURY && !this.immunities.has(E.POISON)) this.hurt(3 * dt, null, 'intoxicado por mercúrio');
+      else if (d === E.ELECTRUM && this.electrumShock <= 0) { this.electrumShock = 3; this.hurt(6, null, 'pelo choque do eletro'); }
+      else if (d === E.PLAGUE && !this.immunities.has(E.MIASMA) && !this.immunities.has(E.POISON) && !this.immunities.has(E.PLAGUE)) {
+        this.hurt(3 * dt, null, 'consumido pela praga');
+        if (this.alive && this.rng.chance(0.02 * dt * 60)) this.gainRandomMutation(this.rng.chance(0.5) ? E.MIASMA : E.SMOKE);
+      }
+      else if (d === E.STARCORE) this.hurt(25 * dt, null, 'incinerado pelo núcleo estelar');
+      // calor dos 8 vizinhos do núcleo estelar
+      if (this.alive && world.starcoreTiles.size && d !== E.STARCORE) {
+        outer: for (let ndy = -1; ndy <= 1; ndy++) {
+          for (let ndx = -1; ndx <= 1; ndx++) {
+            if (!ndx && !ndy) continue;
+            const nx = tx + ndx, ny = ty + ndy;
+            if (world.inBounds(nx, ny) && world.dep[world.idx(nx, ny)] === E.STARCORE) {
+              this.hurt(8 * dt, null, 'queimado pelo calor estelar');
+              break outer;
+            }
+          }
+        }
+      }
     }
     if (!this.alive) return;
     if (this.regen > 0) this.hp = Math.min(this.stats.maxHp, this.hp + this.regen * dt);
@@ -1851,6 +1992,31 @@ class Creature {
         o.y += (this.y - o.y) / d * 10 * dt;
       }
     }
+    // eletro atrai como a relíquia (choque aplicado ao pisar no tile)
+    if (world.electrumTiles.size) {
+      const e = this.nearestFieldTile(world.electrumTiles, 80);
+      if (e) { this.x += (e.x - this.x) / e.d * 8 * dt; this.y += (e.y - this.y) / e.d * 8 * dt; }
+    }
+    // núcleo estelar: gravidade própria puxa TODAS as criaturas
+    if (world.starcoreTiles.size) {
+      const s = this.nearestFieldTile(world.starcoreTiles, 140);
+      if (s) { this.x += (s.x - this.x) / s.d * 16 * dt; this.y += (s.y - this.y) / s.d * 16 * dt; }
+    }
+    // monólito: atração lenta e solene
+    if (world.monolithTiles.size) {
+      const m2 = this.nearestFieldTile(world.monolithTiles, 120);
+      if (m2) { this.x += (m2.x - this.x) / m2.d * 6 * dt; this.y += (m2.y - this.y) / m2.d * 6 * dt; }
+    }
+    // éter: cura e flutuação transitória no raio
+    if (world.etherTiles.size && this.nearestFieldTile(world.etherTiles, 60)) {
+      this.inEther = true;
+      this.hp = Math.min(this.stats.maxHp, this.hp + 4 * dt);
+    }
+    // aurora: cura suave e mutação benigna ocasional no raio
+    if (world.auroraTiles.size && this.nearestFieldTile(world.auroraTiles, 80)) {
+      this.hp = Math.min(this.stats.maxHp, this.hp + 3 * dt);
+      if (this.rng.chance(0.01 * dt * 60)) this.gainRandomMutation(this.rng.pick([E.MOSS, E.PRISM, E.RELIC]));
+    }
   }
 
   nearestFieldTile(tiles, radius) {
@@ -1864,11 +2030,12 @@ class Creature {
     return found ? { x: bx, y: by, d: Math.max(1, Math.sqrt(bd2)) } : null;
   }
 
-  // Mutação de um pool aleatório (cogumelo/esporos): sem contar absorção,
-  // sem feed global — só avisa se a criatura está aberta no inspetor.
-  gainRandomMutation() {
+  // Mutação de um pool aleatório (cogumelo/esporos/praga/aurora): sem contar
+  // absorção, sem feed global — só avisa se a criatura está aberta no inspetor.
+  // `forcedPool` restringe a um pool específico (praga e aurora usam isso).
+  gainRandomMutation(forcedPool) {
     const game = this.game, rng = this.rng;
-    const poolKey = +rng.pick(Object.keys(game.mutationPools));
+    const poolKey = forcedPool !== undefined ? forcedPool : +rng.pick(Object.keys(game.mutationPools));
     const pool = game.mutationPools[poolKey] || [];
     const owned = new Set(this.traits.map(t => t.id));
     const options = pool.filter(m => !owned.has(m.id));
@@ -1952,7 +2119,9 @@ class Creature {
     // ABSORVER ou COLETAR?
     let mode;
     const absorbDesire = this.temperament.curiosity * (0.6 + rng.next() * 0.8);
-    const collectDesire = this.temperament.industriousness * (0.6 + rng.next() * 0.8) + this.temperament.greed * (best.elem === E.GOLD ? 0.6 : 0);
+    let collectDesire = this.temperament.industriousness * (0.6 + rng.next() * 0.8) + this.temperament.greed * (best.elem === E.GOLD ? 0.6 : 0);
+    // monólito próximo: criaturas de facção têm o dobro de chance de iniciar construção
+    if (this.faction && world.monolithTiles.size && this.nearestFieldTile(world.monolithTiles, 120)) collectDesire *= 2;
     mode = absorbDesire >= collectDesire ? 'absorb' : 'collect';
     if (best.elem === E.DIAMOND && this.stats.strength < 8) mode = 'collect'; // duríssimo: exige força para absorver
     if (this.carryTotal >= BUILD_THRESHOLD + 2) mode = 'absorb';
@@ -2083,7 +2252,7 @@ class Creature {
 
   move(dt) {
     const world = this.game.world;
-    let f = this.ignoreTerrain || this.floaty ? 1 : world.moveFactorAtPx(this.x, this.y);
+    let f = this.ignoreTerrain || this.floaty || this.inEther ? 1 : world.moveFactorAtPx(this.x, this.y);
     if (this.aquatic && world.terrainAtPx(this.x, this.y) === T.WATER) f = Math.max(f, 1.05);
     let sp = this.stats.speed * f;
     if (this.vehicle) sp *= this.vehicle.speedMul;
