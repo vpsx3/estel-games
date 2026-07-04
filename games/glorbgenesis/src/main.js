@@ -312,17 +312,21 @@ function toWorld(mx, my) {
 
 let pouring = false, panning = false, lastMx = 0, lastMy = 0, pourCd = 0;
 
+function pickCreature(w) {
+  let best = null, bd = 18 / cam.zoom + 8;
+  for (const c of game.creatures) {
+    const d = Math.hypot(c.x - w.x, c.y - w.y);
+    if (d < bd) { bd = d; best = c; }
+  }
+  return best;
+}
+
 canvas.addEventListener('mousedown', e => {
   const w = toWorld(e.offsetX, e.offsetY);
   if (e.button === 1 || e.button === 2) { panning = true; }
   else if (e.button === 0) {
     if (game.tool === 'inspect') {
-      let best = null, bd = 18 / cam.zoom + 8;
-      for (const c of game.creatures) {
-        const d = Math.hypot(c.x - w.x, c.y - w.y);
-        if (d < bd) { bd = d; best = c; }
-      }
-      selectCreature(best);
+      selectCreature(pickCreature(w));
     } else {
       pouring = true;
       game.pour(game.tool, w.x, w.y);
@@ -353,6 +357,96 @@ canvas.addEventListener('wheel', e => {
   clampCam();
 }, { passive: false });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// ---- touch (celular) -------------------------------------------------------
+// 1 dedo: na lupa arrasta a câmera (toque curto seleciona); com um elemento,
+// despeja. 2 dedos: sempre movem a câmera, com pinça para zoom.
+let touchMode = null; // 'pan' | 'tool' | 'pinch'
+let tapX = 0, tapY = 0, tapTime = 0, tapMoved = false;
+let pinchDist = 0;
+
+function touchPos(t) {
+  const r = canvas.getBoundingClientRect();
+  return { x: t.clientX - r.left, y: t.clientY - r.top };
+}
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault(); // bloqueia gestos do browser e eventos de mouse emulados
+  if (e.touches.length === 1) {
+    const p = touchPos(e.touches[0]);
+    lastMx = p.x; lastMy = p.y;
+    tapX = p.x; tapY = p.y; tapTime = performance.now(); tapMoved = false;
+    const w = toWorld(p.x, p.y);
+    game.brush.x = w.x; game.brush.y = w.y;
+    if (game.tool === 'inspect') {
+      touchMode = 'pan';
+    } else {
+      touchMode = 'tool';
+      game.brush.visible = true;
+      pouring = true;
+      game.pour(game.tool, w.x, w.y);
+      pourCd = 0.08;
+    }
+  } else if (e.touches.length === 2) {
+    pouring = false; game.brush.visible = false;
+    touchMode = 'pinch';
+    const a = touchPos(e.touches[0]), b = touchPos(e.touches[1]);
+    lastMx = (a.x + b.x) / 2; lastMy = (a.y + b.y) / 2;
+    pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (touchMode === 'pinch' && e.touches.length >= 2) {
+    const a = touchPos(e.touches[0]), b = touchPos(e.touches[1]);
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (pinchDist > 0) {
+      const before = toWorld(mx, my);
+      cam.zoom = Math.max(0.5, Math.min(5, cam.zoom * (d / pinchDist)));
+      const after = toWorld(mx, my);
+      cam.x += before.x - after.x;
+      cam.y += before.y - after.y;
+    }
+    cam.x -= (mx - lastMx) / cam.zoom;
+    cam.y -= (my - lastMy) / cam.zoom;
+    clampCam();
+    lastMx = mx; lastMy = my; pinchDist = d;
+  } else if (touchMode && e.touches.length === 1) {
+    const p = touchPos(e.touches[0]);
+    if (Math.hypot(p.x - tapX, p.y - tapY) > 10) tapMoved = true;
+    if (touchMode === 'pan') {
+      cam.x -= (p.x - lastMx) / cam.zoom;
+      cam.y -= (p.y - lastMy) / cam.zoom;
+      clampCam();
+    } else if (touchMode === 'tool') {
+      const w = toWorld(p.x, p.y);
+      game.brush.x = w.x; game.brush.y = w.y; game.brush.visible = true;
+    }
+    lastMx = p.x; lastMy = p.y;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  if (e.touches.length === 0) {
+    // toque curto e parado com a lupa: seleciona a criatura tocada
+    if (touchMode === 'pan' && !tapMoved && performance.now() - tapTime < 350) {
+      selectCreature(pickCreature(toWorld(tapX, tapY)));
+    }
+    pouring = false; game.brush.visible = false; touchMode = null;
+  } else if (e.touches.length === 1) {
+    // saiu da pinça com um dedo ainda na tela: continua movendo a câmera
+    const p = touchPos(e.touches[0]);
+    lastMx = p.x; lastMy = p.y;
+    touchMode = 'pan'; pouring = false; tapMoved = true;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchcancel', () => {
+  pouring = false; game.brush.visible = false; touchMode = null;
+});
 
 initUIOnce();
 function initUIOnce() {
