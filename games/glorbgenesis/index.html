@@ -2037,7 +2037,7 @@ class Creature {
     const child = new Creature(game, this.x + Math.cos(a) * 14, this.y + Math.sin(a) * 14, { parentA: this, parentB: mate });
     game.addCreature(child);
     if (this.sporeParent) child.gainRandomMutation(); // esporos: trait extra no filhote
-    game.feed(`🐣 ${child.name} nasceu de ${this.name}${mate ? ' e ' + mate.name : ''}`, '#8fd18f');
+    game.feed(`🐣 ${child.name} (${child.archetype.name}) nasceu de ${this.name}${mate ? ' e ' + mate.name : ''}`, '#8fd18f');
   }
 
   hurt(dmg, attacker, cause) {
@@ -3013,7 +3013,8 @@ function refreshInspector(force) {
   if (!c.alive) { selectCreature(null); return; }
   document.getElementById('inspAbsorbed').style.color = '';
   const mins = Math.floor(c.age / 60), secs = Math.floor(c.age % 60);
-  document.getElementById('inspName').textContent = c.name + (c.isFirst ? ' ★ (o Primeiro)' : '');
+  document.getElementById('inspName').textContent =
+    c.name + (c.archetype ? ' · ' + c.archetype.name : '') + (c.isFirst ? ' ★ (o Primeiro)' : '');
   document.getElementById('inspAge').textContent = `idade ${mins}m${String(secs).padStart(2, '0')}s · ❤ ${Math.ceil(c.hp)}/${Math.ceil(c.stats.maxHp)}`;
   const f = document.getElementById('inspFaction');
   if (c.faction) { f.textContent = `⚑ ${c.faction.name}`; f.style.color = c.faction.color; }
