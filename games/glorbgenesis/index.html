@@ -36,6 +36,18 @@
   button:hover { background: #252d40; }
   button.active { background: #3a4666; border-color: #5a6a99; color: #fff; }
 
+  /* legenda da lente de facções */
+  #lensLegend {
+    top: 48px; left: 50%; transform: translateX(-50%);
+    padding: 6px 12px; font-size: 12px; z-index: 10;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  #lensLegend.hidden { display: none; }
+  #lensLegend .sw {
+    display: inline-block; width: 10px; height: 10px;
+    border-radius: 2px; margin-right: 6px; vertical-align: -1px;
+  }
+
   /* paleta */
   #paletteWrap {
     left: 8px; top: 50%; transform: translateY(-50%);
@@ -125,7 +137,10 @@
     <button class="speedbtn" data-speed="2">2×</button>
     <button class="speedbtn" data-speed="4">4×</button>
   </span>
+  <button id="lensBtn" class="speedbtn" title="Lente de facções">⚑</button>
 </div>
+
+<div id="lensLegend" class="panel hidden"></div>
 
 <div id="paletteWrap" class="panel">
   <div id="palette"></div>
@@ -2018,6 +2033,25 @@ function render(game, ctx, cam, t) {
     drawCreature(ctx, c, t);
   }
 
+  // lente de facções: anéis por criatura e contorno das construções
+  if (game.lensFactions) {
+    ctx.lineWidth = 2 / cam.zoom;
+    for (const c of game.creatures) {
+      if (c.x < x0 || c.x > x1 || c.y < y0 || c.y > y1) continue;
+      ctx.strokeStyle = c.faction ? c.faction.color : '#777';
+      if (!c.faction) ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.arc(c.x, c.y, c.bodyPlan.size + 7, 0, 7); ctx.stroke();
+      if (!c.faction) ctx.setLineDash([]);
+    }
+    ctx.globalAlpha = 0.8;
+    for (const b of game.buildings) {
+      if (!b.faction || b.x < x0 || b.x > x1 || b.y < y0 || b.y > y1) continue;
+      ctx.strokeStyle = b.faction.color;
+      ctx.strokeRect(b.tx * TILE + 1, b.ty * TILE + 1, TILE - 2, TILE - 2);
+    }
+    ctx.globalAlpha = 1;
+  }
+
   // partículas
   for (const p of game.particles) {
     const a = Math.max(0, p.life / p.maxLife);
@@ -2501,18 +2535,22 @@ let lockedFeedAt = -Infinity;
 function initUI(g, cb) {
   game = g; callbacks = cb;
   for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime',
-    'palette', 'feed', 'inspector', 'brushSize', 'brushSizeVal', 'portrait']) {
+    'palette', 'feed', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend']) {
     el[id] = document.getElementById(id);
   }
   portraitCtx = el.portrait.getContext('2d');
   buildPalette();
   game.onDiscover = id => unlockPaletteBtn(id);
 
-  document.querySelectorAll('.speedbtn').forEach(b => {
+  document.querySelectorAll('.speedbtn[data-speed]').forEach(b => {
     b.addEventListener('click', () => {
       game.setSpeed(parseFloat(b.dataset.speed));
-      document.querySelectorAll('.speedbtn').forEach(o => o.classList.toggle('active', o === b));
+      document.querySelectorAll('.speedbtn[data-speed]').forEach(o => o.classList.toggle('active', o === b));
     });
+  });
+  el.lensBtn.addEventListener('click', () => {
+    game.lensFactions = !game.lensFactions;
+    el.lensBtn.classList.toggle('active', game.lensFactions);
   });
   el.btnNewWorld.addEventListener('click', () => callbacks.onNewWorld(el.seedInput.value.trim() || null));
   el.seedInput.addEventListener('keydown', e => {
@@ -2533,7 +2571,8 @@ function setGame(g) {
   game.onDiscover = id => unlockPaletteBtn(id);
   selectCreature(null);
   selectTool('inspect');
-  document.querySelectorAll('.speedbtn').forEach(o => o.classList.toggle('active', o.dataset.speed === '1'));
+  el.lensBtn.classList.remove('active');
+  document.querySelectorAll('.speedbtn[data-speed]').forEach(o => o.classList.toggle('active', o.dataset.speed === '1'));
 }
 
 function buildPalette() {
@@ -2864,6 +2903,21 @@ function updateHUD() {
     cd.style.height = rem > 0 ? `${(rem / def.cooldown) * 100}%` : '0%';
   }
 
+  // legenda da lente de facções
+  if (game.lensFactions) {
+    el.lensLegend.classList.remove('hidden');
+    let html = '';
+    for (const f of game.factions) {
+      if (f.members.length < 1) continue;
+      let war = false;
+      for (const [, rel] of f.relations) if (rel.state === 'war') { war = true; break; }
+      html += `<div><span class="sw" style="background:${f.color}"></span>${f.name} (${f.members.length})${war ? ' ⚔' : ''}</div>`;
+    }
+    el.lensLegend.innerHTML = html || '<span class="dim">nenhuma facção ainda</span>';
+  } else {
+    el.lensLegend.classList.add('hidden');
+  }
+
   inspectorTimer -= 1;
   if (game.selected && inspectorTimer <= 0) { inspectorTimer = 6; refreshInspector(); }
 }
@@ -2944,6 +2998,7 @@ class Game {
     this.tool = 'inspect';
     this.brush = { x: 0, y: 0, radius: 2, visible: false };
     this.selected = null;
+    this.lensFactions = false;
     this.killCount = 0;
     this.combatKills = 0;
     this.combatCount = 0;
