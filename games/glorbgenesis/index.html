@@ -294,6 +294,9 @@ const E = {
   FUNGUS: 26, MOSS: 27, PRISM: 28, RELIC: 29,
   // Tier 3
   OBSIDIAN: 30, MIASMA: 31,
+  CHARCOAL: 32, VAPOR: 33, BLIZZARD: 34, ASH: 35, SWAMP: 36, MERCURY: 37, ELECTRUM: 38,
+  // Tier 4
+  GUNPOWDER: 39, AURORA: 40, PLAGUE: 41, STARCORE: 42, ETHER: 43, MONOLITH: 44,
 };
 
 const ELEMENTS = [
@@ -330,11 +333,26 @@ const ELEMENTS = [
   { id: E.RELIC,    key: 'relic',    name: 'Relíquia',   color: '#ffdf6a', tags: ['precioso', 'sagrado', 'raro'],          rare: true,  cooldown: 8, fused: true },
   { id: E.OBSIDIAN, key: 'obsidian', name: 'Obsidiana',  color: '#5a4a7a', tags: ['estrutural', 'duríssimo', 'raro'],      rare: true,  cooldown: 8, fused: true },
   { id: E.MIASMA,   key: 'miasma',   name: 'Miasma',     color: '#8fae52', tags: ['tóxico', 'volátil', 'raro'],            rare: true,  cooldown: 8, fused: true },
+  // Tier 3 (Spec 2)
+  { id: E.CHARCOAL, key: 'charcoal', name: 'Carvão',     color: '#3a3a3a', tags: ['inflamável', 'combustível'],            rare: false, cooldown: 6, fused: true },
+  { id: E.VAPOR,    key: 'vapor',    name: 'Vapor',      color: '#e8f0f2', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 6, fused: true },
+  { id: E.BLIZZARD, key: 'blizzard', name: 'Nevasca',    color: '#d8ecff', tags: ['frio', 'volátil'],                      rare: false, cooldown: 6, fused: true },
+  { id: E.ASH,      key: 'ash',      name: 'Cinza',      color: '#7d7468', tags: ['fértil'],                               rare: false, cooldown: 6, fused: true },
+  { id: E.SWAMP,    key: 'swamp',    name: 'Pântano',    color: '#4a6a3a', tags: ['orgânico', 'tóxico', 'fértil'],         rare: false, cooldown: 6, fused: true },
+  { id: E.MERCURY,  key: 'mercury',  name: 'Mercúrio',   color: '#b8c8d4', tags: ['condutor', 'fluido', 'tóxico'],         rare: false, cooldown: 6, fused: true },
+  { id: E.ELECTRUM, key: 'electrum', name: 'Eletro',     color: '#ffe88a', tags: ['precioso', 'condutor'],                 rare: false, cooldown: 6, fused: true },
+  // Tier 4 (Spec 2)
+  { id: E.GUNPOWDER, key: 'gunpowder', name: 'Pólvora',        color: '#5a4a3a', tags: ['inflamável', 'explosivo', 'raro'], rare: true, cooldown: 8,  fused: true },
+  { id: E.AURORA,    key: 'aurora',    name: 'Aurora',         color: '#a0ffd8', tags: ['energia', 'sagrado', 'raro'],      rare: true, cooldown: 10, fused: true },
+  { id: E.PLAGUE,    key: 'plague',    name: 'Praga',          color: '#6a7a2a', tags: ['tóxico', 'mutagênico', 'raro'],    rare: true, cooldown: 8,  fused: true },
+  { id: E.STARCORE,  key: 'starcore',  name: 'Núcleo Estelar', color: '#ff9a3a', tags: ['energia', 'destrutivo', 'raro'],   rare: true, cooldown: 10, fused: true },
+  { id: E.ETHER,     key: 'ether',     name: 'Éter',           color: '#d8ccff', tags: ['sagrado', 'oculto', 'raro'],       rare: true, cooldown: 10, fused: true },
+  { id: E.MONOLITH,  key: 'monolith',  name: 'Monólito',       color: '#2a2a3a', tags: ['estrutural', 'sagrado', 'raro'],   rare: true, cooldown: 10, fused: true },
 ];
 
-const FLAMMABLE = new Set([E.WOOD, E.SLIME, E.SULFUR, E.FUNGUS]);
-const CONDUCTIVE = new Set([E.METAL, E.GOLD, E.STEEL, E.MAGNET]);
-const STRUCTURAL = new Set([E.WOOD, E.STONE, E.METAL, E.GLASS, E.ICE, E.GOLD, E.DIAMOND, E.STEEL, E.GLACIER, E.OBSIDIAN]);
+const FLAMMABLE = new Set([E.WOOD, E.SLIME, E.SULFUR, E.FUNGUS, E.CHARCOAL, E.GUNPOWDER]);
+const CONDUCTIVE = new Set([E.METAL, E.GOLD, E.STEEL, E.MAGNET, E.MERCURY, E.ELECTRUM]);
+const STRUCTURAL = new Set([E.WOOD, E.STONE, E.METAL, E.GLASS, E.ICE, E.GOLD, E.DIAMOND, E.STEEL, E.GLACIER, E.OBSIDIAN, E.MONOLITH]);
 
 // ---------------------------------------------------------------------------
 // Matriz declarativa de reações entre depósitos adjacentes.
@@ -2931,6 +2949,110 @@ function iconCanvas(id) {
       c.globalAlpha = 1;
       c.fillStyle = '#3a4a1a';
       c.beginPath(); c.arc(11, 15, 1.2, 0, 7); c.arc(17, 12, 1.2, 0, 7); c.arc(14, 19, 1.2, 0, 7); c.fill(); break;
+    case E.CHARCOAL: // 3 quadrados irregulares empilhados
+      for (const [qx, qy, rot] of [[10, 15, 0.15], [16, 14, -0.2], [13, 8, 0.1]]) {
+        c.save(); c.translate(qx, qy); c.rotate(rot); c.fillRect(-4, -4, 8, 8); c.restore();
+      }
+      break;
+    case E.VAPOR: // 3 ondas verticais em S subindo
+      c.globalAlpha = 0.8; c.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {
+        const x = 8 + i * 6;
+        c.beginPath(); c.moveTo(x, 23);
+        c.quadraticCurveTo(x - 3, 17, x, 13); c.quadraticCurveTo(x + 3, 9, x, 5);
+        c.stroke();
+      }
+      c.globalAlpha = 1; break;
+    case E.BLIZZARD: // asterisco de neve de 6 pontas + traços de vento
+      c.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {
+        const a = i * Math.PI / 3;
+        c.beginPath();
+        c.moveTo(17 - Math.cos(a) * 7, cy - Math.sin(a) * 7);
+        c.lineTo(17 + Math.cos(a) * 7, cy + Math.sin(a) * 7);
+        c.stroke();
+      }
+      c.lineWidth = 1.6;
+      c.beginPath(); c.moveTo(3, 9); c.lineTo(9, 12); c.moveTo(3, 17); c.lineTo(9, 19); c.stroke();
+      break;
+    case E.ASH: // montinho com pontinhos acima
+      c.beginPath(); c.ellipse(cx, 19, 9, 5, 0, Math.PI, 0); c.closePath(); c.fill();
+      c.beginPath();
+      c.arc(9, 10, 1.1, 0, 7); c.arc(14, 7, 1.1, 0, 7); c.arc(18, 10, 1.1, 0, 7); c.arc(12, 12, 1.1, 0, 7);
+      c.fill(); break;
+    case E.SWAMP: // elipse d'água com juncos
+      c.globalAlpha = 0.8;
+      c.beginPath(); c.ellipse(cx, 18, 9, 4.5, 0, 0, 7); c.fill();
+      c.globalAlpha = 1; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(11, 17); c.lineTo(11, 6); c.moveTo(17, 17); c.lineTo(17, 8); c.stroke();
+      break;
+    case E.MERCURY: // gota com brilho branco à esquerda
+      c.beginPath(); c.moveTo(14, 5); c.quadraticCurveTo(22, 15, 14, 22);
+      c.quadraticCurveTo(6, 15, 14, 5); c.fill();
+      c.strokeStyle = '#fff'; c.lineWidth = 1.6;
+      c.beginPath(); c.arc(14, 14, 5, Math.PI * 0.75, Math.PI * 1.35); c.stroke();
+      break;
+    case E.ELECTRUM: // moeda com mini-raio interno
+      c.beginPath(); c.arc(cx, cy, 8, 0, 7); c.fill();
+      c.fillStyle = '#7a5a00';
+      c.beginPath(); c.moveTo(15, 8); c.lineTo(11, 14); c.lineTo(14, 14); c.lineTo(12, 20);
+      c.lineTo(17, 13); c.lineTo(14, 13); c.closePath(); c.fill();
+      break;
+    case E.GUNPOWDER: // círculo com pavio e pontinhos na base
+      c.beginPath(); c.arc(cx, 16, 7, 0, 7); c.fill();
+      c.lineWidth = 1.6;
+      c.beginPath(); c.moveTo(14, 9); c.quadraticCurveTo(17, 6, 21, 6); c.stroke();
+      c.beginPath(); c.arc(6, 23, 1.1, 0, 7); c.arc(14, 25, 1.1, 0, 7); c.arc(22, 23, 1.1, 0, 7); c.fill();
+      break;
+    case E.PLAGUE: // círculo irregular com bolhas escuras
+      c.beginPath();
+      for (let i = 0; i <= 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        const r = 8 + 1.6 * Math.sin(a * 3 + 0.7);
+        const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+        i ? c.lineTo(x, y) : c.moveTo(x, y);
+      }
+      c.closePath(); c.fill();
+      c.fillStyle = '#3a4a12';
+      c.beginPath(); c.arc(11, 12, 1.8, 0, 7); c.arc(17, 15, 1.5, 0, 7); c.arc(13, 18, 1.3, 0, 7); c.fill();
+      break;
+    case E.AURORA: // 3 faixas onduladas verticais
+      for (let i = 0; i < 3; i++) {
+        c.globalAlpha = [1, 0.7, 0.4][i];
+        const x = 8 + i * 6;
+        c.beginPath();
+        c.moveTo(x - 2, 4);
+        c.quadraticCurveTo(x + 3, 10, x - 2, 16); c.quadraticCurveTo(x - 5, 20, x - 2, 24);
+        c.lineTo(x + 2, 24);
+        c.quadraticCurveTo(x - 1, 20, x + 2, 16); c.quadraticCurveTo(x + 7, 10, x + 2, 4);
+        c.closePath(); c.fill();
+      }
+      c.globalAlpha = 1; break;
+    case E.STARCORE: { // estrela de 8 pontas com núcleo
+      c.beginPath();
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * Math.PI * 2 - Math.PI / 2;
+        const r = i % 2 === 0 ? 10 : 4.5;
+        const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+        i ? c.lineTo(x, y) : c.moveTo(x, y);
+      }
+      c.closePath(); c.fill();
+      c.fillStyle = '#ffe27a';
+      c.beginPath(); c.arc(cx, cy, 3, 0, 7); c.fill();
+      break;
+    }
+    case E.ETHER: // círculo vazado com ondas internas
+      c.lineWidth = 2;
+      c.beginPath(); c.arc(cx, cy, 9, 0, 7); c.stroke();
+      c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(9, 12); c.quadraticCurveTo(12, 9, 14, 12); c.quadraticCurveTo(16, 15, 19, 12); c.stroke();
+      c.beginPath(); c.moveTo(9, 17); c.quadraticCurveTo(12, 14, 14, 17); c.quadraticCurveTo(16, 20, 19, 17); c.stroke();
+      break;
+    case E.MONOLITH: // retângulo vertical com brilho no canto superior
+      c.fillRect(10, 5, 8, 18);
+      c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 1.4;
+      c.beginPath(); c.moveTo(11.5, 8); c.lineTo(11.5, 12); c.stroke();
+      break;
   }
   return cv;
 }
