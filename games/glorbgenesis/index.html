@@ -978,7 +978,7 @@ class World {
   }
 }
 
-return { WORLD_W, WORLD_H, TILE, T, TERRAIN_SPEED, World };
+return { WORLD_W, WORLD_H, TILE, T, TERRAIN_SPEED, World, fuseLife };
 })();
 
 // ==== src/evolution.js ====
@@ -3931,8 +3931,8 @@ __m.main = (() => {
 // Bootstrap, game loop, câmera, input e orquestração dos sistemas.
 
 const { RNG, hashString } = __m.rng;
-const { World, TILE, T } = __m.world;
-const { E, ELEMENTS, elemName, elemColor } = __m.elements;
+const { World, TILE, T, fuseLife } = __m.world;
+const { E, ELEMENTS, ENDGAME, elemName, elemColor } = __m.elements;
 const { Creature } = __m.creature;
 const { MUTATION_POOLS } = __m.evolution;
 const { societyTick } = __m.society;
@@ -4246,6 +4246,9 @@ class Game {
     this.societyAcc += dt;
     if (this.societyAcc >= 8) { societyTick(this); this.societyAcc = 0; }
 
+    // cataclismos: o mundo se agita sozinho a partir da Era Tribal
+    if (this.era >= ENDGAME.CATA_MIN_ERA) updateCataclysm(this, dt);
+
     // tremor de tela decai com o tempo de simulação
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
 
@@ -4270,6 +4273,127 @@ class Game {
     }
     const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
     this.world.pour(elem, tx, ty, elem === E.DIAMOND ? 0 : this.brush.radius, this.pourRng, this);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Cataclismos autônomos (Fase A): a partir da Era Tribal o mundo se agita
+// sozinho e devolve química ao mapa. Todo sorteio usa envRng (determinismo).
+// ---------------------------------------------------------------------------
+const CATACLYSMS = [
+  { w: 2, type: 'meteoro',    warn: d => `⚠️ Uma luz cresce no céu ${d}...` },
+  { w: 3, type: 'erupcao',    warn: d => `⚠️ O chão treme ${d}...` },
+  { w: 3, type: 'nevasca',    warn: d => `⚠️ Um vento gélido sopra ${d}...` },
+  { w: 3, type: 'tempestade', warn: d => `⚠️ Nuvens negras se acumulam ${d}...` },
+  { w: 1, type: 'praga',      warn: d => `⚠️ Um odor pútrido se espalha ${d}...` },
+];
+
+// Direção aproximada do alvo em relação ao centro do mapa, já com preposição.
+function compassDir(world, tx, ty) {
+  const dx = tx - world.w / 2, dy = ty - world.h / 2;
+  let d;
+  if (Math.abs(dy) > Math.abs(dx) * 2) d = dy < 0 ? 'norte' : 'sul';
+  else if (Math.abs(dx) > Math.abs(dy) * 2) d = dx < 0 ? 'oeste' : 'leste';
+  else d = (dy < 0 ? 'nor' : 'su') + (dx < 0 ? (dy < 0 ? 'oeste' : 'doeste') : 'deste');
+  return (d === 'norte' || d === 'sul') ? `ao ${d}` : `a ${d}`;
+}
+
+function updateCataclysm(game, dt) {
+  // telegraph em andamento: aguarda a hora do impacto
+  if (game.cataclysmPending) {
+    if (game.time >= game.cataclysmPending.at) {
+      executeCataclysm(game, game.cataclysmPending);
+      game.cataclysmPending = null;
+    }
+    return;
+  }
+  const rng = game.envRng;
+  if (game.cataclysmTimer <= 0) {
+    // agenda o próximo: o intervalo encurta a cada era
+    const scale = Math.pow(ENDGAME.CATA_ERA_SCALE, Math.max(0, game.era - 1));
+    game.cataclysmTimer = rng.range(ENDGAME.CATA_INTERVAL[0], ENDGAME.CATA_INTERVAL[1]) * scale;
+    return;
+  }
+  game.cataclysmTimer -= dt;
+  if (game.cataclysmTimer > 0) return;
+
+  // sorteia tipo e alvo: tile de terra, com viés de 50% para perto de criaturas
+  const world = game.world;
+  const kind = rng.weighted(CATACLYSMS);
+  let tx = -1, ty = -1;
+  for (let i = 0; i < 40; i++) {
+    let cx, cy;
+    if (game.creatures.length && rng.chance(0.5)) {
+      const c = rng.pick(game.creatures);
+      const near = game.hash.query(c.x, c.y, 80);
+      const p = near.length ? rng.pick(near) : c;
+      cx = Math.floor(p.x / TILE) + rng.int(-4, 4);
+      cy = Math.floor(p.y / TILE) + rng.int(-4, 4);
+    } else {
+      cx = rng.int(4, world.w - 5);
+      cy = rng.int(4, world.h - 5);
+    }
+    if (world.inBounds(cx, cy) && world.terrain[world.idx(cx, cy)] !== T.WATER) { tx = cx; ty = cy; break; }
+  }
+  if (tx < 0) { game.cataclysmTimer = 30; return; } // sem alvo em terra: tenta em breve
+  game.feed(kind.warn(compassDir(world, tx, ty)), '#ffb36a');
+  game.cataclysmPending = { type: kind.type, tx, ty, at: game.time + ENDGAME.CATA_WARNING };
+}
+
+function executeCataclysm(game, ev) {
+  const world = game.world, rng = game.envRng;
+  const { tx, ty } = ev;
+  // mancha orgânica de `elem` — nunca sobrescreve tiles com construção
+  const splat = (elem, radius, density) => {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        if (dx * dx + dy * dy > radius * radius + 0.5) continue;
+        const x = tx + dx, y = ty + dy;
+        if (!world.inBounds(x, y)) continue;
+        const i = world.idx(x, y);
+        if (world.buildingAt.has(i) || !rng.chance(density)) continue;
+        world.setDep(i, elem, fuseLife(elem, rng));
+      }
+    }
+  };
+  switch (ev.type) {
+    case 'meteoro': {
+      // núcleo estelar na cratera (o colapso explosivo já existe em envTick)
+      const i = world.idx(tx, ty);
+      if (!world.buildingAt.has(i)) world.setDep(i, E.STARCORE, fuseLife(E.STARCORE, rng));
+      // anel de fogo ao redor do impacto (raio 2)
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 2 || d2 > 6) continue;
+          const x = tx + dx, y = ty + dy;
+          if (!world.inBounds(x, y)) continue;
+          const ni = world.idx(x, y);
+          if (world.buildingAt.has(ni) || !rng.chance(0.8)) continue;
+          world.setDep(ni, E.FIRE, rng.range(3, 6));
+        }
+      }
+      game.addShake(6);
+      game.feed('☄️ Um meteoro caiu! Um núcleo estelar arde na cratera.', '#ff9a3a');
+      break;
+    }
+    case 'erupcao':
+      splat(E.LAVA, rng.int(2, 3), 0.6);
+      game.addShake(4);
+      game.feed('🌋 Uma erupção rasga o chão!', '#ff4a1a');
+      break;
+    case 'nevasca':
+      splat(E.BLIZZARD, rng.int(3, 4), 0.7);
+      game.feed('🌨️ Uma nevasca desaba sobre a região!', '#d8ecff');
+      break;
+    case 'tempestade':
+      splat(E.STORM, rng.int(2, 3), 0.7);
+      game.feed('⛈️ Uma tempestade se forma!', '#8f82e0');
+      break;
+    case 'praga':
+      splat(E.PLAGUE, 2, 0.6);
+      game.feed('☣️ A praga brota da terra!', '#8fae52');
+      break;
   }
 }
 
