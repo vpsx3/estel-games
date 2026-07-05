@@ -1714,9 +1714,14 @@ function tryEncounter(game, a, b) {
 function societyTick(game) {
   const rng = game.societyRng;
   checkEraProgress(game);
-  // guerras órfãs (facção extinta sem desfecho) saem do registro
-  game.wars = game.wars.filter(w =>
-    game.factions.some(f => f.id === w.aId) && game.factions.some(f => f.id === w.bId));
+  // guerras órfãs saem do registro: facção extinta ou reduzida a < 2 membros
+  // não briga mais — sem isso o registro cresce sem limite em sessões longas
+  // (a relação, se esfriar depois, resolve como paz branca sem placar).
+  game.wars = game.wars.filter(w => {
+    const a = game.factions.find(f => f.id === w.aId);
+    const b = game.factions.find(f => f.id === w.bId);
+    return a && b && a.members.length >= 2 && b.members.length >= 2;
+  });
   const fs = game.factions.filter(f => f.members.length >= 2);
   for (let i = 0; i < fs.length; i++) {
     for (let j = i + 1; j < fs.length; j++) {
