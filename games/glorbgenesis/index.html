@@ -987,7 +987,7 @@ __m.evolution = (() => {
 // a escolha rola no RNG individual da criatura, então o mesmo elemento gera
 // resultados diferentes em criaturas diferentes.
 
-const { E, elemName, elemColor } = __m.elements;
+const { E, ENDGAME, elemName, elemColor } = __m.elements;
 // Cada mutação: { id, name, apply(c) } — apply altera stats/flags/bodyPlan.
 const MUTATION_POOLS = {
   [E.FIRE]: [
@@ -1331,9 +1331,33 @@ function grantGift(creature, elem, game) {
   if (game.selected === creature) game.feed(`✨ ${creature.name} despertou: ${gift.name}`, elemColor(elem));
 }
 
+// Gigantismo permanente (Fase A): absorver muito faz o corpo crescer para
+// sempre. Cada limiar de GIANT_TIERS cruzado aplica bônus uma única vez —
+// mais forte e resistente, porém mais lento e assustador. Nunca encolhe.
+function updateGiantTier(c, game) {
+  c.sizeMul = Math.min(ENDGAME.GIANT_MAX_MUL, 1 + Math.sqrt(c.absorbLifetime) * ENDGAME.GIANT_K);
+  while (c.giantTier < ENDGAME.GIANT_TIERS.length && c.sizeMul >= ENDGAME.GIANT_TIERS[c.giantTier]) {
+    c.giantTier++;
+    c.stats.maxHp += ENDGAME.GIANT_HP_PER_TIER;
+    c.hp += ENDGAME.GIANT_HP_PER_TIER;
+    c.stats.strength += ENDGAME.GIANT_STR_PER_TIER;
+    c.stats.speed *= ENDGAME.GIANT_SPEED_MUL_PER_TIER;
+    c.scary += ENDGAME.GIANT_SCARY_PER_TIER;
+    const title = ENDGAME.GIANT_TIER_NAMES[c.giantTier - 1];
+    if (c.giantTier >= 3) {
+      game.feed(`🗿 ${c.name} tornou-se ${title}! O mundo estremece sob seus passos.`, '#ffd75a');
+      game.addShake(2);
+    } else {
+      game.feed(`🗿 ${c.name} tornou-se ${title}!`, '#d9c9a6');
+    }
+  }
+}
+
 // Absorve `elem`: rola uma mutação nova (sem repetir) no RNG da criatura.
 function absorbElement(creature, elem, game) {
   creature.absorbed[elem] = (creature.absorbed[elem] || 0) + 1;
+  creature.absorbLifetime++;
+  updateGiantTier(creature, game);
   // primeira absorção do elemento também desperta o dom único dele
   if (creature.absorbed[elem] === 1) grantGift(creature, elem, game);
   // Dom Fúngico: absorver alimenta
@@ -1738,6 +1762,37 @@ function societyTick(game) {
     }
   }
 
+  // Caçadas (Fase A): facções agressivas saem atrás de gigantes (Colosso+)
+  // que não sejam dos seus. Caçar gigante de outra facção esquenta a relação.
+  for (const f of fs) {
+    if (f.avgTemperament('aggression') <= ENDGAME.HUNT_AGGR) continue;
+    let target = null, td = Infinity;
+    const c = f.center();
+    for (const o of game.creatures) {
+      if (!o.alive || o.giantTier < ENDGAME.HUNT_MIN_TIER || o.faction === f) continue;
+      const d = (o.x - c.x) ** 2 + (o.y - c.y) ** 2;
+      if (d < td) { td = d; target = o; }
+    }
+    if (!target || !rng.chance(0.3)) continue;
+    if (f.members.some(m => m.raidTarget && m.raidTarget.creature === target)) continue; // caçada já em curso
+    let started = false;
+    for (const m of f.members) {
+      if (m.alive && m.temperament.aggression > 0.5 && m.state !== 'fight') {
+        m.raidTarget = { creature: target };
+        m.state = 'raid';
+        started = true;
+      }
+    }
+    if (started) {
+      game.feed(`🏹 A facção ${f.name} saiu à caça de ${target.name}!`, f.color);
+      if (target.faction) {
+        const r1 = f.relationWith(target.faction), r2 = target.faction.relationWith(f);
+        r1.heat += 0.3;
+        r2.heat = r1.heat;
+      }
+    }
+  }
+
   // vassalagem: facção tributária envia 1 carregador de ouro ao baú do suserano
   for (const f of game.factions) {
     if (!f.tributeTo) continue;
@@ -2071,6 +2126,10 @@ class Creature {
     this.ashUsed = false;
     this.inEther = false;     // flutuação transitória no raio do éter
     this.electrumShock = 0;   // cooldown individual do choque do eletro
+    // gigantismo (Fase A): permanente, nunca decai; filhotes nascem normais
+    this.absorbLifetime = 0;  // total de absorções na vida (nunca decai)
+    this.sizeMul = 1;         // escala visual/física derivada
+    this.giantTier = 0;       // 0 normal, 1 Graúdo, 2 Colosso, 3 Titã
     // dons elementais: status e temporizadores
     this.gifts = new Set();       // ids de elemento cujos dons despertou
     this.giftTimers = {};         // cooldowns por dom
@@ -2654,7 +2713,16 @@ class Creature {
       }
       case 'raid': {
         const r = this.raidTarget;
-        if (!r || !this.faction || !this.faction.isAtWar(r.faction)) { this.raidTarget = null; this.state = 'wander'; break; }
+        if (!r) { this.state = 'wander'; break; }
+        // caçada (Fase A): o alvo é uma criatura gigante, não uma facção
+        if (r.creature) {
+          const t = r.creature;
+          if (!t.alive) { this.raidTarget = null; this.state = 'wander'; break; }
+          this.heading = Math.atan2(t.y - this.y, t.x - this.x);
+          if (this.dist(t) < 40) this.engage(t);
+          break;
+        }
+        if (!this.faction || !this.faction.isAtWar(r.faction)) { this.raidTarget = null; this.state = 'wander'; break; }
         const c = r.faction.center();
         this.heading = Math.atan2(c.y - this.y, c.x - this.x);
         // ao chegar na vila: atacar construção ou inimigo próximo
@@ -3242,7 +3310,7 @@ function shadeColor(hex, amt) {
 // ---------------------------------------------------------------------------
 function drawCreature(ctx, c, t, portrait = false) {
   const bp = c.bodyPlan;
-  const s = bp.size;
+  const s = bp.size * (c.sizeMul || 1); // gigantismo: escala visual permanente
   const wob = Math.sin(t * 3.2 + bp.phase) * bp.wobble * 0.12;
   const moving = !portrait && c.speedNow > 4;
   const squash = moving ? 1 + Math.sin(c.animPhase * 2) * 0.12 : 1 + wob;
@@ -3467,7 +3535,7 @@ return { buildTerrainCanvas, render, drawCreature, repaintTerritory };
 __m.ui = (() => {
 // HUD, paleta de elementos (ícones desenhados em canvas), feed de eventos e inspetor.
 
-const { ELEMENTS, E, elemName, elemColor } = __m.elements;
+const { ELEMENTS, E, ENDGAME, elemName, elemColor } = __m.elements;
 const { ELEMENT_GIFTS } = __m.evolution;
 const { ERAS } = __m.society;
 const { drawCreature } = __m.render;
@@ -3981,7 +4049,9 @@ function refreshInspector(force) {
   document.getElementById('inspAbsorbed').style.color = '';
   const mins = Math.floor(c.age / 60), secs = Math.floor(c.age % 60);
   document.getElementById('inspName').textContent =
-    c.name + (c.archetype ? ' · ' + c.archetype.name : '') + (c.isFirst ? ' ★ (o Primeiro)' : '');
+    c.name + (c.archetype ? ' · ' + c.archetype.name : '')
+    + (c.giantTier > 0 ? ` · ${ENDGAME.GIANT_TIER_NAMES[c.giantTier - 1]} ${c.sizeMul.toFixed(1)}×` : '')
+    + (c.isFirst ? ' ★ (o Primeiro)' : '');
   document.getElementById('inspAge').textContent = `idade ${mins}m${String(secs).padStart(2, '0')}s · ❤ ${Math.ceil(c.hp)}/${Math.ceil(c.stats.maxHp)}`;
   const f = document.getElementById('inspFaction');
   if (c.faction) { f.textContent = `⚑ ${c.faction.name}`; f.style.color = c.faction.color; }
@@ -4022,7 +4092,7 @@ function refreshInspector(force) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, 110, 110);
   ctx.fillStyle = '#141821'; ctx.fillRect(0, 0, 110, 110);
-  const scale = 42 / Math.max(8, c.bodyPlan.size + (c.bodyPlan.spikes ? 5 : 0));
+  const scale = 42 / Math.max(8, c.bodyPlan.size * (c.sizeMul || 1) + (c.bodyPlan.spikes ? 5 : 0));
   ctx.setTransform(scale, 0, 0, scale, 55 - c.x * scale, 62 - c.y * scale);
   drawCreature(ctx, c, performance.now() / 1000, true);
 }
@@ -4225,6 +4295,30 @@ class Game {
     // guerra: abate de inimigo pontua no placar da facção do atacante
     if (attacker && attacker.faction && c.faction && attacker.faction.isAtWar(c.faction)) {
       recordWarScore(this, attacker.faction, c.faction, ENDGAME.WAR_SCORE_KILL);
+    }
+    // a queda de um colosso devolve ao mundo o que ele devorou
+    if (c.giantTier >= 2) {
+      const drops = Math.min(ENDGAME.TITAN_DROP_MAX, Math.floor(c.absorbLifetime / 4));
+      const top = Object.entries(c.absorbed).filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1]).slice(0, 3);
+      if (drops > 0 && top.length) {
+        const total = top.reduce((s, [, v]) => s + v, 0);
+        const ctx0 = Math.floor(c.x / TILE), cty0 = Math.floor(c.y / TILE);
+        for (let k = 0; k < drops; k++) {
+          const tx = ctx0 + this.envRng.int(-ENDGAME.TITAN_DROP_RADIUS, ENDGAME.TITAN_DROP_RADIUS);
+          const ty = cty0 + this.envRng.int(-ENDGAME.TITAN_DROP_RADIUS, ENDGAME.TITAN_DROP_RADIUS);
+          if (!this.world.inBounds(tx, ty)) continue;
+          const ti = this.world.idx(tx, ty);
+          if (this.world.buildingAt.has(ti)) continue;
+          // proporção ponderada pelas contagens dos 3 elementos mais absorvidos
+          let roll = this.envRng.next() * total, elem = +top[0][0];
+          for (const [ek, ev] of top) { roll -= ev; if (roll <= 0) { elem = +ek; break; } }
+          this.world.setDep(ti, elem, fuseLife(elem, this.envRng));
+        }
+      }
+      this.addShake(c.giantTier * 2);
+      this.sparkBurst(c.x, c.y, c.dominantElem >= 0 ? elemColor(c.dominantElem) : '#ffd75a', 14);
+      this.feed(`💥 ${c.name}, o ${ENDGAME.GIANT_TIER_NAMES[c.giantTier - 1]}, tombou ${cause}! Seus elementos se espalham pelo mundo.`, '#ffb36a');
     }
     // explosivo póstumo: estilhaços atingem quem estiver perto
     if (c.deathBurst) {
