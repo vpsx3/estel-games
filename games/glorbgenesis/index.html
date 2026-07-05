@@ -357,6 +357,44 @@ const CONDUCTIVE = new Set([E.METAL, E.GOLD, E.STEEL, E.MAGNET, E.MERCURY, E.ELE
 const STRUCTURAL = new Set([E.WOOD, E.STONE, E.METAL, E.GLASS, E.ICE, E.GOLD, E.DIAMOND, E.STEEL, E.GLACIER, E.OBSIDIAN, E.MONOLITH]);
 
 // ---------------------------------------------------------------------------
+// ENDGAME (Fase A): constantes de tuning centralizadas.
+// ---------------------------------------------------------------------------
+const ENDGAME = {
+  // Eras
+  ERA_TRIBAL_MEMBERS: 8,       // 1ª facção com N membros → Era Tribal
+  ERA_KINGDOMS_BUILDINGS: 12,  // 1ª facção com N construções → Era dos Reinos
+  FACTION_CAP_BY_ERA: [24, 32, 32, 40], // cap de membros por era
+  // Cataclismos
+  CATA_MIN_ERA: 1,             // só a partir da Era Tribal
+  CATA_INTERVAL: [180, 360],   // segundos de simulação entre eventos (sorteado)
+  CATA_WARNING: 6,             // aviso no feed N segundos antes
+  CATA_ERA_SCALE: 0.85,        // intervalo multiplicado por isso a cada era (mais frequente)
+  // Território
+  TERRITORY_REFRESH: 5,        // segundos entre repinturas do canvas de território
+  TERRITORY_R_TOTEM: 7,        // raio de influência (tiles) por tipo
+  TERRITORY_R_BUILDING: 3,
+  TERRITORY_ALPHA: 0.16,
+  // Guerras com desfecho
+  WAR_SCORE_KILL: 3,
+  WAR_SCORE_BUILDING: 2,
+  WAR_DRAW_MARGIN: 4,          // |placar| ≤ margem → paz branca
+  EXODUS_DIST: 90,             // tiles: distância mínima do êxodo
+  // Gigantismo (permanente — nunca decai)
+  GIANT_K: 0.055,              // sizeMul = min(MAX, 1 + sqrt(absorbLifetime) * K)
+  GIANT_MAX_MUL: 2.6,
+  GIANT_TIERS: [1.5, 2.0, 2.5],          // Graúdo, Colosso, Titã
+  GIANT_TIER_NAMES: ['Graúdo', 'Colosso', 'Titã'],
+  GIANT_HP_PER_TIER: 20,
+  GIANT_STR_PER_TIER: 3,
+  GIANT_SPEED_MUL_PER_TIER: 0.92,
+  GIANT_SCARY_PER_TIER: 0.15,
+  HUNT_MIN_TIER: 2,            // Caçadas a partir de Colosso
+  HUNT_AGGR: 0.55,             // agressão média da facção para caçar
+  TITAN_DROP_RADIUS: 4,        // tiles: raio da explosão elemental póstuma
+  TITAN_DROP_MAX: 24,          // máximo de tiles semeados na morte
+};
+
+// ---------------------------------------------------------------------------
 // Matriz declarativa de reações entre depósitos adjacentes.
 // REACT[a] lista o que acontece quando um tile ativo do elemento `a`
 // encontra um vizinho do elemento `b`:
@@ -427,7 +465,7 @@ fu(E.OBSIDIAN, E.RELIC, E.MONOLITH);
 function elemName(id) { return ELEMENTS[id].name; }
 function elemColor(id) { return ELEMENTS[id].color; }
 
-return { E, ELEMENTS, FLAMMABLE, CONDUCTIVE, STRUCTURAL, REACT, FUSE, elemName, elemColor };
+return { E, ELEMENTS, FLAMMABLE, CONDUCTIVE, STRUCTURAL, ENDGAME, REACT, FUSE, elemName, elemColor };
 })();
 
 // ==== src/world.js ====
@@ -1464,8 +1502,11 @@ __m.society = (() => {
 // Relações entre criaturas: encontros, facções, guerra e aliança.
 
 const { factionName } = __m.names;
-const { E } = __m.elements;
+const { E, ENDGAME } = __m.elements;
 let nextFid = 1;
+
+// Cap de membros por facção cresce com a era do mundo.
+function factionCap(game) { return ENDGAME.FACTION_CAP_BY_ERA[game.era] || 40; }
 
 class Faction {
   constructor(game, founderA, founderB) {
@@ -1579,7 +1620,7 @@ function tryEncounter(game, a, b) {
     } else if (a.faction || b.faction) {
       const f = a.faction || b.faction;
       const joiner = a.faction ? b : a;
-      if (f.members.length < 24) {
+      if (f.members.length < factionCap(game)) {
         f.addMember(joiner);
         game.feed(`🤝 ${joiner.name} juntou-se à facção ${f.name}`, f.color);
       }
@@ -1648,7 +1689,7 @@ function assignRaiders(game, from, to, rng) {
   }
 }
 
-return { Faction, tryEncounter, societyTick };
+return { Faction, tryEncounter, societyTick, factionCap };
 })();
 
 // ==== src/creature.js ====
@@ -1659,7 +1700,7 @@ const { E, elemColor } = __m.elements;
 const { TILE, T } = __m.world;
 const { absorbElement } = __m.evolution;
 const { creatureName } = __m.names;
-const { tryEncounter } = __m.society;
+const { tryEncounter, factionCap } = __m.society;
 const { attemptBuild, BUILD_THRESHOLD } = __m.building;
 let nextId = 1;
 
@@ -1915,7 +1956,7 @@ class Creature {
     this.dominantElem = -1;
 
     // filhote herda a facção do pai (nem sempre — e facções têm tamanho máximo)
-    if (pa && pa.faction && pa.faction.members.length < 24 && rng.chance(0.75)) {
+    if (pa && pa.faction && pa.faction.members.length < factionCap(game) && rng.chance(0.75)) {
       pa.faction.addMember(this);
     }
   }
@@ -2697,7 +2738,13 @@ function render(game, ctx, cam, t) {
   ctx.fillStyle = '#0b0d12';
   ctx.fillRect(0, 0, vw, vh);
 
-  ctx.setTransform(cam.zoom, 0, 0, cam.zoom, -cam.x * cam.zoom, -cam.y * cam.zoom);
+  // tremor de tela: offset aleatório (só visual, fxRng) enquanto game.shake > 0
+  let shakeX = 0, shakeY = 0;
+  if (game.shake > 0) {
+    shakeX = game.fxRng.range(-game.shake, game.shake);
+    shakeY = game.fxRng.range(-game.shake, game.shake);
+  }
+  ctx.setTransform(cam.zoom, 0, 0, cam.zoom, -(cam.x + shakeX) * cam.zoom, -(cam.y + shakeY) * cam.zoom);
   ctx.imageSmoothingEnabled = false;
 
   // terreno (offscreen 1px/tile, escalado)
@@ -3876,6 +3923,13 @@ class Game {
     this.factions = [];
     this.particles = [];
     this.usedFactionNames = new Set();
+    this.era = 0;                    // 0 Primordial, 1 Tribal, 2 Guerras, 3 Reinos
+    this.wars = [];                  // [{aId, bId, score:{}, t0}]
+    this.cataclysmTimer = 0;         // agendado quando era ≥ CATA_MIN_ERA
+    this.cataclysmPending = null;    // {type, tx, ty, at} durante o telegraph
+    this.territoryDirty = true;
+    this.territoryTimer = 0;
+    this.shake = 0;                  // intensidade de tremor de tela (decai por dt)
     this.popCap = 220;
     this.time = 0;
     this.speed = 1;
@@ -3913,6 +3967,7 @@ class Game {
 
   feed(msg, color) { pushFeed(msg, color); }
   setSpeed(s) { this.speed = s; }
+  addShake(v) { this.shake = Math.min(10, this.shake + v); }
 
   addCreature(c) { this.creatures.push(c); }
 
@@ -4122,6 +4177,9 @@ class Game {
 
     this.societyAcc += dt;
     if (this.societyAcc >= 8) { societyTick(this); this.societyAcc = 0; }
+
+    // tremor de tela decai com o tempo de simulação
+    if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
 
     for (const [k, v] of Object.entries(this.cooldowns)) {
       if (v > 0) this.cooldowns[k] = Math.max(0, v - dt);
