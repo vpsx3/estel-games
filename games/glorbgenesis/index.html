@@ -48,6 +48,21 @@
     border-radius: 2px; margin-right: 6px; vertical-align: -1px;
   }
 
+  /* banner de mudança de era */
+  #eraBanner {
+    top: 18%; left: 50%; transform: translateX(-50%);
+    padding: 14px 30px; z-index: 20; pointer-events: none;
+    font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 0.5px;
+    opacity: 0;
+  }
+  #eraBanner.show { animation: erabanner 4s ease-in-out forwards; }
+  @keyframes erabanner {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
   /* paleta */
   #paletteWrap {
     left: 8px; top: 50%; transform: translateY(-50%);
@@ -141,6 +156,7 @@
   <button id="btnNewWorld">Novo Mundo</button>
   <span class="stat"><b id="pop">pop 1</b></span>
   <span class="stat"><b id="factions">facções 0</b></span>
+  <span class="stat"><b id="eraLabel">🌱 Primordial</b></span>
   <span class="stat">⏱ <b id="worldTime">0:00</b></span>
   <span>
     <button class="speedbtn" data-speed="0">⏸</button>
@@ -152,6 +168,8 @@
 </div>
 
 <div id="lensLegend" class="panel hidden"></div>
+
+<div id="eraBanner" class="panel"></div>
 
 <div id="paletteWrap" class="panel">
   <div id="palette"></div>
@@ -1508,6 +1526,38 @@ let nextFid = 1;
 // Cap de membros por facção cresce com a era do mundo.
 function factionCap(game) { return ENDGAME.FACTION_CAP_BY_ERA[game.era] || 40; }
 
+// ---------------------------------------------------------------------------
+// Eras: o arco macro do mundo. Progridem por conquistas dos glorbs e NUNCA
+// regridem. A Fase C acrescentará a Era Ancestral (Ascensão).
+// ---------------------------------------------------------------------------
+const ERAS = [
+  { id: 0, name: 'Era Primordial',  short: 'Primordial', icon: '🌱' },
+  { id: 1, name: 'Era Tribal',      short: 'Tribal',     icon: '🏕️' },
+  { id: 2, name: 'Era das Guerras', short: 'Guerras',    icon: '⚔️' },
+  { id: 3, name: 'Era dos Reinos',  short: 'Reinos',     icon: '👑' },
+];
+
+function checkEraProgress(game) {
+  if (game.era === 0 && game.factions.some(f => f.members.length >= ENDGAME.ERA_TRIBAL_MEMBERS)) {
+    advanceEra(game, 1);
+  } else if (game.era === 1 && (game.wars.length > 0 || game.factions.some(f => {
+    for (const [, rel] of f.relations) if (rel.state === 'war') return true;
+    return false;
+  }))) {
+    advanceEra(game, 2);
+  } else if (game.era === 2 && game.factions.some(f => f.buildings.length >= ENDGAME.ERA_KINGDOMS_BUILDINGS)) {
+    advanceEra(game, 3);
+  }
+}
+
+function advanceEra(game, era) {
+  game.era = era;
+  const e = ERAS[era];
+  game.addShake(3);
+  game.feed(`${e.icon} O mundo entrou na ${e.name}!`, '#ffd75a');
+  game.announceEra(e);
+}
+
 class Faction {
   constructor(game, founderA, founderB) {
     this.id = nextFid++;
@@ -1637,6 +1687,7 @@ function tryEncounter(game, a, b) {
 // Tick da sociedade (~a cada 8s): relações entre facções derivam com o tempo.
 function societyTick(game) {
   const rng = game.societyRng;
+  checkEraProgress(game);
   const fs = game.factions.filter(f => f.members.length >= 2);
   for (let i = 0; i < fs.length; i++) {
     for (let j = i + 1; j < fs.length; j++) {
@@ -1689,7 +1740,7 @@ function assignRaiders(game, from, to, rng) {
   }
 }
 
-return { Faction, tryEncounter, societyTick, factionCap };
+return { Faction, tryEncounter, societyTick, factionCap, ERAS };
 })();
 
 // ==== src/creature.js ====
@@ -3270,6 +3321,7 @@ __m.ui = (() => {
 
 const { ELEMENTS, E, elemName, elemColor } = __m.elements;
 const { ELEMENT_GIFTS } = __m.evolution;
+const { ERAS } = __m.society;
 const { drawCreature } = __m.render;
 let game = null;
 let callbacks = null;
@@ -3281,7 +3333,7 @@ let lockedFeedAt = -Infinity;
 
 function initUI(g, cb) {
   game = g; callbacks = cb;
-  for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime',
+  for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime', 'eraLabel', 'eraBanner',
     'palette', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend']) {
     el[id] = document.getElementById(id);
   }
@@ -3322,6 +3374,7 @@ function setGame(g) {
   selectBuilding(null);
   selectCreature(null);
   selectTool('inspect');
+  el.eraBanner.classList.remove('show');
   el.lensBtn.classList.remove('active');
   document.querySelectorAll('.speedbtn[data-speed]').forEach(o => o.classList.toggle('active', o.dataset.speed === '1'));
 }
@@ -3688,6 +3741,18 @@ function iconCanvas(id) {
   return cv;
 }
 
+// Banner de era: aparece no centro-alto e some sozinho (~4s, animação CSS).
+let eraBannerTimer = 0;
+function showEraBanner(era) {
+  const b = el.eraBanner;
+  b.textContent = `${era.icon} ${era.name}`;
+  b.classList.remove('show');
+  void b.offsetWidth; // força reflow para reiniciar a animação
+  b.classList.add('show');
+  clearTimeout(eraBannerTimer);
+  eraBannerTimer = setTimeout(() => b.classList.remove('show'), 4200);
+}
+
 // Log de eventos em aba: fechado por padrão, o botão 📜 mostra não-lidos.
 let feedOpen = false;
 let feedUnread = 0;
@@ -3817,6 +3882,8 @@ function refreshInspector(force) {
 function updateHUD() {
   el.pop.textContent = `pop ${game.creatures.length}`;
   el.factions.textContent = `facções ${game.factions.filter(f => f.members.length > 1).length}`;
+  const era = ERAS[game.era] || ERAS[0];
+  el.eraLabel.textContent = `${era.icon} ${era.short}`;
   const m = Math.floor(game.time / 60), s = Math.floor(game.time % 60);
   el.worldTime.textContent = `${m}:${String(s).padStart(2, '0')}`;
 
@@ -3856,7 +3923,7 @@ function updateHUD() {
   }
 }
 
-return { initUI, setGame, pushFeed, selectCreature, selectBuilding, updateHUD, selectTool };
+return { initUI, setGame, pushFeed, selectCreature, selectBuilding, updateHUD, selectTool, showEraBanner };
 })();
 
 // ==== src/main.js ====
@@ -3870,7 +3937,7 @@ const { Creature } = __m.creature;
 const { MUTATION_POOLS } = __m.evolution;
 const { societyTick } = __m.society;
 const { render, buildTerrainCanvas } = __m.render;
-const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool } = __m.ui;
+const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool, showEraBanner } = __m.ui;
 const STEP = 1 / 30;
 
 class SpatialHash {
@@ -3968,6 +4035,7 @@ class Game {
   feed(msg, color) { pushFeed(msg, color); }
   setSpeed(s) { this.speed = s; }
   addShake(v) { this.shake = Math.min(10, this.shake + v); }
+  announceEra(era) { showEraBanner(era); }
 
   addCreature(c) { this.creatures.push(c); }
 
