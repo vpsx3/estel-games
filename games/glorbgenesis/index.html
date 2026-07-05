@@ -2756,7 +2756,7 @@ __m.render = (() => {
 // Renderização: terreno, depósitos, construções, criaturas procedurais e partículas.
 // Tudo desenhado em canvas — nenhum asset externo.
 
-const { E, ELEMENTS, elemColor } = __m.elements;
+const { E, ELEMENTS, ENDGAME, elemColor } = __m.elements;
 const { TILE, T } = __m.world;
 const TERRAIN_COLORS = {
   [T.PLAIN]: [38, 51, 42],
@@ -2782,6 +2782,26 @@ function buildTerrainCanvas(world) {
   return cv;
 }
 
+// Território de facções: canvas offscreen 1px/tile pintado com a influência
+// (círculos) das construções de cada facção. Composto sobre o terreno com
+// alpha baixa — o mapa vira um mapa político vivo.
+function repaintTerritory(game) {
+  const cv = game.territoryCanvas;
+  if (!cv) return;
+  const c = cv.getContext('2d');
+  c.clearRect(0, 0, cv.width, cv.height);
+  for (const f of game.factions) {
+    if (f.buildings.length === 0) continue;
+    c.fillStyle = f.color;
+    for (const b of f.buildings) {
+      const r = b.type === 'totem' ? ENDGAME.TERRITORY_R_TOTEM : ENDGAME.TERRITORY_R_BUILDING;
+      c.beginPath();
+      c.arc(b.tx + 0.5, b.ty + 0.5, r, 0, 7);
+      c.fill();
+    }
+  }
+}
+
 function render(game, ctx, cam, t) {
   const { world } = game;
   const vw = ctx.canvas.width, vh = ctx.canvas.height;
@@ -2800,6 +2820,13 @@ function render(game, ctx, cam, t) {
 
   // terreno (offscreen 1px/tile, escalado)
   ctx.drawImage(game.terrainCanvas, 0, 0, world.w, world.h, 0, 0, world.w * TILE, world.h * TILE);
+
+  // território das facções (sob os depósitos; alpha dobrada com a lente ativa)
+  if (game.territoryCanvas) {
+    ctx.globalAlpha = game.lensFactions ? ENDGAME.TERRITORY_ALPHA * 2 : ENDGAME.TERRITORY_ALPHA;
+    ctx.drawImage(game.territoryCanvas, 0, 0, world.w, world.h, 0, 0, world.w * TILE, world.h * TILE);
+    ctx.globalAlpha = 1;
+  }
 
   // rect visível em tiles (culling)
   const tx0 = Math.max(0, Math.floor(cam.x / TILE));
@@ -3312,7 +3339,7 @@ function drawVehicle(ctx, c, s, t) {
   }
 }
 
-return { buildTerrainCanvas, render, drawCreature };
+return { buildTerrainCanvas, render, drawCreature, repaintTerritory };
 })();
 
 // ==== src/ui.js ====
@@ -3936,7 +3963,7 @@ const { E, ELEMENTS, ENDGAME, elemName, elemColor } = __m.elements;
 const { Creature } = __m.creature;
 const { MUTATION_POOLS } = __m.evolution;
 const { societyTick } = __m.society;
-const { render, buildTerrainCanvas } = __m.render;
+const { render, buildTerrainCanvas, repaintTerritory } = __m.render;
 const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool, showEraBanner } = __m.ui;
 const STEP = 1 / 30;
 
@@ -3985,6 +4012,9 @@ class Game {
 
     this.world = new World(this.worldSeed);
     this.terrainCanvas = buildTerrainCanvas(this.world);
+    this.territoryCanvas = document.createElement('canvas');
+    this.territoryCanvas.width = this.world.w;
+    this.territoryCanvas.height = this.world.h;
     this.creatures = [];
     this.buildings = [];
     this.factions = [];
@@ -4119,6 +4149,7 @@ class Game {
     this.buildings.push(b);
     this.world.buildingAt.set(this.world.idx(b.tx, b.ty), b);
     if (b.faction) b.faction.buildings.push(b);
+    this.territoryDirty = true;
   }
 
   removeBuilding(b, cause) {
@@ -4130,6 +4161,7 @@ class Game {
       const j = b.faction.buildings.indexOf(b);
       if (j >= 0) b.faction.buildings.splice(j, 1);
     }
+    this.territoryDirty = true;
     const col = elemColor(b.element);
     for (let k = 0; k < 10; k++) {
       const a = this.fxRng.angle(), sp = this.fxRng.range(8, 30);
@@ -4251,6 +4283,14 @@ class Game {
 
     // tremor de tela decai com o tempo de simulação
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
+
+    // território: repinta quando sujo, no máximo a cada TERRITORY_REFRESH s
+    if (this.territoryTimer > 0) this.territoryTimer -= dt;
+    if (this.territoryDirty && this.territoryTimer <= 0) {
+      repaintTerritory(this);
+      this.territoryDirty = false;
+      this.territoryTimer = ENDGAME.TERRITORY_REFRESH;
+    }
 
     for (const [k, v] of Object.entries(this.cooldowns)) {
       if (v > 0) this.cooldowns[k] = Math.max(0, v - dt);
