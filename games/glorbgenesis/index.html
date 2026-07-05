@@ -384,9 +384,9 @@ const ENDGAME = {
   FACTION_CAP_BY_ERA: [24, 32, 32, 40], // cap de membros por era
   // Cataclismos
   CATA_MIN_ERA: 1,             // só a partir da Era Tribal
-  CATA_INTERVAL: [180, 360],   // segundos de simulação entre eventos (sorteado)
+  CATA_INTERVAL: [420, 780],   // segundos de simulação entre eventos (sorteado)
   CATA_WARNING: 6,             // aviso no feed N segundos antes
-  CATA_ERA_SCALE: 0.85,        // intervalo multiplicado por isso a cada era (mais frequente)
+  CATA_ERA_SCALE: 0.92,        // intervalo multiplicado por isso a cada era (mais frequente)
   // Território
   TERRITORY_REFRESH: 5,        // segundos entre repinturas do canvas de território
   TERRITORY_R_TOTEM: 7,        // raio de influência (tiles) por tipo
@@ -4638,7 +4638,7 @@ function executeCataclysm(game, ev) {
           const x = tx + dx, y = ty + dy;
           if (!world.inBounds(x, y)) continue;
           const ni = world.idx(x, y);
-          if (world.buildingAt.has(ni) || !rng.chance(0.8)) continue;
+          if (world.buildingAt.has(ni) || !rng.chance(0.6)) continue;
           world.setDep(ni, E.FIRE, rng.range(3, 6));
         }
       }
@@ -4647,20 +4647,20 @@ function executeCataclysm(game, ev) {
       break;
     }
     case 'erupcao':
-      splat(E.LAVA, rng.int(2, 3), 0.6);
+      splat(E.LAVA, rng.int(1, 2), 0.5);
       game.addShake(4);
       game.feed('🌋 Uma erupção rasga o chão!', '#ff4a1a');
       break;
     case 'nevasca':
-      splat(E.BLIZZARD, rng.int(3, 4), 0.7);
+      splat(E.BLIZZARD, rng.int(2, 3), 0.5);
       game.feed('🌨️ Uma nevasca desaba sobre a região!', '#d8ecff');
       break;
     case 'tempestade':
-      splat(E.STORM, rng.int(2, 3), 0.7);
+      splat(E.STORM, 2, 0.5);
       game.feed('⛈️ Uma tempestade se forma!', '#8f82e0');
       break;
     case 'praga':
-      splat(E.PLAGUE, 2, 0.6);
+      splat(E.PLAGUE, 2, 0.4);
       game.feed('☣️ A praga brota da terra!', '#8fae52');
       break;
   }
