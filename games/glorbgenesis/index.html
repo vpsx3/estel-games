@@ -84,6 +84,15 @@
   #brushRow { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #8a93a8; font-size: 11px; }
   #brushSize { width: 36px; writing-mode: vertical-lr; direction: rtl; height: 70px; }
 
+  /* tooltip da paleta: nome + descrição do efeito do elemento */
+  #palTip {
+    z-index: 30; max-width: 220px; padding: 7px 10px;
+    pointer-events: none; font-size: 12px; line-height: 1.4;
+  }
+  #palTip.hidden { display: none; }
+  #palTip b { display: block; color: #fff; margin-bottom: 2px; }
+  #palTip .desc { color: #9aa3b5; }
+
   /* feed de eventos: aba recolhida por padrão para não poluir a tela */
   #feedTab {
     position: fixed; right: 10px; top: 8px; z-index: 12;
@@ -142,6 +151,28 @@
   @media (pointer: coarse) {
     #hint .fine { display: none; }
     #hint .coarse { display: inline; }
+    /* alvos de toque maiores na paleta */
+    #palette { grid-template-columns: repeat(2, 44px); }
+    .palbtn { width: 44px; height: 44px; }
+    #brushSize { height: 90px; }
+  }
+
+  /* telas estreitas: topo empilha abaixo do link/aba e painéis cabem na tela */
+  @media (max-width: 760px) {
+    #topbar {
+      top: 42px; max-width: calc(100vw - 16px);
+      flex-wrap: wrap; justify-content: center; gap: 4px 10px;
+      white-space: normal; padding: 5px 8px; font-size: 12px;
+    }
+    #seedInput { width: 70px; }
+    #lensLegend { top: 128px; }
+    #feed { top: 128px; width: min(300px, calc(100vw - 20px)); max-height: calc(100vh - 140px); }
+    #inspector { width: min(300px, calc(100vw - 20px)); }
+    #eraBanner {
+      top: 26%; font-size: 16px; padding: 10px 18px;
+      max-width: 90vw; text-align: center;
+    }
+    #hint { display: none; }
   }
 </style>
 </head>
@@ -178,6 +209,7 @@
     <input id="brushSize" type="range" min="1" max="4" value="2">
   </div>
 </div>
+<div id="palTip" class="panel hidden"></div>
 
 <button id="feedTab" class="panel" title="Log de eventos">📜 Eventos</button>
 <div id="feed" class="panel hidden"></div>
@@ -320,54 +352,99 @@ const E = {
 };
 
 const ELEMENTS = [
-  { id: E.WOOD,      key: 'wood',      name: 'Madeira',  color: '#9a6a35', tags: ['orgânico', 'estrutural', 'inflamável'], rare: false, cooldown: 0 },
-  { id: E.STONE,     key: 'stone',     name: 'Pedra',    color: '#8d8d96', tags: ['estrutural', 'pesado'],                 rare: false, cooldown: 0 },
-  { id: E.GLASS,     key: 'glass',     name: 'Vidro',    color: '#a8dce8', tags: ['frágil', 'translúcido', 'cortante'],    rare: false, cooldown: 0 },
-  { id: E.FIRE,      key: 'fire',      name: 'Fogo',     color: '#ff6a2a', tags: ['energia', 'destrutivo', 'volátil'],     rare: false, cooldown: 0 },
-  { id: E.WATER,     key: 'water',     name: 'Água',     color: '#3f8cff', tags: ['fluido', 'vital'],                      rare: false, cooldown: 0 },
-  { id: E.AIR,       key: 'air',       name: 'Ar',       color: '#c9e6e2', tags: ['fluido', 'leve', 'volátil'],            rare: false, cooldown: 0 },
-  { id: E.LIGHTNING, key: 'lightning', name: 'Raio',     color: '#ffe94a', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 2.5 },
-  { id: E.ICE,       key: 'ice',       name: 'Gelo',     color: '#9fd8ff', tags: ['frio', 'frágil', 'lento'],              rare: false, cooldown: 0 },
-  { id: E.POISON,    key: 'poison',    name: 'Veneno',   color: '#7dc832', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 0 },
-  { id: E.SLIME,     key: 'slime',     name: 'Slime',    color: '#5fe07a', tags: ['orgânico', 'elástico', 'pegajoso'],     rare: false, cooldown: 0 },
-  { id: E.METAL,     key: 'metal',     name: 'Metal',    color: '#b9c4d0', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 0 },
-  { id: E.GOLD,      key: 'gold',      name: 'Ouro',     color: '#ffc832', tags: ['precioso', 'maleável', 'condutor'],     rare: false, cooldown: 0 },
-  { id: E.DIAMOND,   key: 'diamond',   name: 'Diamante', color: '#c8f4ff', tags: ['precioso', 'duríssimo', 'raro'],        rare: true,  cooldown: 3.5 },
+  { id: E.WOOD,      key: 'wood',      name: 'Madeira',  color: '#9a6a35', tags: ['orgânico', 'estrutural', 'inflamável'], rare: false, cooldown: 0,
+    desc: 'Material de construção inflamável. Espalha floresta bem devagar em terreno plano.' },
+  { id: E.STONE,     key: 'stone',     name: 'Pedra',    color: '#8d8d96', tags: ['estrutural', 'pesado'],                 rare: false, cooldown: 0,
+    desc: 'Material sólido e pesado. Serve de abrigo: amortece o dano de quem luta ao lado dela.' },
+  { id: E.GLASS,     key: 'glass',     name: 'Vidro',    color: '#a8dce8', tags: ['frágil', 'translúcido', 'cortante'],    rare: false, cooldown: 0,
+    desc: 'Frágil e cortante: rende lâminas afiadas e refrata raios que o atingem.' },
+  { id: E.FIRE,      key: 'fire',      name: 'Fogo',     color: '#ff6a2a', tags: ['energia', 'destrutivo', 'volátil'],     rare: false, cooldown: 0,
+    desc: 'Queima criaturas e construções, espalha pela madeira e derrete gelo. Água o apaga.' },
+  { id: E.WATER,     key: 'water',     name: 'Água',     color: '#3f8cff', tags: ['fluido', 'vital'],                      rare: false, cooldown: 0,
+    desc: 'Apaga fogo e escorre um pouco antes de assentar. Ingrediente de muitas fusões.' },
+  { id: E.AIR,       key: 'air',       name: 'Ar',       color: '#c9e6e2', tags: ['fluido', 'leve', 'volátil'],            rare: false, cooldown: 0,
+    desc: 'Sopro passageiro que dissipa veneno. Base de fusões leves como fumaça, névoa e neve.' },
+  { id: E.LIGHTNING, key: 'lightning', name: 'Raio',     color: '#ffe94a', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 2.5,
+    desc: 'Relâmpago que eletrocuta a área, percorre metais condutores e refrata em vidro e prisma.' },
+  { id: E.ICE,       key: 'ice',       name: 'Gelo',     color: '#9fd8ff', tags: ['frio', 'frágil', 'lento'],              rare: false, cooldown: 0,
+    desc: 'Piso escorregadio que congela a água ao redor. Fogo o derrete de volta em água.' },
+  { id: E.POISON,    key: 'poison',    name: 'Veneno',   color: '#7dc832', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 0,
+    desc: 'Envenena quem pisa nele e contamina a água. O ar o dissipa.' },
+  { id: E.SLIME,     key: 'slime',     name: 'Slime',    color: '#5fe07a', tags: ['orgânico', 'elástico', 'pegajoso'],     rare: false, cooldown: 0,
+    desc: 'Gosma pegajosa que atrasa quem passa por cima. Orgânica e inflamável.' },
+  { id: E.METAL,     key: 'metal',     name: 'Metal',    color: '#b9c4d0', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 0,
+    desc: 'Material resistente e condutor: amplifica o dano de raios sobre ele.' },
+  { id: E.GOLD,      key: 'gold',      name: 'Ouro',     color: '#ffc832', tags: ['precioso', 'maleável', 'condutor'],     rare: false, cooldown: 0,
+    desc: 'Desperta cobiça: atrai as criaturas gananciosas da região e causa disputas.' },
+  { id: E.DIAMOND,   key: 'diamond',   name: 'Diamante', color: '#c8f4ff', tags: ['precioso', 'duríssimo', 'raro'],        rare: true,  cooldown: 3.5,
+    desc: 'O material mais duro: melhores construções e lâminas. Refrata raios.' },
   // Tier 2/3 — só existem via fusão (bloqueados na paleta até a descoberta)
-  { id: E.LAVA,     key: 'lava',     name: 'Lava',       color: '#ff4a1a', tags: ['energia', 'destrutivo', 'fluido'],      rare: false, cooldown: 4, fused: true },
-  { id: E.STEEL,    key: 'steel',    name: 'Aço',        color: '#8a99a8', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 4, fused: true },
-  { id: E.PLASMA,   key: 'plasma',   name: 'Plasma',     color: '#ff4ae0', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 8, fused: true },
-  { id: E.SMOKE,    key: 'smoke',    name: 'Fumaça',     color: '#6a6a72', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 4, fused: true },
-  { id: E.MUD,      key: 'mud',      name: 'Lama',       color: '#7a5a34', tags: ['fluido', 'fértil', 'lento'],            rare: false, cooldown: 4, fused: true },
-  { id: E.MIST,     key: 'mist',     name: 'Névoa',      color: '#cfe2e6', tags: ['fluido', 'oculto'],                     rare: false, cooldown: 4, fused: true },
-  { id: E.RUST,     key: 'rust',     name: 'Ferrugem',   color: '#b0622a', tags: ['corrosivo'],                            rare: false, cooldown: 4, fused: true },
-  { id: E.SNOW,     key: 'snow',     name: 'Neve',       color: '#eef6ff', tags: ['frio', 'leve'],                         rare: false, cooldown: 4, fused: true },
-  { id: E.GLACIER,  key: 'glacier',  name: 'Geleira',    color: '#86c4e8', tags: ['frio', 'estrutural'],                   rare: false, cooldown: 4, fused: true },
-  { id: E.MAGNET,   key: 'magnet',   name: 'Ímã',        color: '#5060a0', tags: ['condutor', 'atrativo'],                 rare: false, cooldown: 4, fused: true },
-  { id: E.STORM,    key: 'storm',    name: 'Tempestade', color: '#8f82e0', tags: ['energia', 'volátil'],                   rare: false, cooldown: 4, fused: true },
-  { id: E.ACID,     key: 'acid',     name: 'Ácido',      color: '#c8e42a', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 4, fused: true },
-  { id: E.SULFUR,   key: 'sulfur',   name: 'Enxofre',    color: '#e6d44e', tags: ['tóxico', 'inflamável'],                 rare: false, cooldown: 4, fused: true },
-  { id: E.FUNGUS,   key: 'fungus',   name: 'Cogumelo',   color: '#c07ad0', tags: ['orgânico', 'mutagênico'],               rare: false, cooldown: 4, fused: true },
-  { id: E.MOSS,     key: 'moss',     name: 'Musgo',      color: '#4f8f3c', tags: ['orgânico', 'vital'],                    rare: false, cooldown: 4, fused: true },
-  { id: E.PRISM,    key: 'prism',    name: 'Prisma',     color: '#dcc4f4', tags: ['frágil', 'translúcido'],                rare: false, cooldown: 4, fused: true },
-  { id: E.RELIC,    key: 'relic',    name: 'Relíquia',   color: '#ffdf6a', tags: ['precioso', 'sagrado', 'raro'],          rare: true,  cooldown: 8, fused: true },
-  { id: E.OBSIDIAN, key: 'obsidian', name: 'Obsidiana',  color: '#5a4a7a', tags: ['estrutural', 'duríssimo', 'raro'],      rare: true,  cooldown: 8, fused: true },
-  { id: E.MIASMA,   key: 'miasma',   name: 'Miasma',     color: '#8fae52', tags: ['tóxico', 'volátil', 'raro'],            rare: true,  cooldown: 8, fused: true },
+  { id: E.LAVA,     key: 'lava',     name: 'Lava',       color: '#ff4a1a', tags: ['energia', 'destrutivo', 'fluido'],      rare: false, cooldown: 4, fused: true,
+    desc: 'Derrete quem pisa e incendeia o que toca. Esfria virando pedra — ou vidro no deserto.' },
+  { id: E.STEEL,    key: 'steel',    name: 'Aço',        color: '#8a99a8', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 4, fused: true,
+    desc: 'Liga estrutural mais resistente que o metal, mas ainda vulnerável à ferrugem.' },
+  { id: E.PLASMA,   key: 'plasma',   name: 'Plasma',     color: '#ff4ae0', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 8, fused: true,
+    desc: 'Desintegra criaturas e depósitos vizinhos. Só obsidiana, diamante e monólito resistem.' },
+  { id: E.SMOKE,    key: 'smoke',    name: 'Fumaça',     color: '#6a6a72', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 4, fused: true,
+    desc: 'Cega as criaturas dentro dela, que perdem o alvo de vista.' },
+  { id: E.MUD,      key: 'mud',      name: 'Lama',       color: '#7a5a34', tags: ['fluido', 'fértil', 'lento'],            rare: false, cooldown: 4, fused: true,
+    desc: 'Atola quem atravessa, reduzindo muito a velocidade. Fértil: pode brotar madeira.' },
+  { id: E.MIST,     key: 'mist',     name: 'Névoa',      color: '#cfe2e6', tags: ['fluido', 'oculto'],                     rare: false, cooldown: 4, fused: true,
+    desc: 'Oculta as criaturas dentro dela dos olhos de predadores.' },
+  { id: E.RUST,     key: 'rust',     name: 'Ferrugem',   color: '#b0622a', tags: ['corrosivo'],                            rare: false, cooldown: 4, fused: true,
+    desc: 'Corrói metal e aço vizinhos, inclusive construções, espalhando-se por eles.' },
+  { id: E.SNOW,     key: 'snow',     name: 'Neve',       color: '#eef6ff', tags: ['frio', 'leve'],                         rare: false, cooldown: 4, fused: true,
+    desc: 'Esfria o passo de quem atravessa e congela a água que toca.' },
+  { id: E.GLACIER,  key: 'glacier',  name: 'Geleira',    color: '#86c4e8', tags: ['frio', 'estrutural'],                   rare: false, cooldown: 4, fused: true,
+    desc: 'Gelo estrutural e liso: deslizar sobre ele é mais rápido que correr.' },
+  { id: E.MAGNET,   key: 'magnet',   name: 'Ímã',        color: '#5060a0', tags: ['condutor', 'atrativo'],                 rare: false, cooldown: 4, fused: true,
+    desc: 'Atrai criaturas metálicas e condutoras num raio ao redor.' },
+  { id: E.STORM,    key: 'storm',    name: 'Tempestade', color: '#8f82e0', tags: ['energia', 'volátil'],                   rare: false, cooldown: 4, fused: true,
+    desc: 'Nuvem carregada que dispara pequenos raios ao redor enquanto dura.' },
+  { id: E.ACID,     key: 'acid',     name: 'Ácido',      color: '#c8e42a', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 4, fused: true,
+    desc: 'Corrói criaturas e construções e dissolve pedra, metal e vidro próximos.' },
+  { id: E.SULFUR,   key: 'sulfur',   name: 'Enxofre',    color: '#e6d44e', tags: ['tóxico', 'inflamável'],                 rare: false, cooldown: 4, fused: true,
+    desc: 'Explode em chamas ao menor contato com fogo.' },
+  { id: E.FUNGUS,   key: 'fungus',   name: 'Cogumelo',   color: '#c07ad0', tags: ['orgânico', 'mutagênico'],               rare: false, cooldown: 4, fused: true,
+    desc: 'Mutagênico: quem para sobre ele pode ganhar uma mutação aleatória. Espalha devagar.' },
+  { id: E.MOSS,     key: 'moss',     name: 'Musgo',      color: '#4f8f3c', tags: ['orgânico', 'vital'],                    rare: false, cooldown: 4, fused: true,
+    desc: 'Tapete vivo que cura lentamente as criaturas que descansam sobre ele.' },
+  { id: E.PRISM,    key: 'prism',    name: 'Prisma',     color: '#dcc4f4', tags: ['frágil', 'translúcido'],                rare: false, cooldown: 4, fused: true,
+    desc: 'Refrata raios que o atingem em novos ramos, multiplicando a descarga.' },
+  { id: E.RELIC,    key: 'relic',    name: 'Relíquia',   color: '#ffdf6a', tags: ['precioso', 'sagrado', 'raro'],          rare: true,  cooldown: 8, fused: true,
+    desc: 'Atrai criaturas num raio amplo. Quem fica tempo demais por perto vira Devoto.' },
+  { id: E.OBSIDIAN, key: 'obsidian', name: 'Obsidiana',  color: '#5a4a7a', tags: ['estrutural', 'duríssimo', 'raro'],      rare: true,  cooldown: 8, fused: true,
+    desc: 'Rocha vulcânica duríssima: imune a ácido e plasma, excelente defesa.' },
+  { id: E.MIASMA,   key: 'miasma',   name: 'Miasma',     color: '#8fae52', tags: ['tóxico', 'volátil', 'raro'],            rare: true,  cooldown: 8, fused: true,
+    desc: 'Nuvem tóxica que consome as criaturas dentro dela e se alastra devagar.' },
   // Tier 3 (Spec 2)
-  { id: E.CHARCOAL, key: 'charcoal', name: 'Carvão',     color: '#3a3a3a', tags: ['inflamável', 'combustível'],            rare: false, cooldown: 6, fused: true },
-  { id: E.VAPOR,    key: 'vapor',    name: 'Vapor',      color: '#e8f0f2', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 6, fused: true },
-  { id: E.BLIZZARD, key: 'blizzard', name: 'Nevasca',    color: '#d8ecff', tags: ['frio', 'volátil'],                      rare: false, cooldown: 6, fused: true },
-  { id: E.ASH,      key: 'ash',      name: 'Cinza',      color: '#7d7468', tags: ['fértil'],                               rare: false, cooldown: 6, fused: true },
-  { id: E.SWAMP,    key: 'swamp',    name: 'Pântano',    color: '#4a6a3a', tags: ['orgânico', 'tóxico', 'fértil'],         rare: false, cooldown: 6, fused: true },
-  { id: E.MERCURY,  key: 'mercury',  name: 'Mercúrio',   color: '#b8c8d4', tags: ['condutor', 'fluido', 'tóxico'],         rare: false, cooldown: 6, fused: true },
-  { id: E.ELECTRUM, key: 'electrum', name: 'Eletro',     color: '#ffe88a', tags: ['precioso', 'condutor'],                 rare: false, cooldown: 6, fused: true },
+  { id: E.CHARCOAL, key: 'charcoal', name: 'Carvão',     color: '#3a3a3a', tags: ['inflamável', 'combustível'],            rare: false, cooldown: 6, fused: true,
+    desc: 'Combustível denso: aceso, queima 3× mais tempo que a madeira.' },
+  { id: E.VAPOR,    key: 'vapor',    name: 'Vapor',      color: '#e8f0f2', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 6, fused: true,
+    desc: 'Nuvem quente que ofusca quem passa. Ao esfriar, condensa em névoa.' },
+  { id: E.BLIZZARD, key: 'blizzard', name: 'Nevasca',    color: '#d8ecff', tags: ['frio', 'volátil'],                      rare: false, cooldown: 6, fused: true,
+    desc: 'Congela e atrasa quem atravessa; deixa um manto de neve ao passar.' },
+  { id: E.ASH,      key: 'ash',      name: 'Cinza',      color: '#7d7468', tags: ['fértil'],                               rare: false, cooldown: 6, fused: true,
+    desc: 'Cinza fértil: pode brotar madeira ou musgo antes de assentar.' },
+  { id: E.SWAMP,    key: 'swamp',    name: 'Pântano',    color: '#4a6a3a', tags: ['orgânico', 'tóxico', 'fértil'],         rare: false, cooldown: 6, fused: true,
+    desc: 'Atola o passo, nutre criaturas orgânicas e envenena todas as outras.' },
+  { id: E.MERCURY,  key: 'mercury',  name: 'Mercúrio',   color: '#b8c8d4', tags: ['condutor', 'fluido', 'tóxico'],         rare: false, cooldown: 6, fused: true,
+    desc: 'Metal líquido que escorre como água, intoxica quem pisa e conduz raios.' },
+  { id: E.ELECTRUM, key: 'electrum', name: 'Eletro',     color: '#ffe88a', tags: ['precioso', 'condutor'],                 rare: false, cooldown: 6, fused: true,
+    desc: 'Brilha como tesouro e atrai criaturas — que levam choque ao pisar nele.' },
   // Tier 4 (Spec 2)
-  { id: E.GUNPOWDER, key: 'gunpowder', name: 'Pólvora',        color: '#5a4a3a', tags: ['inflamável', 'explosivo', 'raro'], rare: true, cooldown: 8,  fused: true },
-  { id: E.AURORA,    key: 'aurora',    name: 'Aurora',         color: '#a0ffd8', tags: ['energia', 'sagrado', 'raro'],      rare: true, cooldown: 10, fused: true },
-  { id: E.PLAGUE,    key: 'plague',    name: 'Praga',          color: '#6a7a2a', tags: ['tóxico', 'mutagênico', 'raro'],    rare: true, cooldown: 8,  fused: true },
-  { id: E.STARCORE,  key: 'starcore',  name: 'Núcleo Estelar', color: '#ff9a3a', tags: ['energia', 'destrutivo', 'raro'],   rare: true, cooldown: 10, fused: true },
-  { id: E.ETHER,     key: 'ether',     name: 'Éter',           color: '#d8ccff', tags: ['sagrado', 'oculto', 'raro'],       rare: true, cooldown: 10, fused: true },
-  { id: E.MONOLITH,  key: 'monolith',  name: 'Monólito',       color: '#2a2a3a', tags: ['estrutural', 'sagrado', 'raro'],   rare: true, cooldown: 10, fused: true },
+  { id: E.GUNPOWDER, key: 'gunpowder', name: 'Pólvora',        color: '#5a4a3a', tags: ['inflamável', 'explosivo', 'raro'], rare: true, cooldown: 8,  fused: true,
+    desc: 'Detona numa grande explosão ao contato com fogo, lava ou raio.' },
+  { id: E.AURORA,    key: 'aurora',    name: 'Aurora',         color: '#a0ffd8', tags: ['energia', 'sagrado', 'raro'],      rare: true, cooldown: 10, fused: true,
+    desc: 'Luz que cura as criaturas num raio e ocasionalmente concede mutações benignas.' },
+  { id: E.PLAGUE,    key: 'plague',    name: 'Praga',          color: '#6a7a2a', tags: ['tóxico', 'mutagênico', 'raro'],    rare: true, cooldown: 8,  fused: true,
+    desc: 'Consome as criaturas e se alastra; os sobreviventes sofrem mutações sombrias.' },
+  { id: E.STARCORE,  key: 'starcore',  name: 'Núcleo Estelar', color: '#ff9a3a', tags: ['energia', 'destrutivo', 'raro'],   rare: true, cooldown: 10, fused: true,
+    desc: 'Puxa tudo com sua gravidade e incinera de perto. Colapsa numa explosão de obsidiana.' },
+  { id: E.ETHER,     key: 'ether',     name: 'Éter',           color: '#d8ccff', tags: ['sagrado', 'oculto', 'raro'],       rare: true, cooldown: 10, fused: true,
+    desc: 'Campo etéreo que cura e faz flutuar as criaturas ao redor.' },
+  { id: E.MONOLITH,  key: 'monolith',  name: 'Monólito',       color: '#2a2a3a', tags: ['estrutural', 'sagrado', 'raro'],   rare: true, cooldown: 10, fused: true,
+    desc: 'Indestrutível. Atrai criaturas solenemente e inspira facções a colecionar tesouros.' },
 ];
 
 const FLAMMABLE = new Set([E.WOOD, E.SLIME, E.SULFUR, E.FUNGUS, E.CHARCOAL, E.GUNPOWDER]);
@@ -3555,7 +3632,7 @@ let lockedFeedAt = -Infinity;
 function initUI(g, cb) {
   game = g; callbacks = cb;
   for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime', 'eraLabel', 'eraBanner',
-    'palette', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend']) {
+    'palette', 'palTip', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend']) {
     el[id] = document.getElementById(id);
   }
   el.feedTab.addEventListener('click', () => setFeedOpen(!feedOpen));
@@ -3606,9 +3683,10 @@ function buildPalette() {
 
   const inspect = document.createElement('button');
   inspect.className = 'palbtn';
-  inspect.title = 'Inspecionar criatura';
+  inspect.setAttribute('aria-label', 'Lupa');
   inspect.appendChild(iconCanvas(-1));
   inspect.addEventListener('click', () => selectTool('inspect'));
+  attachPalTip(inspect, { name: 'Lupa', desc: 'Inspeciona criaturas e construções: toque numa para ver seus detalhes.' });
   el.palette.appendChild(inspect);
   paletteBtns.set('inspect', inspect);
 
@@ -3618,10 +3696,10 @@ function buildPalette() {
     const locked = def.fused && !game.discovered.has(def.id);
     if (locked) {
       b.classList.add('locked');
-      b.title = '???';
+      b.setAttribute('aria-label', '???');
       b.appendChild(lockedIcon());
     } else {
-      b.title = def.name + (def.rare ? ' (cooldown)' : '');
+      b.setAttribute('aria-label', def.name);
       b.appendChild(iconCanvas(def.id));
     }
     const cd = document.createElement('div');
@@ -3638,10 +3716,46 @@ function buildPalette() {
       }
       selectTool(def.id);
     });
+    attachPalTip(b, def);
     el.palette.appendChild(b);
     paletteBtns.set(def.id, b);
   }
 }
+
+// Tooltip da paleta: hover no desktop, dedo pressionado no touch.
+// Lê o estado do botão na hora de exibir (elementos destravam ao vivo).
+let palTipHideTimer = 0;
+function attachPalTip(btn, def) {
+  const show = () => {
+    clearTimeout(palTipHideTimer);
+    const locked = btn.classList.contains('locked');
+    el.palTip.innerHTML = '';
+    const name = document.createElement('b');
+    name.textContent = locked ? '???' : def.name + (def.rare ? ' · recarga lenta' : '');
+    if (!locked && def.color) name.style.color = def.color;
+    const desc = document.createElement('div');
+    desc.className = 'desc';
+    desc.textContent = locked ? 'Elemento oculto: descubra-o fundindo outros dois no mundo.' : def.desc;
+    el.palTip.append(name, desc);
+    el.palTip.classList.remove('hidden');
+    const r = btn.getBoundingClientRect();
+    el.palTip.style.left = Math.min(r.right + 8, window.innerWidth - el.palTip.offsetWidth - 8) + 'px';
+    el.palTip.style.top = Math.max(8, Math.min(window.innerHeight - el.palTip.offsetHeight - 8,
+      r.top + r.height / 2 - el.palTip.offsetHeight / 2)) + 'px';
+  };
+  btn.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') show(); });
+  btn.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hidePalTip(); });
+  // touch: mostra enquanto o dedo pressiona e segura mais um pouco para ler
+  btn.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') show(); });
+  for (const ev of ['pointerup', 'pointercancel']) {
+    btn.addEventListener(ev, e => {
+      if (e.pointerType === 'mouse') return;
+      clearTimeout(palTipHideTimer);
+      palTipHideTimer = setTimeout(hidePalTip, 1500);
+    });
+  }
+}
+function hidePalTip() { el.palTip.classList.add('hidden'); }
 
 // Ícone "?" dos elementos ainda não descobertos
 function lockedIcon() {
@@ -3660,8 +3774,7 @@ function unlockPaletteBtn(id) {
   const b = paletteBtns.get(id);
   if (!b || !b.classList.contains('locked')) return;
   b.classList.remove('locked');
-  const def = ELEMENTS[id];
-  b.title = def.name + (def.rare ? ' (cooldown)' : '');
+  b.setAttribute('aria-label', ELEMENTS[id].name);
   b.querySelector('canvas').replaceWith(iconCanvas(id));
 }
 
