@@ -3636,6 +3636,10 @@ function initUI(g, cb) {
     el[id] = document.getElementById(id);
   }
   el.feedTab.addEventListener('click', () => setFeedOpen(!feedOpen));
+  // tocar fora da paleta esconde o tooltip de elemento
+  document.addEventListener('pointerdown', e => {
+    if (!(e.target.closest && e.target.closest('.palbtn'))) hidePalTip();
+  }, { passive: true });
   portraitCtx = el.portrait.getContext('2d');
   buildPalette();
   game.onDiscover = id => unlockPaletteBtn(id);
@@ -3751,9 +3755,17 @@ function attachPalTip(btn, def) {
     btn.addEventListener(ev, e => {
       if (e.pointerType === 'mouse') return;
       clearTimeout(palTipHideTimer);
-      palTipHideTimer = setTimeout(hidePalTip, 1500);
+      palTipHideTimer = setTimeout(hidePalTip, 2500);
     });
   }
+  // touch: selecionar o elemento (tap) também mostra o tooltip — caminho
+  // garantido mesmo onde o navegador engole o pointerdown (scroll da paleta)
+  btn.addEventListener('click', () => {
+    if (!matchMedia('(pointer: coarse)').matches) return;
+    show();
+    clearTimeout(palTipHideTimer);
+    palTipHideTimer = setTimeout(hidePalTip, 2500);
+  });
 }
 function hidePalTip() { el.palTip.classList.add('hidden'); }
 
