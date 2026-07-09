@@ -48,6 +48,21 @@
     border-radius: 2px; margin-right: 6px; vertical-align: -1px;
   }
 
+  /* banner de mudança de era */
+  #eraBanner {
+    top: 18%; left: 50%; transform: translateX(-50%);
+    padding: 14px 30px; z-index: 20; pointer-events: none;
+    font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 0.5px;
+    opacity: 0;
+  }
+  #eraBanner.show { animation: erabanner 4s ease-in-out forwards; }
+  @keyframes erabanner {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
   /* paleta */
   #paletteWrap {
     left: 8px; top: 50%; transform: translateY(-50%);
@@ -68,6 +83,15 @@
   }
   #brushRow { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #8a93a8; font-size: 11px; }
   #brushSize { width: 36px; writing-mode: vertical-lr; direction: rtl; height: 70px; }
+
+  /* tooltip da paleta: nome + descrição do efeito do elemento */
+  #palTip {
+    z-index: 30; max-width: 220px; padding: 7px 10px;
+    pointer-events: none; font-size: 12px; line-height: 1.4;
+  }
+  #palTip.hidden { display: none; }
+  #palTip b { display: block; color: #fff; margin-bottom: 2px; }
+  #palTip .desc { color: #9aa3b5; }
 
   /* feed de eventos: aba recolhida por padrão para não poluir a tela */
   #feedTab {
@@ -127,6 +151,28 @@
   @media (pointer: coarse) {
     #hint .fine { display: none; }
     #hint .coarse { display: inline; }
+    /* alvos de toque maiores na paleta */
+    #palette { grid-template-columns: repeat(2, 44px); }
+    .palbtn { width: 44px; height: 44px; }
+    #brushSize { height: 90px; }
+  }
+
+  /* telas estreitas: topo empilha abaixo do link/aba e painéis cabem na tela */
+  @media (max-width: 760px) {
+    #topbar {
+      top: 42px; max-width: calc(100vw - 16px);
+      flex-wrap: wrap; justify-content: center; gap: 4px 10px;
+      white-space: normal; padding: 5px 8px; font-size: 12px;
+    }
+    #seedInput { width: 70px; }
+    #lensLegend { top: 128px; }
+    #feed { top: 128px; width: min(300px, calc(100vw - 20px)); max-height: calc(100vh - 140px); }
+    #inspector { width: min(300px, calc(100vw - 20px)); }
+    #eraBanner {
+      top: 26%; font-size: 16px; padding: 10px 18px;
+      max-width: 90vw; text-align: center;
+    }
+    #hint { display: none; }
   }
 </style>
 </head>
@@ -141,6 +187,7 @@
   <button id="btnNewWorld">Novo Mundo</button>
   <span class="stat"><b id="pop">pop 1</b></span>
   <span class="stat"><b id="factions">facções 0</b></span>
+  <span class="stat"><b id="eraLabel">🌱 Primordial</b></span>
   <span class="stat">⏱ <b id="worldTime">0:00</b></span>
   <span>
     <button class="speedbtn" data-speed="0">⏸</button>
@@ -153,6 +200,8 @@
 
 <div id="lensLegend" class="panel hidden"></div>
 
+<div id="eraBanner" class="panel"></div>
+
 <div id="paletteWrap" class="panel">
   <div id="palette"></div>
   <div id="brushRow">
@@ -160,6 +209,7 @@
     <input id="brushSize" type="range" min="1" max="4" value="2">
   </div>
 </div>
+<div id="palTip" class="panel hidden"></div>
 
 <button id="feedTab" class="panel" title="Log de eventos">📜 Eventos</button>
 <div id="feed" class="panel hidden"></div>
@@ -302,59 +352,142 @@ const E = {
 };
 
 const ELEMENTS = [
-  { id: E.WOOD,      key: 'wood',      name: 'Madeira',  color: '#9a6a35', tags: ['orgânico', 'estrutural', 'inflamável'], rare: false, cooldown: 0 },
-  { id: E.STONE,     key: 'stone',     name: 'Pedra',    color: '#8d8d96', tags: ['estrutural', 'pesado'],                 rare: false, cooldown: 0 },
-  { id: E.GLASS,     key: 'glass',     name: 'Vidro',    color: '#a8dce8', tags: ['frágil', 'translúcido', 'cortante'],    rare: false, cooldown: 0 },
-  { id: E.FIRE,      key: 'fire',      name: 'Fogo',     color: '#ff6a2a', tags: ['energia', 'destrutivo', 'volátil'],     rare: false, cooldown: 0 },
-  { id: E.WATER,     key: 'water',     name: 'Água',     color: '#3f8cff', tags: ['fluido', 'vital'],                      rare: false, cooldown: 0 },
-  { id: E.AIR,       key: 'air',       name: 'Ar',       color: '#c9e6e2', tags: ['fluido', 'leve', 'volátil'],            rare: false, cooldown: 0 },
-  { id: E.LIGHTNING, key: 'lightning', name: 'Raio',     color: '#ffe94a', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 2.5 },
-  { id: E.ICE,       key: 'ice',       name: 'Gelo',     color: '#9fd8ff', tags: ['frio', 'frágil', 'lento'],              rare: false, cooldown: 0 },
-  { id: E.POISON,    key: 'poison',    name: 'Veneno',   color: '#7dc832', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 0 },
-  { id: E.SLIME,     key: 'slime',     name: 'Slime',    color: '#5fe07a', tags: ['orgânico', 'elástico', 'pegajoso'],     rare: false, cooldown: 0 },
-  { id: E.METAL,     key: 'metal',     name: 'Metal',    color: '#b9c4d0', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 0 },
-  { id: E.GOLD,      key: 'gold',      name: 'Ouro',     color: '#ffc832', tags: ['precioso', 'maleável', 'condutor'],     rare: false, cooldown: 0 },
-  { id: E.DIAMOND,   key: 'diamond',   name: 'Diamante', color: '#c8f4ff', tags: ['precioso', 'duríssimo', 'raro'],        rare: true,  cooldown: 3.5 },
+  { id: E.WOOD,      key: 'wood',      name: 'Madeira',  color: '#9a6a35', tags: ['orgânico', 'estrutural', 'inflamável'], rare: false, cooldown: 0,
+    desc: 'Material de construção inflamável. Espalha floresta bem devagar em terreno plano.' },
+  { id: E.STONE,     key: 'stone',     name: 'Pedra',    color: '#8d8d96', tags: ['estrutural', 'pesado'],                 rare: false, cooldown: 0,
+    desc: 'Material sólido e pesado. Serve de abrigo: amortece o dano de quem luta ao lado dela.' },
+  { id: E.GLASS,     key: 'glass',     name: 'Vidro',    color: '#a8dce8', tags: ['frágil', 'translúcido', 'cortante'],    rare: false, cooldown: 0,
+    desc: 'Frágil e cortante: rende lâminas afiadas e refrata raios que o atingem.' },
+  { id: E.FIRE,      key: 'fire',      name: 'Fogo',     color: '#ff6a2a', tags: ['energia', 'destrutivo', 'volátil'],     rare: false, cooldown: 0,
+    desc: 'Queima criaturas e construções, espalha pela madeira e derrete gelo. Água o apaga.' },
+  { id: E.WATER,     key: 'water',     name: 'Água',     color: '#3f8cff', tags: ['fluido', 'vital'],                      rare: false, cooldown: 0,
+    desc: 'Apaga fogo e escorre um pouco antes de assentar. Ingrediente de muitas fusões.' },
+  { id: E.AIR,       key: 'air',       name: 'Ar',       color: '#c9e6e2', tags: ['fluido', 'leve', 'volátil'],            rare: false, cooldown: 0,
+    desc: 'Sopro passageiro que dissipa veneno. Base de fusões leves como fumaça, névoa e neve.' },
+  { id: E.LIGHTNING, key: 'lightning', name: 'Raio',     color: '#ffe94a', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 2.5,
+    desc: 'Relâmpago que eletrocuta a área, percorre metais condutores e refrata em vidro e prisma.' },
+  { id: E.ICE,       key: 'ice',       name: 'Gelo',     color: '#9fd8ff', tags: ['frio', 'frágil', 'lento'],              rare: false, cooldown: 0,
+    desc: 'Piso escorregadio que congela a água ao redor. Fogo o derrete de volta em água.' },
+  { id: E.POISON,    key: 'poison',    name: 'Veneno',   color: '#7dc832', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 0,
+    desc: 'Envenena quem pisa nele e contamina a água. O ar o dissipa.' },
+  { id: E.SLIME,     key: 'slime',     name: 'Slime',    color: '#5fe07a', tags: ['orgânico', 'elástico', 'pegajoso'],     rare: false, cooldown: 0,
+    desc: 'Gosma pegajosa que atrasa quem passa por cima. Orgânica e inflamável.' },
+  { id: E.METAL,     key: 'metal',     name: 'Metal',    color: '#b9c4d0', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 0,
+    desc: 'Material resistente e condutor: amplifica o dano de raios sobre ele.' },
+  { id: E.GOLD,      key: 'gold',      name: 'Ouro',     color: '#ffc832', tags: ['precioso', 'maleável', 'condutor'],     rare: false, cooldown: 0,
+    desc: 'Desperta cobiça: atrai as criaturas gananciosas da região e causa disputas.' },
+  { id: E.DIAMOND,   key: 'diamond',   name: 'Diamante', color: '#c8f4ff', tags: ['precioso', 'duríssimo', 'raro'],        rare: true,  cooldown: 3.5,
+    desc: 'O material mais duro: melhores construções e lâminas. Refrata raios.' },
   // Tier 2/3 — só existem via fusão (bloqueados na paleta até a descoberta)
-  { id: E.LAVA,     key: 'lava',     name: 'Lava',       color: '#ff4a1a', tags: ['energia', 'destrutivo', 'fluido'],      rare: false, cooldown: 4, fused: true },
-  { id: E.STEEL,    key: 'steel',    name: 'Aço',        color: '#8a99a8', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 4, fused: true },
-  { id: E.PLASMA,   key: 'plasma',   name: 'Plasma',     color: '#ff4ae0', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 8, fused: true },
-  { id: E.SMOKE,    key: 'smoke',    name: 'Fumaça',     color: '#6a6a72', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 4, fused: true },
-  { id: E.MUD,      key: 'mud',      name: 'Lama',       color: '#7a5a34', tags: ['fluido', 'fértil', 'lento'],            rare: false, cooldown: 4, fused: true },
-  { id: E.MIST,     key: 'mist',     name: 'Névoa',      color: '#cfe2e6', tags: ['fluido', 'oculto'],                     rare: false, cooldown: 4, fused: true },
-  { id: E.RUST,     key: 'rust',     name: 'Ferrugem',   color: '#b0622a', tags: ['corrosivo'],                            rare: false, cooldown: 4, fused: true },
-  { id: E.SNOW,     key: 'snow',     name: 'Neve',       color: '#eef6ff', tags: ['frio', 'leve'],                         rare: false, cooldown: 4, fused: true },
-  { id: E.GLACIER,  key: 'glacier',  name: 'Geleira',    color: '#86c4e8', tags: ['frio', 'estrutural'],                   rare: false, cooldown: 4, fused: true },
-  { id: E.MAGNET,   key: 'magnet',   name: 'Ímã',        color: '#5060a0', tags: ['condutor', 'atrativo'],                 rare: false, cooldown: 4, fused: true },
-  { id: E.STORM,    key: 'storm',    name: 'Tempestade', color: '#8f82e0', tags: ['energia', 'volátil'],                   rare: false, cooldown: 4, fused: true },
-  { id: E.ACID,     key: 'acid',     name: 'Ácido',      color: '#c8e42a', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 4, fused: true },
-  { id: E.SULFUR,   key: 'sulfur',   name: 'Enxofre',    color: '#e6d44e', tags: ['tóxico', 'inflamável'],                 rare: false, cooldown: 4, fused: true },
-  { id: E.FUNGUS,   key: 'fungus',   name: 'Cogumelo',   color: '#c07ad0', tags: ['orgânico', 'mutagênico'],               rare: false, cooldown: 4, fused: true },
-  { id: E.MOSS,     key: 'moss',     name: 'Musgo',      color: '#4f8f3c', tags: ['orgânico', 'vital'],                    rare: false, cooldown: 4, fused: true },
-  { id: E.PRISM,    key: 'prism',    name: 'Prisma',     color: '#dcc4f4', tags: ['frágil', 'translúcido'],                rare: false, cooldown: 4, fused: true },
-  { id: E.RELIC,    key: 'relic',    name: 'Relíquia',   color: '#ffdf6a', tags: ['precioso', 'sagrado', 'raro'],          rare: true,  cooldown: 8, fused: true },
-  { id: E.OBSIDIAN, key: 'obsidian', name: 'Obsidiana',  color: '#5a4a7a', tags: ['estrutural', 'duríssimo', 'raro'],      rare: true,  cooldown: 8, fused: true },
-  { id: E.MIASMA,   key: 'miasma',   name: 'Miasma',     color: '#8fae52', tags: ['tóxico', 'volátil', 'raro'],            rare: true,  cooldown: 8, fused: true },
+  { id: E.LAVA,     key: 'lava',     name: 'Lava',       color: '#ff4a1a', tags: ['energia', 'destrutivo', 'fluido'],      rare: false, cooldown: 4, fused: true,
+    desc: 'Derrete quem pisa e incendeia o que toca. Esfria virando pedra — ou vidro no deserto.' },
+  { id: E.STEEL,    key: 'steel',    name: 'Aço',        color: '#8a99a8', tags: ['estrutural', 'condutor', 'pesado'],     rare: false, cooldown: 4, fused: true,
+    desc: 'Liga estrutural mais resistente que o metal, mas ainda vulnerável à ferrugem.' },
+  { id: E.PLASMA,   key: 'plasma',   name: 'Plasma',     color: '#ff4ae0', tags: ['energia', 'destrutivo', 'raro'],        rare: true,  cooldown: 8, fused: true,
+    desc: 'Desintegra criaturas e depósitos vizinhos. Só obsidiana, diamante e monólito resistem.' },
+  { id: E.SMOKE,    key: 'smoke',    name: 'Fumaça',     color: '#6a6a72', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 4, fused: true,
+    desc: 'Cega as criaturas dentro dela, que perdem o alvo de vista.' },
+  { id: E.MUD,      key: 'mud',      name: 'Lama',       color: '#7a5a34', tags: ['fluido', 'fértil', 'lento'],            rare: false, cooldown: 4, fused: true,
+    desc: 'Atola quem atravessa, reduzindo muito a velocidade. Fértil: pode brotar madeira.' },
+  { id: E.MIST,     key: 'mist',     name: 'Névoa',      color: '#cfe2e6', tags: ['fluido', 'oculto'],                     rare: false, cooldown: 4, fused: true,
+    desc: 'Oculta as criaturas dentro dela dos olhos de predadores.' },
+  { id: E.RUST,     key: 'rust',     name: 'Ferrugem',   color: '#b0622a', tags: ['corrosivo'],                            rare: false, cooldown: 4, fused: true,
+    desc: 'Corrói metal e aço vizinhos, inclusive construções, espalhando-se por eles.' },
+  { id: E.SNOW,     key: 'snow',     name: 'Neve',       color: '#eef6ff', tags: ['frio', 'leve'],                         rare: false, cooldown: 4, fused: true,
+    desc: 'Esfria o passo de quem atravessa e congela a água que toca.' },
+  { id: E.GLACIER,  key: 'glacier',  name: 'Geleira',    color: '#86c4e8', tags: ['frio', 'estrutural'],                   rare: false, cooldown: 4, fused: true,
+    desc: 'Gelo estrutural e liso: deslizar sobre ele é mais rápido que correr.' },
+  { id: E.MAGNET,   key: 'magnet',   name: 'Ímã',        color: '#5060a0', tags: ['condutor', 'atrativo'],                 rare: false, cooldown: 4, fused: true,
+    desc: 'Atrai criaturas metálicas e condutoras num raio ao redor.' },
+  { id: E.STORM,    key: 'storm',    name: 'Tempestade', color: '#8f82e0', tags: ['energia', 'volátil'],                   rare: false, cooldown: 4, fused: true,
+    desc: 'Nuvem carregada que dispara pequenos raios ao redor enquanto dura.' },
+  { id: E.ACID,     key: 'acid',     name: 'Ácido',      color: '#c8e42a', tags: ['tóxico', 'corrosivo'],                  rare: false, cooldown: 4, fused: true,
+    desc: 'Corrói criaturas e construções e dissolve pedra, metal e vidro próximos.' },
+  { id: E.SULFUR,   key: 'sulfur',   name: 'Enxofre',    color: '#e6d44e', tags: ['tóxico', 'inflamável'],                 rare: false, cooldown: 4, fused: true,
+    desc: 'Explode em chamas ao menor contato com fogo.' },
+  { id: E.FUNGUS,   key: 'fungus',   name: 'Cogumelo',   color: '#c07ad0', tags: ['orgânico', 'mutagênico'],               rare: false, cooldown: 4, fused: true,
+    desc: 'Mutagênico: quem para sobre ele pode ganhar uma mutação aleatória. Espalha devagar.' },
+  { id: E.MOSS,     key: 'moss',     name: 'Musgo',      color: '#4f8f3c', tags: ['orgânico', 'vital'],                    rare: false, cooldown: 4, fused: true,
+    desc: 'Tapete vivo que cura lentamente as criaturas que descansam sobre ele.' },
+  { id: E.PRISM,    key: 'prism',    name: 'Prisma',     color: '#dcc4f4', tags: ['frágil', 'translúcido'],                rare: false, cooldown: 4, fused: true,
+    desc: 'Refrata raios que o atingem em novos ramos, multiplicando a descarga.' },
+  { id: E.RELIC,    key: 'relic',    name: 'Relíquia',   color: '#ffdf6a', tags: ['precioso', 'sagrado', 'raro'],          rare: true,  cooldown: 8, fused: true,
+    desc: 'Atrai criaturas num raio amplo. Quem fica tempo demais por perto vira Devoto.' },
+  { id: E.OBSIDIAN, key: 'obsidian', name: 'Obsidiana',  color: '#5a4a7a', tags: ['estrutural', 'duríssimo', 'raro'],      rare: true,  cooldown: 8, fused: true,
+    desc: 'Rocha vulcânica duríssima: imune a ácido e plasma, excelente defesa.' },
+  { id: E.MIASMA,   key: 'miasma',   name: 'Miasma',     color: '#8fae52', tags: ['tóxico', 'volátil', 'raro'],            rare: true,  cooldown: 8, fused: true,
+    desc: 'Nuvem tóxica que consome as criaturas dentro dela e se alastra devagar.' },
   // Tier 3 (Spec 2)
-  { id: E.CHARCOAL, key: 'charcoal', name: 'Carvão',     color: '#3a3a3a', tags: ['inflamável', 'combustível'],            rare: false, cooldown: 6, fused: true },
-  { id: E.VAPOR,    key: 'vapor',    name: 'Vapor',      color: '#e8f0f2', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 6, fused: true },
-  { id: E.BLIZZARD, key: 'blizzard', name: 'Nevasca',    color: '#d8ecff', tags: ['frio', 'volátil'],                      rare: false, cooldown: 6, fused: true },
-  { id: E.ASH,      key: 'ash',      name: 'Cinza',      color: '#7d7468', tags: ['fértil'],                               rare: false, cooldown: 6, fused: true },
-  { id: E.SWAMP,    key: 'swamp',    name: 'Pântano',    color: '#4a6a3a', tags: ['orgânico', 'tóxico', 'fértil'],         rare: false, cooldown: 6, fused: true },
-  { id: E.MERCURY,  key: 'mercury',  name: 'Mercúrio',   color: '#b8c8d4', tags: ['condutor', 'fluido', 'tóxico'],         rare: false, cooldown: 6, fused: true },
-  { id: E.ELECTRUM, key: 'electrum', name: 'Eletro',     color: '#ffe88a', tags: ['precioso', 'condutor'],                 rare: false, cooldown: 6, fused: true },
+  { id: E.CHARCOAL, key: 'charcoal', name: 'Carvão',     color: '#3a3a3a', tags: ['inflamável', 'combustível'],            rare: false, cooldown: 6, fused: true,
+    desc: 'Combustível denso: aceso, queima 3× mais tempo que a madeira.' },
+  { id: E.VAPOR,    key: 'vapor',    name: 'Vapor',      color: '#e8f0f2', tags: ['fluido', 'volátil'],                    rare: false, cooldown: 6, fused: true,
+    desc: 'Nuvem quente que ofusca quem passa. Ao esfriar, condensa em névoa.' },
+  { id: E.BLIZZARD, key: 'blizzard', name: 'Nevasca',    color: '#d8ecff', tags: ['frio', 'volátil'],                      rare: false, cooldown: 6, fused: true,
+    desc: 'Congela e atrasa quem atravessa; deixa um manto de neve ao passar.' },
+  { id: E.ASH,      key: 'ash',      name: 'Cinza',      color: '#7d7468', tags: ['fértil'],                               rare: false, cooldown: 6, fused: true,
+    desc: 'Cinza fértil: pode brotar madeira ou musgo antes de assentar.' },
+  { id: E.SWAMP,    key: 'swamp',    name: 'Pântano',    color: '#4a6a3a', tags: ['orgânico', 'tóxico', 'fértil'],         rare: false, cooldown: 6, fused: true,
+    desc: 'Atola o passo, nutre criaturas orgânicas e envenena todas as outras.' },
+  { id: E.MERCURY,  key: 'mercury',  name: 'Mercúrio',   color: '#b8c8d4', tags: ['condutor', 'fluido', 'tóxico'],         rare: false, cooldown: 6, fused: true,
+    desc: 'Metal líquido que escorre como água, intoxica quem pisa e conduz raios.' },
+  { id: E.ELECTRUM, key: 'electrum', name: 'Eletro',     color: '#ffe88a', tags: ['precioso', 'condutor'],                 rare: false, cooldown: 6, fused: true,
+    desc: 'Brilha como tesouro e atrai criaturas — que levam choque ao pisar nele.' },
   // Tier 4 (Spec 2)
-  { id: E.GUNPOWDER, key: 'gunpowder', name: 'Pólvora',        color: '#5a4a3a', tags: ['inflamável', 'explosivo', 'raro'], rare: true, cooldown: 8,  fused: true },
-  { id: E.AURORA,    key: 'aurora',    name: 'Aurora',         color: '#a0ffd8', tags: ['energia', 'sagrado', 'raro'],      rare: true, cooldown: 10, fused: true },
-  { id: E.PLAGUE,    key: 'plague',    name: 'Praga',          color: '#6a7a2a', tags: ['tóxico', 'mutagênico', 'raro'],    rare: true, cooldown: 8,  fused: true },
-  { id: E.STARCORE,  key: 'starcore',  name: 'Núcleo Estelar', color: '#ff9a3a', tags: ['energia', 'destrutivo', 'raro'],   rare: true, cooldown: 10, fused: true },
-  { id: E.ETHER,     key: 'ether',     name: 'Éter',           color: '#d8ccff', tags: ['sagrado', 'oculto', 'raro'],       rare: true, cooldown: 10, fused: true },
-  { id: E.MONOLITH,  key: 'monolith',  name: 'Monólito',       color: '#2a2a3a', tags: ['estrutural', 'sagrado', 'raro'],   rare: true, cooldown: 10, fused: true },
+  { id: E.GUNPOWDER, key: 'gunpowder', name: 'Pólvora',        color: '#5a4a3a', tags: ['inflamável', 'explosivo', 'raro'], rare: true, cooldown: 8,  fused: true,
+    desc: 'Detona numa grande explosão ao contato com fogo, lava ou raio.' },
+  { id: E.AURORA,    key: 'aurora',    name: 'Aurora',         color: '#a0ffd8', tags: ['energia', 'sagrado', 'raro'],      rare: true, cooldown: 10, fused: true,
+    desc: 'Luz que cura as criaturas num raio e ocasionalmente concede mutações benignas.' },
+  { id: E.PLAGUE,    key: 'plague',    name: 'Praga',          color: '#6a7a2a', tags: ['tóxico', 'mutagênico', 'raro'],    rare: true, cooldown: 8,  fused: true,
+    desc: 'Consome as criaturas e se alastra; os sobreviventes sofrem mutações sombrias.' },
+  { id: E.STARCORE,  key: 'starcore',  name: 'Núcleo Estelar', color: '#ff9a3a', tags: ['energia', 'destrutivo', 'raro'],   rare: true, cooldown: 10, fused: true,
+    desc: 'Puxa tudo com sua gravidade e incinera de perto. Colapsa numa explosão de obsidiana.' },
+  { id: E.ETHER,     key: 'ether',     name: 'Éter',           color: '#d8ccff', tags: ['sagrado', 'oculto', 'raro'],       rare: true, cooldown: 10, fused: true,
+    desc: 'Campo etéreo que cura e faz flutuar as criaturas ao redor.' },
+  { id: E.MONOLITH,  key: 'monolith',  name: 'Monólito',       color: '#2a2a3a', tags: ['estrutural', 'sagrado', 'raro'],   rare: true, cooldown: 10, fused: true,
+    desc: 'Indestrutível. Atrai criaturas solenemente e inspira facções a colecionar tesouros.' },
 ];
 
 const FLAMMABLE = new Set([E.WOOD, E.SLIME, E.SULFUR, E.FUNGUS, E.CHARCOAL, E.GUNPOWDER]);
 const CONDUCTIVE = new Set([E.METAL, E.GOLD, E.STEEL, E.MAGNET, E.MERCURY, E.ELECTRUM]);
 const STRUCTURAL = new Set([E.WOOD, E.STONE, E.METAL, E.GLASS, E.ICE, E.GOLD, E.DIAMOND, E.STEEL, E.GLACIER, E.OBSIDIAN, E.MONOLITH]);
+
+// ---------------------------------------------------------------------------
+// ENDGAME (Fase A): constantes de tuning centralizadas.
+// ---------------------------------------------------------------------------
+const ENDGAME = {
+  // Eras
+  ERA_TRIBAL_MEMBERS: 8,       // 1ª facção com N membros → Era Tribal
+  ERA_KINGDOMS_BUILDINGS: 12,  // 1ª facção com N construções → Era dos Reinos
+  FACTION_CAP_BY_ERA: [24, 32, 32, 40], // cap de membros por era
+  // Cataclismos
+  CATA_MIN_ERA: 1,             // só a partir da Era Tribal
+  CATA_INTERVAL: [420, 780],   // segundos de simulação entre eventos (sorteado)
+  CATA_WARNING: 6,             // aviso no feed N segundos antes
+  CATA_ERA_SCALE: 0.92,        // intervalo multiplicado por isso a cada era (mais frequente)
+  // Território
+  TERRITORY_REFRESH: 5,        // segundos entre repinturas do canvas de território
+  TERRITORY_R_TOTEM: 7,        // raio de influência (tiles) por tipo
+  TERRITORY_R_BUILDING: 3,
+  TERRITORY_ALPHA: 0.16,
+  // Guerras com desfecho
+  WAR_SCORE_KILL: 3,
+  WAR_SCORE_BUILDING: 2,
+  WAR_DRAW_MARGIN: 4,          // |placar| ≤ margem → paz branca
+  EXODUS_DIST: 90,             // tiles: distância mínima do êxodo
+  // Gigantismo (permanente — nunca decai)
+  GIANT_K: 0.055,              // sizeMul = min(MAX, 1 + sqrt(absorbLifetime) * K)
+  GIANT_MAX_MUL: 2.6,
+  GIANT_TIERS: [1.5, 2.0, 2.5],          // Graúdo, Colosso, Titã
+  GIANT_TIER_NAMES: ['Graúdo', 'Colosso', 'Titã'],
+  GIANT_HP_PER_TIER: 20,
+  GIANT_STR_PER_TIER: 3,
+  GIANT_SPEED_MUL_PER_TIER: 0.92,
+  GIANT_SCARY_PER_TIER: 0.15,
+  HUNT_MIN_TIER: 2,            // Caçadas a partir de Colosso
+  HUNT_AGGR: 0.55,             // agressão média da facção para caçar
+  TITAN_DROP_RADIUS: 4,        // tiles: raio da explosão elemental póstuma
+  TITAN_DROP_MAX: 24,          // máximo de tiles semeados na morte
+};
 
 // ---------------------------------------------------------------------------
 // Matriz declarativa de reações entre depósitos adjacentes.
@@ -427,7 +560,7 @@ fu(E.OBSIDIAN, E.RELIC, E.MONOLITH);
 function elemName(id) { return ELEMENTS[id].name; }
 function elemColor(id) { return ELEMENTS[id].color; }
 
-return { E, ELEMENTS, FLAMMABLE, CONDUCTIVE, STRUCTURAL, REACT, FUSE, elemName, elemColor };
+return { E, ELEMENTS, FLAMMABLE, CONDUCTIVE, STRUCTURAL, ENDGAME, REACT, FUSE, elemName, elemColor };
 })();
 
 // ==== src/world.js ====
@@ -922,7 +1055,7 @@ class World {
   }
 }
 
-return { WORLD_W, WORLD_H, TILE, T, TERRAIN_SPEED, World };
+return { WORLD_W, WORLD_H, TILE, T, TERRAIN_SPEED, World, fuseLife };
 })();
 
 // ==== src/evolution.js ====
@@ -931,7 +1064,7 @@ __m.evolution = (() => {
 // a escolha rola no RNG individual da criatura, então o mesmo elemento gera
 // resultados diferentes em criaturas diferentes.
 
-const { E, elemName, elemColor } = __m.elements;
+const { E, ENDGAME, elemName, elemColor } = __m.elements;
 // Cada mutação: { id, name, apply(c) } — apply altera stats/flags/bodyPlan.
 const MUTATION_POOLS = {
   [E.FIRE]: [
@@ -1275,9 +1408,33 @@ function grantGift(creature, elem, game) {
   if (game.selected === creature) game.feed(`✨ ${creature.name} despertou: ${gift.name}`, elemColor(elem));
 }
 
+// Gigantismo permanente (Fase A): absorver muito faz o corpo crescer para
+// sempre. Cada limiar de GIANT_TIERS cruzado aplica bônus uma única vez —
+// mais forte e resistente, porém mais lento e assustador. Nunca encolhe.
+function updateGiantTier(c, game) {
+  c.sizeMul = Math.min(ENDGAME.GIANT_MAX_MUL, 1 + Math.sqrt(c.absorbLifetime) * ENDGAME.GIANT_K);
+  while (c.giantTier < ENDGAME.GIANT_TIERS.length && c.sizeMul >= ENDGAME.GIANT_TIERS[c.giantTier]) {
+    c.giantTier++;
+    c.stats.maxHp += ENDGAME.GIANT_HP_PER_TIER;
+    c.hp += ENDGAME.GIANT_HP_PER_TIER;
+    c.stats.strength += ENDGAME.GIANT_STR_PER_TIER;
+    c.stats.speed *= ENDGAME.GIANT_SPEED_MUL_PER_TIER;
+    c.scary += ENDGAME.GIANT_SCARY_PER_TIER;
+    const title = ENDGAME.GIANT_TIER_NAMES[c.giantTier - 1];
+    if (c.giantTier >= 3) {
+      game.feed(`🗿 ${c.name} tornou-se ${title}! O mundo estremece sob seus passos.`, '#ffd75a');
+      game.addShake(2);
+    } else {
+      game.feed(`🗿 ${c.name} tornou-se ${title}!`, '#d9c9a6');
+    }
+  }
+}
+
 // Absorve `elem`: rola uma mutação nova (sem repetir) no RNG da criatura.
 function absorbElement(creature, elem, game) {
   creature.absorbed[elem] = (creature.absorbed[elem] || 0) + 1;
+  creature.absorbLifetime++;
+  updateGiantTier(creature, game);
   // primeira absorção do elemento também desperta o dom único dele
   if (creature.absorbed[elem] === 1) grantGift(creature, elem, game);
   // Dom Fúngico: absorver alimenta
@@ -1464,8 +1621,44 @@ __m.society = (() => {
 // Relações entre criaturas: encontros, facções, guerra e aliança.
 
 const { factionName } = __m.names;
-const { E } = __m.elements;
+const { E, ENDGAME } = __m.elements;
+const { TILE, T } = __m.world;
 let nextFid = 1;
+
+// Cap de membros por facção cresce com a era do mundo.
+function factionCap(game) { return ENDGAME.FACTION_CAP_BY_ERA[game.era] || 40; }
+
+// ---------------------------------------------------------------------------
+// Eras: o arco macro do mundo. Progridem por conquistas dos glorbs e NUNCA
+// regridem. A Fase C acrescentará a Era Ancestral (Ascensão).
+// ---------------------------------------------------------------------------
+const ERAS = [
+  { id: 0, name: 'Era Primordial',  short: 'Primordial', icon: '🌱' },
+  { id: 1, name: 'Era Tribal',      short: 'Tribal',     icon: '🏕️' },
+  { id: 2, name: 'Era das Guerras', short: 'Guerras',    icon: '⚔️' },
+  { id: 3, name: 'Era dos Reinos',  short: 'Reinos',     icon: '👑' },
+];
+
+function checkEraProgress(game) {
+  if (game.era === 0 && game.factions.some(f => f.members.length >= ENDGAME.ERA_TRIBAL_MEMBERS)) {
+    advanceEra(game, 1);
+  } else if (game.era === 1 && (game.wars.length > 0 || game.factions.some(f => {
+    for (const [, rel] of f.relations) if (rel.state === 'war') return true;
+    return false;
+  }))) {
+    advanceEra(game, 2);
+  } else if (game.era === 2 && game.factions.some(f => f.buildings.length >= ENDGAME.ERA_KINGDOMS_BUILDINGS)) {
+    advanceEra(game, 3);
+  }
+}
+
+function advanceEra(game, era) {
+  game.era = era;
+  const e = ERAS[era];
+  game.addShake(3);
+  game.feed(`${e.icon} O mundo entrou na ${e.name}!`, '#ffd75a');
+  game.announceEra(e);
+}
 
 class Faction {
   constructor(game, founderA, founderB) {
@@ -1476,6 +1669,7 @@ class Faction {
     this.color = `hsl(${this.hue},70%,60%)`;
     this.members = [];
     this.buildings = [];
+    this.tributeTo = null; // id da facção suserana (vassalagem, Fase A)
     this.relations = new Map(); // factionId -> { state: 'neutral'|'war'|'ally', heat: number }
     this.addMember(founderA);
     if (founderB) this.addMember(founderB);
@@ -1579,7 +1773,7 @@ function tryEncounter(game, a, b) {
     } else if (a.faction || b.faction) {
       const f = a.faction || b.faction;
       const joiner = a.faction ? b : a;
-      if (f.members.length < 24) {
+      if (f.members.length < factionCap(game)) {
         f.addMember(joiner);
         game.feed(`🤝 ${joiner.name} juntou-se à facção ${f.name}`, f.color);
       }
@@ -1596,6 +1790,15 @@ function tryEncounter(game, a, b) {
 // Tick da sociedade (~a cada 8s): relações entre facções derivam com o tempo.
 function societyTick(game) {
   const rng = game.societyRng;
+  checkEraProgress(game);
+  // guerras órfãs saem do registro: facção extinta ou reduzida a < 2 membros
+  // não briga mais — sem isso o registro cresce sem limite em sessões longas
+  // (a relação, se esfriar depois, resolve como paz branca sem placar).
+  game.wars = game.wars.filter(w => {
+    const a = game.factions.find(f => f.id === w.aId);
+    const b = game.factions.find(f => f.id === w.bId);
+    return a && b && a.members.length >= 2 && b.members.length >= 2;
+  });
   const fs = game.factions.filter(f => f.members.length >= 2);
   for (let i = 0; i < fs.length; i++) {
     for (let j = i + 1; j < fs.length; j++) {
@@ -1619,14 +1822,18 @@ function societyTick(game) {
           !((alreadyAtWar(A) || alreadyAtWar(B)) && rng.chance(0.7))) {
         rA.state = rb.state = 'war';
         rA.heat = rb.heat = 2; // guerra dura um tempo até esfriar
+        // nova guerra abre placar (se ainda não houver) e quebra vassalagens entre os dois
+        if (!findWar(game, A.id, B.id)) {
+          game.wars.push({ aId: A.id, bId: B.id, score: { [A.id]: 0, [B.id]: 0 }, t0: game.time });
+        }
+        if (A.tributeTo === B.id) A.tributeTo = null;
+        if (B.tributeTo === A.id) B.tributeTo = null;
         game.feed(`🔥 A facção ${A.name} declarou guerra à facção ${B.name}!`, '#ff5a4a');
       } else if (rA.state !== 'ally' && rA.heat < -0.8) {
         rA.state = rb.state = 'ally';
         game.feed(`🕊️ As facções ${A.name} e ${B.name} formaram uma aliança`, '#8fd1ff');
       } else if (rA.state === 'war' && rA.heat < 0.25) {
-        rA.state = rb.state = 'neutral';
-        rA.heat = rb.heat = -0.5; // rancor esquecido: demora para nova guerra
-        game.feed(`🏳️ Paz entre ${A.name} e ${B.name}`, '#cfcfcf');
+        resolveWar(game, A, B);
       }
 
       // guerra: designa raides
@@ -1634,6 +1841,59 @@ function societyTick(game) {
         assignRaiders(game, A, B, rng);
         assignRaiders(game, B, A, rng);
       }
+    }
+  }
+
+  // Caçadas (Fase A): facções agressivas saem atrás de gigantes (Colosso+)
+  // que não sejam dos seus. Caçar gigante de outra facção esquenta a relação.
+  for (const f of fs) {
+    if (f.avgTemperament('aggression') <= ENDGAME.HUNT_AGGR) continue;
+    let target = null, td = Infinity;
+    const c = f.center();
+    for (const o of game.creatures) {
+      if (!o.alive || o.giantTier < ENDGAME.HUNT_MIN_TIER || o.faction === f) continue;
+      const d = (o.x - c.x) ** 2 + (o.y - c.y) ** 2;
+      if (d < td) { td = d; target = o; }
+    }
+    if (!target || !rng.chance(0.3)) continue;
+    if (f.members.some(m => m.raidTarget && m.raidTarget.creature === target)) continue; // caçada já em curso
+    let started = false;
+    for (const m of f.members) {
+      if (m.alive && m.temperament.aggression > 0.5 && m.state !== 'fight') {
+        m.raidTarget = { creature: target };
+        m.state = 'raid';
+        started = true;
+      }
+    }
+    if (started) {
+      game.feed(`🏹 A facção ${f.name} saiu à caça de ${target.name}!`, f.color);
+      if (target.faction) {
+        const r1 = f.relationWith(target.faction), r2 = target.faction.relationWith(f);
+        r1.heat += 0.3;
+        r2.heat = r1.heat;
+      }
+    }
+  }
+
+  // vassalagem: facção tributária envia 1 carregador de ouro ao baú do suserano
+  for (const f of game.factions) {
+    if (!f.tributeTo) continue;
+    const lord = game.factions.find(o => o.id === f.tributeTo);
+    if (!lord) { f.tributeTo = null; continue; }
+    let chest = null, cd = Infinity;
+    const c = f.center();
+    for (const b of lord.buildings) {
+      if (b.type !== 'chest') continue;
+      const d = (b.x - c.x) ** 2 + (b.y - c.y) ** 2;
+      if (d < cd) { cd = d; chest = b; }
+    }
+    if (!chest) continue;
+    const carriers = f.members.filter(m =>
+      m.alive && (m.carry[E.GOLD] || 0) > 0 && m.state !== 'fight' && m.state !== 'flee');
+    if (carriers.length) {
+      const m = rng.pick(carriers);
+      m.seekTile = { tx: chest.tx, ty: chest.ty, elem: -1, mode: 'collect', chest };
+      m.state = 'seek';
     }
   }
 }
@@ -1648,7 +1908,87 @@ function assignRaiders(game, from, to, rng) {
   }
 }
 
-return { Faction, tryEncounter, societyTick };
+// ---------------------------------------------------------------------------
+// Guerras com desfecho (Fase A): cada guerra tem um placar (abates e
+// construções derrubadas); quando o calor esfria, o placar decide a cicatriz.
+// ---------------------------------------------------------------------------
+function findWar(game, idA, idB) {
+  return game.wars.find(w => (w.aId === idA && w.bId === idB) || (w.aId === idB && w.bId === idA));
+}
+
+// Soma pontos para a facção `from` na guerra contra `against` (se houver).
+function recordWarScore(game, from, against, pts) {
+  if (!from || !against || from === against) return;
+  const w = findWar(game, from.id, against.id);
+  if (w) w.score[from.id] = (w.score[from.id] || 0) + pts;
+}
+
+function resolveWar(game, A, B) {
+  const rng = game.societyRng;
+  const rA = A.relationWith(B), rB = B.relationWith(A);
+  rA.state = rB.state = 'neutral';
+  rA.heat = rB.heat = -0.5; // rancor esquecido: demora para nova guerra
+  const wi = game.wars.findIndex(w => (w.aId === A.id && w.bId === B.id) || (w.aId === B.id && w.bId === A.id));
+  const war = wi >= 0 ? game.wars.splice(wi, 1)[0] : null;
+  const diff = war ? (war.score[A.id] || 0) - (war.score[B.id] || 0) : 0;
+
+  // placar equilibrado (ou guerra sem registro): paz branca, sem cicatriz
+  if (!war || Math.abs(diff) <= ENDGAME.WAR_DRAW_MARGIN) {
+    game.feed(`🏳️ Paz entre ${A.name} e ${B.name}`, '#cfcfcf');
+    return;
+  }
+  const winner = diff > 0 ? A : B;
+  const loser = diff > 0 ? B : A;
+  const aggr = winner.avgTemperament('aggression');
+  const opts = [
+    { w: 1 + aggr * 1.5, kind: 'conquista' },
+    { w: 1 + (1 - aggr), kind: 'exodo' },
+  ];
+  if (game.era >= 3) opts.push({ w: winner.avgTemperament('greed') * 1.5, kind: 'vassalagem' });
+  const kind = rng.weighted(opts).kind;
+
+  if (kind === 'conquista') {
+    // construções e parte dos membros mudam de dono; a facção perdedora acaba
+    for (const b of loser.buildings) { b.faction = winner; winner.buildings.push(b); }
+    loser.buildings.length = 0;
+    for (const m of loser.members.slice()) {
+      if (winner.members.length < factionCap(game) && rng.chance(0.6)) winner.addMember(m);
+      else loser.removeMember(m);
+    }
+    const fi = game.factions.indexOf(loser);
+    if (fi >= 0) game.factions.splice(fi, 1);
+    game.territoryDirty = true;
+    game.addShake(3);
+    game.feed(`👑 ${winner.name} conquistou ${loser.name}!`, winner.color);
+  } else if (kind === 'exodo') {
+    // construções ficam como ruínas neutras; a facção parte em caravana
+    for (const b of loser.buildings) b.faction = null;
+    loser.buildings.length = 0;
+    const c = loser.center();
+    const ctx0 = Math.floor(c.x / TILE), cty0 = Math.floor(c.y / TILE);
+    let dest = null;
+    for (let i = 0; i < 50 && !dest; i++) {
+      const tx = game.envRng.int(4, game.world.w - 5), ty = game.envRng.int(4, game.world.h - 5);
+      if (Math.hypot(tx - ctx0, ty - cty0) >= ENDGAME.EXODUS_DIST &&
+          game.world.terrain[game.world.idx(tx, ty)] !== T.WATER) dest = { tx, ty };
+    }
+    if (dest) {
+      for (const m of loser.members) {
+        if (!m.alive) continue;
+        m.seekTile = { tx: dest.tx, ty: dest.ty, elem: -1, mode: 'collect' };
+        m.state = 'seek';
+      }
+    }
+    game.territoryDirty = true;
+    game.feed(`🏜️ A facção ${loser.name} partiu em êxodo...`, loser.color);
+  } else {
+    // vassalagem: perdedor mantém tudo, mas paga tributo em ouro ao suserano
+    loser.tributeTo = winner.id;
+    game.feed(`⛓️ ${loser.name} agora paga tributo a ${winner.name}`, winner.color);
+  }
+}
+
+return { Faction, tryEncounter, societyTick, factionCap, ERAS, recordWarScore };
 })();
 
 // ==== src/creature.js ====
@@ -1659,7 +1999,7 @@ const { E, elemColor } = __m.elements;
 const { TILE, T } = __m.world;
 const { absorbElement } = __m.evolution;
 const { creatureName } = __m.names;
-const { tryEncounter } = __m.society;
+const { tryEncounter, factionCap } = __m.society;
 const { attemptBuild, BUILD_THRESHOLD } = __m.building;
 let nextId = 1;
 
@@ -1868,6 +2208,10 @@ class Creature {
     this.ashUsed = false;
     this.inEther = false;     // flutuação transitória no raio do éter
     this.electrumShock = 0;   // cooldown individual do choque do eletro
+    // gigantismo (Fase A): permanente, nunca decai; filhotes nascem normais
+    this.absorbLifetime = 0;  // total de absorções na vida (nunca decai)
+    this.sizeMul = 1;         // escala visual/física derivada
+    this.giantTier = 0;       // 0 normal, 1 Graúdo, 2 Colosso, 3 Titã
     // dons elementais: status e temporizadores
     this.gifts = new Set();       // ids de elemento cujos dons despertou
     this.giftTimers = {};         // cooldowns por dom
@@ -1915,7 +2259,7 @@ class Creature {
     this.dominantElem = -1;
 
     // filhote herda a facção do pai (nem sempre — e facções têm tamanho máximo)
-    if (pa && pa.faction && pa.faction.members.length < 24 && rng.chance(0.75)) {
+    if (pa && pa.faction && pa.faction.members.length < factionCap(game) && rng.chance(0.75)) {
       pa.faction.addMember(this);
     }
   }
@@ -2414,15 +2758,25 @@ class Creature {
         const px = s.tx * TILE + TILE / 2, py = s.ty * TILE + TILE / 2;
         this.heading = Math.atan2(py - this.y, px - this.x);
         const world = game.world, i = world.idx(s.tx, s.ty);
-        if (world.dep[i] !== s.elem) { this.seekTile = null; this.state = 'wander'; break; }
-        if (Math.hypot(px - this.x, py - this.y) < TILE * 0.7) {
-          world.clearDep(i);
-          if (s.mode === 'absorb') {
-            absorbElement(this, s.elem, game);
-            game.absorbPuff(this.x, this.y, elemColor(s.elem));
-          } else {
-            this.carry[s.elem] = (this.carry[s.elem] || 0) + 1;
-            this.carryTotal++;
+        // destinos sem depósito (êxodo, tributo de vassalagem) usam elem -1
+        if (!s.chest && s.elem !== -1 && world.dep[i] !== s.elem) { this.seekTile = null; this.state = 'wander'; break; }
+        if (Math.hypot(px - this.x, py - this.y) < TILE * (s.chest ? 1 : 0.7)) {
+          if (s.chest) {
+            // tributo: despeja o ouro carregado no baú do suserano
+            if (game.buildings.includes(s.chest) && (this.carry[E.GOLD] || 0) > 0) {
+              s.chest.gold += this.carry[E.GOLD];
+              this.carryTotal -= this.carry[E.GOLD];
+              delete this.carry[E.GOLD];
+            }
+          } else if (s.elem !== -1) {
+            world.clearDep(i);
+            if (s.mode === 'absorb') {
+              absorbElement(this, s.elem, game);
+              game.absorbPuff(this.x, this.y, elemColor(s.elem));
+            } else {
+              this.carry[s.elem] = (this.carry[s.elem] || 0) + 1;
+              this.carryTotal++;
+            }
           }
           this.seekTile = null; this.state = 'wander';
         }
@@ -2441,7 +2795,16 @@ class Creature {
       }
       case 'raid': {
         const r = this.raidTarget;
-        if (!r || !this.faction || !this.faction.isAtWar(r.faction)) { this.raidTarget = null; this.state = 'wander'; break; }
+        if (!r) { this.state = 'wander'; break; }
+        // caçada (Fase A): o alvo é uma criatura gigante, não uma facção
+        if (r.creature) {
+          const t = r.creature;
+          if (!t.alive) { this.raidTarget = null; this.state = 'wander'; break; }
+          this.heading = Math.atan2(t.y - this.y, t.x - this.x);
+          if (this.dist(t) < 40) this.engage(t);
+          break;
+        }
+        if (!this.faction || !this.faction.isAtWar(r.faction)) { this.raidTarget = null; this.state = 'wander'; break; }
         const c = r.faction.center();
         this.heading = Math.atan2(c.y - this.y, c.x - this.x);
         // ao chegar na vila: atacar construção ou inimigo próximo
@@ -2455,7 +2818,7 @@ class Creature {
             if (Math.hypot(b.x - this.x, b.y - this.y) < TILE) {
               this.attackCd -= dt;
               // Dom da Corrosão: dano dobrado contra construções
-              if (this.attackCd <= 0) { this.attackCd = 0.8; b.hp -= this.attack * (this.gifts.has(E.RUST) ? 2 : 1); this.game.hitSpark(b.x, b.y, this.dominantElem); }
+              if (this.attackCd <= 0) { this.attackCd = 0.8; b.lastAttacker = this; b.hp -= this.attack * (this.gifts.has(E.RUST) ? 2 : 1); this.game.hitSpark(b.x, b.y, this.dominantElem); }
             }
           } else { this.raidTarget = null; this.state = 'wander'; }
         }
@@ -2664,7 +3027,7 @@ __m.render = (() => {
 // Renderização: terreno, depósitos, construções, criaturas procedurais e partículas.
 // Tudo desenhado em canvas — nenhum asset externo.
 
-const { E, ELEMENTS, elemColor } = __m.elements;
+const { E, ELEMENTS, ENDGAME, elemColor } = __m.elements;
 const { TILE, T } = __m.world;
 const TERRAIN_COLORS = {
   [T.PLAIN]: [38, 51, 42],
@@ -2690,6 +3053,26 @@ function buildTerrainCanvas(world) {
   return cv;
 }
 
+// Território de facções: canvas offscreen 1px/tile pintado com a influência
+// (círculos) das construções de cada facção. Composto sobre o terreno com
+// alpha baixa — o mapa vira um mapa político vivo.
+function repaintTerritory(game) {
+  const cv = game.territoryCanvas;
+  if (!cv) return;
+  const c = cv.getContext('2d');
+  c.clearRect(0, 0, cv.width, cv.height);
+  for (const f of game.factions) {
+    if (f.buildings.length === 0) continue;
+    c.fillStyle = f.color;
+    for (const b of f.buildings) {
+      const r = b.type === 'totem' ? ENDGAME.TERRITORY_R_TOTEM : ENDGAME.TERRITORY_R_BUILDING;
+      c.beginPath();
+      c.arc(b.tx + 0.5, b.ty + 0.5, r, 0, 7);
+      c.fill();
+    }
+  }
+}
+
 function render(game, ctx, cam, t) {
   const { world } = game;
   const vw = ctx.canvas.width, vh = ctx.canvas.height;
@@ -2697,11 +3080,24 @@ function render(game, ctx, cam, t) {
   ctx.fillStyle = '#0b0d12';
   ctx.fillRect(0, 0, vw, vh);
 
-  ctx.setTransform(cam.zoom, 0, 0, cam.zoom, -cam.x * cam.zoom, -cam.y * cam.zoom);
+  // tremor de tela: offset aleatório (só visual, fxRng) enquanto game.shake > 0
+  let shakeX = 0, shakeY = 0;
+  if (game.shake > 0) {
+    shakeX = game.fxRng.range(-game.shake, game.shake);
+    shakeY = game.fxRng.range(-game.shake, game.shake);
+  }
+  ctx.setTransform(cam.zoom, 0, 0, cam.zoom, -(cam.x + shakeX) * cam.zoom, -(cam.y + shakeY) * cam.zoom);
   ctx.imageSmoothingEnabled = false;
 
   // terreno (offscreen 1px/tile, escalado)
   ctx.drawImage(game.terrainCanvas, 0, 0, world.w, world.h, 0, 0, world.w * TILE, world.h * TILE);
+
+  // território das facções (sob os depósitos; alpha dobrada com a lente ativa)
+  if (game.territoryCanvas) {
+    ctx.globalAlpha = game.lensFactions ? ENDGAME.TERRITORY_ALPHA * 2 : ENDGAME.TERRITORY_ALPHA;
+    ctx.drawImage(game.territoryCanvas, 0, 0, world.w, world.h, 0, 0, world.w * TILE, world.h * TILE);
+    ctx.globalAlpha = 1;
+  }
 
   // rect visível em tiles (culling)
   const tx0 = Math.max(0, Math.floor(cam.x / TILE));
@@ -2996,7 +3392,7 @@ function shadeColor(hex, amt) {
 // ---------------------------------------------------------------------------
 function drawCreature(ctx, c, t, portrait = false) {
   const bp = c.bodyPlan;
-  const s = bp.size;
+  const s = bp.size * (c.sizeMul || 1); // gigantismo: escala visual permanente
   const wob = Math.sin(t * 3.2 + bp.phase) * bp.wobble * 0.12;
   const moving = !portrait && c.speedNow > 4;
   const squash = moving ? 1 + Math.sin(c.animPhase * 2) * 0.12 : 1 + wob;
@@ -3214,15 +3610,16 @@ function drawVehicle(ctx, c, s, t) {
   }
 }
 
-return { buildTerrainCanvas, render, drawCreature };
+return { buildTerrainCanvas, render, drawCreature, repaintTerritory };
 })();
 
 // ==== src/ui.js ====
 __m.ui = (() => {
 // HUD, paleta de elementos (ícones desenhados em canvas), feed de eventos e inspetor.
 
-const { ELEMENTS, E, elemName, elemColor } = __m.elements;
+const { ELEMENTS, E, ENDGAME, elemName, elemColor } = __m.elements;
 const { ELEMENT_GIFTS } = __m.evolution;
+const { ERAS } = __m.society;
 const { drawCreature } = __m.render;
 let game = null;
 let callbacks = null;
@@ -3234,11 +3631,15 @@ let lockedFeedAt = -Infinity;
 
 function initUI(g, cb) {
   game = g; callbacks = cb;
-  for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime',
-    'palette', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend']) {
+  for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime', 'eraLabel', 'eraBanner',
+    'palette', 'palTip', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend']) {
     el[id] = document.getElementById(id);
   }
   el.feedTab.addEventListener('click', () => setFeedOpen(!feedOpen));
+  // tocar fora da paleta esconde o tooltip de elemento
+  document.addEventListener('pointerdown', e => {
+    if (!(e.target.closest && e.target.closest('.palbtn'))) hidePalTip();
+  }, { passive: true });
   portraitCtx = el.portrait.getContext('2d');
   buildPalette();
   game.onDiscover = id => unlockPaletteBtn(id);
@@ -3275,6 +3676,7 @@ function setGame(g) {
   selectBuilding(null);
   selectCreature(null);
   selectTool('inspect');
+  el.eraBanner.classList.remove('show');
   el.lensBtn.classList.remove('active');
   document.querySelectorAll('.speedbtn[data-speed]').forEach(o => o.classList.toggle('active', o.dataset.speed === '1'));
 }
@@ -3285,9 +3687,10 @@ function buildPalette() {
 
   const inspect = document.createElement('button');
   inspect.className = 'palbtn';
-  inspect.title = 'Inspecionar criatura';
+  inspect.setAttribute('aria-label', 'Lupa');
   inspect.appendChild(iconCanvas(-1));
   inspect.addEventListener('click', () => selectTool('inspect'));
+  attachPalTip(inspect, { name: 'Lupa', desc: 'Inspeciona criaturas e construções: toque numa para ver seus detalhes.' });
   el.palette.appendChild(inspect);
   paletteBtns.set('inspect', inspect);
 
@@ -3297,10 +3700,10 @@ function buildPalette() {
     const locked = def.fused && !game.discovered.has(def.id);
     if (locked) {
       b.classList.add('locked');
-      b.title = '???';
+      b.setAttribute('aria-label', '???');
       b.appendChild(lockedIcon());
     } else {
-      b.title = def.name + (def.rare ? ' (cooldown)' : '');
+      b.setAttribute('aria-label', def.name);
       b.appendChild(iconCanvas(def.id));
     }
     const cd = document.createElement('div');
@@ -3317,10 +3720,54 @@ function buildPalette() {
       }
       selectTool(def.id);
     });
+    attachPalTip(b, def);
     el.palette.appendChild(b);
     paletteBtns.set(def.id, b);
   }
 }
+
+// Tooltip da paleta: hover no desktop, dedo pressionado no touch.
+// Lê o estado do botão na hora de exibir (elementos destravam ao vivo).
+let palTipHideTimer = 0;
+function attachPalTip(btn, def) {
+  const show = () => {
+    clearTimeout(palTipHideTimer);
+    const locked = btn.classList.contains('locked');
+    el.palTip.innerHTML = '';
+    const name = document.createElement('b');
+    name.textContent = locked ? '???' : def.name + (def.rare ? ' · recarga lenta' : '');
+    if (!locked && def.color) name.style.color = def.color;
+    const desc = document.createElement('div');
+    desc.className = 'desc';
+    desc.textContent = locked ? 'Elemento oculto: descubra-o fundindo outros dois no mundo.' : def.desc;
+    el.palTip.append(name, desc);
+    el.palTip.classList.remove('hidden');
+    const r = btn.getBoundingClientRect();
+    el.palTip.style.left = Math.min(r.right + 8, window.innerWidth - el.palTip.offsetWidth - 8) + 'px';
+    el.palTip.style.top = Math.max(8, Math.min(window.innerHeight - el.palTip.offsetHeight - 8,
+      r.top + r.height / 2 - el.palTip.offsetHeight / 2)) + 'px';
+  };
+  btn.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') show(); });
+  btn.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hidePalTip(); });
+  // touch: mostra enquanto o dedo pressiona e segura mais um pouco para ler
+  btn.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') show(); });
+  for (const ev of ['pointerup', 'pointercancel']) {
+    btn.addEventListener(ev, e => {
+      if (e.pointerType === 'mouse') return;
+      clearTimeout(palTipHideTimer);
+      palTipHideTimer = setTimeout(hidePalTip, 2500);
+    });
+  }
+  // touch: selecionar o elemento (tap) também mostra o tooltip — caminho
+  // garantido mesmo onde o navegador engole o pointerdown (scroll da paleta)
+  btn.addEventListener('click', () => {
+    if (!matchMedia('(pointer: coarse)').matches) return;
+    show();
+    clearTimeout(palTipHideTimer);
+    palTipHideTimer = setTimeout(hidePalTip, 2500);
+  });
+}
+function hidePalTip() { el.palTip.classList.add('hidden'); }
 
 // Ícone "?" dos elementos ainda não descobertos
 function lockedIcon() {
@@ -3339,8 +3786,7 @@ function unlockPaletteBtn(id) {
   const b = paletteBtns.get(id);
   if (!b || !b.classList.contains('locked')) return;
   b.classList.remove('locked');
-  const def = ELEMENTS[id];
-  b.title = def.name + (def.rare ? ' (cooldown)' : '');
+  b.setAttribute('aria-label', ELEMENTS[id].name);
   b.querySelector('canvas').replaceWith(iconCanvas(id));
 }
 
@@ -3641,6 +4087,18 @@ function iconCanvas(id) {
   return cv;
 }
 
+// Banner de era: aparece no centro-alto e some sozinho (~4s, animação CSS).
+let eraBannerTimer = 0;
+function showEraBanner(era) {
+  const b = el.eraBanner;
+  b.textContent = `${era.icon} ${era.name}`;
+  b.classList.remove('show');
+  void b.offsetWidth; // força reflow para reiniciar a animação
+  b.classList.add('show');
+  clearTimeout(eraBannerTimer);
+  eraBannerTimer = setTimeout(() => b.classList.remove('show'), 4200);
+}
+
 // Log de eventos em aba: fechado por padrão, o botão 📜 mostra não-lidos.
 let feedOpen = false;
 let feedUnread = 0;
@@ -3721,7 +4179,9 @@ function refreshInspector(force) {
   document.getElementById('inspAbsorbed').style.color = '';
   const mins = Math.floor(c.age / 60), secs = Math.floor(c.age % 60);
   document.getElementById('inspName').textContent =
-    c.name + (c.archetype ? ' · ' + c.archetype.name : '') + (c.isFirst ? ' ★ (o Primeiro)' : '');
+    c.name + (c.archetype ? ' · ' + c.archetype.name : '')
+    + (c.giantTier > 0 ? ` · ${ENDGAME.GIANT_TIER_NAMES[c.giantTier - 1]} ${c.sizeMul.toFixed(1)}×` : '')
+    + (c.isFirst ? ' ★ (o Primeiro)' : '');
   document.getElementById('inspAge').textContent = `idade ${mins}m${String(secs).padStart(2, '0')}s · ❤ ${Math.ceil(c.hp)}/${Math.ceil(c.stats.maxHp)}`;
   const f = document.getElementById('inspFaction');
   if (c.faction) { f.textContent = `⚑ ${c.faction.name}`; f.style.color = c.faction.color; }
@@ -3762,7 +4222,7 @@ function refreshInspector(force) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, 110, 110);
   ctx.fillStyle = '#141821'; ctx.fillRect(0, 0, 110, 110);
-  const scale = 42 / Math.max(8, c.bodyPlan.size + (c.bodyPlan.spikes ? 5 : 0));
+  const scale = 42 / Math.max(8, c.bodyPlan.size * (c.sizeMul || 1) + (c.bodyPlan.spikes ? 5 : 0));
   ctx.setTransform(scale, 0, 0, scale, 55 - c.x * scale, 62 - c.y * scale);
   drawCreature(ctx, c, performance.now() / 1000, true);
 }
@@ -3770,6 +4230,8 @@ function refreshInspector(force) {
 function updateHUD() {
   el.pop.textContent = `pop ${game.creatures.length}`;
   el.factions.textContent = `facções ${game.factions.filter(f => f.members.length > 1).length}`;
+  const era = ERAS[game.era] || ERAS[0];
+  el.eraLabel.textContent = `${era.icon} ${era.short}`;
   const m = Math.floor(game.time / 60), s = Math.floor(game.time % 60);
   el.worldTime.textContent = `${m}:${String(s).padStart(2, '0')}`;
 
@@ -3809,7 +4271,7 @@ function updateHUD() {
   }
 }
 
-return { initUI, setGame, pushFeed, selectCreature, selectBuilding, updateHUD, selectTool };
+return { initUI, setGame, pushFeed, selectCreature, selectBuilding, updateHUD, selectTool, showEraBanner };
 })();
 
 // ==== src/main.js ====
@@ -3817,13 +4279,13 @@ __m.main = (() => {
 // Bootstrap, game loop, câmera, input e orquestração dos sistemas.
 
 const { RNG, hashString } = __m.rng;
-const { World, TILE, T } = __m.world;
-const { E, ELEMENTS, elemName, elemColor } = __m.elements;
+const { World, TILE, T, fuseLife } = __m.world;
+const { E, ELEMENTS, ENDGAME, elemName, elemColor } = __m.elements;
 const { Creature } = __m.creature;
 const { MUTATION_POOLS } = __m.evolution;
-const { societyTick } = __m.society;
-const { render, buildTerrainCanvas } = __m.render;
-const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool } = __m.ui;
+const { societyTick, recordWarScore } = __m.society;
+const { render, buildTerrainCanvas, repaintTerritory } = __m.render;
+const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool, showEraBanner } = __m.ui;
 const STEP = 1 / 30;
 
 class SpatialHash {
@@ -3871,11 +4333,21 @@ class Game {
 
     this.world = new World(this.worldSeed);
     this.terrainCanvas = buildTerrainCanvas(this.world);
+    this.territoryCanvas = document.createElement('canvas');
+    this.territoryCanvas.width = this.world.w;
+    this.territoryCanvas.height = this.world.h;
     this.creatures = [];
     this.buildings = [];
     this.factions = [];
     this.particles = [];
     this.usedFactionNames = new Set();
+    this.era = 0;                    // 0 Primordial, 1 Tribal, 2 Guerras, 3 Reinos
+    this.wars = [];                  // [{aId, bId, score:{}, t0}]
+    this.cataclysmTimer = 0;         // agendado quando era ≥ CATA_MIN_ERA
+    this.cataclysmPending = null;    // {type, tx, ty, at} durante o telegraph
+    this.territoryDirty = true;
+    this.territoryTimer = 0;
+    this.shake = 0;                  // intensidade de tremor de tela (decai por dt)
     this.popCap = 220;
     this.time = 0;
     this.speed = 1;
@@ -3913,6 +4385,8 @@ class Game {
 
   feed(msg, color) { pushFeed(msg, color); }
   setSpeed(s) { this.speed = s; }
+  addShake(v) { this.shake = Math.min(10, this.shake + v); }
+  announceEra(era) { showEraBanner(era); }
 
   addCreature(c) { this.creatures.push(c); }
 
@@ -3948,6 +4422,34 @@ class Game {
       return;
     }
     c.alive = false;
+    // guerra: abate de inimigo pontua no placar da facção do atacante
+    if (attacker && attacker.faction && c.faction && attacker.faction.isAtWar(c.faction)) {
+      recordWarScore(this, attacker.faction, c.faction, ENDGAME.WAR_SCORE_KILL);
+    }
+    // a queda de um colosso devolve ao mundo o que ele devorou
+    if (c.giantTier >= 2) {
+      const drops = Math.min(ENDGAME.TITAN_DROP_MAX, Math.floor(c.absorbLifetime / 4));
+      const top = Object.entries(c.absorbed).filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1]).slice(0, 3);
+      if (drops > 0 && top.length) {
+        const total = top.reduce((s, [, v]) => s + v, 0);
+        const ctx0 = Math.floor(c.x / TILE), cty0 = Math.floor(c.y / TILE);
+        for (let k = 0; k < drops; k++) {
+          const tx = ctx0 + this.envRng.int(-ENDGAME.TITAN_DROP_RADIUS, ENDGAME.TITAN_DROP_RADIUS);
+          const ty = cty0 + this.envRng.int(-ENDGAME.TITAN_DROP_RADIUS, ENDGAME.TITAN_DROP_RADIUS);
+          if (!this.world.inBounds(tx, ty)) continue;
+          const ti = this.world.idx(tx, ty);
+          if (this.world.buildingAt.has(ti)) continue;
+          // proporção ponderada pelas contagens dos 3 elementos mais absorvidos
+          let roll = this.envRng.next() * total, elem = +top[0][0];
+          for (const [ek, ev] of top) { roll -= ev; if (roll <= 0) { elem = +ek; break; } }
+          this.world.setDep(ti, elem, fuseLife(elem, this.envRng));
+        }
+      }
+      this.addShake(c.giantTier * 2);
+      this.sparkBurst(c.x, c.y, c.dominantElem >= 0 ? elemColor(c.dominantElem) : '#ffd75a', 14);
+      this.feed(`💥 ${c.name}, o ${ENDGAME.GIANT_TIER_NAMES[c.giantTier - 1]}, tombou ${cause}! Seus elementos se espalham pelo mundo.`, '#ffb36a');
+    }
     // explosivo póstumo: estilhaços atingem quem estiver perto
     if (c.deathBurst) {
       for (const o of this.hash.query(c.x, c.y, 40)) {
@@ -3996,17 +4498,24 @@ class Game {
     this.buildings.push(b);
     this.world.buildingAt.set(this.world.idx(b.tx, b.ty), b);
     if (b.faction) b.faction.buildings.push(b);
+    this.territoryDirty = true;
   }
 
   removeBuilding(b, cause) {
     const i = this.buildings.indexOf(b);
     if (i < 0) return;
+    // guerra: construção derrubada por inimigo pontua no placar
+    if (b.lastAttacker && b.lastAttacker.faction && b.faction &&
+        b.lastAttacker.faction.isAtWar(b.faction)) {
+      recordWarScore(this, b.lastAttacker.faction, b.faction, ENDGAME.WAR_SCORE_BUILDING);
+    }
     this.buildings.splice(i, 1);
     this.world.buildingAt.delete(this.world.idx(b.tx, b.ty));
     if (b.faction) {
       const j = b.faction.buildings.indexOf(b);
       if (j >= 0) b.faction.buildings.splice(j, 1);
     }
+    this.territoryDirty = true;
     const col = elemColor(b.element);
     for (let k = 0; k < 10; k++) {
       const a = this.fxRng.angle(), sp = this.fxRng.range(8, 30);
@@ -4123,6 +4632,20 @@ class Game {
     this.societyAcc += dt;
     if (this.societyAcc >= 8) { societyTick(this); this.societyAcc = 0; }
 
+    // cataclismos: o mundo se agita sozinho a partir da Era Tribal
+    if (this.era >= ENDGAME.CATA_MIN_ERA) updateCataclysm(this, dt);
+
+    // tremor de tela decai com o tempo de simulação
+    if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
+
+    // território: repinta quando sujo, no máximo a cada TERRITORY_REFRESH s
+    if (this.territoryTimer > 0) this.territoryTimer -= dt;
+    if (this.territoryDirty && this.territoryTimer <= 0) {
+      repaintTerritory(this);
+      this.territoryDirty = false;
+      this.territoryTimer = ENDGAME.TERRITORY_REFRESH;
+    }
+
     for (const [k, v] of Object.entries(this.cooldowns)) {
       if (v > 0) this.cooldowns[k] = Math.max(0, v - dt);
     }
@@ -4144,6 +4667,127 @@ class Game {
     }
     const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
     this.world.pour(elem, tx, ty, elem === E.DIAMOND ? 0 : this.brush.radius, this.pourRng, this);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Cataclismos autônomos (Fase A): a partir da Era Tribal o mundo se agita
+// sozinho e devolve química ao mapa. Todo sorteio usa envRng (determinismo).
+// ---------------------------------------------------------------------------
+const CATACLYSMS = [
+  { w: 2, type: 'meteoro',    warn: d => `⚠️ Uma luz cresce no céu ${d}...` },
+  { w: 3, type: 'erupcao',    warn: d => `⚠️ O chão treme ${d}...` },
+  { w: 3, type: 'nevasca',    warn: d => `⚠️ Um vento gélido sopra ${d}...` },
+  { w: 3, type: 'tempestade', warn: d => `⚠️ Nuvens negras se acumulam ${d}...` },
+  { w: 1, type: 'praga',      warn: d => `⚠️ Um odor pútrido se espalha ${d}...` },
+];
+
+// Direção aproximada do alvo em relação ao centro do mapa, já com preposição.
+function compassDir(world, tx, ty) {
+  const dx = tx - world.w / 2, dy = ty - world.h / 2;
+  let d;
+  if (Math.abs(dy) > Math.abs(dx) * 2) d = dy < 0 ? 'norte' : 'sul';
+  else if (Math.abs(dx) > Math.abs(dy) * 2) d = dx < 0 ? 'oeste' : 'leste';
+  else d = (dy < 0 ? 'nor' : 'su') + (dx < 0 ? (dy < 0 ? 'oeste' : 'doeste') : 'deste');
+  return (d === 'norte' || d === 'sul') ? `ao ${d}` : `a ${d}`;
+}
+
+function updateCataclysm(game, dt) {
+  // telegraph em andamento: aguarda a hora do impacto
+  if (game.cataclysmPending) {
+    if (game.time >= game.cataclysmPending.at) {
+      executeCataclysm(game, game.cataclysmPending);
+      game.cataclysmPending = null;
+    }
+    return;
+  }
+  const rng = game.envRng;
+  if (game.cataclysmTimer <= 0) {
+    // agenda o próximo: o intervalo encurta a cada era
+    const scale = Math.pow(ENDGAME.CATA_ERA_SCALE, Math.max(0, game.era - 1));
+    game.cataclysmTimer = rng.range(ENDGAME.CATA_INTERVAL[0], ENDGAME.CATA_INTERVAL[1]) * scale;
+    return;
+  }
+  game.cataclysmTimer -= dt;
+  if (game.cataclysmTimer > 0) return;
+
+  // sorteia tipo e alvo: tile de terra, com viés de 50% para perto de criaturas
+  const world = game.world;
+  const kind = rng.weighted(CATACLYSMS);
+  let tx = -1, ty = -1;
+  for (let i = 0; i < 40; i++) {
+    let cx, cy;
+    if (game.creatures.length && rng.chance(0.5)) {
+      const c = rng.pick(game.creatures);
+      const near = game.hash.query(c.x, c.y, 80);
+      const p = near.length ? rng.pick(near) : c;
+      cx = Math.floor(p.x / TILE) + rng.int(-4, 4);
+      cy = Math.floor(p.y / TILE) + rng.int(-4, 4);
+    } else {
+      cx = rng.int(4, world.w - 5);
+      cy = rng.int(4, world.h - 5);
+    }
+    if (world.inBounds(cx, cy) && world.terrain[world.idx(cx, cy)] !== T.WATER) { tx = cx; ty = cy; break; }
+  }
+  if (tx < 0) { game.cataclysmTimer = 30; return; } // sem alvo em terra: tenta em breve
+  game.feed(kind.warn(compassDir(world, tx, ty)), '#ffb36a');
+  game.cataclysmPending = { type: kind.type, tx, ty, at: game.time + ENDGAME.CATA_WARNING };
+}
+
+function executeCataclysm(game, ev) {
+  const world = game.world, rng = game.envRng;
+  const { tx, ty } = ev;
+  // mancha orgânica de `elem` — nunca sobrescreve tiles com construção
+  const splat = (elem, radius, density) => {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        if (dx * dx + dy * dy > radius * radius + 0.5) continue;
+        const x = tx + dx, y = ty + dy;
+        if (!world.inBounds(x, y)) continue;
+        const i = world.idx(x, y);
+        if (world.buildingAt.has(i) || !rng.chance(density)) continue;
+        world.setDep(i, elem, fuseLife(elem, rng));
+      }
+    }
+  };
+  switch (ev.type) {
+    case 'meteoro': {
+      // núcleo estelar na cratera (o colapso explosivo já existe em envTick)
+      const i = world.idx(tx, ty);
+      if (!world.buildingAt.has(i)) world.setDep(i, E.STARCORE, fuseLife(E.STARCORE, rng));
+      // anel de fogo ao redor do impacto (raio 2)
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 2 || d2 > 6) continue;
+          const x = tx + dx, y = ty + dy;
+          if (!world.inBounds(x, y)) continue;
+          const ni = world.idx(x, y);
+          if (world.buildingAt.has(ni) || !rng.chance(0.6)) continue;
+          world.setDep(ni, E.FIRE, rng.range(3, 6));
+        }
+      }
+      game.addShake(6);
+      game.feed('☄️ Um meteoro caiu! Um núcleo estelar arde na cratera.', '#ff9a3a');
+      break;
+    }
+    case 'erupcao':
+      splat(E.LAVA, rng.int(1, 2), 0.5);
+      game.addShake(4);
+      game.feed('🌋 Uma erupção rasga o chão!', '#ff4a1a');
+      break;
+    case 'nevasca':
+      splat(E.BLIZZARD, rng.int(2, 3), 0.5);
+      game.feed('🌨️ Uma nevasca desaba sobre a região!', '#d8ecff');
+      break;
+    case 'tempestade':
+      splat(E.STORM, 2, 0.5);
+      game.feed('⛈️ Uma tempestade se forma!', '#8f82e0');
+      break;
+    case 'praga':
+      splat(E.PLAGUE, 2, 0.4);
+      game.feed('☣️ A praga brota da terra!', '#8fae52');
+      break;
   }
 }
 
