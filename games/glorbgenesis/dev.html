@@ -36,17 +36,86 @@
   button:hover { background: #252d40; }
   button.active { background: #3a4666; border-color: #5a6a99; color: #fff; }
 
+  /* legenda da lente de facções */
+  #lensLegend {
+    top: 48px; left: 50%; transform: translateX(-50%);
+    padding: 6px 12px; font-size: 12px; z-index: 10;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  #lensLegend.hidden { display: none; }
+  #lensLegend .sw {
+    display: inline-block; width: 10px; height: 10px;
+    border-radius: 2px; margin-right: 6px; vertical-align: -1px;
+  }
+
+  /* banner de mudança de era */
+  #eraBanner {
+    top: 18%; left: 50%; transform: translateX(-50%);
+    padding: 14px 30px; z-index: 20; pointer-events: none;
+    font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 0.5px;
+    opacity: 0;
+  }
+  #eraBanner.show { animation: erabanner 4s ease-in-out forwards; }
+  @keyframes erabanner {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* anúncio de conquista: novo elemento descoberto */
+  #discovery {
+    position: fixed; inset: 0; z-index: 25; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+  }
+  #discovery.show { animation: discovery 5s ease-in-out forwards; }
+  #discoveryGlow {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 46%, var(--disc-color, #fff) 0%, transparent 55%);
+    opacity: 0.16;
+  }
+  #discoveryCard {
+    position: relative; text-align: center; padding: 26px 46px;
+    background: rgba(13, 16, 24, 0.92); border: 1px solid var(--disc-color, #444);
+    border-radius: 14px; box-shadow: 0 0 40px -6px var(--disc-color, transparent);
+  }
+  #discoveryTitle {
+    font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+    color: #9aa3b5; margin-bottom: 10px;
+  }
+  #discoveryIcon canvas { width: 64px; height: 64px; }
+  #discoveryName {
+    font-size: 30px; font-weight: 700; letter-spacing: 0.5px;
+    color: var(--disc-color, #fff); margin: 6px 0 8px;
+  }
+  #discoveryDesc { font-size: 13px; color: #b7bfd0; max-width: 340px; line-height: 1.45; }
+  @keyframes discovery {
+    0%   { opacity: 0; transform: scale(0.82); }
+    8%   { opacity: 1; transform: scale(1.04); }
+    12%  { transform: scale(1); }
+    86%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(1); }
+  }
+  @media (max-width: 760px) {
+    #discoveryCard { padding: 18px 26px; max-width: 86vw; }
+    #discoveryName { font-size: 22px; }
+  }
+
   /* paleta */
   #paletteWrap {
     left: 8px; top: 50%; transform: translateY(-50%);
     padding: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: center;
+    max-height: calc(100vh - 16px); overflow-y: auto;
   }
-  #palette { display: flex; flex-direction: column; gap: 4px; }
+  /* com 32 elementos a paleta vira grade de 2 colunas para caber na tela */
+  #palette { display: grid; grid-template-columns: repeat(2, 38px); gap: 4px; }
   .palbtn {
     width: 38px; height: 38px; padding: 3px; position: relative; overflow: hidden;
     display: flex; align-items: center; justify-content: center;
   }
   .palbtn canvas { pointer-events: none; }
+  .palbtn.locked { opacity: 0.35; filter: grayscale(1); }
   .palbtn .cd {
     position: absolute; left: 0; bottom: 0; width: 100%; height: 0%;
     background: rgba(10, 12, 18, 0.75); pointer-events: none;
@@ -54,17 +123,33 @@
   #brushRow { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #8a93a8; font-size: 11px; }
   #brushSize { width: 36px; writing-mode: vertical-lr; direction: rtl; height: 70px; }
 
-  /* feed de eventos */
-  #feed {
-    position: fixed; right: 10px; top: 54px; width: 300px; z-index: 10;
-    display: flex; flex-direction: column; gap: 5px; pointer-events: none;
+  /* tooltip da paleta: nome + descrição do efeito do elemento */
+  #palTip {
+    z-index: 30; max-width: 220px; padding: 7px 10px;
+    pointer-events: none; font-size: 12px; line-height: 1.4;
   }
+  #palTip.hidden { display: none; }
+  #palTip b { display: block; color: #fff; margin-bottom: 2px; }
+  #palTip .desc { color: #9aa3b5; }
+
+  /* feed de eventos: aba recolhida por padrão para não poluir a tela */
+  #feedTab {
+    position: fixed; right: 10px; top: 8px; z-index: 12;
+    padding: 6px 12px;
+  }
+  #feed {
+    position: fixed; right: 10px; top: 44px; width: 300px; z-index: 11;
+    display: flex; flex-direction: column; gap: 5px;
+    max-height: calc(100vh - 60px); overflow-y: auto;
+    padding: 8px;
+  }
+  #feed.hidden { display: none; }
   .feeditem {
     background: rgba(16, 19, 27, 0.85); border-left: 3px solid #888;
     border-radius: 4px; padding: 5px 9px; font-size: 12px; line-height: 1.35;
-    animation: feedin 0.25s ease-out; transition: opacity 3s;
+    animation: feedin 0.25s ease-out; flex-shrink: 0;
   }
-  .feeditem.fading { opacity: 0; }
+  #feed .dim { padding: 2px 4px; }
   @keyframes feedin { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
 
   /* inspetor */
@@ -77,7 +162,9 @@
   #inspName { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 3px; }
   #inspAge, #inspStats, #inspAbsorbed { color: #9aa3b5; font-size: 11.5px; margin-top: 3px; }
   #inspFaction { font-size: 12px; margin-top: 3px; }
+  #inspParents { font-size: 11px; color: #9aa; margin-top: 2px; }
   #inspTraits { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+  #inspGifts { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
   .trait {
     border: 1px solid #555; border-radius: 10px; padding: 1px 8px;
     font-size: 11px; color: #d5d8e0; background: rgba(0,0,0,0.3);
@@ -103,6 +190,28 @@
   @media (pointer: coarse) {
     #hint .fine { display: none; }
     #hint .coarse { display: inline; }
+    /* alvos de toque maiores na paleta */
+    #palette { grid-template-columns: repeat(2, 44px); }
+    .palbtn { width: 44px; height: 44px; }
+    #brushSize { height: 90px; }
+  }
+
+  /* telas estreitas: topo empilha abaixo do link/aba e painéis cabem na tela */
+  @media (max-width: 760px) {
+    #topbar {
+      top: 42px; max-width: calc(100vw - 16px);
+      flex-wrap: wrap; justify-content: center; gap: 4px 10px;
+      white-space: normal; padding: 5px 8px; font-size: 12px;
+    }
+    #seedInput { width: 70px; }
+    #lensLegend { top: 128px; }
+    #feed { top: 128px; width: min(300px, calc(100vw - 20px)); max-height: calc(100vh - 140px); }
+    #inspector { width: min(300px, calc(100vw - 20px)); }
+    #eraBanner {
+      top: 26%; font-size: 16px; padding: 10px 18px;
+      max-width: 90vw; text-align: center;
+    }
+    #hint { display: none; }
   }
 </style>
 </head>
@@ -117,6 +226,7 @@
   <button id="btnNewWorld">Novo Mundo</button>
   <span class="stat"><b id="pop">pop 1</b></span>
   <span class="stat"><b id="factions">facções 0</b></span>
+  <span class="stat"><b id="eraLabel">🌱 Primordial</b></span>
   <span class="stat">⏱ <b id="worldTime">0:00</b></span>
   <span>
     <button class="speedbtn" data-speed="0">⏸</button>
@@ -124,6 +234,21 @@
     <button class="speedbtn" data-speed="2">2×</button>
     <button class="speedbtn" data-speed="4">4×</button>
   </span>
+  <button id="lensBtn" class="speedbtn" title="Lente de facções">⚑</button>
+</div>
+
+<div id="lensLegend" class="panel hidden"></div>
+
+<div id="eraBanner" class="panel"></div>
+
+<div id="discovery">
+  <div id="discoveryGlow"></div>
+  <div id="discoveryCard">
+    <div id="discoveryTitle">🧪 Novo elemento descoberto</div>
+    <div id="discoveryIcon"></div>
+    <div id="discoveryName"></div>
+    <div id="discoveryDesc"></div>
+  </div>
 </div>
 
 <div id="paletteWrap" class="panel">
@@ -133,8 +258,10 @@
     <input id="brushSize" type="range" min="1" max="4" value="2">
   </div>
 </div>
+<div id="palTip" class="panel hidden"></div>
 
-<div id="feed"></div>
+<button id="feedTab" class="panel" title="Log de eventos">📜 Eventos</button>
+<div id="feed" class="panel hidden"></div>
 
 <div id="inspector" class="panel hidden">
   <button id="btnCloseInspector">✕</button>
@@ -144,14 +271,16 @@
       <div id="inspName"></div>
       <div id="inspAge"></div>
       <div id="inspFaction"></div>
+      <div id="inspParents"></div>
       <div id="inspStats"></div>
     </div>
   </div>
   <div id="inspTraits"></div>
+  <div id="inspGifts"></div>
   <div id="inspAbsorbed"></div>
 </div>
 
-<div id="hint"><span class="fine">arraste com botão direito para mover · scroll para zoom · clique com um elemento para despejar</span><span class="coarse">arraste com 1 dedo para mover a câmera · 2 dedos: pan + pinça para zoom · com um elemento, o dedo despeja</span></div>
+<div id="hint"><span class="fine">arraste com botão direito para mover · WASD move a câmera · clique direito volta à lupa · scroll para zoom · clique com um elemento para despejar</span><span class="coarse">arraste com 1 dedo para mover a câmera · 2 dedos: pan + pinça para zoom · com um elemento, o dedo despeja</span></div>
 
 <script type="module" src="src/main.js"></script>
 </body>

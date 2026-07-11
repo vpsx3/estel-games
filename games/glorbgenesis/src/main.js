@@ -1,14 +1,13 @@
 // Bootstrap, game loop, câmera, input e orquestração dos sistemas.
 
 import { RNG, hashString } from './rng.js';
-import { World, TILE, T } from './world.js';
-import { E, ELEMENTS, elemColor } from './elements.js';
+import { World, TILE, T, fuseLife } from './world.js';
+import { E, ELEMENTS, ENDGAME, elemName, elemColor } from './elements.js';
 import { Creature } from './creature.js';
 import { MUTATION_POOLS } from './evolution.js';
-import { societyTick } from './society.js';
-import { render, buildTerrainCanvas } from './render.js';
-import { initUI, setGame, pushFeed, updateHUD, selectCreature } from './ui.js';
-
+import { societyTick, recordWarScore } from './society.js';
+import { render, buildTerrainCanvas, repaintTerritory } from './render.js';
+import { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool, showEraBanner } from './ui.js';
 const STEP = 1 / 30;
 
 class SpatialHash {
@@ -56,11 +55,21 @@ class Game {
 
     this.world = new World(this.worldSeed);
     this.terrainCanvas = buildTerrainCanvas(this.world);
+    this.territoryCanvas = document.createElement('canvas');
+    this.territoryCanvas.width = this.world.w;
+    this.territoryCanvas.height = this.world.h;
     this.creatures = [];
     this.buildings = [];
     this.factions = [];
     this.particles = [];
     this.usedFactionNames = new Set();
+    this.era = 0;                    // 0 Primordial, 1 Tribal, 2 Guerras, 3 Reinos
+    this.wars = [];                  // [{aId, bId, score:{}, t0}]
+    this.cataclysmTimer = 0;         // agendado quando era ≥ CATA_MIN_ERA
+    this.cataclysmPending = null;    // {type, tx, ty, at} durante o telegraph
+    this.territoryDirty = true;
+    this.territoryTimer = 0;
+    this.shake = 0;                  // intensidade de tremor de tela (decai por dt)
     this.popCap = 220;
     this.time = 0;
     this.speed = 1;
@@ -70,9 +79,15 @@ class Game {
     this.tool = 'inspect';
     this.brush = { x: 0, y: 0, radius: 2, visible: false };
     this.selected = null;
+    this.lensFactions = false;
     this.killCount = 0;
     this.combatKills = 0;
     this.combatCount = 0;
+
+    // fusões descobertas: meta-progressão global, persiste entre mundos/seeds
+    this.discovered = new Set();
+    try { for (const id of JSON.parse(localStorage.getItem('glorb_fusions') || '[]')) this.discovered.add(id); } catch (e) {}
+    this.onDiscover = null;
 
     // o Primeiro: surge num ponto aleatório fora d'água (determinístico pela seed)
     const spawnRng = master.fork();
@@ -92,11 +107,30 @@ class Game {
 
   feed(msg, color) { pushFeed(msg, color); }
   setSpeed(s) { this.speed = s; }
+  addShake(v) { this.shake = Math.min(10, this.shake + v); }
+  announceEra(era) { showEraBanner(era); }
 
   addCreature(c) { this.creatures.push(c); }
 
   kill(c, cause, attacker) {
     if (!c.alive) return;
+    // renascido das cinzas: cancela a morte uma única vez
+    if (c.ashRebirth && !c.ashUsed && c.hp <= 0) {
+      c.ashUsed = true;
+      c.hp = c.stats.maxHp * 0.25;
+      this.smokeAt(c.x, c.y);
+      this.feed(`♻ ${c.name} renasceu das cinzas`, '#7d7468');
+      return;
+    }
+    // Dom das Cinzas: revive 1 única vez e o dom é consumido
+    // (independente e cumulativo com a mutação ashRebirth)
+    if (c.hp <= 0 && c.gifts.has(E.ASH)) {
+      c.gifts.delete(E.ASH);
+      c.hp = c.stats.maxHp * 0.25;
+      this.smokeAt(c.x, c.y);
+      this.feed(`♻ ${c.name} renasceu das cinzas`, '#7d7468');
+      return;
+    }
     // slime elástico: divide-se ao invés de morrer (uma vez)
     if (c.splitOnDeath && !c.hasSplit) {
       c.hasSplit = true; c.splitOnDeath = false;
@@ -110,6 +144,60 @@ class Game {
       return;
     }
     c.alive = false;
+    // guerra: abate de inimigo pontua no placar da facção do atacante
+    if (attacker && attacker.faction && c.faction && attacker.faction.isAtWar(c.faction)) {
+      recordWarScore(this, attacker.faction, c.faction, ENDGAME.WAR_SCORE_KILL);
+    }
+    // a queda de um colosso devolve ao mundo o que ele devorou
+    if (c.giantTier >= 2) {
+      const drops = Math.min(ENDGAME.TITAN_DROP_MAX, Math.floor(c.absorbLifetime / 4));
+      const top = Object.entries(c.absorbed).filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1]).slice(0, 3);
+      if (drops > 0 && top.length) {
+        const total = top.reduce((s, [, v]) => s + v, 0);
+        const ctx0 = Math.floor(c.x / TILE), cty0 = Math.floor(c.y / TILE);
+        for (let k = 0; k < drops; k++) {
+          const tx = ctx0 + this.envRng.int(-ENDGAME.TITAN_DROP_RADIUS, ENDGAME.TITAN_DROP_RADIUS);
+          const ty = cty0 + this.envRng.int(-ENDGAME.TITAN_DROP_RADIUS, ENDGAME.TITAN_DROP_RADIUS);
+          if (!this.world.inBounds(tx, ty)) continue;
+          const ti = this.world.idx(tx, ty);
+          if (this.world.buildingAt.has(ti)) continue;
+          // proporção ponderada pelas contagens dos 3 elementos mais absorvidos
+          let roll = this.envRng.next() * total, elem = +top[0][0];
+          for (const [ek, ev] of top) { roll -= ev; if (roll <= 0) { elem = +ek; break; } }
+          this.world.setDep(ti, elem, fuseLife(elem, this.envRng));
+        }
+      }
+      this.addShake(c.giantTier * 2);
+      this.sparkBurst(c.x, c.y, c.dominantElem >= 0 ? elemColor(c.dominantElem) : '#ffd75a', 14);
+      this.feed(`💥 ${c.name}, o ${ENDGAME.GIANT_TIER_NAMES[c.giantTier - 1]}, tombou ${cause}! Seus elementos se espalham pelo mundo.`, '#ffb36a');
+    }
+    // explosivo póstumo: estilhaços atingem quem estiver perto
+    if (c.deathBurst) {
+      for (const o of this.hash.query(c.x, c.y, 40)) {
+        if (o !== c && o.alive) o.hurt(12, null, 'pela explosão póstuma');
+      }
+      this.sparkBurst(c.x, c.y, '#e6d44e', 8);
+    }
+    // Dom Sulfúrico: explosão ao morrer (dobra o raio se também é explosivo póstumo)
+    if (c.gifts.has(E.SULFUR)) {
+      const r = c.deathBurst ? 80 : 40;
+      for (const o of this.hash.query(c.x, c.y, r)) {
+        if (o !== c && o.alive) o.hurt(15, null, 'pela explosão sulfúrica');
+      }
+      this.sparkBurst(c.x, c.y, '#e6d44e', 10);
+    }
+    // dons de caça do matador: Midas (chance de ouro) e Eletro (presas viram ouro)
+    if (attacker && attacker.alive && attacker.gifts.size) {
+      const vtx = Math.floor(c.x / TILE), vty = Math.floor(c.y / TILE);
+      if (this.world.inBounds(vtx, vty)) {
+        const vi = this.world.idx(vtx, vty);
+        if (!this.world.buildingAt.has(vi)) {
+          if (attacker.gifts.has(E.ELECTRUM)) this.world.setDep(vi, E.GOLD, 0);
+          else if (attacker.gifts.has(E.GOLD) && attacker.rng.chance(0.25)) this.world.setDep(vi, E.GOLD, 0);
+        }
+      }
+    }
     this.killCount++;
     if (attacker) this.combatKills++;
     const i = this.creatures.indexOf(c);
@@ -132,17 +220,24 @@ class Game {
     this.buildings.push(b);
     this.world.buildingAt.set(this.world.idx(b.tx, b.ty), b);
     if (b.faction) b.faction.buildings.push(b);
+    this.territoryDirty = true;
   }
 
   removeBuilding(b, cause) {
     const i = this.buildings.indexOf(b);
     if (i < 0) return;
+    // guerra: construção derrubada por inimigo pontua no placar
+    if (b.lastAttacker && b.lastAttacker.faction && b.faction &&
+        b.lastAttacker.faction.isAtWar(b.faction)) {
+      recordWarScore(this, b.lastAttacker.faction, b.faction, ENDGAME.WAR_SCORE_BUILDING);
+    }
     this.buildings.splice(i, 1);
     this.world.buildingAt.delete(this.world.idx(b.tx, b.ty));
     if (b.faction) {
       const j = b.faction.buildings.indexOf(b);
       if (j >= 0) b.faction.buildings.splice(j, 1);
     }
+    this.territoryDirty = true;
     const col = elemColor(b.element);
     for (let k = 0; k < 10; k++) {
       const a = this.fxRng.angle(), sp = this.fxRng.range(8, 30);
@@ -206,9 +301,32 @@ class Game {
     }
     this.spawnP(x, y, 0, 0, 0.25, 'rgba(255,240,150,0.9)', r * 0.7);
     for (const c of this.hash.query(x, y, r)) {
-      if (!c.immunities.has(E.LIGHTNING)) c.hurt(dmg, null, 'eletrocutado por um raio');
+      // Dom Prismático: absorve o raio e cura
+      if (c.gifts.has(E.PRISM)) { c.hp = Math.min(c.stats.maxHp, c.hp + 5); continue; }
+      // Dom do Reflexo: anula o raio e o re-dispara num tile vizinho
+      if (c.gifts.has(E.GLASS) && (c.giftTimers.glass || 0) <= 0) {
+        c.giftTimers.glass = 20;
+        const rtx = Math.floor(c.x / TILE) + this.envRng.int(-1, 1);
+        const rty = Math.floor(c.y / TILE) + this.envRng.int(-1, 1);
+        this.world.lightningStrike(rtx, rty, this.envRng, this, 1);
+        continue;
+      }
+      if (!c.immunities.has(E.LIGHTNING)) {
+        // efeito único: METAL — amplificador: raio dói mais sobre tile de metal
+        const ctx2 = Math.floor(c.x / TILE), cty2 = Math.floor(c.y / TILE);
+        const onMetal = this.world.inBounds(ctx2, cty2) && this.world.dep[this.world.idx(ctx2, cty2)] === E.METAL;
+        c.hurt(dmg * (onMetal ? 1.5 : 1), null, 'eletrocutado por um raio');
+      }
     }
   }
+  notifyFusion(elem, px, py) {
+    if (this.discovered.has(elem)) return;
+    this.discovered.add(elem);
+    try { localStorage.setItem('glorb_fusions', JSON.stringify([...this.discovered])); } catch (e) {}
+    this.feed(`🧪 Elemento descoberto: ${elemName(elem)}!`, elemColor(elem));
+    this.onDiscover && this.onDiscover(elem);
+  }
+  // efeito único: OURO — cobiça: despertar ouro atrai os gananciosos da região
   notifyGold(x, y) {
     const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
     for (const c of this.hash.query(x, y, 140)) {
@@ -236,27 +354,171 @@ class Game {
     this.societyAcc += dt;
     if (this.societyAcc >= 8) { societyTick(this); this.societyAcc = 0; }
 
-    for (const [k, v] of Object.entries(this.cooldowns)) {
-      if (v > 0) this.cooldowns[k] = Math.max(0, v - dt);
+    // cataclismos: o mundo se agita sozinho a partir da Era Tribal
+    if (this.era >= ENDGAME.CATA_MIN_ERA) updateCataclysm(this, dt);
+
+    // tremor de tela decai com o tempo de simulação
+    if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
+
+    // território: repinta quando sujo, no máximo a cada TERRITORY_REFRESH s
+    if (this.territoryTimer > 0) this.territoryTimer -= dt;
+    if (this.territoryDirty && this.territoryTimer <= 0) {
+      repaintTerritory(this);
+      this.territoryDirty = false;
+      this.territoryTimer = ENDGAME.TERRITORY_REFRESH;
     }
 
-    // partículas
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const p = this.particles[i];
+    for (const k in this.cooldowns) {
+      if (this.cooldowns[k] > 0) this.cooldowns[k] = Math.max(0, this.cooldowns[k] - dt);
+    }
+
+    // partículas (remoção por swap-pop: a ordem de desenho não importa)
+    const ps = this.particles;
+    for (let i = ps.length - 1; i >= 0; i--) {
+      const p = ps[i];
       p.life -= dt;
-      if (p.life <= 0) { this.particles.splice(i, 1); continue; }
+      if (p.life <= 0) {
+        ps[i] = ps[ps.length - 1];
+        ps.pop();
+        continue;
+      }
       p.x += p.vx * dt; p.y += p.vy * dt;
     }
   }
 
   pour(elem, wx, wy) {
+    const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
+    if (elem === 'erase') {
+      this.world.erase(tx, ty, this.brush.radius);
+      return;
+    }
     const def = ELEMENTS[elem];
-    if (def.rare) {
+    if (def.cooldown > 0) {
       if ((this.cooldowns[elem] || 0) > 0) return;
       this.cooldowns[elem] = def.cooldown;
     }
-    const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
     this.world.pour(elem, tx, ty, elem === E.DIAMOND ? 0 : this.brush.radius, this.pourRng, this);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Cataclismos autônomos (Fase A): a partir da Era Tribal o mundo se agita
+// sozinho e devolve química ao mapa. Todo sorteio usa envRng (determinismo).
+// ---------------------------------------------------------------------------
+const CATACLYSMS = [
+  { w: 2, type: 'meteoro',    warn: d => `⚠️ Uma luz cresce no céu ${d}...` },
+  { w: 3, type: 'erupcao',    warn: d => `⚠️ O chão treme ${d}...` },
+  { w: 3, type: 'nevasca',    warn: d => `⚠️ Um vento gélido sopra ${d}...` },
+  { w: 3, type: 'tempestade', warn: d => `⚠️ Nuvens negras se acumulam ${d}...` },
+  { w: 1, type: 'praga',      warn: d => `⚠️ Um odor pútrido se espalha ${d}...` },
+];
+
+// Direção aproximada do alvo em relação ao centro do mapa, já com preposição.
+function compassDir(world, tx, ty) {
+  const dx = tx - world.w / 2, dy = ty - world.h / 2;
+  let d;
+  if (Math.abs(dy) > Math.abs(dx) * 2) d = dy < 0 ? 'norte' : 'sul';
+  else if (Math.abs(dx) > Math.abs(dy) * 2) d = dx < 0 ? 'oeste' : 'leste';
+  else d = (dy < 0 ? 'nor' : 'su') + (dx < 0 ? (dy < 0 ? 'oeste' : 'doeste') : 'deste');
+  return (d === 'norte' || d === 'sul') ? `ao ${d}` : `a ${d}`;
+}
+
+function updateCataclysm(game, dt) {
+  // telegraph em andamento: aguarda a hora do impacto
+  if (game.cataclysmPending) {
+    if (game.time >= game.cataclysmPending.at) {
+      executeCataclysm(game, game.cataclysmPending);
+      game.cataclysmPending = null;
+    }
+    return;
+  }
+  const rng = game.envRng;
+  if (game.cataclysmTimer <= 0) {
+    // agenda o próximo: o intervalo encurta a cada era
+    const scale = Math.pow(ENDGAME.CATA_ERA_SCALE, Math.max(0, game.era - 1));
+    game.cataclysmTimer = rng.range(ENDGAME.CATA_INTERVAL[0], ENDGAME.CATA_INTERVAL[1]) * scale;
+    return;
+  }
+  game.cataclysmTimer -= dt;
+  if (game.cataclysmTimer > 0) return;
+
+  // sorteia tipo e alvo: tile de terra, com viés de 50% para perto de criaturas
+  const world = game.world;
+  const kind = rng.weighted(CATACLYSMS);
+  let tx = -1, ty = -1;
+  for (let i = 0; i < 40; i++) {
+    let cx, cy;
+    if (game.creatures.length && rng.chance(0.5)) {
+      const c = rng.pick(game.creatures);
+      const near = game.hash.query(c.x, c.y, 80);
+      const p = near.length ? rng.pick(near) : c;
+      cx = Math.floor(p.x / TILE) + rng.int(-4, 4);
+      cy = Math.floor(p.y / TILE) + rng.int(-4, 4);
+    } else {
+      cx = rng.int(4, world.w - 5);
+      cy = rng.int(4, world.h - 5);
+    }
+    if (world.inBounds(cx, cy) && world.terrain[world.idx(cx, cy)] !== T.WATER) { tx = cx; ty = cy; break; }
+  }
+  if (tx < 0) { game.cataclysmTimer = 30; return; } // sem alvo em terra: tenta em breve
+  game.feed(kind.warn(compassDir(world, tx, ty)), '#ffb36a');
+  game.cataclysmPending = { type: kind.type, tx, ty, at: game.time + ENDGAME.CATA_WARNING };
+}
+
+function executeCataclysm(game, ev) {
+  const world = game.world, rng = game.envRng;
+  const { tx, ty } = ev;
+  // mancha orgânica de `elem` — nunca sobrescreve tiles com construção
+  const splat = (elem, radius, density) => {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        if (dx * dx + dy * dy > radius * radius + 0.5) continue;
+        const x = tx + dx, y = ty + dy;
+        if (!world.inBounds(x, y)) continue;
+        const i = world.idx(x, y);
+        if (world.buildingAt.has(i) || !rng.chance(density)) continue;
+        world.setDep(i, elem, fuseLife(elem, rng));
+      }
+    }
+  };
+  switch (ev.type) {
+    case 'meteoro': {
+      // núcleo estelar na cratera (o colapso explosivo já existe em envTick)
+      const i = world.idx(tx, ty);
+      if (!world.buildingAt.has(i)) world.setDep(i, E.STARCORE, fuseLife(E.STARCORE, rng));
+      // anel de fogo ao redor do impacto (raio 2)
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 2 || d2 > 6) continue;
+          const x = tx + dx, y = ty + dy;
+          if (!world.inBounds(x, y)) continue;
+          const ni = world.idx(x, y);
+          if (world.buildingAt.has(ni) || !rng.chance(0.6)) continue;
+          world.setDep(ni, E.FIRE, rng.range(3, 6));
+        }
+      }
+      game.addShake(6);
+      game.feed('☄️ Um meteoro caiu! Um núcleo estelar arde na cratera.', '#ff9a3a');
+      break;
+    }
+    case 'erupcao':
+      splat(E.LAVA, rng.int(1, 2), 0.5);
+      game.addShake(4);
+      game.feed('🌋 Uma erupção rasga o chão!', '#ff4a1a');
+      break;
+    case 'nevasca':
+      splat(E.BLIZZARD, rng.int(2, 3), 0.5);
+      game.feed('🌨️ Uma nevasca desaba sobre a região!', '#d8ecff');
+      break;
+    case 'tempestade':
+      splat(E.STORM, 2, 0.5);
+      game.feed('⛈️ Uma tempestade se forma!', '#8f82e0');
+      break;
+    case 'praga':
+      splat(E.PLAGUE, 2, 0.4);
+      game.feed('☣️ A praga brota da terra!', '#8fae52');
+      break;
   }
 }
 
@@ -311,6 +573,16 @@ function toWorld(mx, my) {
 }
 
 let pouring = false, panning = false, lastMx = 0, lastMy = 0, pourCd = 0;
+let rcX = 0, rcY = 0; // origem do clique direito (clique parado volta à lupa)
+
+// câmera WASD (desktop)
+const heldKeys = new Set();
+window.addEventListener('keydown', e => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+  heldKeys.add(e.key.toLowerCase());
+});
+window.addEventListener('keyup', e => heldKeys.delete(e.key.toLowerCase()));
+window.addEventListener('blur', () => heldKeys.clear());
 
 function pickCreature(w) {
   let best = null, bd = 18 / cam.zoom + 8;
@@ -321,12 +593,23 @@ function pickCreature(w) {
   return best;
 }
 
+function pickBuilding(w) {
+  const tx = Math.floor(w.x / TILE), ty = Math.floor(w.y / TILE);
+  if (!game.world.inBounds(tx, ty)) return null;
+  return game.world.buildingAt.get(game.world.idx(tx, ty)) || null;
+}
+
 canvas.addEventListener('mousedown', e => {
   const w = toWorld(e.offsetX, e.offsetY);
-  if (e.button === 1 || e.button === 2) { panning = true; }
+  if (e.button === 1 || e.button === 2) {
+    panning = true;
+    if (e.button === 2) { rcX = e.clientX; rcY = e.clientY; }
+  }
   else if (e.button === 0) {
     if (game.tool === 'inspect') {
-      selectCreature(pickCreature(w));
+      const c = pickCreature(w);
+      if (c) selectCreature(c);
+      else selectBuilding(pickBuilding(w)); // vazio fecha o inspetor
     } else {
       pouring = true;
       game.pour(game.tool, w.x, w.y);
@@ -335,7 +618,11 @@ canvas.addEventListener('mousedown', e => {
   }
   lastMx = e.offsetX; lastMy = e.offsetY;
 });
-window.addEventListener('mouseup', () => { pouring = false; panning = false; });
+window.addEventListener('mouseup', e => {
+  // clique direito parado (sem arrasto) volta para a lupa
+  if (e.button === 2 && Math.hypot(e.clientX - rcX, e.clientY - rcY) < 5) selectTool('inspect');
+  pouring = false; panning = false;
+});
 canvas.addEventListener('mouseleave', () => { game.brush.visible = false; });
 canvas.addEventListener('mousemove', e => {
   const w = toWorld(e.offsetX, e.offsetY);
@@ -431,9 +718,12 @@ canvas.addEventListener('touchmove', e => {
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
   if (e.touches.length === 0) {
-    // toque curto e parado com a lupa: seleciona a criatura tocada
+    // toque curto e parado com a lupa: seleciona a criatura (ou construção) tocada
     if (touchMode === 'pan' && !tapMoved && performance.now() - tapTime < 350) {
-      selectCreature(pickCreature(toWorld(tapX, tapY)));
+      const w = toWorld(tapX, tapY);
+      const c = pickCreature(w);
+      if (c) selectCreature(c);
+      else selectBuilding(pickBuilding(w));
     }
     pouring = false; game.brush.visible = false; touchMode = null;
   } else if (e.touches.length === 1) {
@@ -476,6 +766,19 @@ function frame(now) {
     if (pourCd <= 0) { game.pour(game.tool, game.brush.x, game.brush.y); pourCd = 0.09; }
   }
 
+  // câmera WASD
+  const PAN_SPEED = 420;
+  let pdx = 0, pdy = 0;
+  if (heldKeys.has('w')) pdy -= 1;
+  if (heldKeys.has('s')) pdy += 1;
+  if (heldKeys.has('a')) pdx -= 1;
+  if (heldKeys.has('d')) pdx += 1;
+  if (pdx || pdy) {
+    cam.x += pdx * PAN_SPEED * dtReal / cam.zoom;
+    cam.y += pdy * PAN_SPEED * dtReal / cam.zoom;
+    clampCam();
+  }
+
   simAcc += dtReal * game.speed;
   let steps = 0;
   while (simAcc >= STEP && steps < 8) { game.tick(STEP); simAcc -= STEP; steps++; }
@@ -486,3 +789,4 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
+
