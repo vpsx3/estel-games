@@ -3,7 +3,9 @@
 God-game sandbox procedural de elementos e bichinhos virtuais, em vanilla JavaScript + Canvas 2D.
 Sem frameworks, sem backend, sem assets externos, sem persistência — cada mundo é efêmero e único.
 
-Você é uma entidade divina: despeja **13 elementos** no mundo. Uma única criatura ("o Primeiro")
+Você é uma entidade divina: despeja **13 elementos básicos** no mundo, que se fundem em
+**32 elementos avançados** (lava, aço, plasma, praga, monólito…) descobertos ao vivo, com
+anúncio de conquista e desbloqueio permanente na paleta. Uma única criatura ("o Primeiro")
 surge, se reproduz, absorve elementos e **evolui de forma aleatória e única por indivíduo**,
 constrói vilas, funda facções, faz alianças e guerras. Nada é roteirizado — tudo emerge.
 
@@ -13,6 +15,8 @@ constrói vilas, funda facções, faz alianças e guerras. Nada é roteirizado �
 
 - **Paleta (esquerda)**: escolha um elemento e clique/arraste no mundo para despejar.
   Raio e Diamante são raros e têm cooldown. Ajuste o tamanho do pincel no slider.
+- **Borracha**: apaga os depósitos de elementos da região do pincel e extingue
+  chamas de construções.
 - **Lupa**: modo inspecionar — clique numa criatura para ver nome, idade, traits,
   elementos absorvidos, facção e retrato ampliado do corpo procedural.
 - **Câmera**: arraste com o botão direito (ou do meio) para mover, scroll para zoom.

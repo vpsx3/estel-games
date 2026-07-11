@@ -63,6 +63,45 @@
     100% { opacity: 0; }
   }
 
+  /* anúncio de conquista: novo elemento descoberto */
+  #discovery {
+    position: fixed; inset: 0; z-index: 25; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+  }
+  #discovery.show { animation: discovery 5s ease-in-out forwards; }
+  #discoveryGlow {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 46%, var(--disc-color, #fff) 0%, transparent 55%);
+    opacity: 0.16;
+  }
+  #discoveryCard {
+    position: relative; text-align: center; padding: 26px 46px;
+    background: rgba(13, 16, 24, 0.92); border: 1px solid var(--disc-color, #444);
+    border-radius: 14px; box-shadow: 0 0 40px -6px var(--disc-color, transparent);
+  }
+  #discoveryTitle {
+    font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+    color: #9aa3b5; margin-bottom: 10px;
+  }
+  #discoveryIcon canvas { width: 64px; height: 64px; }
+  #discoveryName {
+    font-size: 30px; font-weight: 700; letter-spacing: 0.5px;
+    color: var(--disc-color, #fff); margin: 6px 0 8px;
+  }
+  #discoveryDesc { font-size: 13px; color: #b7bfd0; max-width: 340px; line-height: 1.45; }
+  @keyframes discovery {
+    0%   { opacity: 0; transform: scale(0.82); }
+    8%   { opacity: 1; transform: scale(1.04); }
+    12%  { transform: scale(1); }
+    86%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(1); }
+  }
+  @media (max-width: 760px) {
+    #discoveryCard { padding: 18px 26px; max-width: 86vw; }
+    #discoveryName { font-size: 22px; }
+  }
+
   /* paleta */
   #paletteWrap {
     left: 8px; top: 50%; transform: translateY(-50%);
@@ -202,6 +241,16 @@
 
 <div id="eraBanner" class="panel"></div>
 
+<div id="discovery">
+  <div id="discoveryGlow"></div>
+  <div id="discoveryCard">
+    <div id="discoveryTitle">🧪 Novo elemento descoberto</div>
+    <div id="discoveryIcon"></div>
+    <div id="discoveryName"></div>
+    <div id="discoveryDesc"></div>
+  </div>
+</div>
+
 <div id="paletteWrap" class="panel">
   <div id="palette"></div>
   <div id="brushRow">
@@ -297,6 +346,7 @@ class RNG {
   }
 }
 
+
 return { hashString, RNG };
 })();
 
@@ -329,6 +379,7 @@ function factionName(rng, used) {
   used.add(n);
   return n;
 }
+
 
 return { creatureName, factionName };
 })();
@@ -560,6 +611,7 @@ fu(E.OBSIDIAN, E.RELIC, E.MONOLITH);
 function elemName(id) { return ELEMENTS[id].name; }
 function elemColor(id) { return ELEMENTS[id].color; }
 
+
 return { E, ELEMENTS, FLAMMABLE, CONDUCTIVE, STRUCTURAL, ENDGAME, REACT, FUSE, elemName, elemColor };
 })();
 
@@ -570,7 +622,6 @@ __m.world = (() => {
 
 const { E, REACT, FUSE, CONDUCTIVE, FLAMMABLE } = __m.elements;
 const { RNG } = __m.rng;
-
 // Vida inicial de depósitos criados por fusão (0 = permanente/passivo).
 function fuseLife(elem, rng) {
   if (elem === E.LAVA) return rng.range(12, 18);
@@ -758,6 +809,22 @@ class World {
     if (b.element === E.WOOD && !b.burning) {
       b.burning = 4;
       game.feed(`🔥 ${b.label} pegou fogo!`, '#ff6a2a');
+    }
+  }
+
+  // Borracha divina: limpa todos os depósitos no raio (círculo cheio, sem
+  // falhas de pincel — apagar deve ser confiável) e apaga chamas de construções.
+  erase(tx, ty, radius) {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        if (dx * dx + dy * dy > radius * radius + 0.5) continue;
+        const x = tx + dx, y = ty + dy;
+        if (!this.inBounds(x, y)) continue;
+        const i = this.idx(x, y);
+        if (this.dep[i] !== -1) this.clearDep(i);
+        const b = this.buildingAt.get(i);
+        if (b && b.burning > 0) b.burning = 0;
+      }
     }
   }
 
@@ -1055,7 +1122,8 @@ class World {
   }
 }
 
-return { WORLD_W, WORLD_H, TILE, T, TERRAIN_SPEED, World, fuseLife };
+
+return { fuseLife, WORLD_W, WORLD_H, TILE, T, TERRAIN_SPEED, World };
 })();
 
 // ==== src/evolution.js ====
@@ -1457,6 +1525,7 @@ function absorbElement(creature, elem, game) {
   return mut;
 }
 
+
 return { MUTATION_POOLS, ELEMENT_GIFTS, absorbElement };
 })();
 
@@ -1508,7 +1577,8 @@ class Building {
       this.hp -= 9 * dt;
       if (game.fxRng.chance(dt * 6)) game.flameAt(this.x + game.fxRng.range(-5, 5), this.y + game.fxRng.range(-6, 2), game.fxRng);
       // fogo se espalha para construções/depósitos inflamáveis vizinhos
-      if (game.fxRng.chance(dt * 1.2)) {
+      // (decisão de simulação: rola no envRng, não no fxRng de efeitos visuais)
+      if (game.envRng.chance(dt * 1.2)) {
         const world = game.world;
         const nx = this.tx + game.envRng.int(-1, 1), ny = this.ty + game.envRng.int(-1, 1);
         if (world.inBounds(nx, ny)) {
@@ -1612,6 +1682,7 @@ function attemptBuild(game, c, tx, ty) {
     game.feed(`🔨 ${c.name} construiu ${b.label}`, elemColor(elem));
   }
 }
+
 
 return { BUILD_THRESHOLD, TYPE_NAMES, Building, attemptBuild };
 })();
@@ -1791,6 +1862,19 @@ function tryEncounter(game, a, b) {
 function societyTick(game) {
   const rng = game.societyRng;
   checkEraProgress(game);
+  // facções extintas (sem membros e sem construções) saem do registro,
+  // e as relações que apontam para elas são esquecidas — sem isso ambos
+  // crescem sem limite em sessões longas.
+  const liveIds = new Set();
+  game.factions = game.factions.filter(f => {
+    if (f.members.length === 0 && f.buildings.length === 0) return false;
+    liveIds.add(f.id);
+    return true;
+  });
+  for (const f of game.factions) {
+    for (const id of f.relations.keys()) if (!liveIds.has(id)) f.relations.delete(id);
+    if (f.tributeTo !== null && !liveIds.has(f.tributeTo)) f.tributeTo = null;
+  }
   // guerras órfãs saem do registro: facção extinta ou reduzida a < 2 membros
   // não briga mais — sem isso o registro cresce sem limite em sessões longas
   // (a relação, se esfriar depois, resolve como paz branca sem placar).
@@ -1988,7 +2072,8 @@ function resolveWar(game, A, B) {
   }
 }
 
-return { Faction, tryEncounter, societyTick, factionCap, ERAS, recordWarScore };
+
+return { factionCap, ERAS, Faction, tryEncounter, societyTick, recordWarScore };
 })();
 
 // ==== src/creature.js ====
@@ -2004,6 +2089,20 @@ const { attemptBuild, BUILD_THRESHOLD } = __m.building;
 let nextId = 1;
 
 function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+
+// Depósitos que machucam quem pisa: a IA de coleta evita buscá-los, a menos
+// que a criatura tenha uma das imunidades listadas ou curiosidade ≥ limiar
+// (fogo e veneno mantêm os limiares históricos; os letais exigem quase 1).
+const HAZARD_DEPOSITS = {
+  [E.FIRE]:     { imm: [E.FIRE], curio: 0.75 },
+  [E.POISON]:   { imm: [E.POISON], curio: 0.7 },
+  [E.LAVA]:     { imm: [E.LAVA, E.FIRE], curio: 0.9 },
+  [E.PLASMA]:   { imm: [], curio: 0.97 },
+  [E.ACID]:     { imm: [E.ACID, E.POISON], curio: 0.85 },
+  [E.MIASMA]:   { imm: [E.MIASMA, E.POISON], curio: 0.85 },
+  [E.PLAGUE]:   { imm: [E.PLAGUE, E.MIASMA, E.POISON], curio: 0.9 },
+  [E.STARCORE]: { imm: [], curio: 0.97 },
+};
 
 function baseBodyPlan(rng) {
   const blobOffsets = [];
@@ -2667,8 +2766,9 @@ class Creature {
         const i = world.idx(x, y);
         const d = world.dep[i];
         if (d === -1 || d === E.AIR && world.depLife[i] < 0.5) continue;
-        if (d === E.FIRE && !this.immunities.has(E.FIRE) && this.temperament.curiosity < 0.75) continue;
-        if (d === E.POISON && !this.immunities.has(E.POISON) && this.temperament.curiosity < 0.7) continue;
+        // depósitos perigosos: só quem é imune (ou curioso demais) se aproxima
+        const hz = HAZARD_DEPOSITS[d];
+        if (hz && this.temperament.curiosity < hz.curio && !hz.imm.some(im => this.immunities.has(im))) continue;
         const distW = 1 / (1 + Math.abs(dx) + Math.abs(dy));
         let w = distW;
         if (d === E.GOLD) w *= 1 + this.temperament.greed * 4;
@@ -3019,6 +3119,7 @@ class Creature {
   dist(o) { return Math.hypot(o.x - this.x, o.y - this.y); }
 }
 
+
 return { Creature };
 })();
 
@@ -3080,11 +3181,13 @@ function render(game, ctx, cam, t) {
   ctx.fillStyle = '#0b0d12';
   ctx.fillRect(0, 0, vw, vh);
 
-  // tremor de tela: offset aleatório (só visual, fxRng) enquanto game.shake > 0
+  // tremor de tela enquanto game.shake > 0. Math.random é deliberado aqui:
+  // o render roda por FRAME (não por tick) — consumir um RNG da simulação
+  // dessincronizaria a seed conforme o framerate.
   let shakeX = 0, shakeY = 0;
   if (game.shake > 0) {
-    shakeX = game.fxRng.range(-game.shake, game.shake);
-    shakeY = game.fxRng.range(-game.shake, game.shake);
+    shakeX = (Math.random() * 2 - 1) * game.shake;
+    shakeY = (Math.random() * 2 - 1) * game.shake;
   }
   ctx.setTransform(cam.zoom, 0, 0, cam.zoom, -(cam.x + shakeX) * cam.zoom, -(cam.y + shakeY) * cam.zoom);
   ctx.imageSmoothingEnabled = false;
@@ -3610,7 +3713,8 @@ function drawVehicle(ctx, c, s, t) {
   }
 }
 
-return { buildTerrainCanvas, render, drawCreature, repaintTerritory };
+
+return { buildTerrainCanvas, repaintTerritory, render, drawCreature };
 })();
 
 // ==== src/ui.js ====
@@ -3628,11 +3732,14 @@ const paletteBtns = new Map();
 let portraitCtx = null;
 let inspectorTimer = 0;
 let lockedFeedAt = -Infinity;
+let legendTimer = 0;
+let legendHtml = '';
 
 function initUI(g, cb) {
   game = g; callbacks = cb;
   for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime', 'eraLabel', 'eraBanner',
-    'palette', 'palTip', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend']) {
+    'palette', 'palTip', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend',
+    'discovery', 'discoveryIcon', 'discoveryName', 'discoveryDesc']) {
     el[id] = document.getElementById(id);
   }
   el.feedTab.addEventListener('click', () => setFeedOpen(!feedOpen));
@@ -3642,7 +3749,7 @@ function initUI(g, cb) {
   }, { passive: true });
   portraitCtx = el.portrait.getContext('2d');
   buildPalette();
-  game.onDiscover = id => unlockPaletteBtn(id);
+  game.onDiscover = id => { unlockPaletteBtn(id); showDiscoveryBanner(id); };
 
   document.querySelectorAll('.speedbtn[data-speed]').forEach(b => {
     b.addEventListener('click', () => {
@@ -3672,11 +3779,13 @@ function setGame(g) {
   feedUnread = 0;
   updateFeedTab();
   buildPalette(); // reconstrói respeitando game.discovered
-  game.onDiscover = id => unlockPaletteBtn(id);
+  game.onDiscover = id => { unlockPaletteBtn(id); showDiscoveryBanner(id); };
   selectBuilding(null);
   selectCreature(null);
   selectTool('inspect');
   el.eraBanner.classList.remove('show');
+  el.discovery.classList.remove('show');
+  discoveryQueue.length = 0;
   el.lensBtn.classList.remove('active');
   document.querySelectorAll('.speedbtn[data-speed]').forEach(o => o.classList.toggle('active', o.dataset.speed === '1'));
 }
@@ -3693,6 +3802,15 @@ function buildPalette() {
   attachPalTip(inspect, { name: 'Lupa', desc: 'Inspeciona criaturas e construções: toque numa para ver seus detalhes.' });
   el.palette.appendChild(inspect);
   paletteBtns.set('inspect', inspect);
+
+  const eraser = document.createElement('button');
+  eraser.className = 'palbtn';
+  eraser.setAttribute('aria-label', 'Borracha');
+  eraser.appendChild(iconCanvas(-2));
+  eraser.addEventListener('click', () => selectTool('erase'));
+  attachPalTip(eraser, { name: 'Borracha', desc: 'Apaga os depósitos de elementos na região do pincel e extingue chamas de construções.' });
+  el.palette.appendChild(eraser);
+  paletteBtns.set('erase', eraser);
 
   for (const def of ELEMENTS) {
     const b = document.createElement('button');
@@ -3805,6 +3923,15 @@ function iconCanvas(id) {
     c.strokeStyle = '#ddd'; c.lineWidth = 2.4;
     c.beginPath(); c.arc(12, 12, 6, 0, 7); c.stroke();
     c.beginPath(); c.moveTo(17, 17); c.lineTo(23, 23); c.stroke();
+    return cv;
+  }
+  if (id === -2) { // borracha
+    c.save(); c.translate(cx, cy + 1); c.rotate(-0.6);
+    c.fillStyle = '#e07a9a'; c.fillRect(-8, -5, 9, 10);   // ponta rosa
+    c.fillStyle = '#d5d8e0'; c.fillRect(1, -5, 8, 10);    // corpo claro
+    c.restore();
+    c.strokeStyle = '#8a93a8'; c.lineWidth = 1.6;
+    c.beginPath(); c.moveTo(6, 24); c.lineTo(20, 24); c.stroke(); // traço apagado
     return cv;
   }
   const col = elemColor(id);
@@ -4087,6 +4214,31 @@ function iconCanvas(id) {
   return cv;
 }
 
+// Anúncio de conquista em tela cheia: novo elemento descoberto (~5s, animação CSS).
+let discoveryTimer = 0;
+const discoveryQueue = [];
+function showDiscoveryBanner(id) {
+  if (el.discovery.classList.contains('show')) {
+    // outra descoberta em exibição: enfileira para não engolir o anúncio
+    if (!discoveryQueue.includes(id)) discoveryQueue.push(id);
+    return;
+  }
+  const def = ELEMENTS[id];
+  el.discovery.style.setProperty('--disc-color', def.color);
+  el.discoveryIcon.innerHTML = '';
+  el.discoveryIcon.appendChild(iconCanvas(id));
+  el.discoveryName.textContent = def.name;
+  el.discoveryDesc.textContent = def.desc;
+  el.discovery.classList.remove('show');
+  void el.discovery.offsetWidth; // força reflow para reiniciar a animação
+  el.discovery.classList.add('show');
+  clearTimeout(discoveryTimer);
+  discoveryTimer = setTimeout(() => {
+    el.discovery.classList.remove('show');
+    if (discoveryQueue.length) showDiscoveryBanner(discoveryQueue.shift());
+  }, 5100);
+}
+
 // Banner de era: aparece no centro-alto e some sozinho (~4s, animação CSS).
 let eraBannerTimer = 0;
 function showEraBanner(era) {
@@ -4244,19 +4396,26 @@ function updateHUD() {
     cd.style.height = rem > 0 ? `${(rem / def.cooldown) * 100}%` : '0%';
   }
 
-  // legenda da lente de facções
+  // legenda da lente de facções: monta a cada ~10 frames e só toca o DOM
+  // quando o conteúdo mudou (innerHTML por frame derruba o framerate)
   if (game.lensFactions) {
     el.lensLegend.classList.remove('hidden');
-    let html = '';
-    for (const f of game.factions) {
-      if (f.members.length < 1) continue;
-      let war = false;
-      for (const [, rel] of f.relations) if (rel.state === 'war') { war = true; break; }
-      html += `<div><span class="sw" style="background:${f.color}"></span>${f.name} (${f.members.length})${war ? ' ⚔' : ''}</div>`;
+    legendTimer -= 1;
+    if (legendTimer <= 0) {
+      legendTimer = 10;
+      let html = '';
+      for (const f of game.factions) {
+        if (f.members.length < 1) continue;
+        let war = false;
+        for (const [, rel] of f.relations) if (rel.state === 'war') { war = true; break; }
+        html += `<div><span class="sw" style="background:${f.color}"></span>${f.name} (${f.members.length})${war ? ' ⚔' : ''}</div>`;
+      }
+      html = html || '<span class="dim">nenhuma facção ainda</span>';
+      if (html !== legendHtml) { legendHtml = html; el.lensLegend.innerHTML = html; }
     }
-    el.lensLegend.innerHTML = html || '<span class="dim">nenhuma facção ainda</span>';
   } else {
     el.lensLegend.classList.add('hidden');
+    legendTimer = 0;
   }
 
   inspectorTimer -= 1;
@@ -4271,7 +4430,8 @@ function updateHUD() {
   }
 }
 
-return { initUI, setGame, pushFeed, selectCreature, selectBuilding, updateHUD, selectTool, showEraBanner };
+
+return { initUI, setGame, selectTool, showEraBanner, pushFeed, selectCreature, selectBuilding, updateHUD };
 })();
 
 // ==== src/main.js ====
@@ -4646,26 +4806,35 @@ class Game {
       this.territoryTimer = ENDGAME.TERRITORY_REFRESH;
     }
 
-    for (const [k, v] of Object.entries(this.cooldowns)) {
-      if (v > 0) this.cooldowns[k] = Math.max(0, v - dt);
+    for (const k in this.cooldowns) {
+      if (this.cooldowns[k] > 0) this.cooldowns[k] = Math.max(0, this.cooldowns[k] - dt);
     }
 
-    // partículas
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const p = this.particles[i];
+    // partículas (remoção por swap-pop: a ordem de desenho não importa)
+    const ps = this.particles;
+    for (let i = ps.length - 1; i >= 0; i--) {
+      const p = ps[i];
       p.life -= dt;
-      if (p.life <= 0) { this.particles.splice(i, 1); continue; }
+      if (p.life <= 0) {
+        ps[i] = ps[ps.length - 1];
+        ps.pop();
+        continue;
+      }
       p.x += p.vx * dt; p.y += p.vy * dt;
     }
   }
 
   pour(elem, wx, wy) {
+    const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
+    if (elem === 'erase') {
+      this.world.erase(tx, ty, this.brush.radius);
+      return;
+    }
     const def = ELEMENTS[elem];
     if (def.cooldown > 0) {
       if ((this.cooldowns[elem] || 0) > 0) return;
       this.cooldowns[elem] = def.cooldown;
     }
-    const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
     this.world.pour(elem, tx, ty, elem === E.DIAMOND ? 0 : this.brush.radius, this.pourRng, this);
   }
 }
@@ -5058,6 +5227,7 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
+
 
 })();
 })();

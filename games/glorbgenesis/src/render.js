@@ -1,9 +1,8 @@
 // Renderização: terreno, depósitos, construções, criaturas procedurais e partículas.
 // Tudo desenhado em canvas — nenhum asset externo.
 
-import { E, ELEMENTS, elemColor } from './elements.js';
+import { E, ELEMENTS, ENDGAME, elemColor } from './elements.js';
 import { TILE, T } from './world.js';
-
 const TERRAIN_COLORS = {
   [T.PLAIN]: [38, 51, 42],
   [T.ROCKY]: [51, 52, 61],
@@ -28,6 +27,26 @@ export function buildTerrainCanvas(world) {
   return cv;
 }
 
+// Território de facções: canvas offscreen 1px/tile pintado com a influência
+// (círculos) das construções de cada facção. Composto sobre o terreno com
+// alpha baixa — o mapa vira um mapa político vivo.
+export function repaintTerritory(game) {
+  const cv = game.territoryCanvas;
+  if (!cv) return;
+  const c = cv.getContext('2d');
+  c.clearRect(0, 0, cv.width, cv.height);
+  for (const f of game.factions) {
+    if (f.buildings.length === 0) continue;
+    c.fillStyle = f.color;
+    for (const b of f.buildings) {
+      const r = b.type === 'totem' ? ENDGAME.TERRITORY_R_TOTEM : ENDGAME.TERRITORY_R_BUILDING;
+      c.beginPath();
+      c.arc(b.tx + 0.5, b.ty + 0.5, r, 0, 7);
+      c.fill();
+    }
+  }
+}
+
 export function render(game, ctx, cam, t) {
   const { world } = game;
   const vw = ctx.canvas.width, vh = ctx.canvas.height;
@@ -35,11 +54,26 @@ export function render(game, ctx, cam, t) {
   ctx.fillStyle = '#0b0d12';
   ctx.fillRect(0, 0, vw, vh);
 
-  ctx.setTransform(cam.zoom, 0, 0, cam.zoom, -cam.x * cam.zoom, -cam.y * cam.zoom);
+  // tremor de tela enquanto game.shake > 0. Math.random é deliberado aqui:
+  // o render roda por FRAME (não por tick) — consumir um RNG da simulação
+  // dessincronizaria a seed conforme o framerate.
+  let shakeX = 0, shakeY = 0;
+  if (game.shake > 0) {
+    shakeX = (Math.random() * 2 - 1) * game.shake;
+    shakeY = (Math.random() * 2 - 1) * game.shake;
+  }
+  ctx.setTransform(cam.zoom, 0, 0, cam.zoom, -(cam.x + shakeX) * cam.zoom, -(cam.y + shakeY) * cam.zoom);
   ctx.imageSmoothingEnabled = false;
 
   // terreno (offscreen 1px/tile, escalado)
   ctx.drawImage(game.terrainCanvas, 0, 0, world.w, world.h, 0, 0, world.w * TILE, world.h * TILE);
+
+  // território das facções (sob os depósitos; alpha dobrada com a lente ativa)
+  if (game.territoryCanvas) {
+    ctx.globalAlpha = game.lensFactions ? ENDGAME.TERRITORY_ALPHA * 2 : ENDGAME.TERRITORY_ALPHA;
+    ctx.drawImage(game.territoryCanvas, 0, 0, world.w, world.h, 0, 0, world.w * TILE, world.h * TILE);
+    ctx.globalAlpha = 1;
+  }
 
   // rect visível em tiles (culling)
   const tx0 = Math.max(0, Math.floor(cam.x / TILE));
@@ -68,6 +102,25 @@ export function render(game, ctx, cam, t) {
   for (const c of game.creatures) {
     if (c.x < x0 || c.x > x1 || c.y < y0 || c.y > y1) continue;
     drawCreature(ctx, c, t);
+  }
+
+  // lente de facções: anéis por criatura e contorno das construções
+  if (game.lensFactions) {
+    ctx.lineWidth = 2 / cam.zoom;
+    for (const c of game.creatures) {
+      if (c.x < x0 || c.x > x1 || c.y < y0 || c.y > y1) continue;
+      ctx.strokeStyle = c.faction ? c.faction.color : '#777';
+      if (!c.faction) ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.arc(c.x, c.y, c.bodyPlan.size + 7, 0, 7); ctx.stroke();
+      if (!c.faction) ctx.setLineDash([]);
+    }
+    ctx.globalAlpha = 0.8;
+    for (const b of game.buildings) {
+      if (!b.faction || b.x < x0 || b.x > x1 || b.y < y0 || b.y > y1) continue;
+      ctx.strokeStyle = b.faction.color;
+      ctx.strokeRect(b.tx * TILE + 1, b.ty * TILE + 1, TILE - 2, TILE - 2);
+    }
+    ctx.globalAlpha = 1;
   }
 
   // partículas
@@ -315,7 +368,7 @@ function shadeColor(hex, amt) {
 // ---------------------------------------------------------------------------
 export function drawCreature(ctx, c, t, portrait = false) {
   const bp = c.bodyPlan;
-  const s = bp.size;
+  const s = bp.size * (c.sizeMul || 1); // gigantismo: escala visual permanente
   const wob = Math.sin(t * 3.2 + bp.phase) * bp.wobble * 0.12;
   const moving = !portrait && c.speedNow > 4;
   const squash = moving ? 1 + Math.sin(c.animPhase * 2) * 0.12 : 1 + wob;
@@ -532,3 +585,4 @@ function drawVehicle(ctx, c, s, t) {
     ctx.beginPath(); ctx.arc(-s * 0.6, s * 0.55 + 3, 2.5, 0, 7); ctx.arc(s * 0.6, s * 0.55 + 3, 2.5, 0, 7); ctx.fill();
   }
 }
+

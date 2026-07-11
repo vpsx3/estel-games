@@ -3,7 +3,6 @@
 
 import { E, elemName, elemColor, FLAMMABLE, STRUCTURAL } from './elements.js';
 import { TILE, T } from './world.js';
-
 export const BUILD_THRESHOLD = 2;
 
 export const TYPE_NAMES = {
@@ -28,6 +27,7 @@ export class Building {
     this.y = ty * TILE + TILE / 2;
     this.element = elem;
     this.faction = faction || null;
+    this.builder = builder || null;
     this.maxHp = (HP_BY_ELEM[elem] || 30) * (type === 'tower' ? 1.5 : 1);
     this.hp = this.maxHp;
     this.burning = 0;
@@ -44,7 +44,8 @@ export class Building {
       this.hp -= 9 * dt;
       if (game.fxRng.chance(dt * 6)) game.flameAt(this.x + game.fxRng.range(-5, 5), this.y + game.fxRng.range(-6, 2), game.fxRng);
       // fogo se espalha para construções/depósitos inflamáveis vizinhos
-      if (game.fxRng.chance(dt * 1.2)) {
+      // (decisão de simulação: rola no envRng, não no fxRng de efeitos visuais)
+      if (game.envRng.chance(dt * 1.2)) {
         const world = game.world;
         const nx = this.tx + game.envRng.int(-1, 1), ny = this.ty + game.envRng.int(-1, 1);
         if (world.inBounds(nx, ny)) {
@@ -97,9 +98,11 @@ const VEHICLE_STATS = {
 // Consome a carga da criatura e materializa uma construção (ou equipa arma/veículo).
 export function attemptBuild(game, c, tx, ty) {
   // elemento mais carregado (precisa ter o suficiente dele)
+  // Dom do Monólito: constrói 2× mais rápido (metade do custo/carga)
+  const need = c.gifts.has(E.MONOLITH) ? Math.max(1, BUILD_THRESHOLD / 2) : BUILD_THRESHOLD;
   let elem = -1, n = 0;
   for (const [k, v] of Object.entries(c.carry)) if (v > n) { n = v; elem = +k; }
-  if (elem === -1 || n < BUILD_THRESHOLD) return;
+  if (elem === -1 || n < need) return;
   const world = game.world;
 
   // ponte precisa de água por perto
@@ -118,7 +121,7 @@ export function attemptBuild(game, c, tx, ty) {
   const choice = c.rng.weighted(opts);
 
   // paga o custo
-  c.carry[elem] -= BUILD_THRESHOLD;
+  c.carry[elem] -= need;
   if (c.carry[elem] <= 0) delete c.carry[elem];
   c.carryTotal = Object.values(c.carry).reduce((a, b) => a + b, 0);
 
@@ -139,8 +142,11 @@ export function attemptBuild(game, c, tx, ty) {
   if (world.buildingAt.has(i)) return;
 
   const b = new Building(game, choice.type, bx, by, elem, c.faction, c);
+  // Dom do Monólito: construções erguidas por ela nascem reforçadas
+  if (c.gifts.has(E.MONOLITH)) { b.maxHp *= 1.5; b.hp = b.maxHp; }
   game.addBuilding(b);
   if (game.buildings.length <= 24 || game.envRng.chance(0.25)) {
     game.feed(`🔨 ${c.name} construiu ${b.label}`, elemColor(elem));
   }
 }
+

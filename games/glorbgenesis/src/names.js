@@ -25,3 +25,4 @@ export function factionName(rng, used) {
   used.add(n);
   return n;
 }
+
