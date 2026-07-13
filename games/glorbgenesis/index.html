@@ -194,6 +194,9 @@
     #palette { grid-template-columns: repeat(2, 44px); }
     .palbtn { width: 44px; height: 44px; }
     #brushSize { height: 90px; }
+    /* no celular a paleta só mostra o que já dá pra usar: elementos ainda não
+       descobertos ficam ocultos (reaparecem ao serem descobertos) */
+    #palette .palbtn.locked { display: none; }
   }
 
   /* telas estreitas: topo empilha abaixo do link/aba e painéis cabem na tela */
@@ -280,7 +283,7 @@
   <div id="inspAbsorbed"></div>
 </div>
 
-<div id="hint"><span class="fine">arraste com botão direito para mover · WASD move a câmera · clique direito volta à lupa · scroll para zoom · clique com um elemento para despejar</span><span class="coarse">arraste com 1 dedo para mover a câmera · 2 dedos: pan + pinça para zoom · com um elemento, o dedo despeja</span></div>
+<div id="hint"><span class="fine">arraste com botão direito para mover · WASD move a câmera · clique direito volta à lupa · scroll para zoom · clique com um elemento para despejar</span><span class="coarse">1 dedo move a câmera (toque seleciona · toque duplo dá zoom) · 2 dedos: pan + pinça · 🎯 segue a criatura · com um elemento, o dedo despeja</span></div>
 
 <!-- BUNDLE:START (gerado por build.mjs — não editar à mão) -->
 <script>
@@ -538,6 +541,15 @@ const ENDGAME = {
   HUNT_AGGR: 0.55,             // agressão média da facção para caçar
   TITAN_DROP_RADIUS: 4,        // tiles: raio da explosão elemental póstuma
   TITAN_DROP_MAX: 24,          // máximo de tiles semeados na morte
+  // Devoração do excesso: quando o mapa transborda de depósitos, os glorbs
+  // passam a consumir/destruir os elementos extras (e construções, no auge)
+  // para liberar espaço. Histerese entre START e STOP evita liga/desliga.
+  PURGE_START: 0.5,            // saturação de terra que dispara a devoração
+  PURGE_STOP: 0.3,            // saturação que a encerra (histerese)
+  PURGE_EXTREME: 0.7,          // acima disto os glorbs também derrubam construções
+  PURGE_CONSUME_R: 1,          // raio (tiles) da devoração ao redor de cada glorb
+  PURGE_SEEK_R: 10,            // raio (tiles) em que buscam o excesso mais próximo
+  PURGE_BUILDING_DPS: 12,      // dano/s a construções na devoração extrema
 };
 
 // ---------------------------------------------------------------------------
@@ -684,6 +696,7 @@ class World {
     this.shade = new Float32Array(this.w * this.h); // variação cosmética
     this.dep = new Int16Array(this.w * this.h).fill(-1); // elemento no chão (-1 = nada)
     this.depLife = new Float32Array(this.w * this.h);   // vida de fogo/ar
+    this.depCount = 0;            // tiles com depósito (mantido por setDep/clearDep)
     this.active = new Set();      // tiles com comportamento ambiental pendente
     this.buildingAt = new Map();  // idx -> Building
     this.magnetTiles = new Set(); // tiles com ímã (campo de atração)
@@ -697,6 +710,7 @@ class World {
     const hNoise = makeNoise(rng.fork(), 64);
     const mNoise = makeNoise(rng.fork(), 64);
     const detail = rng.fork();
+    this.landTiles = 0; // tiles fora d'água (base para o índice de saturação)
     for (let y = 0; y < this.h; y++) {
       for (let x = 0; x < this.w; x++) {
         const i = y * this.w + x;
@@ -708,9 +722,15 @@ class World {
         else if (moist < 0.34) t = T.DESERT;
         this.terrain[i] = t;
         this.shade[i] = detail.range(-0.05, 0.05);
+        if (t !== T.WATER) this.landTiles++;
       }
     }
   }
+
+  // Fração de tiles de terra atualmente cobertos por algum depósito (0..~1).
+  // Base para a "devoração": quando o mundo transborda de elementos, os glorbs
+  // passam a consumir o excesso para liberar espaço no mapa.
+  saturation() { return this.landTiles ? this.depCount / this.landTiles : 0; }
 
   idx(tx, ty) { return ty * this.w + tx; }
   inBounds(tx, ty) { return tx >= 0 && ty >= 0 && tx < this.w && ty < this.h; }
@@ -741,6 +761,7 @@ class World {
   }
 
   setDep(i, elem, life) {
+    if (this.dep[i] === -1) this.depCount++;
     this.dep[i] = elem;
     this.depLife[i] = life !== undefined ? life : 0;
     this.magnetTiles.delete(i); this.relicTiles.delete(i); this.electrumTiles.delete(i);
@@ -769,6 +790,7 @@ class World {
     }
   }
   clearDep(i) {
+    if (this.dep[i] !== -1) this.depCount--;
     this.dep[i] = -1;
     this.active.delete(i);
     this.magnetTiles.delete(i);
@@ -2080,7 +2102,7 @@ return { factionCap, ERAS, Faction, tryEncounter, societyTick, recordWarScore };
 __m.creature = (() => {
 // Classe Creature: DNA (genome), corpo procedural, comportamento e combate.
 
-const { E, elemColor } = __m.elements;
+const { E, ENDGAME, elemColor } = __m.elements;
 const { TILE, T } = __m.world;
 const { absorbElement } = __m.evolution;
 const { creatureName } = __m.names;
@@ -2353,6 +2375,7 @@ class Creature {
     this.dashTime = 0;
     this.reproTimer = this.isFirst ? rng.range(12, 18) : rng.range(20, 34);
     this.produceTimer = rng.range(24, 40);
+    this.consumeCd = rng.range(0, 0.5); // cadência da devoração do excesso
     this.animPhase = rng.angle();
     this.alive = true;
     this.dominantElem = -1;
@@ -2521,6 +2544,9 @@ class Creature {
 
     this.behave(dt);
     this.move(dt);
+    // devoração do excesso: enquanto o mapa transborda, come depósitos ao redor
+    // (e, no auge, corrói construções) para liberar espaço
+    if (game.purgeLevel > 0 && this.state !== 'fight' && this.state !== 'flee') this.consumeExcess(dt);
     if (this.gifts.size) this.updateGifts(dt);
     if (!this.alive) return;
     this.emitTraitParticles(dt);
@@ -2689,6 +2715,80 @@ class Creature {
     return found ? { x: bx, y: by, d: Math.max(1, Math.sqrt(bd2)) } : null;
   }
 
+  // Devoração — alvo: o depósito seguro mais próximo dentro do raio de busca.
+  // Ignora o freio de temperamento, mas nunca manda os não-imunes para tiles
+  // letais (plasma, lava, praga…); esses caem pela devoração de área.
+  findExcess() {
+    const world = this.game.world;
+    const ctx = Math.floor(this.x / TILE), cty = Math.floor(this.y / TILE);
+    const R = ENDGAME.PURGE_SEEK_R;
+    let best = null, bd = Infinity;
+    for (let dy = -R; dy <= R; dy++) {
+      for (let dx = -R; dx <= R; dx++) {
+        const x = ctx + dx, y = cty + dy;
+        if (!world.inBounds(x, y)) continue;
+        const d = world.dep[world.idx(x, y)];
+        if (d === -1) continue;
+        const hz = HAZARD_DEPOSITS[d];
+        if (hz && !hz.imm.some(im => this.immunities.has(im))) continue;
+        const dd = dx * dx + dy * dy;
+        if (dd < bd) { bd = dd; best = { tx: x, ty: y, elem: d, mode: 'devour' }; }
+      }
+    }
+    this.seekTile = best;
+  }
+
+  // Devoração de área: come o depósito mais próximo ao redor e, no auge
+  // (nível 2), corrói uma construção vizinha para liberar o tile.
+  consumeExcess(dt) {
+    this.consumeCd -= dt;
+    if (this.consumeCd > 0) return;
+    const game = this.game, world = game.world, rng = this.rng;
+    const ctx = Math.floor(this.x / TILE), cty = Math.floor(this.y / TILE);
+    const R = ENDGAME.PURGE_CONSUME_R;
+    let bi = -1, belem = -1, bd = Infinity, bx = 0, by = 0, building = null;
+    for (let dy = -R; dy <= R; dy++) {
+      for (let dx = -R; dx <= R; dx++) {
+        const x = ctx + dx, y = cty + dy;
+        if (!world.inBounds(x, y)) continue;
+        const i = world.idx(x, y);
+        const d = world.dep[i];
+        if (d !== -1) {
+          const dd = dx * dx + dy * dy;
+          if (dd < bd) { bd = dd; bi = i; belem = d; bx = x; by = y; }
+        } else if (game.purgeLevel >= 2 && !building) {
+          const b = world.buildingAt.get(i);
+          if (b && b.element !== E.MONOLITH) building = b;
+        }
+      }
+    }
+    if (bi >= 0) {
+      this.consumeCd = rng.range(0.3, 0.6);
+      world.clearDep(bi);
+      this.devour(belem);
+      game.sparkBurst(bx * TILE + TILE / 2, by * TILE + TILE / 2, elemColor(belem), 3);
+      return;
+    }
+    if (game.purgeLevel >= 2 && building) {
+      this.consumeCd = rng.range(0.3, 0.6);
+      building.lastAttacker = this;
+      building.hp -= ENDGAME.PURGE_BUILDING_DPS * this.consumeCd;
+      game.hitSpark(building.x, building.y, this.dominantElem);
+    }
+  }
+
+  // Recompensa da devoração: quase sempre só destrói (com um leve reparo),
+  // e raramente absorve de verdade — evoluindo — para dar sabor ao evento.
+  devour(elem) {
+    const game = this.game;
+    if (!HAZARD_DEPOSITS[elem] && this.rng.chance(0.05)) {
+      absorbElement(this, elem, game);
+      game.absorbPuff(this.x, this.y, elemColor(elem));
+    } else if (this.hp < this.stats.maxHp) {
+      this.hp = Math.min(this.stats.maxHp, this.hp + 0.5);
+    }
+  }
+
   // Mutação de um pool aleatório (cogumelo/esporos/praga/aurora): sem contar
   // absorção, sem feed global — só avisa se a criatura está aberta no inspetor.
   // `forcedPool` restringe a um pool específico (praga e aurora usam isso).
@@ -2747,6 +2847,13 @@ class Creature {
     }
     if (this.state === 'build' && this.buildSpot) return;
     if (this.state === 'raid' && this.raidTarget) return;
+
+    // devoração ativa: todos caçam o excesso mais próximo, sem o freio de
+    // temperamento (a fome coletiva ignora curiosidade/ganância)
+    if (game.purgeLevel > 0 && !this.seekTile) {
+      this.findExcess();
+      if (this.seekTile) { this.state = 'seek'; return; }
+    }
 
     // procurar depósitos de elementos
     if (!this.seekTile) this.findDeposit();
@@ -2870,7 +2977,9 @@ class Creature {
             }
           } else if (s.elem !== -1) {
             world.clearDep(i);
-            if (s.mode === 'absorb') {
+            if (s.mode === 'devour') {
+              this.devour(s.elem);
+            } else if (s.mode === 'absorb') {
               absorbElement(this, s.elem, game);
               game.absorbPuff(this.x, this.y, elemColor(s.elem));
             } else {
@@ -3737,10 +3846,20 @@ let legendHtml = '';
 
 function initUI(g, cb) {
   game = g; callbacks = cb;
-  for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime', 'eraLabel', 'eraBanner',
+  for (const id of ['topbar', 'seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime', 'eraLabel', 'eraBanner',
     'palette', 'palTip', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend',
     'discovery', 'discoveryIcon', 'discoveryName', 'discoveryDesc']) {
     el[id] = document.getElementById(id);
+  }
+  // selo de devoração: só aparece quando os glorbs limpam o excesso do mapa
+  if (el.topbar && !el.purgeBadge) {
+    const badge = document.createElement('span');
+    badge.className = 'stat';
+    badge.id = 'purgeBadge';
+    badge.style.display = 'none';
+    badge.style.color = '#b6f0ff';
+    el.topbar.appendChild(badge);
+    el.purgeBadge = badge;
   }
   el.feedTab.addEventListener('click', () => setFeedOpen(!feedOpen));
   // tocar fora da paleta esconde o tooltip de elemento
@@ -3770,6 +3889,32 @@ function initUI(g, cb) {
     el.brushSizeVal.textContent = el.brushSize.value;
   });
   document.getElementById('btnCloseInspector').addEventListener('click', () => { selectCreature(null); selectBuilding(null); });
+
+  // botões de câmera: seguir a criatura selecionada e recentralizar
+  if (el.topbar && !el.followBtn) {
+    const followBtn = document.createElement('button');
+    followBtn.className = 'speedbtn';
+    followBtn.id = 'followBtn';
+    followBtn.title = 'Seguir a criatura selecionada';
+    followBtn.textContent = '🎯';
+    followBtn.addEventListener('click', () => {
+      const on = callbacks.onToggleFollow && callbacks.onToggleFollow();
+      followBtn.classList.toggle('active', !!on);
+    });
+    const recenterBtn = document.createElement('button');
+    recenterBtn.className = 'speedbtn';
+    recenterBtn.title = 'Centralizar na criatura';
+    recenterBtn.textContent = '⌖';
+    recenterBtn.addEventListener('click', () => callbacks.onRecenter && callbacks.onRecenter());
+    el.topbar.appendChild(followBtn);
+    el.topbar.appendChild(recenterBtn);
+    el.followBtn = followBtn;
+  }
+}
+
+// Sincroniza o botão 🎯 quando o seguir liga/desliga (inclusive automaticamente).
+function setFollowActive(on) {
+  if (el.followBtn) el.followBtn.classList.toggle('active', !!on);
 }
 
 function setGame(g) {
@@ -4387,6 +4532,15 @@ function updateHUD() {
   const m = Math.floor(game.time / 60), s = Math.floor(game.time % 60);
   el.worldTime.textContent = `${m}:${String(s).padStart(2, '0')}`;
 
+  if (el.purgeBadge) {
+    if (game.purgeLevel > 0) {
+      el.purgeBadge.style.display = '';
+      el.purgeBadge.textContent = game.purgeLevel >= 2 ? '🌀 devorando (auge)' : '🌀 devorando';
+    } else {
+      el.purgeBadge.style.display = 'none';
+    }
+  }
+
   // cooldowns (raros e fundidos: qualquer elemento com cooldown > 0)
   for (const def of ELEMENTS) {
     if (!(def.cooldown > 0)) continue;
@@ -4431,7 +4585,7 @@ function updateHUD() {
 }
 
 
-return { initUI, setGame, selectTool, showEraBanner, pushFeed, selectCreature, selectBuilding, updateHUD };
+return { initUI, setFollowActive, setGame, selectTool, showEraBanner, pushFeed, selectCreature, selectBuilding, updateHUD };
 })();
 
 // ==== src/main.js ====
@@ -4445,8 +4599,17 @@ const { Creature } = __m.creature;
 const { MUTATION_POOLS } = __m.evolution;
 const { societyTick, recordWarScore } = __m.society;
 const { render, buildTerrainCanvas, repaintTerritory } = __m.render;
-const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool, showEraBanner } = __m.ui;
+const { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool, showEraBanner, setFollowActive } = __m.ui;
 const STEP = 1 / 30;
+
+// Perfil de desempenho: em aparelhos de toque / poucos núcleos, reduzimos o
+// teto de partículas (puramente visual — não altera a simulação nem a seed).
+const IS_TOUCH = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
+const LOW_POWER = IS_TOUCH || ((navigator.hardwareConcurrency || 8) <= 4);
+const PERF = {
+  particleCap: LOW_POWER ? 320 : 700,
+  particleHardCap: LOW_POWER ? 360 : 750,
+};
 
 class SpatialHash {
   constructor(cell = 48) { this.cell = cell; this.map = new Map(); }
@@ -4505,6 +4668,8 @@ class Game {
     this.wars = [];                  // [{aId, bId, score:{}, t0}]
     this.cataclysmTimer = 0;         // agendado quando era ≥ CATA_MIN_ERA
     this.cataclysmPending = null;    // {type, tx, ty, at} durante o telegraph
+    this.purgeLevel = 0;             // 0 nenhuma, 1 devora depósitos, 2 também construções
+    this.purgeTimer = 0;             // reavalia a saturação periodicamente
     this.territoryDirty = true;
     this.territoryTimer = 0;
     this.shake = 0;                  // intensidade de tremor de tela (decai por dt)
@@ -4690,7 +4855,7 @@ class Game {
 
   // ---- partículas -------------------------------------------------------
   spawnP(x, y, vx, vy, life, color, size, type) {
-    if (this.particles.length > 700) return;
+    if (this.particles.length > PERF.particleCap) return;
     this.particles.push({ x, y, vx, vy, life, maxLife: life, color, size: size || 2, type: type || 'dot', x2: 0, y2: 0 });
   }
   flameAt(x, y, rng) {
@@ -4734,7 +4899,7 @@ class Game {
       const nx = k === 3 ? x : px + this.fxRng.range(-12, 12);
       const ny = py + 20;
       const p = { x: px, y: py, x2: nx, y2: ny, vx: 0, vy: 0, life: 0.35, maxLife: 0.35, color: '#ffe94a', size: 1, type: 'bolt' };
-      if (this.particles.length < 750) this.particles.push(p);
+      if (this.particles.length < PERF.particleHardCap) this.particles.push(p);
       px = nx; py = ny;
     }
     this.spawnP(x, y, 0, 0, 0.25, 'rgba(255,240,150,0.9)', r * 0.7);
@@ -4795,6 +4960,14 @@ class Game {
     // cataclismos: o mundo se agita sozinho a partir da Era Tribal
     if (this.era >= ENDGAME.CATA_MIN_ERA) updateCataclysm(this, dt);
 
+    // devoração do excesso: quando o mapa transborda de depósitos, os glorbs
+    // entram em modo de limpeza (avaliado ~1×/s, com histerese)
+    this.purgeTimer -= dt;
+    if (this.purgeTimer <= 0) {
+      this.purgeTimer = 1;
+      updatePurge(this);
+    }
+
     // tremor de tela decai com o tempo de simulação
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
 
@@ -4836,6 +5009,30 @@ class Game {
       this.cooldowns[elem] = def.cooldown;
     }
     this.world.pour(elem, tx, ty, elem === E.DIAMOND ? 0 : this.brush.radius, this.pourRng, this);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Devoração do excesso: quando a maioria dos tiles de terra está tomada por
+// depósitos, os glorbs passam a consumir/destruir o excesso (e construções, no
+// auge) para liberar espaço. Ligado/desligado por histerese na saturação.
+// ---------------------------------------------------------------------------
+function updatePurge(game) {
+  const sat = game.world.saturation();
+  const prev = game.purgeLevel;
+  if (game.purgeLevel === 0) {
+    if (sat >= ENDGAME.PURGE_START) game.purgeLevel = sat >= ENDGAME.PURGE_EXTREME ? 2 : 1;
+  } else if (sat < ENDGAME.PURGE_STOP) {
+    game.purgeLevel = 0;
+  } else {
+    game.purgeLevel = sat >= ENDGAME.PURGE_EXTREME ? 2 : 1;
+  }
+  if (prev === 0 && game.purgeLevel > 0) {
+    game.feed('🌀 O mundo transborda de elementos — os glorbs começam a devorar o excesso!', '#b6f0ff');
+  } else if (prev > 0 && game.purgeLevel === 0) {
+    game.feed('✨ O excesso foi consumido; o mundo respira de novo.', '#a0e8a0');
+  } else if (prev === 1 && game.purgeLevel === 2) {
+    game.feed('⛏️ O excesso é tanto que os glorbs passam a derrubar até construções!', '#ffcf8a');
   }
 }
 
@@ -4966,7 +5163,8 @@ function executeCataclysm(game, ev) {
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 let game = null;
-const cam = { x: 0, y: 0, zoom: 1.6 };
+const cam = { x: 0, y: 0, zoom: 1.6, follow: false };
+let panVel = { x: 0, y: 0 }, lastPanT = 0; // inércia da câmera no toque
 
 function newSeed() {
   // fora da simulação: só para escolher a seed inicial do mundo
@@ -4986,6 +5184,8 @@ function startWorld(seedStr) {
   window.__game = game; // handle de debug/observação (não usado pela simulação)
   setGame(game);
   cam.zoom = 1.6;
+  setCamFollow(false);
+  panVel.x = panVel.y = 0;
   cam.x = game.first.x - canvas.width / 2 / cam.zoom;
   cam.y = game.first.y - canvas.height / 2 / cam.zoom;
   clampCam();
@@ -5010,6 +5210,36 @@ function toWorld(mx, my) {
   return { x: cam.x + mx / cam.zoom, y: cam.y + my / cam.zoom };
 }
 
+// ---- câmera: seguir / recentrar (essencial no celular p/ não perder o glorb) --
+function followTarget() {
+  if (game.selected && game.selected.alive) return game.selected;
+  if (game.first && game.first.alive) return game.first;
+  return game.creatures[0] || null;
+}
+function setCamFollow(on) {
+  cam.follow = on;
+  if (on) { panVel.x = panVel.y = 0; }
+  setFollowActive(on);
+}
+function toggleFollow() {
+  if (cam.follow) { setCamFollow(false); return false; }
+  if (!(game.selected && game.selected.alive)) {
+    const c = (game.first && game.first.alive) ? game.first : game.creatures[0];
+    if (c) selectCreature(c);
+  }
+  setCamFollow(!!followTarget());
+  return cam.follow;
+}
+function recenterCam() {
+  const c = followTarget();
+  if (!c) return;
+  cam.x = c.x - canvas.width / 2 / cam.zoom;
+  cam.y = c.y - canvas.height / 2 / cam.zoom;
+  clampCam();
+}
+// arrasto manual (mouse ou dedo) cancela o seguir
+function breakFollow() { if (cam.follow) setCamFollow(false); }
+
 let pouring = false, panning = false, lastMx = 0, lastMy = 0, pourCd = 0;
 let rcX = 0, rcY = 0; // origem do clique direito (clique parado volta à lupa)
 
@@ -5023,7 +5253,7 @@ window.addEventListener('keyup', e => heldKeys.delete(e.key.toLowerCase()));
 window.addEventListener('blur', () => heldKeys.clear());
 
 function pickCreature(w) {
-  let best = null, bd = 18 / cam.zoom + 8;
+  let best = null, bd = 18 / cam.zoom + (IS_TOUCH ? 16 : 8);
   for (const c of game.creatures) {
     const d = Math.hypot(c.x - w.x, c.y - w.y);
     if (d < bd) { bd = d; best = c; }
@@ -5066,6 +5296,7 @@ canvas.addEventListener('mousemove', e => {
   const w = toWorld(e.offsetX, e.offsetY);
   game.brush.x = w.x; game.brush.y = w.y; game.brush.visible = true;
   if (panning) {
+    breakFollow();
     cam.x -= (e.offsetX - lastMx) / cam.zoom;
     cam.y -= (e.offsetY - lastMy) / cam.zoom;
     clampCam();
@@ -5088,6 +5319,7 @@ canvas.addEventListener('contextmenu', e => e.preventDefault());
 // despeja. 2 dedos: sempre movem a câmera, com pinça para zoom.
 let touchMode = null; // 'pan' | 'tool' | 'pinch'
 let tapX = 0, tapY = 0, tapTime = 0, tapMoved = false;
+let lastTapT = 0, lastTapX = 0, lastTapY = 0; // duplo-toque para zoom
 let pinchDist = 0;
 
 function touchPos(t) {
@@ -5105,6 +5337,7 @@ canvas.addEventListener('touchstart', e => {
     game.brush.x = w.x; game.brush.y = w.y;
     if (game.tool === 'inspect') {
       touchMode = 'pan';
+      panVel.x = panVel.y = 0; lastPanT = performance.now();
     } else {
       touchMode = 'tool';
       game.brush.visible = true;
@@ -5115,6 +5348,7 @@ canvas.addEventListener('touchstart', e => {
   } else if (e.touches.length === 2) {
     pouring = false; game.brush.visible = false;
     touchMode = 'pinch';
+    panVel.x = panVel.y = 0;
     const a = touchPos(e.touches[0]), b = touchPos(e.touches[1]);
     lastMx = (a.x + b.x) / 2; lastMy = (a.y + b.y) / 2;
     pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
@@ -5124,6 +5358,7 @@ canvas.addEventListener('touchstart', e => {
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   if (touchMode === 'pinch' && e.touches.length >= 2) {
+    breakFollow();
     const a = touchPos(e.touches[0]), b = touchPos(e.touches[1]);
     const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
     const d = Math.hypot(a.x - b.x, a.y - b.y);
@@ -5142,9 +5377,16 @@ canvas.addEventListener('touchmove', e => {
     const p = touchPos(e.touches[0]);
     if (Math.hypot(p.x - tapX, p.y - tapY) > 10) tapMoved = true;
     if (touchMode === 'pan') {
-      cam.x -= (p.x - lastMx) / cam.zoom;
-      cam.y -= (p.y - lastMy) / cam.zoom;
+      breakFollow();
+      const dxw = (p.x - lastMx) / cam.zoom, dyw = (p.y - lastMy) / cam.zoom;
+      cam.x -= dxw; cam.y -= dyw;
       clampCam();
+      // velocidade suavizada (unidades de mundo/s) para a inércia ao soltar
+      const tnow = performance.now();
+      const dtp = Math.max(0.001, (tnow - lastPanT) / 1000);
+      lastPanT = tnow;
+      panVel.x = 0.6 * panVel.x + 0.4 * (-dxw / dtp);
+      panVel.y = 0.6 * panVel.y + 0.4 * (-dyw / dtp);
     } else if (touchMode === 'tool') {
       const w = toWorld(p.x, p.y);
       game.brush.x = w.x; game.brush.y = w.y; game.brush.visible = true;
@@ -5156,12 +5398,27 @@ canvas.addEventListener('touchmove', e => {
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
   if (e.touches.length === 0) {
-    // toque curto e parado com a lupa: seleciona a criatura (ou construção) tocada
     if (touchMode === 'pan' && !tapMoved && performance.now() - tapTime < 350) {
-      const w = toWorld(tapX, tapY);
-      const c = pickCreature(w);
-      if (c) selectCreature(c);
-      else selectBuilding(pickBuilding(w));
+      // toque curto e parado: duplo-toque dá zoom; toque simples seleciona
+      const tnow = performance.now();
+      if (tnow - lastTapT < 300 && Math.hypot(tapX - lastTapX, tapY - lastTapY) < 30) {
+        const before = toWorld(tapX, tapY);
+        cam.zoom = Math.min(5, cam.zoom * 1.8);
+        const after = toWorld(tapX, tapY);
+        cam.x += before.x - after.x; cam.y += before.y - after.y; clampCam();
+        lastTapT = 0;
+      } else {
+        lastTapT = tnow; lastTapX = tapX; lastTapY = tapY;
+        const w = toWorld(tapX, tapY);
+        const c = pickCreature(w);
+        if (c) selectCreature(c);
+        else selectBuilding(pickBuilding(w));
+      }
+      panVel.x = panVel.y = 0; // toque parado não desliza
+    } else if (touchMode === 'pan') {
+      // soltou após arrastar: limita a velocidade para a inércia não disparar
+      const MAXV = 1600, sp = Math.hypot(panVel.x, panVel.y);
+      if (sp > MAXV) { panVel.x *= MAXV / sp; panVel.y *= MAXV / sp; }
     }
     pouring = false; game.brush.visible = false; touchMode = null;
   } else if (e.touches.length === 1) {
@@ -5174,6 +5431,7 @@ canvas.addEventListener('touchend', e => {
 
 canvas.addEventListener('touchcancel', () => {
   pouring = false; game.brush.visible = false; touchMode = null;
+  panVel.x = panVel.y = 0;
 });
 
 initUIOnce();
@@ -5185,7 +5443,7 @@ function startWorldBootstrap() {
   let seed = newSeed();
   game = new Game(seed, String(seed));
   window.__game = game;
-  initUI(game, { onNewWorld: s => startWorld(s) });
+  initUI(game, { onNewWorld: s => startWorld(s), onToggleFollow: toggleFollow, onRecenter: recenterCam });
   setGame(game);
   cam.x = game.first.x - canvas.width / 2 / cam.zoom;
   cam.y = game.first.y - canvas.height / 2 / cam.zoom;
@@ -5212,9 +5470,30 @@ function frame(now) {
   if (heldKeys.has('a')) pdx -= 1;
   if (heldKeys.has('d')) pdx += 1;
   if (pdx || pdy) {
+    breakFollow();
     cam.x += pdx * PAN_SPEED * dtReal / cam.zoom;
     cam.y += pdy * PAN_SPEED * dtReal / cam.zoom;
     clampCam();
+  }
+
+  // câmera seguindo a criatura selecionada (ou o Primeiro) — suave
+  if (cam.follow) {
+    const tgt = followTarget();
+    if (tgt) {
+      const k = Math.min(1, dtReal * 6);
+      cam.x += (tgt.x - canvas.width / 2 / cam.zoom - cam.x) * k;
+      cam.y += (tgt.y - canvas.height / 2 / cam.zoom - cam.y) * k;
+      clampCam();
+    } else {
+      setCamFollow(false);
+    }
+  } else if (touchMode === null && !panning && (Math.abs(panVel.x) > 3 || Math.abs(panVel.y) > 3)) {
+    // inércia do arrasto por toque (glide que desacelera)
+    cam.x += panVel.x * dtReal;
+    cam.y += panVel.y * dtReal;
+    clampCam();
+    const decay = Math.pow(0.0016, dtReal);
+    panVel.x *= decay; panVel.y *= decay;
   }
 
   simAcc += dtReal * game.speed;

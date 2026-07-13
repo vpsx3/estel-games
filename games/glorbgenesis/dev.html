@@ -194,6 +194,9 @@
     #palette { grid-template-columns: repeat(2, 44px); }
     .palbtn { width: 44px; height: 44px; }
     #brushSize { height: 90px; }
+    /* no celular a paleta só mostra o que já dá pra usar: elementos ainda não
+       descobertos ficam ocultos (reaparecem ao serem descobertos) */
+    #palette .palbtn.locked { display: none; }
   }
 
   /* telas estreitas: topo empilha abaixo do link/aba e painéis cabem na tela */
@@ -280,7 +283,7 @@
   <div id="inspAbsorbed"></div>
 </div>
 
-<div id="hint"><span class="fine">arraste com botão direito para mover · WASD move a câmera · clique direito volta à lupa · scroll para zoom · clique com um elemento para despejar</span><span class="coarse">arraste com 1 dedo para mover a câmera · 2 dedos: pan + pinça para zoom · com um elemento, o dedo despeja</span></div>
+<div id="hint"><span class="fine">arraste com botão direito para mover · WASD move a câmera · clique direito volta à lupa · scroll para zoom · clique com um elemento para despejar</span><span class="coarse">1 dedo move a câmera (toque seleciona · toque duplo dá zoom) · 2 dedos: pan + pinça · 🎯 segue a criatura · com um elemento, o dedo despeja</span></div>
 
 <script type="module" src="src/main.js"></script>
 </body>

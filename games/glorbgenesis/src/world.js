@@ -66,6 +66,7 @@ export class World {
     this.shade = new Float32Array(this.w * this.h); // variação cosmética
     this.dep = new Int16Array(this.w * this.h).fill(-1); // elemento no chão (-1 = nada)
     this.depLife = new Float32Array(this.w * this.h);   // vida de fogo/ar
+    this.depCount = 0;            // tiles com depósito (mantido por setDep/clearDep)
     this.active = new Set();      // tiles com comportamento ambiental pendente
     this.buildingAt = new Map();  // idx -> Building
     this.magnetTiles = new Set(); // tiles com ímã (campo de atração)
@@ -79,6 +80,7 @@ export class World {
     const hNoise = makeNoise(rng.fork(), 64);
     const mNoise = makeNoise(rng.fork(), 64);
     const detail = rng.fork();
+    this.landTiles = 0; // tiles fora d'água (base para o índice de saturação)
     for (let y = 0; y < this.h; y++) {
       for (let x = 0; x < this.w; x++) {
         const i = y * this.w + x;
@@ -90,9 +92,15 @@ export class World {
         else if (moist < 0.34) t = T.DESERT;
         this.terrain[i] = t;
         this.shade[i] = detail.range(-0.05, 0.05);
+        if (t !== T.WATER) this.landTiles++;
       }
     }
   }
+
+  // Fração de tiles de terra atualmente cobertos por algum depósito (0..~1).
+  // Base para a "devoração": quando o mundo transborda de elementos, os glorbs
+  // passam a consumir o excesso para liberar espaço no mapa.
+  saturation() { return this.landTiles ? this.depCount / this.landTiles : 0; }
 
   idx(tx, ty) { return ty * this.w + tx; }
   inBounds(tx, ty) { return tx >= 0 && ty >= 0 && tx < this.w && ty < this.h; }
@@ -123,6 +131,7 @@ export class World {
   }
 
   setDep(i, elem, life) {
+    if (this.dep[i] === -1) this.depCount++;
     this.dep[i] = elem;
     this.depLife[i] = life !== undefined ? life : 0;
     this.magnetTiles.delete(i); this.relicTiles.delete(i); this.electrumTiles.delete(i);
@@ -151,6 +160,7 @@ export class World {
     }
   }
   clearDep(i) {
+    if (this.dep[i] !== -1) this.depCount--;
     this.dep[i] = -1;
     this.active.delete(i);
     this.magnetTiles.delete(i);

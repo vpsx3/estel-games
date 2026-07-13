@@ -16,10 +16,20 @@ let legendHtml = '';
 
 export function initUI(g, cb) {
   game = g; callbacks = cb;
-  for (const id of ['seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime', 'eraLabel', 'eraBanner',
+  for (const id of ['topbar', 'seedText', 'seedInput', 'btnNewWorld', 'pop', 'factions', 'worldTime', 'eraLabel', 'eraBanner',
     'palette', 'palTip', 'feed', 'feedTab', 'inspector', 'brushSize', 'brushSizeVal', 'portrait', 'lensBtn', 'lensLegend',
     'discovery', 'discoveryIcon', 'discoveryName', 'discoveryDesc']) {
     el[id] = document.getElementById(id);
+  }
+  // selo de devoração: só aparece quando os glorbs limpam o excesso do mapa
+  if (el.topbar && !el.purgeBadge) {
+    const badge = document.createElement('span');
+    badge.className = 'stat';
+    badge.id = 'purgeBadge';
+    badge.style.display = 'none';
+    badge.style.color = '#b6f0ff';
+    el.topbar.appendChild(badge);
+    el.purgeBadge = badge;
   }
   el.feedTab.addEventListener('click', () => setFeedOpen(!feedOpen));
   // tocar fora da paleta esconde o tooltip de elemento
@@ -49,6 +59,32 @@ export function initUI(g, cb) {
     el.brushSizeVal.textContent = el.brushSize.value;
   });
   document.getElementById('btnCloseInspector').addEventListener('click', () => { selectCreature(null); selectBuilding(null); });
+
+  // botões de câmera: seguir a criatura selecionada e recentralizar
+  if (el.topbar && !el.followBtn) {
+    const followBtn = document.createElement('button');
+    followBtn.className = 'speedbtn';
+    followBtn.id = 'followBtn';
+    followBtn.title = 'Seguir a criatura selecionada';
+    followBtn.textContent = '🎯';
+    followBtn.addEventListener('click', () => {
+      const on = callbacks.onToggleFollow && callbacks.onToggleFollow();
+      followBtn.classList.toggle('active', !!on);
+    });
+    const recenterBtn = document.createElement('button');
+    recenterBtn.className = 'speedbtn';
+    recenterBtn.title = 'Centralizar na criatura';
+    recenterBtn.textContent = '⌖';
+    recenterBtn.addEventListener('click', () => callbacks.onRecenter && callbacks.onRecenter());
+    el.topbar.appendChild(followBtn);
+    el.topbar.appendChild(recenterBtn);
+    el.followBtn = followBtn;
+  }
+}
+
+// Sincroniza o botão 🎯 quando o seguir liga/desliga (inclusive automaticamente).
+export function setFollowActive(on) {
+  if (el.followBtn) el.followBtn.classList.toggle('active', !!on);
 }
 
 export function setGame(g) {
@@ -665,6 +701,15 @@ export function updateHUD() {
   el.eraLabel.textContent = `${era.icon} ${era.short}`;
   const m = Math.floor(game.time / 60), s = Math.floor(game.time % 60);
   el.worldTime.textContent = `${m}:${String(s).padStart(2, '0')}`;
+
+  if (el.purgeBadge) {
+    if (game.purgeLevel > 0) {
+      el.purgeBadge.style.display = '';
+      el.purgeBadge.textContent = game.purgeLevel >= 2 ? '🌀 devorando (auge)' : '🌀 devorando';
+    } else {
+      el.purgeBadge.style.display = 'none';
+    }
+  }
 
   // cooldowns (raros e fundidos: qualquer elemento com cooldown > 0)
   for (const def of ELEMENTS) {

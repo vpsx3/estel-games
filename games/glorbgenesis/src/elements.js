@@ -150,6 +150,15 @@ export const ENDGAME = {
   HUNT_AGGR: 0.55,             // agressão média da facção para caçar
   TITAN_DROP_RADIUS: 4,        // tiles: raio da explosão elemental póstuma
   TITAN_DROP_MAX: 24,          // máximo de tiles semeados na morte
+  // Devoração do excesso: quando o mapa transborda de depósitos, os glorbs
+  // passam a consumir/destruir os elementos extras (e construções, no auge)
+  // para liberar espaço. Histerese entre START e STOP evita liga/desliga.
+  PURGE_START: 0.5,            // saturação de terra que dispara a devoração
+  PURGE_STOP: 0.3,            // saturação que a encerra (histerese)
+  PURGE_EXTREME: 0.7,          // acima disto os glorbs também derrubam construções
+  PURGE_CONSUME_R: 1,          // raio (tiles) da devoração ao redor de cada glorb
+  PURGE_SEEK_R: 10,            // raio (tiles) em que buscam o excesso mais próximo
+  PURGE_BUILDING_DPS: 12,      // dano/s a construções na devoração extrema
 };
 
 // ---------------------------------------------------------------------------

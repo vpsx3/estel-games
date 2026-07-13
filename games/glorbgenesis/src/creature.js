@@ -1,6 +1,6 @@
 // Classe Creature: DNA (genome), corpo procedural, comportamento e combate.
 
-import { E, elemColor } from './elements.js';
+import { E, ENDGAME, elemColor } from './elements.js';
 import { TILE, T } from './world.js';
 import { absorbElement } from './evolution.js';
 import { creatureName } from './names.js';
@@ -273,6 +273,7 @@ export class Creature {
     this.dashTime = 0;
     this.reproTimer = this.isFirst ? rng.range(12, 18) : rng.range(20, 34);
     this.produceTimer = rng.range(24, 40);
+    this.consumeCd = rng.range(0, 0.5); // cadência da devoração do excesso
     this.animPhase = rng.angle();
     this.alive = true;
     this.dominantElem = -1;
@@ -441,6 +442,9 @@ export class Creature {
 
     this.behave(dt);
     this.move(dt);
+    // devoração do excesso: enquanto o mapa transborda, come depósitos ao redor
+    // (e, no auge, corrói construções) para liberar espaço
+    if (game.purgeLevel > 0 && this.state !== 'fight' && this.state !== 'flee') this.consumeExcess(dt);
     if (this.gifts.size) this.updateGifts(dt);
     if (!this.alive) return;
     this.emitTraitParticles(dt);
@@ -609,6 +613,80 @@ export class Creature {
     return found ? { x: bx, y: by, d: Math.max(1, Math.sqrt(bd2)) } : null;
   }
 
+  // Devoração — alvo: o depósito seguro mais próximo dentro do raio de busca.
+  // Ignora o freio de temperamento, mas nunca manda os não-imunes para tiles
+  // letais (plasma, lava, praga…); esses caem pela devoração de área.
+  findExcess() {
+    const world = this.game.world;
+    const ctx = Math.floor(this.x / TILE), cty = Math.floor(this.y / TILE);
+    const R = ENDGAME.PURGE_SEEK_R;
+    let best = null, bd = Infinity;
+    for (let dy = -R; dy <= R; dy++) {
+      for (let dx = -R; dx <= R; dx++) {
+        const x = ctx + dx, y = cty + dy;
+        if (!world.inBounds(x, y)) continue;
+        const d = world.dep[world.idx(x, y)];
+        if (d === -1) continue;
+        const hz = HAZARD_DEPOSITS[d];
+        if (hz && !hz.imm.some(im => this.immunities.has(im))) continue;
+        const dd = dx * dx + dy * dy;
+        if (dd < bd) { bd = dd; best = { tx: x, ty: y, elem: d, mode: 'devour' }; }
+      }
+    }
+    this.seekTile = best;
+  }
+
+  // Devoração de área: come o depósito mais próximo ao redor e, no auge
+  // (nível 2), corrói uma construção vizinha para liberar o tile.
+  consumeExcess(dt) {
+    this.consumeCd -= dt;
+    if (this.consumeCd > 0) return;
+    const game = this.game, world = game.world, rng = this.rng;
+    const ctx = Math.floor(this.x / TILE), cty = Math.floor(this.y / TILE);
+    const R = ENDGAME.PURGE_CONSUME_R;
+    let bi = -1, belem = -1, bd = Infinity, bx = 0, by = 0, building = null;
+    for (let dy = -R; dy <= R; dy++) {
+      for (let dx = -R; dx <= R; dx++) {
+        const x = ctx + dx, y = cty + dy;
+        if (!world.inBounds(x, y)) continue;
+        const i = world.idx(x, y);
+        const d = world.dep[i];
+        if (d !== -1) {
+          const dd = dx * dx + dy * dy;
+          if (dd < bd) { bd = dd; bi = i; belem = d; bx = x; by = y; }
+        } else if (game.purgeLevel >= 2 && !building) {
+          const b = world.buildingAt.get(i);
+          if (b && b.element !== E.MONOLITH) building = b;
+        }
+      }
+    }
+    if (bi >= 0) {
+      this.consumeCd = rng.range(0.3, 0.6);
+      world.clearDep(bi);
+      this.devour(belem);
+      game.sparkBurst(bx * TILE + TILE / 2, by * TILE + TILE / 2, elemColor(belem), 3);
+      return;
+    }
+    if (game.purgeLevel >= 2 && building) {
+      this.consumeCd = rng.range(0.3, 0.6);
+      building.lastAttacker = this;
+      building.hp -= ENDGAME.PURGE_BUILDING_DPS * this.consumeCd;
+      game.hitSpark(building.x, building.y, this.dominantElem);
+    }
+  }
+
+  // Recompensa da devoração: quase sempre só destrói (com um leve reparo),
+  // e raramente absorve de verdade — evoluindo — para dar sabor ao evento.
+  devour(elem) {
+    const game = this.game;
+    if (!HAZARD_DEPOSITS[elem] && this.rng.chance(0.05)) {
+      absorbElement(this, elem, game);
+      game.absorbPuff(this.x, this.y, elemColor(elem));
+    } else if (this.hp < this.stats.maxHp) {
+      this.hp = Math.min(this.stats.maxHp, this.hp + 0.5);
+    }
+  }
+
   // Mutação de um pool aleatório (cogumelo/esporos/praga/aurora): sem contar
   // absorção, sem feed global — só avisa se a criatura está aberta no inspetor.
   // `forcedPool` restringe a um pool específico (praga e aurora usam isso).
@@ -667,6 +745,13 @@ export class Creature {
     }
     if (this.state === 'build' && this.buildSpot) return;
     if (this.state === 'raid' && this.raidTarget) return;
+
+    // devoração ativa: todos caçam o excesso mais próximo, sem o freio de
+    // temperamento (a fome coletiva ignora curiosidade/ganância)
+    if (game.purgeLevel > 0 && !this.seekTile) {
+      this.findExcess();
+      if (this.seekTile) { this.state = 'seek'; return; }
+    }
 
     // procurar depósitos de elementos
     if (!this.seekTile) this.findDeposit();
@@ -790,7 +875,9 @@ export class Creature {
             }
           } else if (s.elem !== -1) {
             world.clearDep(i);
-            if (s.mode === 'absorb') {
+            if (s.mode === 'devour') {
+              this.devour(s.elem);
+            } else if (s.mode === 'absorb') {
               absorbElement(this, s.elem, game);
               game.absorbPuff(this.x, this.y, elemColor(s.elem));
             } else {

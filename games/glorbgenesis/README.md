@@ -20,12 +20,21 @@ constrói vilas, funda facções, faz alianças e guerras. Nada é roteirizado �
 - **Lupa**: modo inspecionar — clique numa criatura para ver nome, idade, traits,
   elementos absorvidos, facção e retrato ampliado do corpo procedural.
 - **Câmera**: arraste com o botão direito (ou do meio) para mover, scroll para zoom.
+  No celular: 1 dedo move (toque seleciona, **toque duplo dá zoom**), 2 dedos fazem
+  pan + pinça, e o arrasto tem inércia. O botão **🎯** faz a câmera **seguir** a
+  criatura selecionada e o **⌖** recentraliza nela — úteis para não perdê-la de vista.
 - **Topo**: seed do mundo, população, facções, tempo, velocidade (pausa/1×/2×/4×) e
   **Novo Mundo** (aceita seed manual — mesma seed gera o mesmo mundo inicial e o mesmo Primeiro).
 - **Feed (direita)**: narra nascimentos, evoluções, alianças, guerras e mortes.
 
 Dicas divinas: fogo perto de uma vila de madeira gera tragédia; ouro no meio de uma multidão
 gera ganância e guerra; raio num piso de metal se propaga em cadeia; dê diamante ao seu favorito.
+
+**Devoração do excesso**: se você entupir o mapa de elementos a ponto de a maioria dos
+tiles de terra ficar tomada, os glorbs entram em modo de limpeza e passam a **absorver e
+destruir** os depósitos extras para liberar espaço — e, no auge da saturação, chegam a
+**derrubar construções**. O selo `🌀 devorando` aparece no topo enquanto isso dura, e tudo
+cessa sozinho quando o mundo volta a respirar.
 
 ## Estrutura do código
 

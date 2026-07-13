@@ -7,8 +7,17 @@ import { Creature } from './creature.js';
 import { MUTATION_POOLS } from './evolution.js';
 import { societyTick, recordWarScore } from './society.js';
 import { render, buildTerrainCanvas, repaintTerritory } from './render.js';
-import { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool, showEraBanner } from './ui.js';
+import { initUI, setGame, pushFeed, updateHUD, selectCreature, selectBuilding, selectTool, showEraBanner, setFollowActive } from './ui.js';
 const STEP = 1 / 30;
+
+// Perfil de desempenho: em aparelhos de toque / poucos núcleos, reduzimos o
+// teto de partículas (puramente visual — não altera a simulação nem a seed).
+const IS_TOUCH = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
+const LOW_POWER = IS_TOUCH || ((navigator.hardwareConcurrency || 8) <= 4);
+const PERF = {
+  particleCap: LOW_POWER ? 320 : 700,
+  particleHardCap: LOW_POWER ? 360 : 750,
+};
 
 class SpatialHash {
   constructor(cell = 48) { this.cell = cell; this.map = new Map(); }
@@ -67,6 +76,8 @@ class Game {
     this.wars = [];                  // [{aId, bId, score:{}, t0}]
     this.cataclysmTimer = 0;         // agendado quando era ≥ CATA_MIN_ERA
     this.cataclysmPending = null;    // {type, tx, ty, at} durante o telegraph
+    this.purgeLevel = 0;             // 0 nenhuma, 1 devora depósitos, 2 também construções
+    this.purgeTimer = 0;             // reavalia a saturação periodicamente
     this.territoryDirty = true;
     this.territoryTimer = 0;
     this.shake = 0;                  // intensidade de tremor de tela (decai por dt)
@@ -252,7 +263,7 @@ class Game {
 
   // ---- partículas -------------------------------------------------------
   spawnP(x, y, vx, vy, life, color, size, type) {
-    if (this.particles.length > 700) return;
+    if (this.particles.length > PERF.particleCap) return;
     this.particles.push({ x, y, vx, vy, life, maxLife: life, color, size: size || 2, type: type || 'dot', x2: 0, y2: 0 });
   }
   flameAt(x, y, rng) {
@@ -296,7 +307,7 @@ class Game {
       const nx = k === 3 ? x : px + this.fxRng.range(-12, 12);
       const ny = py + 20;
       const p = { x: px, y: py, x2: nx, y2: ny, vx: 0, vy: 0, life: 0.35, maxLife: 0.35, color: '#ffe94a', size: 1, type: 'bolt' };
-      if (this.particles.length < 750) this.particles.push(p);
+      if (this.particles.length < PERF.particleHardCap) this.particles.push(p);
       px = nx; py = ny;
     }
     this.spawnP(x, y, 0, 0, 0.25, 'rgba(255,240,150,0.9)', r * 0.7);
@@ -357,6 +368,14 @@ class Game {
     // cataclismos: o mundo se agita sozinho a partir da Era Tribal
     if (this.era >= ENDGAME.CATA_MIN_ERA) updateCataclysm(this, dt);
 
+    // devoração do excesso: quando o mapa transborda de depósitos, os glorbs
+    // entram em modo de limpeza (avaliado ~1×/s, com histerese)
+    this.purgeTimer -= dt;
+    if (this.purgeTimer <= 0) {
+      this.purgeTimer = 1;
+      updatePurge(this);
+    }
+
     // tremor de tela decai com o tempo de simulação
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
 
@@ -398,6 +417,30 @@ class Game {
       this.cooldowns[elem] = def.cooldown;
     }
     this.world.pour(elem, tx, ty, elem === E.DIAMOND ? 0 : this.brush.radius, this.pourRng, this);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Devoração do excesso: quando a maioria dos tiles de terra está tomada por
+// depósitos, os glorbs passam a consumir/destruir o excesso (e construções, no
+// auge) para liberar espaço. Ligado/desligado por histerese na saturação.
+// ---------------------------------------------------------------------------
+function updatePurge(game) {
+  const sat = game.world.saturation();
+  const prev = game.purgeLevel;
+  if (game.purgeLevel === 0) {
+    if (sat >= ENDGAME.PURGE_START) game.purgeLevel = sat >= ENDGAME.PURGE_EXTREME ? 2 : 1;
+  } else if (sat < ENDGAME.PURGE_STOP) {
+    game.purgeLevel = 0;
+  } else {
+    game.purgeLevel = sat >= ENDGAME.PURGE_EXTREME ? 2 : 1;
+  }
+  if (prev === 0 && game.purgeLevel > 0) {
+    game.feed('🌀 O mundo transborda de elementos — os glorbs começam a devorar o excesso!', '#b6f0ff');
+  } else if (prev > 0 && game.purgeLevel === 0) {
+    game.feed('✨ O excesso foi consumido; o mundo respira de novo.', '#a0e8a0');
+  } else if (prev === 1 && game.purgeLevel === 2) {
+    game.feed('⛏️ O excesso é tanto que os glorbs passam a derrubar até construções!', '#ffcf8a');
   }
 }
 
@@ -528,7 +571,8 @@ function executeCataclysm(game, ev) {
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 let game = null;
-const cam = { x: 0, y: 0, zoom: 1.6 };
+const cam = { x: 0, y: 0, zoom: 1.6, follow: false };
+let panVel = { x: 0, y: 0 }, lastPanT = 0; // inércia da câmera no toque
 
 function newSeed() {
   // fora da simulação: só para escolher a seed inicial do mundo
@@ -548,6 +592,8 @@ function startWorld(seedStr) {
   window.__game = game; // handle de debug/observação (não usado pela simulação)
   setGame(game);
   cam.zoom = 1.6;
+  setCamFollow(false);
+  panVel.x = panVel.y = 0;
   cam.x = game.first.x - canvas.width / 2 / cam.zoom;
   cam.y = game.first.y - canvas.height / 2 / cam.zoom;
   clampCam();
@@ -572,6 +618,36 @@ function toWorld(mx, my) {
   return { x: cam.x + mx / cam.zoom, y: cam.y + my / cam.zoom };
 }
 
+// ---- câmera: seguir / recentrar (essencial no celular p/ não perder o glorb) --
+function followTarget() {
+  if (game.selected && game.selected.alive) return game.selected;
+  if (game.first && game.first.alive) return game.first;
+  return game.creatures[0] || null;
+}
+function setCamFollow(on) {
+  cam.follow = on;
+  if (on) { panVel.x = panVel.y = 0; }
+  setFollowActive(on);
+}
+function toggleFollow() {
+  if (cam.follow) { setCamFollow(false); return false; }
+  if (!(game.selected && game.selected.alive)) {
+    const c = (game.first && game.first.alive) ? game.first : game.creatures[0];
+    if (c) selectCreature(c);
+  }
+  setCamFollow(!!followTarget());
+  return cam.follow;
+}
+function recenterCam() {
+  const c = followTarget();
+  if (!c) return;
+  cam.x = c.x - canvas.width / 2 / cam.zoom;
+  cam.y = c.y - canvas.height / 2 / cam.zoom;
+  clampCam();
+}
+// arrasto manual (mouse ou dedo) cancela o seguir
+function breakFollow() { if (cam.follow) setCamFollow(false); }
+
 let pouring = false, panning = false, lastMx = 0, lastMy = 0, pourCd = 0;
 let rcX = 0, rcY = 0; // origem do clique direito (clique parado volta à lupa)
 
@@ -585,7 +661,7 @@ window.addEventListener('keyup', e => heldKeys.delete(e.key.toLowerCase()));
 window.addEventListener('blur', () => heldKeys.clear());
 
 function pickCreature(w) {
-  let best = null, bd = 18 / cam.zoom + 8;
+  let best = null, bd = 18 / cam.zoom + (IS_TOUCH ? 16 : 8);
   for (const c of game.creatures) {
     const d = Math.hypot(c.x - w.x, c.y - w.y);
     if (d < bd) { bd = d; best = c; }
@@ -628,6 +704,7 @@ canvas.addEventListener('mousemove', e => {
   const w = toWorld(e.offsetX, e.offsetY);
   game.brush.x = w.x; game.brush.y = w.y; game.brush.visible = true;
   if (panning) {
+    breakFollow();
     cam.x -= (e.offsetX - lastMx) / cam.zoom;
     cam.y -= (e.offsetY - lastMy) / cam.zoom;
     clampCam();
@@ -650,6 +727,7 @@ canvas.addEventListener('contextmenu', e => e.preventDefault());
 // despeja. 2 dedos: sempre movem a câmera, com pinça para zoom.
 let touchMode = null; // 'pan' | 'tool' | 'pinch'
 let tapX = 0, tapY = 0, tapTime = 0, tapMoved = false;
+let lastTapT = 0, lastTapX = 0, lastTapY = 0; // duplo-toque para zoom
 let pinchDist = 0;
 
 function touchPos(t) {
@@ -667,6 +745,7 @@ canvas.addEventListener('touchstart', e => {
     game.brush.x = w.x; game.brush.y = w.y;
     if (game.tool === 'inspect') {
       touchMode = 'pan';
+      panVel.x = panVel.y = 0; lastPanT = performance.now();
     } else {
       touchMode = 'tool';
       game.brush.visible = true;
@@ -677,6 +756,7 @@ canvas.addEventListener('touchstart', e => {
   } else if (e.touches.length === 2) {
     pouring = false; game.brush.visible = false;
     touchMode = 'pinch';
+    panVel.x = panVel.y = 0;
     const a = touchPos(e.touches[0]), b = touchPos(e.touches[1]);
     lastMx = (a.x + b.x) / 2; lastMy = (a.y + b.y) / 2;
     pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
@@ -686,6 +766,7 @@ canvas.addEventListener('touchstart', e => {
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   if (touchMode === 'pinch' && e.touches.length >= 2) {
+    breakFollow();
     const a = touchPos(e.touches[0]), b = touchPos(e.touches[1]);
     const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
     const d = Math.hypot(a.x - b.x, a.y - b.y);
@@ -704,9 +785,16 @@ canvas.addEventListener('touchmove', e => {
     const p = touchPos(e.touches[0]);
     if (Math.hypot(p.x - tapX, p.y - tapY) > 10) tapMoved = true;
     if (touchMode === 'pan') {
-      cam.x -= (p.x - lastMx) / cam.zoom;
-      cam.y -= (p.y - lastMy) / cam.zoom;
+      breakFollow();
+      const dxw = (p.x - lastMx) / cam.zoom, dyw = (p.y - lastMy) / cam.zoom;
+      cam.x -= dxw; cam.y -= dyw;
       clampCam();
+      // velocidade suavizada (unidades de mundo/s) para a inércia ao soltar
+      const tnow = performance.now();
+      const dtp = Math.max(0.001, (tnow - lastPanT) / 1000);
+      lastPanT = tnow;
+      panVel.x = 0.6 * panVel.x + 0.4 * (-dxw / dtp);
+      panVel.y = 0.6 * panVel.y + 0.4 * (-dyw / dtp);
     } else if (touchMode === 'tool') {
       const w = toWorld(p.x, p.y);
       game.brush.x = w.x; game.brush.y = w.y; game.brush.visible = true;
@@ -718,12 +806,27 @@ canvas.addEventListener('touchmove', e => {
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
   if (e.touches.length === 0) {
-    // toque curto e parado com a lupa: seleciona a criatura (ou construção) tocada
     if (touchMode === 'pan' && !tapMoved && performance.now() - tapTime < 350) {
-      const w = toWorld(tapX, tapY);
-      const c = pickCreature(w);
-      if (c) selectCreature(c);
-      else selectBuilding(pickBuilding(w));
+      // toque curto e parado: duplo-toque dá zoom; toque simples seleciona
+      const tnow = performance.now();
+      if (tnow - lastTapT < 300 && Math.hypot(tapX - lastTapX, tapY - lastTapY) < 30) {
+        const before = toWorld(tapX, tapY);
+        cam.zoom = Math.min(5, cam.zoom * 1.8);
+        const after = toWorld(tapX, tapY);
+        cam.x += before.x - after.x; cam.y += before.y - after.y; clampCam();
+        lastTapT = 0;
+      } else {
+        lastTapT = tnow; lastTapX = tapX; lastTapY = tapY;
+        const w = toWorld(tapX, tapY);
+        const c = pickCreature(w);
+        if (c) selectCreature(c);
+        else selectBuilding(pickBuilding(w));
+      }
+      panVel.x = panVel.y = 0; // toque parado não desliza
+    } else if (touchMode === 'pan') {
+      // soltou após arrastar: limita a velocidade para a inércia não disparar
+      const MAXV = 1600, sp = Math.hypot(panVel.x, panVel.y);
+      if (sp > MAXV) { panVel.x *= MAXV / sp; panVel.y *= MAXV / sp; }
     }
     pouring = false; game.brush.visible = false; touchMode = null;
   } else if (e.touches.length === 1) {
@@ -736,6 +839,7 @@ canvas.addEventListener('touchend', e => {
 
 canvas.addEventListener('touchcancel', () => {
   pouring = false; game.brush.visible = false; touchMode = null;
+  panVel.x = panVel.y = 0;
 });
 
 initUIOnce();
@@ -747,7 +851,7 @@ function startWorldBootstrap() {
   let seed = newSeed();
   game = new Game(seed, String(seed));
   window.__game = game;
-  initUI(game, { onNewWorld: s => startWorld(s) });
+  initUI(game, { onNewWorld: s => startWorld(s), onToggleFollow: toggleFollow, onRecenter: recenterCam });
   setGame(game);
   cam.x = game.first.x - canvas.width / 2 / cam.zoom;
   cam.y = game.first.y - canvas.height / 2 / cam.zoom;
@@ -774,9 +878,30 @@ function frame(now) {
   if (heldKeys.has('a')) pdx -= 1;
   if (heldKeys.has('d')) pdx += 1;
   if (pdx || pdy) {
+    breakFollow();
     cam.x += pdx * PAN_SPEED * dtReal / cam.zoom;
     cam.y += pdy * PAN_SPEED * dtReal / cam.zoom;
     clampCam();
+  }
+
+  // câmera seguindo a criatura selecionada (ou o Primeiro) — suave
+  if (cam.follow) {
+    const tgt = followTarget();
+    if (tgt) {
+      const k = Math.min(1, dtReal * 6);
+      cam.x += (tgt.x - canvas.width / 2 / cam.zoom - cam.x) * k;
+      cam.y += (tgt.y - canvas.height / 2 / cam.zoom - cam.y) * k;
+      clampCam();
+    } else {
+      setCamFollow(false);
+    }
+  } else if (touchMode === null && !panning && (Math.abs(panVel.x) > 3 || Math.abs(panVel.y) > 3)) {
+    // inércia do arrasto por toque (glide que desacelera)
+    cam.x += panVel.x * dtReal;
+    cam.y += panVel.y * dtReal;
+    clampCam();
+    const decay = Math.pow(0.0016, dtReal);
+    panVel.x *= decay; panVel.y *= decay;
   }
 
   simAcc += dtReal * game.speed;
