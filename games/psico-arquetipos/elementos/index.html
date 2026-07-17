@@ -958,7 +958,132 @@ document.getElementById('btn-refazer').addEventListener('click', ()=>{
 })();
 
 // ==================== VITRAL + CARD (§5/§6) ====================
-// (inserido nas Etapas 5 e 6)
+const CORES = { fogo:'#E2411E', agua:'#1D6F9C', terra:'#7A8B3A', ar:'#E6D9A8' };
+const DIRS  = { fogo:[0,-1], agua:[1,0], terra:[0,1], ar:[-1,0] }; // fogo↑ agua→ terra↓ ar←
+const ORDEM_VITRAL = ['fogo', 'agua', 'terra', 'ar'];
+
+function hexA(hex, a){
+  const n = parseInt(hex.slice(1), 16);
+  return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
+}
+
+// desenha o vitral: quadrilátero de vidro, vértices proporcionais ao pct,
+// preenchimento com as 4 cores ponderadas, contorno grosso de chumbo.
+function desenharVitral(canvas, pct, cssSize){
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);      // §6.7
+  const S = cssSize;
+  canvas.width  = Math.round(S * dpr);
+  canvas.height = Math.round(S * dpr);
+  canvas.style.width  = S + 'px';
+  canvas.style.height = S + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, S, S);
+
+  const cx = S/2, cy = S/2;
+  const R = S * 0.42, Rmin = R * 0.14;
+  const verts = {};
+  ELEMENTOS.forEach(el=>{
+    const r = Rmin + (R - Rmin) * (pct[el] / 50);            // 50% (teto) alcança R
+    verts[el] = [cx + DIRS[el][0] * r, cy + DIRS[el][1] * r];
+  });
+  const tracarPoligono = ()=>{
+    ctx.beginPath();
+    ORDEM_VITRAL.forEach((el,i)=>{ const [x,y]=verts[el]; i ? ctx.lineTo(x,y) : ctx.moveTo(x,y); });
+    ctx.closePath();
+  };
+
+  // vidro: fundo + 4 gradientes somados (lighter) recortados pelo polígono
+  tracarPoligono();
+  ctx.save();
+  ctx.clip();
+  ctx.fillStyle = '#201E28';
+  ctx.fillRect(0, 0, S, S);
+  ctx.globalCompositeOperation = 'lighter';
+  ORDEM_VITRAL.forEach(el=>{
+    const [vx,vy] = verts[el];
+    const w = Math.max(0.18, pct[el] / 50);
+    const g = ctx.createRadialGradient(vx, vy, 0, vx, vy, R * 1.25);
+    g.addColorStop(0, hexA(CORES[el], 0.30 + 0.55 * w));
+    g.addColorStop(1, hexA(CORES[el], 0));
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, S, S);
+  });
+  ctx.restore();
+
+  // cames de chumbo: linhas finas do centro a cada vértice
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.strokeStyle = 'rgba(58,55,66,0.7)';
+  ctx.lineWidth = Math.max(1, S * 0.006);
+  ORDEM_VITRAL.forEach(el=>{
+    const [x,y] = verts[el];
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
+  });
+
+  // contorno grosso (o chumbo)
+  tracarPoligono();
+  ctx.lineWidth = Math.max(3, S * 0.02);
+  ctx.strokeStyle = '#3A3742';
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // nós de vidro nos vértices
+  ORDEM_VITRAL.forEach(el=>{
+    const [x,y] = verts[el];
+    ctx.beginPath();
+    ctx.arc(x, y, Math.max(2.5, S * 0.014), 0, Math.PI * 2);
+    ctx.fillStyle = CORES[el];
+    ctx.fill();
+    ctx.lineWidth = Math.max(1, S * 0.006);
+    ctx.strokeStyle = '#14131A';
+    ctx.stroke();
+  });
+}
+
+function renderResultado(cls, pct){
+  const r = RESULTADOS[cls.chave][_lang];
+
+  // regência (omitida nos puros — §5 / critério 6)
+  const elReg = document.getElementById('r-regencia');
+  if(cls.tipo === 'interseccao'){
+    const nomeReg = RESULTADOS[cls.regente][_lang].nome;
+    elReg.textContent = T('regidoPor').replace('{el}', nomeReg);
+    elReg.style.display = '';
+  } else {
+    elReg.textContent = '';
+    elReg.style.display = 'none';
+  }
+
+  document.getElementById('r-nome').textContent = r.nome;
+  document.getElementById('r-epiteto').textContent = r.epiteto;
+
+  // vitral
+  const size = Math.min(280, window.innerWidth - 72);
+  desenharVitral(document.getElementById('vitral'), pct, size);
+
+  // percentuais em mono, ordem canônica, com ponto colorido
+  const pctBox = document.getElementById('r-pcts');
+  pctBox.innerHTML = '';
+  ELEMENTOS.forEach(el=>{
+    const nome = T('eixo' + el.charAt(0).toUpperCase() + el.slice(1));
+    const span = document.createElement('span');
+    span.className = 'r-pct';
+    span.innerHTML = '<span class="dot" style="background:' + CORES[el] + '"></span>' + nome + ' ' + pct[el] + '%';
+    pctBox.appendChild(span);
+  });
+
+  document.getElementById('r-essencia').textContent = r.essencia;
+  document.getElementById('r-label-luz').textContent = T('labelLuz');
+  document.getElementById('r-luz').textContent = r.luz;
+  document.getElementById('r-label-sombra').textContent = T('labelSombra');
+  document.getElementById('r-sombra').textContent = r.sombra;
+  document.getElementById('r-label-deseq').textContent = T('labelDesequilibrio');
+  document.getElementById('r-deseq').textContent = r.desequilibrio;
+  document.getElementById('r-label-cego').textContent = T('labelCego');
+  document.getElementById('r-cego').textContent = r.cego;
+
+  window.scrollTo(0, 0);
+}
 
 </script>
 </body>
