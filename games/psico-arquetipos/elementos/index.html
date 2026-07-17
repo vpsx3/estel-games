@@ -951,6 +951,10 @@ document.getElementById('btn-refazer').addEventListener('click', ()=>{
   clsAtual = null; pctAtual = null;
   mostrarTela('inicio');
 });
+document.getElementById('btn-salvar').addEventListener('click', salvarImagem);
+document.getElementById('salvar-fallback').addEventListener('click', (e)=>{
+  if(e.target.id === 'salvar-fallback') e.currentTarget.hidden = true;
+});
 
 (function initLang(){
   const detected = navigator.language && navigator.language.startsWith('pt') ? 'pt' : 'en';
@@ -967,38 +971,28 @@ function hexA(hex, a){
   return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
 }
 
-// desenha o vitral: quadrilátero de vidro, vértices proporcionais ao pct,
-// preenchimento com as 4 cores ponderadas, contorno grosso de chumbo.
-function desenharVitral(canvas, pct, cssSize){
-  const dpr = Math.min(window.devicePixelRatio || 1, 3);      // §6.7
-  const S = cssSize;
-  canvas.width  = Math.round(S * dpr);
-  canvas.height = Math.round(S * dpr);
-  canvas.style.width  = S + 'px';
-  canvas.style.height = S + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, S, S);
-
-  const cx = S/2, cy = S/2;
-  const R = S * 0.42, Rmin = R * 0.14;
+// pinta o vitral num contexto arbitrário: quadrilátero de vidro, vértices
+// proporcionais ao pct, 4 cores ponderadas, contorno grosso de chumbo.
+// Larguras derivam de R → resolução-independente (serve tela e card).
+function pintarVitral(ctx, cx, cy, R, pct){
+  const Rmin = R * 0.14;
+  const lado = R * 3;                       // área de preenchimento (recortada)
   const verts = {};
   ELEMENTOS.forEach(el=>{
-    const r = Rmin + (R - Rmin) * (pct[el] / 50);            // 50% (teto) alcança R
+    const r = Rmin + (R - Rmin) * (pct[el] / 50);  // 50% (teto) alcança R
     verts[el] = [cx + DIRS[el][0] * r, cy + DIRS[el][1] * r];
   });
-  const tracarPoligono = ()=>{
+  const tracar = ()=>{
     ctx.beginPath();
     ORDEM_VITRAL.forEach((el,i)=>{ const [x,y]=verts[el]; i ? ctx.lineTo(x,y) : ctx.moveTo(x,y); });
     ctx.closePath();
   };
 
-  // vidro: fundo + 4 gradientes somados (lighter) recortados pelo polígono
-  tracarPoligono();
+  // vidro: fundo + 4 gradientes somados (lighter), recortados pelo polígono
   ctx.save();
-  ctx.clip();
+  tracar(); ctx.clip();
   ctx.fillStyle = '#201E28';
-  ctx.fillRect(0, 0, S, S);
+  ctx.fillRect(cx - lado, cy - lado, lado * 2, lado * 2);
   ctx.globalCompositeOperation = 'lighter';
   ORDEM_VITRAL.forEach(el=>{
     const [vx,vy] = verts[el];
@@ -1007,22 +1001,21 @@ function desenharVitral(canvas, pct, cssSize){
     g.addColorStop(0, hexA(CORES[el], 0.30 + 0.55 * w));
     g.addColorStop(1, hexA(CORES[el], 0));
     ctx.fillStyle = g;
-    ctx.fillRect(0, 0, S, S);
+    ctx.fillRect(cx - lado, cy - lado, lado * 2, lado * 2);
   });
   ctx.restore();
 
-  // cames de chumbo: linhas finas do centro a cada vértice
-  ctx.globalCompositeOperation = 'source-over';
+  // cames de chumbo (centro → vértices)
   ctx.strokeStyle = 'rgba(58,55,66,0.7)';
-  ctx.lineWidth = Math.max(1, S * 0.006);
+  ctx.lineWidth = Math.max(1, R * 0.014);
   ORDEM_VITRAL.forEach(el=>{
     const [x,y] = verts[el];
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
   });
 
   // contorno grosso (o chumbo)
-  tracarPoligono();
-  ctx.lineWidth = Math.max(3, S * 0.02);
+  tracar();
+  ctx.lineWidth = Math.max(3, R * 0.045);
   ctx.strokeStyle = '#3A3742';
   ctx.lineJoin = 'round';
   ctx.stroke();
@@ -1031,13 +1024,27 @@ function desenharVitral(canvas, pct, cssSize){
   ORDEM_VITRAL.forEach(el=>{
     const [x,y] = verts[el];
     ctx.beginPath();
-    ctx.arc(x, y, Math.max(2.5, S * 0.014), 0, Math.PI * 2);
+    ctx.arc(x, y, Math.max(2.5, R * 0.033), 0, Math.PI * 2);
     ctx.fillStyle = CORES[el];
     ctx.fill();
-    ctx.lineWidth = Math.max(1, S * 0.006);
+    ctx.lineWidth = Math.max(1, R * 0.014);
     ctx.strokeStyle = '#14131A';
     ctx.stroke();
   });
+}
+
+// vitral na tela: aplica escala de DPR (§6.7) e delega o desenho.
+function desenharVitral(canvas, pct, cssSize){
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const S = cssSize;
+  canvas.width  = Math.round(S * dpr);
+  canvas.height = Math.round(S * dpr);
+  canvas.style.width  = S + 'px';
+  canvas.style.height = S + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, S, S);
+  pintarVitral(ctx, S/2, S/2, S * 0.42, pct);
 }
 
 function renderResultado(cls, pct){
@@ -1083,6 +1090,134 @@ function renderResultado(cls, pct){
   document.getElementById('r-cego').textContent = r.cego;
 
   window.scrollTo(0, 0);
+}
+
+// ---- card compartilhável (§6 Etapa 6) ----
+// 1080×1350, fundo chumbo, vitral em destaque, nome+epíteto+regência,
+// os 4 percentuais e o rodapé. Escala de DPR conforme §6.7.
+function gerarCardCanvas(cls, pct){
+  const CW = 1080, CH = 1350;
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);       // §6.7
+  const canvas = document.createElement('canvas');
+  canvas.width  = Math.round(CW * dpr);
+  canvas.height = Math.round(CH * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const r = RESULTADOS[cls.chave][_lang];
+
+  // fundo
+  ctx.fillStyle = '#14131A';
+  ctx.fillRect(0, 0, CW, CH);
+
+  ctx.textAlign = 'center';
+
+  // regência (mono, só intersecção)
+  let topo = 150;
+  if(cls.tipo === 'interseccao'){
+    ctx.fillStyle = '#8E8A97';
+    ctx.font = '600 30px ui-monospace, SFMono-Regular, Menlo, monospace';
+    const reg = T('regidoPor').replace('{el}', RESULTADOS[cls.regente][_lang].nome).toUpperCase();
+    ctx.fillText(espacado(reg, 4), CW/2, topo);
+    topo += 44;
+  }
+
+  // nome (Fraunces)
+  ctx.fillStyle = '#EDE9E3';
+  ctx.font = '500 132px Fraunces, Georgia, serif';
+  ctx.fillText(r.nome, CW/2, topo + 96);
+  // epíteto (Fraunces itálico)
+  ctx.fillStyle = '#8E8A97';
+  ctx.font = 'italic 500 46px Fraunces, Georgia, serif';
+  ctx.fillText(r.epiteto, CW/2, topo + 158);
+
+  // vitral em destaque
+  pintarVitral(ctx, CW/2, 760, 300, pct);
+
+  // percentuais (mono, com quadradinho de cor)
+  ctx.font = '600 34px ui-monospace, SFMono-Regular, Menlo, monospace';
+  const rotulos = ELEMENTOS.map(el=> ({ el, txt: T('eixo' + el.charAt(0).toUpperCase() + el.slice(1)) + ' ' + pct[el] + '%' }));
+  const gap = 46, dot = 26;
+  const larguras = rotulos.map(o=> dot + 16 + ctx.measureText(o.txt).width);
+  const totalW = larguras.reduce((a,b)=>a+b, 0) + gap * (rotulos.length - 1);
+  let x = CW/2 - totalW/2;
+  const yP = 1150;
+  rotulos.forEach((o,i)=>{
+    ctx.fillStyle = CORES[o.el];
+    ctx.fillRect(x, yP - dot + 5, dot, dot);
+    ctx.fillStyle = '#EDE9E3';
+    ctx.textAlign = 'left';
+    ctx.fillText(o.txt, x + dot + 16, yP);
+    ctx.textAlign = 'center';
+    x += larguras[i] + gap;
+  });
+
+  // rodapé
+  ctx.fillStyle = '#8E8A97';
+  ctx.font = '400 30px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText('estel.games/psico-arquetipos', CW/2, CH - 90);
+
+  return canvas;
+}
+
+function espacado(s, px){ return s.split('').join(' '.repeat(Math.max(1, Math.round(px/2)))); }
+
+function mostrarToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(mostrarToast._t);
+  mostrarToast._t = setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+// §6.8 — cascata obrigatória: share nativo → download → pressionar-e-segurar
+async function salvarImagem(){
+  if(!clsAtual) return;
+  try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
+  const canvas = gerarCardCanvas(clsAtual, pctAtual);
+  canvas.toBlob(async (blob)=>{
+    if(!blob) return;
+    const nomeArq = 'psico-arquetipos-elementos.png';
+    const file = new File([blob], nomeArq, { type:'image/png' });
+    const marcarShare = ()=>{ if(typeof gaEvento === 'function') gaEvento('card_compartilhado', { teste:'elementos', arquetipo: clsAtual.chave }); };
+
+    // 1. share nativo (iOS/Android modernos)
+    if(navigator.canShare && navigator.canShare({ files:[file] }) && navigator.share){
+      try{
+        await navigator.share({ files:[file] });
+        marcarShare();
+        return;
+      }catch(e){
+        if(e && e.name === 'AbortError') return;   // usuário cancelou
+        // segue para o fallback
+      }
+    }
+
+    const url = URL.createObjectURL(blob);
+    const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const podeBaixar = 'download' in document.createElement('a');
+
+    // 2. download direto (Chrome Android, desktop)
+    if(podeBaixar && !isIOS){
+      const a = document.createElement('a');
+      a.href = url; a.download = nomeArq;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=> URL.revokeObjectURL(url), 5000);
+      mostrarToast(T('imagemSalva'));
+      marcarShare();
+      return;
+    }
+
+    // 3. pressione e segure a imagem (Safari iOS)
+    const fb = document.getElementById('salvar-fallback');
+    document.getElementById('salvar-fallback-msg').textContent = T('pressioneSegure');
+    const img = document.getElementById('salvar-fallback-img');
+    img.onload = ()=> setTimeout(()=> URL.revokeObjectURL(url), 60000);
+    img.src = url;
+    fb.hidden = false;
+    marcarShare();
+  }, 'image/png');
 }
 
 </script>
