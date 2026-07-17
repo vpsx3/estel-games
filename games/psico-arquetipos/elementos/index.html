@@ -106,13 +106,520 @@ const ARQUETIPOS = {
 };
 
 // ==================== BANCO DE QUESTÕES (§3) ====================
-// (inserido na Etapa 2)
+const QUESTOES = [
+  // ---------- FOGO × ÁGUA ----------
+  { id:'q01', pair:['fogo','agua'], w:1,
+    pt:{ q:'Alguém te magoou de verdade. Uma semana depois:',
+         a:'Você já falou o que tinha pra falar.',
+         b:'Você ainda está remoendo a cena.' },
+    en:{ q:'Someone really hurt you. A week later:',
+         a:'You already said what you had to say.',
+         b:'You are still replaying the scene.' } },
+
+  { id:'q02', pair:['fogo','agua'], w:2,
+    pt:{ q:'Uma decisão difícil está na sua mão. O que pesa mais?',
+         a:'O que eu quero.',
+         b:'Quem vai ser afetado.' },
+    en:{ q:'A hard call is yours to make. What weighs more?',
+         a:'What I want.',
+         b:'Who gets affected.' } },
+
+  { id:'q03', pair:['fogo','agua'], w:1,
+    pt:{ q:'Num filme, o que te prende:',
+         a:'A cena em que tudo explode.',
+         b:'A cena em que ninguém diz nada.' },
+    en:{ q:'In a film, what holds you:',
+         a:'The scene where everything blows up.',
+         b:'The scene where nobody says a word.' } },
+
+  { id:'q04', pair:['fogo','agua'], w:2,
+    pt:{ q:'Você está mal. O que ajuda mais:',
+         a:'Fazer alguma coisa. Qualquer coisa.',
+         b:'Alguém sentar do seu lado.' },
+    en:{ q:'You are in a bad place. What helps more:',
+         a:'Doing something. Anything.',
+         b:'Someone sitting next to you.' } },
+
+  // ---------- FOGO × TERRA ----------
+  { id:'q05', pair:['fogo','terra'], w:1,
+    pt:{ q:'Um plano de seis meses caiu na sua mesa:',
+         a:'Começa hoje e ajusta no caminho.',
+         b:'Mapeia tudo antes de mover um dedo.' },
+    en:{ q:'A six-month plan lands on your desk:',
+         a:'Start today, adjust along the way.',
+         b:'Map it all out before moving a finger.' } },
+
+  { id:'q06', pair:['fogo','terra'], w:2,
+    pt:{ q:'Você confia mais:',
+         a:'No impulso do momento.',
+         b:'No que já deu certo antes.' },
+    en:{ q:'You trust more:',
+         a:'The impulse of the moment.',
+         b:'What has worked before.' } },
+
+  { id:'q07', pair:['fogo','terra'], w:1,
+    pt:{ q:'O defeito mais imperdoável:',
+         a:'Ser lento.',
+         b:'Ser inconstante.' },
+    en:{ q:'The least forgivable flaw:',
+         a:'Being slow.',
+         b:'Being unreliable.' } },
+
+  { id:'q08', pair:['fogo','terra'], w:2,
+    pt:{ q:'Oportunidade boa, arriscada, e o prazo é hoje:',
+         a:'Aceita e resolve depois.',
+         b:'Deixa passar. A conta não fecha.' },
+    en:{ q:'A good, risky opportunity — and the deadline is today:',
+         a:'Take it, figure it out later.',
+         b:'Let it go. The math does not add up.' } },
+
+  // ---------- FOGO × AR ----------
+  { id:'q09', pair:['fogo','ar'], w:1,
+    pt:{ q:'Uma ideia nova te ocorre. Primeiro impulso:',
+         a:'Testar agora.',
+         b:'Ver aonde ela chega se eu continuar pensando.' },
+    en:{ q:'A new idea hits you. First impulse:',
+         a:'Test it now.',
+         b:'See where it goes if I keep thinking.' } },
+
+  { id:'q10', pair:['fogo','ar'], w:2,
+    pt:{ q:'Numa discussão, você quer:',
+         a:'Vencer.',
+         b:'Entender.' },
+    en:{ q:'In an argument, you want to:',
+         a:'Win.',
+         b:'Understand.' } },
+
+  { id:'q11', pair:['fogo','ar'], w:1,
+    pt:{ q:'O que dá mais prazer:',
+         a:'Fazer acontecer.',
+         b:'Sacar como funciona.' },
+    en:{ q:'What feels better:',
+         a:'Making it happen.',
+         b:'Figuring out how it works.' } },
+
+  { id:'q12', pair:['fogo','ar'], w:2,
+    pt:{ q:'Você abandonaria um plano ótimo por:',
+         a:'Um impulso mais forte.',
+         b:'Um argumento melhor.' },
+    en:{ q:'You would drop a great plan for:',
+         a:'A stronger impulse.',
+         b:'A better argument.' } },
+
+  // ---------- ÁGUA × TERRA ----------
+  { id:'q13', pair:['agua','terra'], w:1,
+    pt:{ q:'Um amigo chega arrasado. Você:',
+         a:'Escuta até ele parar de falar.',
+         b:'Resolve o problema prático que causou aquilo.' },
+    en:{ q:'A friend shows up wrecked. You:',
+         a:'Listen until they stop talking.',
+         b:'Fix the practical problem that caused it.' } },
+
+  { id:'q14', pair:['agua','terra'], w:2,
+    pt:{ q:'O que prova amor:',
+         a:'Dizer.',
+         b:'Fazer.' },
+    en:{ q:'What proves love:',
+         a:'Saying it.',
+         b:'Doing it.' } },
+
+  { id:'q15', pair:['agua','terra'], w:1,
+    pt:{ q:'Você guarda:',
+         a:'Cartas, fotos, coisas sem valor.',
+         b:'Ferramentas, peças, coisas que servem.' },
+    en:{ q:'You keep:',
+         a:'Letters, photos, things with no value.',
+         b:'Tools, parts, things that are useful.' } },
+
+  { id:'q16', pair:['agua','terra'], w:2,
+    pt:{ q:'Uma promessa que ficou difícil de cumprir:',
+         a:'Eu explico o que mudou dentro de mim.',
+         b:'Eu cumpro, mesmo sem vontade.' },
+    en:{ q:'A promise that became hard to keep:',
+         a:'I explain what changed inside me.',
+         b:'I keep it anyway, without wanting to.' } },
+
+  // ---------- ÁGUA × AR ----------
+  { id:'q17', pair:['agua','ar'], w:1,
+    pt:{ q:'Você entende as pessoas:',
+         a:'Pelo que elas te fazem sentir.',
+         b:'Pelos padrões que elas repetem.' },
+    en:{ q:'You read people:',
+         a:'By what they make you feel.',
+         b:'By the patterns they repeat.' } },
+
+  { id:'q18', pair:['agua','ar'], w:2,
+    pt:{ q:'Sobre a sua própria emoção:',
+         a:'Eu mergulho nela.',
+         b:'Eu observo ela de fora.' },
+    en:{ q:'About your own emotion:',
+         a:'I dive into it.',
+         b:'I watch it from outside.' } },
+
+  { id:'q19', pair:['agua','ar'], w:1,
+    pt:{ q:'Um poema é bom quando:',
+         a:'Aperta o peito.',
+         b:'Vira uma chave na cabeça.' },
+    en:{ q:'A poem is good when:',
+         a:'It hits you in the chest.',
+         b:'It flips a switch in your head.' } },
+
+  { id:'q20', pair:['agua','ar'], w:2,
+    pt:{ q:'Você confia mais:',
+         a:'No que sente sem saber por quê.',
+         b:'No que conclui, mesmo contra o que sente.' },
+    en:{ q:'You trust more:',
+         a:'What you feel without knowing why.',
+         b:'What you conclude, even against what you feel.' } },
+
+  // ---------- TERRA × AR ----------
+  { id:'q21', pair:['terra','ar'], w:1,
+    pt:{ q:'Uma teoria linda que não funciona na prática:',
+         a:'É lixo.',
+         b:'Ainda vale.' },
+    en:{ q:'A beautiful theory that does not work in practice:',
+         a:'It is garbage.',
+         b:'It still counts.' } },
+
+  { id:'q22', pair:['terra','ar'], w:2,
+    pt:{ q:'Se só desse pra ter um:',
+         a:'Terminar.',
+         b:'Entender.' },
+    en:{ q:'If you could only have one:',
+         a:'Finishing it.',
+         b:'Understanding it.' } },
+
+  { id:'q23', pair:['terra','ar'], w:1,
+    pt:{ q:'Sua mesa:',
+         a:'Cada coisa no seu lugar.',
+         b:'Um caos que só eu entendo.' },
+    en:{ q:'Your desk:',
+         a:'Everything in its place.',
+         b:'A mess only I understand.' } },
+
+  { id:'q24', pair:['terra','ar'], w:2,
+    pt:{ q:'O que faz um trabalho ser bom:',
+         a:'Ele resiste ao tempo.',
+         b:'Ele muda como as pessoas pensam.' },
+    en:{ q:'What makes work good:',
+         a:'It survives time.',
+         b:'It changes how people think.' } }
+];
 
 // ==================== TEXTOS DE RESULTADO (§4) ====================
-// (inserido na Etapa 2)
+const RESULTADOS = {
+
+  // ==================== PUROS ====================
+
+  fogo: {
+    pt:{ nome:'Fogo', epiteto:'A Vontade',
+      essencia:'Você move antes de saber para onde. O que te define não é o destino, é a partida.',
+      luz:'Coragem, iniciativa, a capacidade rara de fazer as coisas saírem do papel só porque você não aguenta esperar.',
+      sombra:'Impaciência com quem precisa de tempo. Arrogância vestida de convicção. Destruir o que ainda estava crescendo.',
+      desequilibrio:'Qualquer forma de espera. Você confunde parar com morrer.',
+      cego:'Água. Você trata sentimento como atraso — inclusive o seu.' },
+    en:{ nome:'Fire', epiteto:'The Will',
+      essencia:'You move before you know where to. What defines you is not the destination, it is the departure.',
+      luz:'Courage, initiative, the rare ability to make things real just because you cannot stand waiting.',
+      sombra:'Impatience with anyone who needs time. Arrogance dressed as conviction. Destroying what was still growing.',
+      desequilibrio:'Any form of waiting. You mistake stopping for dying.',
+      cego:'Water. You treat feeling as a delay — including your own.' } },
+
+  agua: {
+    pt:{ nome:'Água', epiteto:'O Sentimento',
+      essencia:'Você não tem forma própria, e isso não é falta: é como você entra em todo mundo.',
+      luz:'Empatia que não precisa de explicação. Profundidade. A capacidade de sustentar o que os outros não conseguem nem olhar.',
+      sombra:'Dissolver-se no outro até não achar mais onde você termina. Fugir do conflito e chamar isso de paz.',
+      desequilibrio:'Ter que escolher em público. Você sente todos os lados e por isso não consegue ficar em um.',
+      cego:'Fogo. Você adia o que precisa de vontade bruta, e chama a demora de sensibilidade.' },
+    en:{ nome:'Water', epiteto:'The Feeling',
+      essencia:'You have no shape of your own, and that is not a lack: it is how you get inside everyone.',
+      luz:'Empathy that needs no explanation. Depth. The ability to hold what others cannot even look at.',
+      sombra:'Dissolving into others until you cannot find where you end. Avoiding conflict and calling it peace.',
+      desequilibrio:'Having to choose in public. You feel every side, so you cannot stay on one.',
+      cego:'Fire. You postpone what needs raw will, and call the delay sensitivity.' } },
+
+  terra: {
+    pt:{ nome:'Terra', epiteto:'A Matéria',
+      essencia:'Você é o que continua depois que todo mundo cansou. Não é sobre velocidade. É sobre ainda estar aqui.',
+      luz:'Confiabilidade absoluta. Paciência com o processo. Presença — aparecer é metade do que você faz de melhor.',
+      sombra:'Rigidez confundida com princípio. Apego ao que já não serve. Medo do novo travestido de bom senso.',
+      desequilibrio:'Mudança sem aviso. Você não resiste à mudança, resiste à pressa dela.',
+      cego:'Ar. Você descarta o que ainda não é útil, e às vezes o futuro chega assim: inútil.' },
+    en:{ nome:'Earth', epiteto:'The Matter',
+      essencia:'You are what remains after everyone else got tired. It is not about speed. It is about still being here.',
+      luz:'Absolute reliability. Patience with process. Presence — showing up is half of your best work.',
+      sombra:'Rigidity mistaken for principle. Attachment to what no longer serves. Fear of the new dressed as common sense.',
+      desequilibrio:'Change without warning. You do not resist change, you resist its hurry.',
+      cego:'Air. You discard what is not useful yet, and the future often arrives exactly like that: useless.' } },
+
+  ar: {
+    pt:{ nome:'Ar', epiteto:'A Mente',
+      essencia:'Você vê a forma das coisas antes de tocar nelas. O problema nunca foi enxergar. Foi pousar.',
+      luz:'Lucidez. Curiosidade que não pede permissão. A liberdade de mudar de ideia sem sentir que perdeu.',
+      sombra:'Dispersão. Frieza confundida com clareza. Explicar um sentimento até ele sumir.',
+      desequilibrio:'Repetição. Você aguenta quase tudo, menos a segunda vez.',
+      cego:'Terra. Você sabe como fazer e não faz, e acha que saber já é quase.' },
+    en:{ nome:'Air', epiteto:'The Mind',
+      essencia:'You see the shape of things before touching them. Seeing was never the problem. Landing was.',
+      luz:'Clarity. Curiosity that asks no permission. The freedom to change your mind without feeling you lost.',
+      sombra:'Scattering. Coldness mistaken for clarity. Explaining a feeling until it disappears.',
+      desequilibrio:'Repetition. You can take almost anything except the second time.',
+      cego:'Earth. You know how to do it and do not, and think knowing is almost the same.' } },
+
+  // ==================== VAPOR (Fogo + Água) ====================
+
+  vapor_fogo: {
+    pt:{ nome:'Vapor', epiteto:'O Alquimista',
+      essencia:'Você sente para ter combustível. A emoção não te para: ela te lança. Regido por Fogo, o que dói vira movimento antes de virar palavra.',
+      luz:'Intensidade que contagia. Transformar dor em obra na mesma semana. Ninguém precisa perguntar se você está inteiro na coisa.',
+      sombra:'Volatilidade. Usar o próprio drama como isqueiro. Queimar relações no calor e chamar isso de verdade.',
+      desequilibrio:'Silêncio. Se não tem para onde escoar, a pressão volta para dentro.',
+      cego:'Cristal. Você desconfia de qualquer estrutura que não esteja pegando fogo — inclusive das que te sustentariam.' },
+    en:{ nome:'Steam', epiteto:'The Alchemist',
+      essencia:'You feel in order to have fuel. Emotion does not stop you: it launches you. Ruled by Fire, what hurts becomes motion before it becomes words.',
+      luz:'Contagious intensity. Turning pain into work within the same week. Nobody has to ask if you are all in.',
+      sombra:'Volatility. Using your own drama as a lighter. Burning relationships in the heat and calling it honesty.',
+      desequilibrio:'Silence. With nowhere to vent, the pressure turns inward.',
+      cego:'Crystal. You distrust any structure that is not on fire — including the ones that would hold you up.' } },
+
+  vapor_agua: {
+    pt:{ nome:'Vapor', epiteto:'O Alquimista',
+      essencia:'Você age para dar vazão ao que sente. Regido por Água, o movimento é consequência: primeiro a coisa te toma, depois você faz algo com ela.',
+      luz:'Profundidade em movimento. Você entende as pessoas por dentro e ainda assim reage — o que é raro, porque quem sente fundo costuma congelar.',
+      sombra:'Ser refém do próprio clima. Decidir a vida inteira dentro de uma emoção que dura três dias.',
+      desequilibrio:'Ter que fingir tranquilidade. Represar te aquece até o ponto de estourar.',
+      cego:'Cristal. Você acha que sistema é coisa de quem não sente — e sistema é justamente o que te sobra quando o sentimento passa.' },
+    en:{ nome:'Steam', epiteto:'The Alchemist',
+      essencia:'You act to release what you feel. Ruled by Water, movement is the consequence: first the thing takes you, then you do something with it.',
+      luz:'Depth in motion. You understand people from the inside and still react — which is rare, since deep feelers usually freeze.',
+      sombra:'Being hostage to your own weather. Deciding your whole life inside a feeling that lasts three days.',
+      desequilibrio:'Having to fake calm. Damming it up heats you until you burst.',
+      cego:'Crystal. You think systems are for people who do not feel — and a system is exactly what is left when the feeling passes.' } },
+
+  // ==================== FORJA (Fogo + Terra) ====================
+
+  forja_fogo: {
+    pt:{ nome:'Forja', epiteto:'O Artesão',
+      essencia:'Vontade aplicada à matéria. Regido por Fogo, a disciplina não é dever: é fome. Você trabalha porque não trabalhar dói mais.',
+      luz:'Você termina. Num mundo de gente que começa, isso é quase um superpoder. E termina bem, porque a pressa não te deixa entregar vergonha.',
+      sombra:'Obsessão. Identidade colada na obra — se o trabalho falha, quem falhou foi você.',
+      desequilibrio:'Ficar sem projeto. Ócio, para você, não é descanso: é abstinência.',
+      cego:'Bruma. Você despreza o que não vira produto, e às vezes o que não vira produto é o que te explicaria.' },
+    en:{ nome:'Forge', epiteto:'The Craftsman',
+      essencia:'Will applied to matter. Ruled by Fire, discipline is not duty: it is hunger. You work because not working hurts more.',
+      luz:'You finish. In a world of starters, that is nearly a superpower. And you finish well, because the hurry will not let you ship something shameful.',
+      sombra:'Obsession. Identity glued to the work — if the work fails, you failed.',
+      desequilibrio:'Having no project. Idleness is not rest for you: it is withdrawal.',
+      cego:'Mist. You dismiss whatever does not become a product, and sometimes what does not become a product is what would explain you.' } },
+
+  forja_terra: {
+    pt:{ nome:'Forja', epiteto:'O Artesão',
+      essencia:'Matéria que às vezes pega fogo. Regido por Terra, o ofício vem antes da vontade: você aparece todo dia, e é o aparecer que acende.',
+      luz:'Constância com brasa embaixo. Você não depende de inspiração, mas quando ela vem você tem onde colocar.',
+      sombra:'Endurecer. Trocar a fome pelo hábito e não perceber que faz anos que não gosta do que faz.',
+      desequilibrio:'Trabalho sem propósito visível. Você aguenta o esforço, não aguenta o vazio dele.',
+      cego:'Bruma. Você não sabe o que sente sobre a própria vida, porque nunca parou tempo suficiente para descobrir.' },
+    en:{ nome:'Forge', epiteto:'The Craftsman',
+      essencia:'Matter that occasionally catches fire. Ruled by Earth, the craft comes before the will: you show up every day, and showing up is what ignites.',
+      luz:'Consistency with embers underneath. You do not depend on inspiration, but when it arrives you have somewhere to put it.',
+      sombra:'Hardening. Trading hunger for habit and not noticing it has been years since you liked any of this.',
+      desequilibrio:'Work with no visible purpose. You can take the effort; you cannot take its emptiness.',
+      cego:'Mist. You do not know how you feel about your own life, because you never stopped long enough to find out.' } },
+
+  // ==================== FAÍSCA (Fogo + Ar) ====================
+
+  faisca_fogo: {
+    pt:{ nome:'Faísca', epiteto:'O Agitador',
+      essencia:'Você age e depois pensa numa boa justificativa. Regido por Fogo, a ideia é desculpa: o que você quer mesmo é a ignição.',
+      luz:'Nada trava perto de você. Você tira gente da inércia só de entrar na sala, e transforma conversa em plano em minutos.',
+      sombra:'Dez começos, zero fins. Queimar uma ponte por uma frase boa demais para não ser dita.',
+      desequilibrio:'Rotina. Duas semanas iguais e você sabota alguma coisa só para ter novidade.',
+      cego:'Argila. Você não percebe o custo humano do que acende — e quem apaga o fogo depois costuma ser quem te ama.' },
+    en:{ nome:'Spark', epiteto:'The Agitator',
+      essencia:'You act and then think of a good justification. Ruled by Fire, the idea is an excuse: what you actually want is ignition.',
+      luz:'Nothing stalls near you. You pull people out of inertia just by walking in, and turn talk into a plan in minutes.',
+      sombra:'Ten beginnings, zero endings. Burning a bridge over a line too good to leave unsaid.',
+      desequilibrio:'Routine. Two identical weeks and you sabotage something just to feel novelty.',
+      cego:'Clay. You do not see the human cost of what you ignite — and whoever puts the fire out is usually the one who loves you.' } },
+
+  faisca_ar: {
+    pt:{ nome:'Faísca', epiteto:'O Agitador',
+      essencia:'Você pensa, e a ideia é tão boa que se acende sozinha. Regido por Ar, o fogo vem depois: primeiro a visão, e a visão puxa o corpo atrás.',
+      luz:'Contágio intelectual. Você faz as pessoas quererem o que ainda não existe, e isso é o começo de tudo que já foi construído.',
+      sombra:'Confundir articular com realizar. A ideia sai tão redonda da boca que parece pronta — e ninguém constrói o que já parece pronto.',
+      desequilibrio:'Detalhe operacional. Você não é preguiçoso, é que a parte interessante já acabou.',
+      cego:'Argila. Você não sustenta nada por tempo suficiente para virar raiz, nem vínculo nem projeto.' },
+    en:{ nome:'Spark', epiteto:'The Agitator',
+      essencia:'You think, and the idea is so good it lights itself. Ruled by Air, the fire comes second: first the vision, and the vision drags the body along.',
+      luz:'Intellectual contagion. You make people want what does not exist yet, and that is the start of everything ever built.',
+      sombra:'Mistaking articulating for doing. The idea leaves your mouth so polished it seems finished — and nobody builds what already seems finished.',
+      desequilibrio:'Operational detail. You are not lazy; the interesting part is just over.',
+      cego:'Clay. You do not hold anything long enough for it to take root — not a bond, not a project.' } },
+
+  // ==================== ARGILA (Água + Terra) ====================
+
+  argila_agua: {
+    pt:{ nome:'Argila', epiteto:'O Guardião',
+      essencia:'Você cuida porque sente. Regido por Água, o vínculo vem primeiro e a estrutura vem depois, feita só para proteger o vínculo.',
+      luz:'Você é lar. Lembra das feridas e dos aniversários, e as pessoas voltam para você porque com você elas não precisam se explicar.',
+      sombra:'Sufocar quem ama de tanto proteger. Sacrifício que, anos depois, chega como cobrança.',
+      desequilibrio:'Alguém do seu círculo se afastando. Você trata distância como perda, mesmo quando é só espaço.',
+      cego:'Faísca. Você chama de cuidado o que às vezes é medo de deixar as coisas mudarem.' },
+    en:{ nome:'Clay', epiteto:'The Guardian',
+      essencia:'You care because you feel. Ruled by Water, the bond comes first and the structure comes after, built only to protect the bond.',
+      luz:'You are home. You remember the wounds and the birthdays, and people come back to you because with you they do not have to explain themselves.',
+      sombra:'Smothering the ones you love by protecting them. Sacrifice that arrives, years later, as a bill.',
+      desequilibrio:'Someone in your circle drifting away. You treat distance as loss, even when it is only space.',
+      cego:'Spark. You call it care when sometimes it is fear of letting things change.' } },
+
+  argila_terra: {
+    pt:{ nome:'Argila', epiteto:'O Guardião',
+      essencia:'Você cuida porque está. Regido por Terra, o afeto é manutenção: aparecer, consertar, pagar, ficar. Você raramente diz. Você faz.',
+      luz:'Presença sem alarde. Enquanto todo mundo discute o que sente, você já resolveu o que precisava ser resolvido.',
+      sombra:'Estagnação. Confundir estar junto com estar vivo, e deixar a vida virar uma rotina que ninguém escolheu.',
+      desequilibrio:'Ter que falar do que sente. Você prefere trocar o pneu a nomear o medo.',
+      cego:'Faísca. Você nunca arrisca o que já está de pé, e é por isso que nada novo aparece.' },
+    en:{ nome:'Clay', epiteto:'The Guardian',
+      essencia:'You care because you are there. Ruled by Earth, affection is maintenance: showing up, fixing, paying, staying. You rarely say it. You do it.',
+      luz:'Presence without noise. While everyone discusses their feelings, you have already handled what needed handling.',
+      sombra:'Stagnation. Mistaking being together for being alive, and letting life become a routine nobody chose.',
+      desequilibrio:'Having to talk about what you feel. You would rather change the tire than name the fear.',
+      cego:'Spark. You never risk what is already standing, which is why nothing new ever shows up.' } },
+
+  // ==================== BRUMA (Água + Ar) ====================
+
+  bruma_agua: {
+    pt:{ nome:'Bruma', epiteto:'O Sonhador',
+      essencia:'Intuição procurando palavra. Regido por Água, você sente primeiro e traduz depois — e a tradução nunca fica exata, o que é justamente o seu assunto.',
+      luz:'Você percebe o não-dito. Entra numa sala e sabe o que aconteceu ali antes de você chegar.',
+      sombra:'Viver de possibilidade para não ter que escolher. Confundir perceber tudo com entender alguma coisa.',
+      desequilibrio:'Prazo. Você precisa que a coisa amadureça, e o mundo não pergunta.',
+      cego:'Forja. Você tem a percepção inteira e nenhuma obra — porque obra exige escolher uma versão e matar as outras.' },
+    en:{ nome:'Mist', epiteto:'The Dreamer',
+      essencia:'Intuition looking for words. Ruled by Water, you feel first and translate later — and the translation is never exact, which is precisely your subject.',
+      luz:'You perceive the unsaid. You walk into a room and know what happened there before you arrived.',
+      sombra:'Living on possibility to avoid choosing. Mistaking noticing everything for understanding something.',
+      desequilibrio:'Deadlines. You need things to ripen, and the world does not ask.',
+      cego:'Forge. You have the whole perception and no work — because work means picking one version and killing the rest.' } },
+
+  bruma_ar: {
+    pt:{ nome:'Bruma', epiteto:'O Sonhador',
+      essencia:'Palavra procurando intuição. Regido por Ar, você pensa em imagens: o símbolo chega antes do sentimento e às vezes no lugar dele.',
+      luz:'Você dá forma ao que os outros só conseguem sentir. É o que faz de você tradutor, poeta, a pessoa que finalmente nomeia a coisa.',
+      sombra:'Dissociação. Explicar tão bem a própria dor que ela vira assunto, e assunto não dói.',
+      desequilibrio:'Ser exigido no concreto. Você fica sem chão, literalmente.',
+      cego:'Forja. Você acha que nomear já é resolver — e nada foi resolvido nomeando.' },
+    en:{ nome:'Mist', epiteto:'The Dreamer',
+      essencia:'Words looking for intuition. Ruled by Air, you think in images: the symbol arrives before the feeling, and sometimes instead of it.',
+      luz:'You give shape to what others can only feel. It makes you a translator, a poet, the person who finally names the thing.',
+      sombra:'Dissociation. Explaining your own pain so well that it becomes a topic, and topics do not hurt.',
+      desequilibrio:'Being asked for something concrete. You lose the ground, literally.',
+      cego:'Forge. You think naming is solving — and nothing was ever solved by being named.' } },
+
+  // ==================== CRISTAL (Terra + Ar) ====================
+
+  cristal_terra: {
+    pt:{ nome:'Cristal', epiteto:'O Arquiteto',
+      essencia:'Sistema que precisa existir de verdade. Regido por Terra, primeiro a estrutura, depois a elegância: você constrói o que aguenta peso.',
+      luz:'Você organiza o caos e o resultado dura. Onde outros fazem gambiarra, você faz fundação.',
+      sombra:'Perfeccionismo paralisante. Recusar o que funciona porque não está certo, e ficar sem nada nem certo nem funcionando.',
+      desequilibrio:'Improviso alheio. Não é a bagunça que te irrita: é o desperdício.',
+      cego:'Vapor. Você não tem canal para o que sente, então trata emoção como falha de projeto.' },
+    en:{ nome:'Crystal', epiteto:'The Architect',
+      essencia:'A system that has to actually exist. Ruled by Earth, structure first, elegance second: you build what holds weight.',
+      luz:'You organize chaos and the result lasts. Where others improvise, you pour foundations.',
+      sombra:'Paralyzing perfectionism. Refusing what works because it is not right, and ending up with neither.',
+      desequilibrio:'Other people improvising. It is not the mess that gets you: it is the waste.',
+      cego:'Steam. You have no channel for what you feel, so you treat emotion as a design flaw.' } },
+
+  cristal_ar: {
+    pt:{ nome:'Cristal', epiteto:'O Arquiteto',
+      essencia:'Estrutura que existe para ser elegante. Regido por Ar, o modelo vem primeiro: se a ideia é bonita o bastante, a realidade que se ajuste.',
+      luz:'Clareza que corta. Você enxerga a arquitetura de qualquer problema e mostra ela para todo mundo em um desenho.',
+      sombra:'Tratar pessoas como variáveis. Ter razão e perder a sala.',
+      desequilibrio:'Ambiguidade emocional. Você aceita qualquer complexidade, menos a que não fecha em modelo.',
+      cego:'Vapor. Você racionaliza o sentimento até ele virar um argumento — e argumento nenhum nunca te curou de nada.' },
+    en:{ nome:'Crystal', epiteto:'The Architect',
+      essencia:'Structure that exists to be elegant. Ruled by Air, the model comes first: if the idea is beautiful enough, reality can adjust.',
+      luz:'Clarity that cuts. You see the architecture of any problem and can draw it for everyone in one diagram.',
+      sombra:'Treating people as variables. Being right and losing the room.',
+      desequilibrio:'Emotional ambiguity. You accept any complexity except the kind that will not fit a model.',
+      cego:'Steam. You rationalize feeling until it becomes an argument — and no argument ever cured you of anything.' } }
+};
 
 // ==================== I18N ====================
-// (inserido na Etapa 2)
+const I18N = {
+  pt:{
+    title:'Psico Arquétipos: Elementos — estel.games',
+    metaDesc:'Fogo, água, terra e ar. Descubra seu elemento regente e o seu ponto cego.',
+    kicker:'Psico Arquétipos',
+    inicioTitulo:'Elementos',
+    premissa:'Seis pares de escolhas. Nenhuma resposta certa. No fim, de que você é feito.',
+    comecar:'Começar',
+    de:'de',
+    regidoPor:'Regido por {el}',
+    labelLuz:'Luz',
+    labelSombra:'Sombra',
+    labelDesequilibrio:'O que te desequilibra',
+    labelCego:'Seu ponto cego',
+    refazer:'Refazer o teste',
+    salvar:'Salvar imagem',
+    imagemSalva:'Imagem salva',
+    pressioneSegure:'Pressione e segure a imagem para salvar',
+    eixoFogo:'Fogo',
+    eixoAgua:'Água',
+    eixoTerra:'Terra',
+    eixoAr:'Ar',
+  },
+  en:{
+    title:'Psycho Archetypes: Elements — estel.games',
+    metaDesc:'Fire, water, earth and air. Find your ruling element and its blind spot.',
+    kicker:'Psycho Archetypes',
+    inicioTitulo:'Elements',
+    premissa:'Six pairs of choices. No right answer. In the end, what you are made of.',
+    comecar:'Start',
+    de:'of',
+    regidoPor:'Ruled by {el}',
+    labelLuz:'Light',
+    labelSombra:'Shadow',
+    labelDesequilibrio:'What throws you off',
+    labelCego:'Your blind spot',
+    refazer:'Retake the test',
+    salvar:'Save image',
+    imagemSalva:'Image saved',
+    pressioneSegure:'Press and hold the image to save',
+    eixoFogo:'Fire',
+    eixoAgua:'Water',
+    eixoTerra:'Earth',
+    eixoAr:'Air',
+  }
+};
+let _lang = 'en';
+function T(key){ return (I18N[_lang] && I18N[_lang][key]) || (I18N.en[key]) || key; }
+
+// ---- validação obrigatória (§3) ----
+(function validarBanco(){
+  const porPar = {};
+  const porElemento = {fogo:0, agua:0, terra:0, ar:0};
+  let somaW = 0;
+  QUESTOES.forEach(q=>{
+    const chavePar = q.pair.slice().sort().join('+');
+    (porPar[chavePar] = porPar[chavePar] || []).push(q.w);
+    somaW += q.w;
+    q.pair.forEach(el=>{ porElemento[el]++; });
+  });
+  console.assert(QUESTOES.length === CFG.TOTAL_QUESTOES, 'total de questões != 24');
+  console.assert(somaW === CFG.PONTOS_MAX, 'soma dos pesos != 36');
+  Object.keys(porPar).forEach(par=>{
+    const pesos = porPar[par].slice().sort().join(',');
+    console.assert(porPar[par].length === 4, 'par '+par+' não tem 4 questões');
+    console.assert(pesos === '1,1,2,2', 'par '+par+' pesos != [1,1,2,2]');
+  });
+  ELEMENTOS.forEach(el=>{
+    console.assert(porElemento[el] === 12, 'elemento '+el+' não aparece 12 vezes');
+  });
+})();
 
 // ==================== MOTOR DE PONTUAÇÃO (§2.3/§2.4/§2.6) ====================
 // (inserido na Etapa 3)
