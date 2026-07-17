@@ -622,7 +622,84 @@ function T(key){ return (I18N[_lang] && I18N[_lang][key]) || (I18N.en[key]) || k
 })();
 
 // ==================== MOTOR DE PONTUAÇÃO (§2.3/§2.4/§2.6) ====================
-// (inserido na Etapa 3)
+const OPOSTO = { fogo:'agua', agua:'fogo', terra:'ar', ar:'terra' };
+const ARQ_PARA_PAR = {}; // 'faisca' -> ['fogo','ar']
+Object.keys(ARQUETIPOS).forEach(k=>{ ARQ_PARA_PAR[ARQUETIPOS[k]] = k.split('+'); });
+
+// estado: vetor de pontos + acumulador paralelo só de peso 2 (desempate)
+const estado = {
+  pontos:   { fogo:0, agua:0, terra:0, ar:0 },
+  pontosW2: { fogo:0, agua:0, terra:0, ar:0 },
+  respostas: 0
+};
+function resetEstado(){
+  ELEMENTOS.forEach(el=>{ estado.pontos[el]=0; estado.pontosW2[el]=0; });
+  estado.respostas = 0;
+}
+function registrarEscolha(elementoEscolhido, w){
+  estado.pontos[elementoEscolhido] += w;
+  if(w === 2) estado.pontosW2[elementoEscolhido] += w;
+  estado.respostas++;
+}
+
+// ordena [a,b] pela ORDEM_DESEMPATE e consulta o mapa de intersecções
+function arqId(a, b){
+  const par = [a, b].slice().sort((m,n)=>
+    CFG.ORDEM_DESEMPATE.indexOf(m) - CFG.ORDEM_DESEMPATE.indexOf(n));
+  return ARQUETIPOS[par[0] + '+' + par[1]];
+}
+
+// §2.4 — classifica em puro ou intersecção, com desempate determinístico
+function classificar(pontos, pontosW2){
+  const ordenado = ELEMENTOS.slice().sort((a,b)=>{
+    if(pontos[b] !== pontos[a]) return pontos[b] - pontos[a];           // 1) pontos
+    if(pontosW2[b] !== pontosW2[a]) return pontosW2[b] - pontosW2[a];   // 2) peso 2
+    return CFG.ORDEM_DESEMPATE.indexOf(a) - CFG.ORDEM_DESEMPATE.indexOf(b); // 3) ordem canônica
+  });
+  const E1 = ordenado[0], E2 = ordenado[1];
+  if(pontos[E1] - pontos[E2] >= CFG.LIMIAR_PURO_PTS){
+    return { tipo:'puro', chave:E1, regente:E1, arq:null, e1:E1, e2:E2, ordenado };
+  }
+  const arq = arqId(E1, E2);
+  return { tipo:'interseccao', chave:arq + '_' + E1, regente:E1, arq, e1:E1, e2:E2, ordenado };
+}
+
+// §2.3 — percentuais que sempre somam 100 (ajuste no maior)
+function percentuais(pontos){
+  const rounded = {};
+  ELEMENTOS.forEach(el=>{ rounded[el] = Math.round(pontos[el] / CFG.PONTOS_MAX * 100); });
+  const soma = ELEMENTOS.reduce((s,el)=> s + rounded[el], 0);
+  const diff = 100 - soma;
+  if(diff !== 0){
+    // ajusta o maior (por pontos; empate pela ordem canônica)
+    const alvo = ELEMENTOS.slice().sort((a,b)=>
+      pontos[b] - pontos[a] ||
+      (CFG.ORDEM_DESEMPATE.indexOf(a) - CFG.ORDEM_DESEMPATE.indexOf(b)))[0];
+    rounded[alvo] += diff;
+  }
+  return rounded;
+}
+
+// §2.6 — mapa de pontos cegos entre intersecções.
+// Faísca↔Argila, Forja↔Bruma são opostos elemento-a-elemento.
+// Vapor(Fogo+Água) e Cristal(Terra+Ar) são eixos de oposição inteiros —
+// arquétipos de tensão interna — e por isso apontam um para o outro.
+const CEGO_ARQ = {
+  faisca:'argila', argila:'faisca',
+  forja:'bruma',   bruma:'forja',
+  vapor:'cristal', cristal:'vapor'
+};
+
+// §2.6 — ponto cego (arquétipo genérico oposto)
+function pontoCego(cls){
+  if(cls.tipo === 'puro'){
+    const op = OPOSTO[cls.regente];
+    return { tipo:'puro', id:op, nome:(l)=>RESULTADOS[op][l].nome };
+  }
+  const arqOp = CEGO_ARQ[cls.arq];               // ex.: 'faisca' -> 'argila'
+  const genericKey = arqOp + '_' + ARQ_PARA_PAR[arqOp][0]; // nome igual nas duas regências
+  return { tipo:'interseccao', arq:arqOp, nome:(l)=>RESULTADOS[genericKey][l].nome };
+}
 
 // ==================== FLUXO DE UI ====================
 // (inserido na Etapa 4)
