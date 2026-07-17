@@ -61,6 +61,96 @@
   .lang-btn.active{color:var(--ar);}
   .lang-sep{color:var(--linha);}
 
+  /* ================= TELA INÍCIO ================= */
+  #tela-inicio.ativa{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    min-height:100dvh;
+    padding:max(28px,env(safe-area-inset-top)) 26px max(28px,env(safe-area-inset-bottom));
+  }
+  .i-emoji{font-size:38px;margin-bottom:10px;}
+  .i-kicker{font-family:var(--mono);font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--texto-fraco);margin-bottom:14px;}
+  .i-titulo{font-family:var(--display);font-weight:500;font-size:clamp(46px,17vw,74px);line-height:.98;letter-spacing:-1px;}
+  .i-premissa{color:var(--texto-fraco);font-size:clamp(16px,4.4vw,18px);line-height:1.5;margin-top:20px;max-width:30ch;}
+
+  .btn{
+    min-height:54px;padding:15px 40px;border:none;border-radius:14px;
+    background:var(--ar);color:var(--chumbo);
+    font-family:var(--corpo);font-weight:600;font-size:18px;cursor:pointer;
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+    user-select:none;-webkit-user-select:none;
+    transition:transform .14s;
+  }
+  .btn:active{transform:scale(.97);}
+  #btn-comecar{margin-top:34px;}
+  .btn-sec{background:transparent;color:var(--texto);border:1.5px solid var(--linha);}
+
+  /* ================= TELA QUESTÕES (§6.3) ================= */
+  #tela-questoes.ativa{
+    display:grid;grid-template-rows:auto 1fr auto;
+    height:100dvh;gap:12px;
+    padding:max(14px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-right));
+  }
+  .q-topo{display:flex;align-items:center;gap:12px;}
+  .q-prog{font-family:var(--mono);font-size:13px;color:var(--texto-fraco);letter-spacing:1px;white-space:nowrap;}
+  .q-bar{flex:1;height:4px;background:var(--linha);border-radius:2px;overflow:hidden;}
+  .q-bar-fill{height:100%;width:0;background:var(--ar);transition:width var(--anim,220ms) ease;}
+  .q-meio{display:flex;align-items:center;justify-content:center;min-height:0;}
+  .q-pergunta{
+    font-family:var(--display);font-weight:500;
+    font-size:clamp(21px,6.2vw,28px);line-height:1.22;text-align:center;max-width:22ch;
+    display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
+    transition:opacity var(--anim,220ms) ease;
+  }
+  .q-baixo{display:flex;flex-direction:column;gap:12px;}
+  .opcao{
+    width:100%;min-height:clamp(80px,12dvh,102px);
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    background:var(--chumbo-luz);border:1.5px solid var(--linha);border-radius:14px;color:var(--texto);
+    font-family:var(--corpo);font-weight:400;font-size:clamp(16px,4.4vw,18px);line-height:1.32;
+    padding:14px 18px;
+    transition:border-color var(--anim,220ms) ease,background var(--anim,220ms) ease,transform .12s ease;
+  }
+  .opcao:active{border-color:var(--ar);}       /* feedback tátil imediato (0ms) */
+  .opcao.escolhida{border-color:var(--ar);background:#2d2b37;}
+
+  @media (max-height:480px){                    /* landscape de celular */
+    #tela-questoes.ativa{gap:6px;
+      padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom));}
+    .q-pergunta{font-size:clamp(17px,5vw,22px);-webkit-line-clamp:3;}
+    .opcao{min-height:clamp(52px,24dvh,72px);padding:8px 14px;}
+  }
+
+  /* ================= TELA RESULTADO (§5 / Etapa 5) ================= */
+  #tela-resultado.ativa{
+    display:block;min-height:100dvh;
+    padding:max(24px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-left)) max(32px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-right));
+  }
+  .r-wrap{max-width:520px;margin:0 auto;text-align:center;}
+  .r-regencia{font-family:var(--mono);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--texto-fraco);min-height:1em;margin-bottom:10px;}
+  .r-nome{font-family:var(--display);font-weight:500;font-size:clamp(48px,16vw,72px);line-height:.98;letter-spacing:-1px;}
+  .r-epiteto{font-family:var(--display);font-weight:500;font-style:italic;font-size:clamp(19px,5.4vw,24px);color:var(--texto-fraco);margin-top:4px;}
+  .r-vitral-box{display:flex;justify-content:center;margin:22px 0 16px;}
+  #vitral{display:block;}
+  .r-pcts{display:flex;justify-content:center;flex-wrap:wrap;gap:14px 22px;font-family:var(--mono);font-size:13px;color:var(--texto-fraco);margin-bottom:26px;}
+  .r-pct{display:flex;align-items:center;gap:6px;}
+  .r-pct .dot{width:9px;height:9px;border-radius:2px;display:inline-block;}
+  .r-essencia{font-size:clamp(17px,4.6vw,19px);line-height:1.55;text-align:left;margin-bottom:24px;}
+  .r-bloco{text-align:left;margin-bottom:20px;}
+  .r-bloco p{font-size:clamp(15px,4.2vw,17px);line-height:1.5;color:var(--texto);}
+  .r-label{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--texto-fraco);margin-bottom:6px;}
+  .r-cego{background:var(--chumbo-luz);border:1px solid var(--linha);border-radius:12px;padding:16px 18px;}
+  .r-botoes{display:flex;flex-direction:column;gap:12px;margin:30px 0 18px;}
+  .r-rodape{font-family:var(--mono);font-size:12px;color:var(--texto-fraco);letter-spacing:.5px;}
+  #toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+    background:var(--texto);color:var(--chumbo);font-weight:600;font-size:14px;padding:11px 20px;border-radius:22px;
+    opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:200;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #salvar-fallback{position:fixed;inset:0;background:rgba(10,9,14,.94);z-index:300;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;}
+  #salvar-fallback[hidden]{display:none;}
+  #salvar-fallback-msg{color:var(--texto);font-size:16px;text-align:center;max-width:24ch;}
+  #salvar-fallback-img{max-width:min(80vw,340px);height:auto;border-radius:10px;}
+
   @media (prefers-reduced-motion: reduce){
     *{transition:none !important;animation:none !important;}
   }
@@ -73,9 +163,54 @@
   <button id="btn-pt" class="lang-btn" onclick="setLang('pt')">PT</button>
 </div>
 
-<section id="tela-inicio" class="tela ativa"></section>
-<section id="tela-questoes" class="tela"></section>
-<section id="tela-resultado" class="tela"></section>
+<section id="tela-inicio" class="tela ativa">
+  <div class="i-emoji">🜂</div>
+  <div class="i-kicker" data-i18n="kicker">Psycho Archetypes</div>
+  <h1 class="i-titulo" data-i18n="inicioTitulo">Elements</h1>
+  <p class="i-premissa" data-i18n="premissa">Six pairs of choices. No right answer. In the end, what you are made of.</p>
+  <button class="btn" id="btn-comecar" type="button" data-i18n="comecar">Start</button>
+</section>
+
+<section id="tela-questoes" class="tela">
+  <div class="q-topo">
+    <div class="q-prog" id="q-prog">01 / 24</div>
+    <div class="q-bar"><div class="q-bar-fill" id="q-bar-fill"></div></div>
+  </div>
+  <div class="q-meio">
+    <p class="q-pergunta" id="q-pergunta"></p>
+  </div>
+  <div class="q-baixo">
+    <button class="opcao" id="opcao-a" type="button"><span class="opcao-txt"></span></button>
+    <button class="opcao" id="opcao-b" type="button"><span class="opcao-txt"></span></button>
+  </div>
+</section>
+
+<section id="tela-resultado" class="tela">
+  <div class="r-wrap">
+    <div class="r-regencia" id="r-regencia"></div>
+    <h1 class="r-nome" id="r-nome"></h1>
+    <div class="r-epiteto" id="r-epiteto"></div>
+    <div class="r-vitral-box">
+      <canvas id="vitral" aria-hidden="true"></canvas>
+    </div>
+    <div class="r-pcts" id="r-pcts"></div>
+    <p class="r-essencia" id="r-essencia"></p>
+    <div class="r-bloco"><div class="r-label" id="r-label-luz"></div><p id="r-luz"></p></div>
+    <div class="r-bloco"><div class="r-label" id="r-label-sombra"></div><p id="r-sombra"></p></div>
+    <div class="r-bloco"><div class="r-label" id="r-label-deseq"></div><p id="r-deseq"></p></div>
+    <div class="r-bloco r-cego"><div class="r-label" id="r-label-cego"></div><p id="r-cego"></p></div>
+    <div class="r-botoes">
+      <button class="btn" id="btn-salvar" type="button" data-i18n="salvar">Save image</button>
+      <button class="btn btn-sec" id="btn-refazer" type="button" data-i18n="refazer">Retake the test</button>
+    </div>
+    <div class="r-rodape">estel.games/psico-arquetipos</div>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="salvar-fallback" hidden>
+    <p id="salvar-fallback-msg"></p>
+    <img id="salvar-fallback-img" alt="">
+  </div>
+</section>
 
 <script>
 "use strict";
@@ -702,7 +837,125 @@ function pontoCego(cls){
 }
 
 // ==================== FLUXO DE UI ====================
-// (inserido na Etapa 4)
+document.documentElement.style.setProperty('--anim', CFG.ANIM_MS + 'ms');
+
+// estado de sessão do teste
+let ordem = [];        // [{q, flip}]
+let idx = 0;           // questão atual
+let travado = false;   // trava de input (§6.4)
+let clsAtual = null;   // classificação do resultado
+let pctAtual = null;
+
+function embaralhar(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function mostrarTela(nome){
+  document.querySelectorAll('.tela').forEach(s=> s.classList.remove('ativa'));
+  document.getElementById('tela-' + nome).classList.add('ativa');
+}
+
+function iniciarTeste(){
+  resetEstado();
+  const base = CFG.EMBARALHAR_QUESTOES ? embaralhar(QUESTOES) : QUESTOES.slice();
+  ordem = base.map(q=>({ q, flip: CFG.EMBARALHAR_LADOS ? Math.random() < 0.5 : false }));
+  idx = 0;
+  travado = false;
+  if(typeof gaEvento === 'function') gaEvento('teste_iniciado', { teste:'elementos' });
+  mostrarTela('questoes');
+  renderQuestao();
+}
+
+// tupla exibida em cada botão, respeitando flip e idioma atual
+function ladosDe(item){
+  const q = item.q;
+  const topo = item.flip ? { el:q.pair[1], txt:q[_lang].b } : { el:q.pair[0], txt:q[_lang].a };
+  const baixo = item.flip ? { el:q.pair[0], txt:q[_lang].a } : { el:q.pair[1], txt:q[_lang].b };
+  return { topo, baixo };
+}
+
+function renderQuestao(){
+  const item = ordem[idx];
+  const q = item.q;
+  const n = String(idx + 1).padStart(2, '0');
+  document.getElementById('q-prog').textContent = n + ' / ' + CFG.TOTAL_QUESTOES;
+  document.getElementById('q-bar-fill').style.width = ((idx) / CFG.TOTAL_QUESTOES * 100) + '%';
+  document.getElementById('q-pergunta').textContent = q[_lang].q;
+  const { topo, baixo } = ladosDe(item);
+  const a = document.getElementById('opcao-a'), b = document.getElementById('opcao-b');
+  a.querySelector('.opcao-txt').textContent = topo.txt;
+  b.querySelector('.opcao-txt').textContent = baixo.txt;
+  a.classList.remove('escolhida'); b.classList.remove('escolhida');
+}
+
+function escolher(posicao){          // posicao: 'a' | 'b'
+  if(travado) return;                // §6.4 trava de input
+  travado = true;
+  const item = ordem[idx];
+  const { topo, baixo } = ladosDe(item);
+  const escolhido = posicao === 'a' ? topo : baixo;
+  registrarEscolha(escolhido.el, item.q.w);
+  document.getElementById('opcao-' + posicao).classList.add('escolhida');
+  if(navigator.vibrate) navigator.vibrate(8);
+  document.getElementById('q-bar-fill').style.width = ((idx + 1) / CFG.TOTAL_QUESTOES * 100) + '%';
+  setTimeout(()=>{
+    idx++;
+    if(idx >= ordem.length){
+      finalizar();
+    } else {
+      renderQuestao();
+    }
+    travado = false;
+  }, CFG.ANIM_MS + 40);
+}
+
+function finalizar(){
+  clsAtual = classificar(estado.pontos, estado.pontosW2);
+  pctAtual = percentuais(estado.pontos);
+  mostrarTela('resultado');
+  if(typeof renderResultado === 'function') renderResultado(clsAtual, pctAtual);
+}
+
+// ---- i18n / troca de idioma ----
+function setLang(lang){
+  _lang = lang;
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+  document.title = T('title');
+  const md = document.querySelector('meta[name="description"]');
+  if(md) md.content = T('metaDesc');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.dataset.i18n;
+    if(I18N[lang][key] !== undefined) el.textContent = I18N[lang][key];
+  });
+  document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  // re-render conteúdo dinâmico da tela atual
+  if(document.getElementById('tela-questoes').classList.contains('ativa') && ordem.length){
+    renderQuestao();
+  }
+  if(document.getElementById('tela-resultado').classList.contains('ativa') && clsAtual && typeof renderResultado === 'function'){
+    renderResultado(clsAtual, pctAtual);
+  }
+}
+
+// ---- wiring ----
+document.getElementById('btn-comecar').addEventListener('click', iniciarTeste);
+document.getElementById('opcao-a').addEventListener('click', ()=> escolher('a'));
+document.getElementById('opcao-b').addEventListener('click', ()=> escolher('b'));
+document.getElementById('btn-refazer').addEventListener('click', ()=>{
+  clsAtual = null; pctAtual = null;
+  mostrarTela('inicio');
+});
+
+(function initLang(){
+  const detected = navigator.language && navigator.language.startsWith('pt') ? 'pt' : 'en';
+  setLang(detected);
+})();
 
 // ==================== VITRAL + CARD (§5/§6) ====================
 // (inserido nas Etapas 5 e 6)
