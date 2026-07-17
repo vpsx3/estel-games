@@ -839,6 +839,11 @@ function pontoCego(cls){
 // ==================== FLUXO DE UI ====================
 document.documentElement.style.setProperty('--anim', CFG.ANIM_MS + 'ms');
 
+// ---- analytics (§7): sem eventos por questão ----
+function gaEvento(nome, params){
+  if(typeof gtag === 'function') gtag('event', nome, params || {});
+}
+
 // estado de sessão do teste
 let ordem = [];        // [{q, flip}]
 let idx = 0;           // questão atual
@@ -917,6 +922,7 @@ function escolher(posicao){          // posicao: 'a' | 'b'
 function finalizar(){
   clsAtual = classificar(estado.pontos, estado.pontosW2);
   pctAtual = percentuais(estado.pontos);
+  gaEvento('teste_concluido', { teste:'elementos', arquetipo: clsAtual.chave, regente: clsAtual.regente });
   mostrarTela('resultado');
   if(typeof renderResultado === 'function') renderResultado(clsAtual, pctAtual);
 }
