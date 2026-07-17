@@ -754,6 +754,13 @@ function T(key){ return (I18N[_lang] && I18N[_lang][key]) || (I18N.en[key]) || k
   ELEMENTOS.forEach(el=>{
     console.assert(porElemento[el] === 12, 'elemento '+el+' não aparece 12 vezes');
   });
+  QUESTOES.forEach(q=>{
+    ['pt','en'].forEach(l=>{
+      console.assert(q[l].q.length <= 120, q.id+' ('+l+'): enunciado > 120 chars');
+      console.assert(q[l].a.length <= 65,  q.id+' ('+l+'): alternativa A > 65 chars');
+      console.assert(q[l].b.length <= 65,  q.id+' ('+l+'): alternativa B > 65 chars');
+    });
+  });
 })();
 
 // ==================== MOTOR DE PONTUAÇÃO (§2.3/§2.4/§2.6) ====================
