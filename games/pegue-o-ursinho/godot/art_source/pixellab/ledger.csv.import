@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://ql47ktnv6af7"
+
+[deps]
+
+files=["res://art_source/pixellab/ledger.ferramenta.translation", "res://art_source/pixellab/ledger.id.translation", "res://art_source/pixellab/ledger.prompt.translation", "res://art_source/pixellab/ledger.parametros.translation", "res://art_source/pixellab/ledger.custo.translation", "res://art_source/pixellab/ledger.status.translation", "res://art_source/pixellab/ledger.destino.translation"]
+
+source_file="res://art_source/pixellab/ledger.csv"
+dest_files=["res://art_source/pixellab/ledger.ferramenta.translation", "res://art_source/pixellab/ledger.id.translation", "res://art_source/pixellab/ledger.prompt.translation", "res://art_source/pixellab/ledger.parametros.translation", "res://art_source/pixellab/ledger.custo.translation", "res://art_source/pixellab/ledger.status.translation", "res://art_source/pixellab/ledger.destino.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

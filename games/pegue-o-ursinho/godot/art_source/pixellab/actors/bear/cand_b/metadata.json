@@ -1,0 +1,36 @@
+{
+  "group_id": "05546cc5-c872-4d80-b39a-019d284ceb23",
+  "states": [
+    {
+      "character": {
+        "id": "261a879c-bff0-4a22-aec7-4153232c3b2f",
+        "name": "Idle",
+        "prompt": "cute cozy pixel art, kawaii storybook mood, soft rounded chunky shapes, warm pastel palette, clean readable silhouette, single dark warm outline (deep brown/plum, never pure black), soft top-left lighting, gentle 2-3 tone shading, no harsh contrast, no gore, friendly and wholesome, chubby round teddy bear cub standing upright, caramel brown plush fur, cream muzzle and round cream belly patch, small round ears with cream inside, big shiny black eyes, rosy blush cheeks, tiny stubby arms and legs, tiny red scarf, adorable and brave",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-11-05T21:53:36.216450+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-11-05T21:56:53.540891"
+}

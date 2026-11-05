@@ -1,0 +1,203 @@
+{
+  "group_id": "05546cc5-c872-4d80-b39a-019d284ceb23",
+  "states": [
+    {
+      "character": {
+        "id": "261a879c-bff0-4a22-aec7-4153232c3b2f",
+        "name": "Idle",
+        "prompt": "cute cozy pixel art, kawaii storybook mood, soft rounded chunky shapes, warm pastel palette, clean readable silhouette, single dark warm outline (deep brown/plum, never pure black), soft top-left lighting, gentle 2-3 tone shading, no harsh contrast, no gore, friendly and wholesome, chubby round teddy bear cub standing upright, caramel brown plush fur, cream muzzle and round cream belly patch, small round ears with cream inside, big shiny black eyes, rosy blush cheeks, tiny stubby arms and legs, tiny red scarf, adorable and brave",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-11-05T21:53:36.216450+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "celebrate": {
+            "south": [
+              "Idle/animations/celebrate/south/frame_000.png",
+              "Idle/animations/celebrate/south/frame_001.png",
+              "Idle/animations/celebrate/south/frame_002.png",
+              "Idle/animations/celebrate/south/frame_003.png",
+              "Idle/animations/celebrate/south/frame_004.png",
+              "Idle/animations/celebrate/south/frame_005.png",
+              "Idle/animations/celebrate/south/frame_006.png",
+              "Idle/animations/celebrate/south/frame_007.png",
+              "Idle/animations/celebrate/south/frame_008.png"
+            ]
+          },
+          "idle": {
+            "south": [
+              "Idle/animations/idle/south/frame_000.png",
+              "Idle/animations/idle/south/frame_001.png",
+              "Idle/animations/idle/south/frame_002.png",
+              "Idle/animations/idle/south/frame_003.png"
+            ],
+            "east": [
+              "Idle/animations/idle/east/frame_000.png",
+              "Idle/animations/idle/east/frame_001.png",
+              "Idle/animations/idle/east/frame_002.png",
+              "Idle/animations/idle/east/frame_003.png"
+            ],
+            "north": [
+              "Idle/animations/idle/north/frame_000.png",
+              "Idle/animations/idle/north/frame_001.png",
+              "Idle/animations/idle/north/frame_002.png",
+              "Idle/animations/idle/north/frame_003.png"
+            ],
+            "west": [
+              "Idle/animations/idle/west/frame_000.png",
+              "Idle/animations/idle/west/frame_001.png",
+              "Idle/animations/idle/west/frame_002.png",
+              "Idle/animations/idle/west/frame_003.png"
+            ]
+          },
+          "jump": {
+            "east": [
+              "Idle/animations/jump/east/frame_000.png",
+              "Idle/animations/jump/east/frame_001.png",
+              "Idle/animations/jump/east/frame_002.png",
+              "Idle/animations/jump/east/frame_003.png",
+              "Idle/animations/jump/east/frame_004.png",
+              "Idle/animations/jump/east/frame_005.png",
+              "Idle/animations/jump/east/frame_006.png",
+              "Idle/animations/jump/east/frame_007.png",
+              "Idle/animations/jump/east/frame_008.png"
+            ],
+            "north": [
+              "Idle/animations/jump/north/frame_000.png",
+              "Idle/animations/jump/north/frame_001.png",
+              "Idle/animations/jump/north/frame_002.png",
+              "Idle/animations/jump/north/frame_003.png",
+              "Idle/animations/jump/north/frame_004.png",
+              "Idle/animations/jump/north/frame_005.png",
+              "Idle/animations/jump/north/frame_006.png",
+              "Idle/animations/jump/north/frame_007.png",
+              "Idle/animations/jump/north/frame_008.png"
+            ],
+            "west": [
+              "Idle/animations/jump/west/frame_000.png",
+              "Idle/animations/jump/west/frame_001.png",
+              "Idle/animations/jump/west/frame_002.png",
+              "Idle/animations/jump/west/frame_003.png",
+              "Idle/animations/jump/west/frame_004.png",
+              "Idle/animations/jump/west/frame_005.png",
+              "Idle/animations/jump/west/frame_006.png",
+              "Idle/animations/jump/west/frame_007.png",
+              "Idle/animations/jump/west/frame_008.png"
+            ],
+            "south": [
+              "Idle/animations/jump/south/frame_000.png",
+              "Idle/animations/jump/south/frame_001.png",
+              "Idle/animations/jump/south/frame_002.png",
+              "Idle/animations/jump/south/frame_003.png",
+              "Idle/animations/jump/south/frame_004.png",
+              "Idle/animations/jump/south/frame_005.png",
+              "Idle/animations/jump/south/frame_006.png",
+              "Idle/animations/jump/south/frame_007.png",
+              "Idle/animations/jump/south/frame_008.png"
+            ]
+          },
+          "walk": {
+            "south": [
+              "Idle/animations/walk/south/frame_000.png",
+              "Idle/animations/walk/south/frame_001.png",
+              "Idle/animations/walk/south/frame_002.png",
+              "Idle/animations/walk/south/frame_003.png",
+              "Idle/animations/walk/south/frame_004.png",
+              "Idle/animations/walk/south/frame_005.png"
+            ],
+            "north": [
+              "Idle/animations/walk/north/frame_000.png",
+              "Idle/animations/walk/north/frame_001.png",
+              "Idle/animations/walk/north/frame_002.png",
+              "Idle/animations/walk/north/frame_003.png",
+              "Idle/animations/walk/north/frame_004.png",
+              "Idle/animations/walk/north/frame_005.png"
+            ],
+            "east": [
+              "Idle/animations/walk/east/frame_000.png",
+              "Idle/animations/walk/east/frame_001.png",
+              "Idle/animations/walk/east/frame_002.png",
+              "Idle/animations/walk/east/frame_003.png",
+              "Idle/animations/walk/east/frame_004.png",
+              "Idle/animations/walk/east/frame_005.png"
+            ],
+            "west": [
+              "Idle/animations/walk/west/frame_000.png",
+              "Idle/animations/walk/west/frame_001.png",
+              "Idle/animations/walk/west/frame_002.png",
+              "Idle/animations/walk/west/frame_003.png",
+              "Idle/animations/walk/west/frame_004.png",
+              "Idle/animations/walk/west/frame_005.png"
+            ]
+          },
+          "caught": {
+            "south": [
+              "Idle/animations/caught/south/frame_000.png",
+              "Idle/animations/caught/south/frame_001.png",
+              "Idle/animations/caught/south/frame_002.png",
+              "Idle/animations/caught/south/frame_003.png",
+              "Idle/animations/caught/south/frame_004.png",
+              "Idle/animations/caught/south/frame_005.png",
+              "Idle/animations/caught/south/frame_006.png",
+              "Idle/animations/caught/south/frame_007.png",
+              "Idle/animations/caught/south/frame_008.png"
+            ]
+          },
+          "dash": {
+            "east": [
+              "Idle/animations/dash/east/frame_000.png",
+              "Idle/animations/dash/east/frame_001.png",
+              "Idle/animations/dash/east/frame_002.png",
+              "Idle/animations/dash/east/frame_003.png",
+              "Idle/animations/dash/east/frame_004.png",
+              "Idle/animations/dash/east/frame_005.png"
+            ],
+            "north": [
+              "Idle/animations/dash/north/frame_000.png",
+              "Idle/animations/dash/north/frame_001.png",
+              "Idle/animations/dash/north/frame_002.png",
+              "Idle/animations/dash/north/frame_003.png",
+              "Idle/animations/dash/north/frame_004.png",
+              "Idle/animations/dash/north/frame_005.png"
+            ],
+            "west": [
+              "Idle/animations/dash/west/frame_000.png",
+              "Idle/animations/dash/west/frame_001.png",
+              "Idle/animations/dash/west/frame_002.png",
+              "Idle/animations/dash/west/frame_003.png",
+              "Idle/animations/dash/west/frame_004.png",
+              "Idle/animations/dash/west/frame_005.png"
+            ],
+            "south": [
+              "Idle/animations/dash/south/frame_000.png",
+              "Idle/animations/dash/south/frame_001.png",
+              "Idle/animations/dash/south/frame_002.png",
+              "Idle/animations/dash/south/frame_003.png",
+              "Idle/animations/dash/south/frame_004.png",
+              "Idle/animations/dash/south/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-11-05T22:04:32.839812"
+}
