@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_topdown_tileset",
+  "id": "43d5aaf9-28a4-44b8-9d95-9ef5620fd570",
+  "prompt": "PREFIX_8.1 + lower: slippery pale blue ice with soft snow patches | upper: dense cluster of snowy rounded pine tree tops and snow-capped grey-blue boulders, entire surface covered in dark teal pine branches with white snow caps, clearly a solid wall | transition: fluffy snow drift",
+  "parametros": "mode=standard;tile=32;transition=0.5;view=high top-down;shading=medium;detail=medium;outline=single color outline",
+  "custo": "1 gen",
+  "status": "candidato (escolhido)"
+ }
+]

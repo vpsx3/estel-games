@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "181e8697-5f03-4ec8-9a39-e7ec6a4c3dda",
+  "prompt": "PREFIX_8.1 + chubby smiling snowman red scarf carrot nose",
+  "parametros": "48x48;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]

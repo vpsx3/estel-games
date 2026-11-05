@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "04fd95c1-460f-4ccc-a72a-9c46f6545f96",
+  "prompt": "PREFIX_8.1 + small red wooden sled with curled runners",
+  "parametros": "48x48;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]
