@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="BiomeConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_f8car"]
+[ext_resource type="TileSet" path="res://tilesets/placeholder/01-floresta-encantada.tres" id="2_qgxxu"]
+
+[resource]
+script = ExtResource("1_f8car")
+slug = "01-floresta-encantada"
+name_pt = "Floresta Encantada"
+name_en = "Enchanted Forest"
+icon = "🌲"
+wall_tint = Color(0.1764706, 0.3529412, 0.105882354, 1)
+bg_color = Color(0.101960786, 0.22745098, 0.039215688, 1)
+ghost_speed = 0.75
+mech_type = "mushroom"
+mech = {
+"cd": 0.4,
+"count": 6.0,
+"dist": 3.0,
+"type": "mushroom"
+}
+target_wall_density = 0.37
+tileset = ExtResource("2_qgxxu")
+corner_map_path = "res://tilesets/corner_maps/biome_01_floresta_encantada.json"

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BiomeConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_yd1gs"]
+[ext_resource type="TileSet" path="res://tilesets/placeholder/10-dimensao-dos-fantasmas.tres" id="2_1qbbd"]
+
+[resource]
+script = ExtResource("1_yd1gs")
+index = 9
+slug = "10-dimensao-dos-fantasmas"
+name_pt = "Dimensão dos Fantasmas"
+name_en = "Ghost Dimension"
+icon = "👻"
+wall_tint = Color(0.47843137, 0.2901961, 0.627451, 1)
+bg_color = Color(0.09803922, 0.02745098, 0.21176471, 1)
+ghost_speed = 1.4
+ghost_spawn_rate = 8.0
+mech_type = "void"
+mech = {
+"invertDur": 3.0,
+"invertPeriod": 8.0,
+"portalCd": 2.0,
+"portals": 2.0,
+"type": "void"
+}
+target_wall_density = 0.71
+tileset = ExtResource("2_1qbbd")
+corner_map_path = "res://tilesets/corner_maps/biome_10_dimensao_dos_fantasmas.json"

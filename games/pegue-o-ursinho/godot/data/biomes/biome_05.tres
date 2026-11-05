@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="BiomeConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_o8cf2"]
+[ext_resource type="TileSet" path="res://tilesets/placeholder/05-caverna-dos-ecos.tres" id="2_sjtvp"]
+
+[resource]
+script = ExtResource("1_o8cf2")
+index = 4
+slug = "05-caverna-dos-ecos"
+name_pt = "Caverna dos Ecos"
+name_en = "Echo Cave"
+icon = "🦇"
+wall_tint = Color(0.3529412, 0.2901961, 0.41568628, 1)
+bg_color = Color(0.13333334, 0.11372549, 0.18431373, 1)
+ghost_spawn_rate = 14.0
+mech_type = "bats"
+mech = {
+"freeze": 2.0,
+"interval": 3.5,
+"r": 16.0,
+"speed": 2.2,
+"type": "bats"
+}
+target_wall_density = 0.48
+tileset = ExtResource("2_sjtvp")
+corner_map_path = "res://tilesets/corner_maps/biome_05_caverna_dos_ecos.json"

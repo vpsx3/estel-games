@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="BiomeConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_hkxdv"]
+[ext_resource type="TileSet" path="res://tilesets/placeholder/04-pantano-verde.tres" id="2_g521j"]
+
+[resource]
+script = ExtResource("1_hkxdv")
+index = 3
+slug = "04-pantano-verde"
+name_pt = "Pântano Verde"
+name_en = "Green Swamp"
+icon = "🐸"
+wall_tint = Color(0.24705882, 0.3529412, 0.16470589, 1)
+bg_color = Color(0.16862746, 0.19607843, 0.07058824, 1)
+ghost_speed = 0.95
+ghost_spawn_rate = 15.0
+mech_type = "lily"
+mech = {
+"frac": 0.4,
+"gone": 3.5,
+"sinkDelay": 1.1,
+"type": "lily"
+}
+target_wall_density = 0.37
+tileset = ExtResource("2_g521j")
+corner_map_path = "res://tilesets/corner_maps/biome_04_pantano_verde.json"

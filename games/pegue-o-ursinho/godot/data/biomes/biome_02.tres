@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="BiomeConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_efj0a"]
+[ext_resource type="TileSet" path="res://tilesets/placeholder/02-praia-dos-coqueiros.tres" id="2_7rosb"]
+
+[resource]
+script = ExtResource("1_efj0a")
+index = 1
+slug = "02-praia-dos-coqueiros"
+name_pt = "Praia dos Coqueiros"
+name_en = "Coconut Beach"
+icon = "🏖️"
+wall_tint = Color(0.6901961, 0.5529412, 0.2901961, 1)
+bg_color = Color(0.7764706, 0.64705884, 0.40392157, 1)
+ghost_speed = 0.8
+ghost_spawn_rate = 18.0
+mech_type = "tide"
+mech = {
+"maxRows": 5.0,
+"speed": 0.25,
+"type": "tide"
+}
+target_wall_density = 0.31
+tileset = ExtResource("2_7rosb")
+corner_map_path = "res://tilesets/corner_maps/biome_02_praia_dos_coqueiros.json"

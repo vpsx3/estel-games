@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BiomeConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_xu1f4"]
+[ext_resource type="TileSet" path="res://tilesets/placeholder/03-montanha-gelada.tres" id="2_7ioil"]
+
+[resource]
+script = ExtResource("1_xu1f4")
+index = 2
+slug = "03-montanha-gelada"
+name_pt = "Montanha Gelada"
+name_en = "Frozen Mountain"
+icon = "🏔️"
+wall_tint = Color(0.41568628, 0.61960787, 0.7882353, 1)
+bg_color = Color(0.28627452, 0.37254903, 0.5176471, 1)
+ghost_speed = 0.9
+ghost_spawn_rate = 16.0
+mech_type = "ice"
+mech = {
+"accel": 0.55,
+"bounce": 0.35,
+"friction": 0.94,
+"maxSpd": 3.6,
+"type": "ice"
+}
+target_wall_density = 0.49
+tileset = ExtResource("2_7ioil")
+corner_map_path = "res://tilesets/corner_maps/biome_03_montanha_gelada.json"

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="BiomeConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_h36ee"]
+[ext_resource type="TileSet" path="res://tilesets/placeholder/09-inferno-fofo.tres" id="2_nk011"]
+
+[resource]
+script = ExtResource("1_h36ee")
+index = 8
+slug = "09-inferno-fofo"
+name_pt = "Inferno Fofo"
+name_en = "Fluffy Inferno"
+icon = "🔥"
+wall_tint = Color(0.627451, 0.2901961, 0.22745098, 1)
+bg_color = Color(0.22745098, 0.12156863, 0.11764706, 1)
+ghost_speed = 1.25
+ghost_spawn_rate = 10.0
+mech_type = "fire"
+mech = {
+"geySpeed": 0.8,
+"geyserCount": 10.0,
+"trailDrop": 0.12,
+"trailFreeze": 0.6,
+"trailLife": 1.4,
+"type": "fire"
+}
+target_wall_density = 0.62
+tileset = ExtResource("2_nk011")
+corner_map_path = "res://tilesets/corner_maps/biome_09_inferno_fofo.json"
