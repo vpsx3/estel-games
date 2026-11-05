@@ -1,0 +1,185 @@
+{
+  "game": {
+    "title": "Pegue o Ursinho — estel.games",
+    "metaDesc": "Fuja dos fantasmas e sobreviva o máximo possível!",
+    "rotateHint": "Gire o celular na vertical para jogar",
+    "screenNickTitle": "🐻 Pegue o Ursinho!",
+    "screenNickDesc": "Fuja dos fantasmas e sobreviva o máximo possível! Antes de cada partida, escolha 3 buffs e monte sua build.",
+    "nickPlaceholder": "Seu apelido...",
+    "btnPlay": "Jogar",
+    "btnShowRanking": "🏆 Ranking",
+    "howtoSubtitle": "Como jogar",
+    "leg1": "🦘 Pular obstáculo",
+    "leg2": "Monte sua build no início",
+    "leg3": "Colete buffs no mapa",
+    "leg4": "Sobreviva o máximo!",
+    "howtoTip": "Passivos (brilho dourado) empilham níveis. Itens de mapa dão efeito instantâneo — mas fantasmas também os roubam! No celular: arraste o joystick e toque no 🦘 para pular.",
+    "btnStartGame": "Começar!",
+    "rankingSubtitle": "🏆 Ranking Global",
+    "rankingColPlayer": "Jogador",
+    "rankingColTime": "Tempo",
+    "rankingLoading": "Carregando...",
+    "rankingEmpty": "Nenhum recorde ainda. Seja o primeiro!",
+    "btnBackRanking": "← Voltar",
+    "btnPlayAgain": "Jogar de novo",
+    "btnResultRanking": "🏆 Ranking",
+    "btnResultMenu": "🏠 Menu",
+    "menuPlay": "▶ Jogar",
+    "menuUpgrades": "⬆ Upgrades",
+    "menuSkins": "🎨 Skins (em breve)",
+    "menuRanking": "🏆 Ranking",
+    "upgradesTitle": "⬆ Upgrades",
+    "attr_buy": "Comprar",
+    "attr_unlock": "Desbloquear",
+    "attr_max": "MÁX",
+    "attr_locked_funds": "Mel insuficiente",
+    "buffScreenTitle": "Escolha seus buffs",
+    "buffScreenSub": "Selecione 3 dos 5 para esta run",
+    "btn_start_run": "Iniciar ({n}/3)",
+    "notif_max": "MÁX",
+    "notif_stolen": "roubado!",
+    "notif_jump": "PULO!",
+    "notif_bat": "travado!",
+    "fx_speed": "Velocidade",
+    "fx_postjump": "Pós-pulo",
+    "fx_slow": "Lentidão",
+    "fx_invisible": "Invisível",
+    "fx_phase": "Atravessar",
+    "fx_decoy": "Isca",
+    "fx_frozen": "Congelados",
+    "fx_trapped": "Preso",
+    "fx_shield_name": "Escudo",
+    "fx_rebound_name": "Rebote",
+    "fx_rebound_ready": "pronto",
+    "result_title": "O fantasma te pegou!",
+    "result_saving": "Salvando recorde...",
+    "result_reached": "Você chegou até: ",
+    "result_rank1": "🏆 Novo recorde mundial! 1º lugar!",
+    "result_topN": "🏅 {n}º lugar no ranking global!",
+    "result_miss": "Não entrou no top 10. Tente de novo!",
+    "result_honey": "Mel coletado",
+    "ghost_word": "fantasma",
+    "badge_new": "NOVO",
+    "biome_changing": "O mundo está mudando…",
+    "biome_new_map_in": "Novo mapa em ",
+    "world_label": "Mundo",
+    "cycle_label": "Ciclo",
+    "rar_comum": "Comum",
+    "rar_incomum": "Incomum",
+    "rar_raro": "Raro",
+    "type_passive": "★ Passivo (empilha)",
+    "type_map": "◆ Item de Mapa",
+    "type_fixed": "◇ Fixo",
+    "worldChoiceTitle": "Escolha um buff",
+    "btnReroll": "🔁 Reroll",
+    "fsHint": "O Safari do iPhone não permite esconder a barra do navegador. Para tela cheia real: Compartilhar → \"Adicionar à Tela de Início\"."
+  },
+  "biome_names": {
+    "1": "Floresta Encantada",
+    "2": "Praia dos Coqueiros",
+    "3": "Montanha Gelada",
+    "4": "Pântano Verde",
+    "5": "Caverna dos Ecos",
+    "6": "Vila Assombrada",
+    "7": "Castelo do Rei",
+    "8": "Ilhas Flutuantes",
+    "9": "Inferno Fofo",
+    "10": "Dimensão dos Fantasmas"
+  },
+  "buffs": {
+    "speed_temp": {
+      "name": "Sapato Turbo",
+      "desc": "+80% velocidade por 4s."
+    },
+    "freeze_all": {
+      "name": "Congelamento",
+      "desc": "Congela fantasmas por 4s."
+    },
+    "teleport": {
+      "name": "Teleporte",
+      "desc": "Teleporta para ponto seguro."
+    },
+    "ghost_slow": {
+      "name": "Spray Sonolento",
+      "desc": "A cada 15s: −30% velocidade nos fantasmas."
+    },
+    "dash": {
+      "name": "Dash",
+      "desc": "Arrancada na direção atual."
+    },
+    "spirit_trap": {
+      "name": "Lançador de Teia",
+      "desc": "A cada 15s: prende o fantasma mais próximo."
+    },
+    "fake_wall": {
+      "name": "Parede Falsa",
+      "desc": "Atravessa paredes por 4s."
+    },
+    "light_burst": {
+      "name": "Explosão de Luz",
+      "desc": "Empurra fantasmas ao redor."
+    },
+    "invisible": {
+      "name": "Invisibilidade",
+      "desc": "Fantasmas param de perseguir 5s."
+    },
+    "slow_time": {
+      "name": "Tempo Lento",
+      "desc": "Câmera lenta nos fantasmas 4s."
+    },
+    "swap": {
+      "name": "Troca de Lugar",
+      "desc": "Troca com o fantasma mais distante."
+    },
+    "lightning": {
+      "name": "Raio",
+      "desc": "A cada 50s: elimina o fantasma mais próximo."
+    },
+    "light_bomb": {
+      "name": "Bomba de Luz",
+      "desc": "Elimina fantasmas em área."
+    },
+    "rebound": {
+      "name": "Rebote",
+      "desc": "Sobrevive à próxima colisão."
+    },
+    "decoy": {
+      "name": "Isca de Ursinho",
+      "desc": "A cada 30s: lança a isca."
+    },
+    "shield": {
+      "name": "Escudo",
+      "desc": "Absorve a próxima colisão (máx. 1 carga)."
+    }
+  },
+  "map_fx": {
+    "speed_temp": "+80% velocidade",
+    "dash": "arrancada!",
+    "freeze_all": "fantasmas congelados",
+    "ghost_slow": "fantasmas lentos",
+    "slow_time": "tempo lento",
+    "teleport": "teleporte!",
+    "swap": "troca de lugar",
+    "spirit_trap": "fantasma preso",
+    "fake_wall": "atravessa paredes",
+    "invisible": "invisível",
+    "light_burst": "empurrão",
+    "lightning": "fantasma eliminado",
+    "light_bomb": "área limpa",
+    "rebound": "rebote pronto",
+    "decoy": "isca lançada",
+    "shield": "escudo pronto"
+  },
+  "attrs": {
+    "speed_base": "Velocidade Base",
+    "jump_cd": "CD do Pulo",
+    "jump_ext": "Pulo Estendido",
+    "double_jump": "Pulo Duplo",
+    "reroll": "Reroll"
+  },
+  "rarity": {
+    "comum": "Comum",
+    "incomum": "Incomum",
+    "raro": "Raro"
+  }
+}

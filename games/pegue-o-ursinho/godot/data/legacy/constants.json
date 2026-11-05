@@ -1,0 +1,171 @@
+{
+  "TILE": 36,
+  "BIOME_DURATION": 120,
+  "TOTAL_BIOMES": 10,
+  "BIOME_WARNING_TIME": 10,
+  "ROWS": 30,
+  "COLS": 18,
+  "CW": 648,
+  "CH": 1080,
+  "CAM_CONFIG": {
+    "mobile": {
+      "tilesAcross": 9,
+      "maxAspect": 0.62,
+      "smooth": 0.18
+    },
+    "desktop": {
+      "tilesAcross": 18,
+      "maxAspect": 1.78,
+      "smooth": 0.18
+    }
+  },
+  "GHOST_CELL_W": 280,
+  "GHOST_CELL_H": 280,
+  "GHOST_SPRITE_ROW": {
+    "comum": 0,
+    "rapido": 1,
+    "pesado": 2,
+    "errante": 3,
+    "venenoso": 4
+  },
+  "GHOST_DIR_COL": {
+    "south": 0,
+    "north": 1,
+    "east": 2,
+    "west": 3
+  },
+  "BEAR_CELL_W": 64,
+  "BEAR_CELL_H": 64,
+  "BEAR_DIR_COL": {
+    "north": 0,
+    "south": 1,
+    "east": 2,
+    "west": 3
+  },
+  "BEAR_DRAW_MULT": 3.5,
+  "BIOME_SLUGS": [
+    "01-floresta-encantada",
+    "02-praia-dos-coqueiros",
+    "03-montanha-gelada",
+    "04-pantano-verde",
+    "05-caverna-dos-ecos",
+    "06-vila-assombrada",
+    "07-castelo-do-rei",
+    "08-ilhas-flutuantes",
+    "09-inferno-fofo",
+    "10-dimensao-dos-fantasmas"
+  ],
+  "TILE_SLOTS": [
+    "floor",
+    "wall_a",
+    "wall_b",
+    "decor"
+  ],
+  "MECH_SLOTS": {
+    "0": [
+      "mushroom"
+    ],
+    "1": [
+      "water",
+      "foam"
+    ],
+    "3": [
+      "lilypad",
+      "lilypad_sink"
+    ],
+    "4": [
+      "bat_sheet"
+    ],
+    "5": [
+      "window_eyes"
+    ],
+    "6": [
+      "gate",
+      "carpet"
+    ],
+    "7": [
+      "platform",
+      "wind"
+    ],
+    "8": [
+      "geyser_idle",
+      "geyser_fire",
+      "fire_trail"
+    ],
+    "9": [
+      "portal"
+    ]
+  },
+  "GAME_ID": "pegue-o-ursinho",
+  "JUMP_DURATION": 0.55,
+  "INITIAL_PACE": 0.5,
+  "GHOST_PHASE_SCALING": 0.1,
+  "HONEY_PASSIVE_RATE": 1,
+  "HONEY_PICKUP_VALUE": 5,
+  "HONEY_SPAWN_INTERVAL": 12,
+  "HONEY_MAX_ON_MAP": 3,
+  "HONEY_LIFE": 14,
+  "HONEY_R": 12,
+  "SPAWN_INTERVAL_BASE": 8,
+  "COLLECT_LIFE": 10,
+  "MAX_COLLECT": 4,
+  "COLLECT_R": 12,
+  "GHOST_PALETTES": [
+    {
+      "body": "rgba(200,170,255,0.92)",
+      "eye": "#5522aa",
+      "glow": "rgba(150,100,255,0.6)"
+    },
+    {
+      "body": "rgba(255,180,180,0.92)",
+      "eye": "#aa2222",
+      "glow": "rgba(255,80,80,0.5)"
+    },
+    {
+      "body": "rgba(180,255,200,0.92)",
+      "eye": "#116622",
+      "glow": "rgba(80,255,120,0.5)"
+    },
+    {
+      "body": "rgba(255,230,160,0.92)",
+      "eye": "#886600",
+      "glow": "rgba(255,200,50,0.5)"
+    },
+    {
+      "body": "rgba(160,220,255,0.92)",
+      "eye": "#115588",
+      "glow": "rgba(60,160,255,0.5)"
+    }
+  ],
+  "POISON_RADIUS": 80,
+  "POISON_DEBUFF": 0.6,
+  "POISON_DURATION": 2000,
+  "POISON_COOLDOWN": 1000,
+  "FIXED_INTERVALS": {
+    "ghost_slow": 15,
+    "spirit_trap": 15,
+    "lightning": 50,
+    "decoy": 30
+  },
+  "SPRAY_SLOW_MULT": 0.7,
+  "SPRAY_SLOW_DUR": 3,
+  "SAVE_KEY": "estel_pou_save",
+  "DEFAULT_SAVE": {
+    "honey": 0,
+    "attrs": {
+      "speed_base": 0,
+      "jump_cd": 0,
+      "jump_ext": 0,
+      "double_jump": 0,
+      "reroll": 0
+    },
+    "skins": {
+      "owned": [
+        "default"
+      ],
+      "equipped": "default"
+    }
+  },
+  "BIOME_ANNOUNCE_DURATION": 3,
+  "JOY_RADIUS": 42
+}

@@ -1,0 +1,213 @@
+{
+  "game": {
+    "title": "Catch the Teddy — estel.games",
+    "metaDesc": "Run from ghosts and survive as long as you can!",
+    "rotateHint": "Rotate your phone to portrait to play",
+    "screenNickTitle": "🐻 Catch the Teddy!",
+    "screenNickDesc": "Run from ghosts and survive as long as you can! Before each run, pick 3 buffs to build your loadout.",
+    "nickPlaceholder": "Your nickname...",
+    "btnPlay": "Play",
+    "btnShowRanking": "🏆 Leaderboard",
+    "howtoSubtitle": "How to play",
+    "leg1": "🦘 Jump over obstacles",
+    "leg2": "Build your loadout at the start",
+    "leg3": "Collect buffs on the map",
+    "leg4": "Survive as long as you can!",
+    "howtoTip": "Passives (golden glow) stack levels. Map items give instant effects — but ghosts can steal them too! On mobile: drag the joystick and tap 🦘 to jump.",
+    "btnStartGame": "Start!",
+    "rankingSubtitle": "🏆 Global Leaderboard",
+    "rankingColPlayer": "Player",
+    "rankingColTime": "Time",
+    "rankingLoading": "Loading...",
+    "rankingEmpty": "No records yet. Be the first!",
+    "btnBackRanking": "← Back",
+    "btnPlayAgain": "Play again",
+    "btnResultRanking": "🏆 Leaderboard",
+    "btnResultMenu": "🏠 Menu",
+    "menuPlay": "▶ Play",
+    "menuUpgrades": "⬆ Upgrades",
+    "menuSkins": "🎨 Skins (soon)",
+    "menuRanking": "🏆 Leaderboard",
+    "upgradesTitle": "⬆ Upgrades",
+    "attr_buy": "Buy",
+    "attr_unlock": "Unlock",
+    "attr_max": "MAX",
+    "attr_locked_funds": "Not enough honey",
+    "buffScreenTitle": "Choose your buffs",
+    "buffScreenSub": "Pick 3 of 5 for this run",
+    "btn_start_run": "Start ({n}/3)",
+    "notif_max": "MAX",
+    "notif_stolen": "stolen!",
+    "notif_jump": "JUMP!",
+    "notif_bat": "stunned!",
+    "fx_speed": "Speed",
+    "fx_postjump": "Post-jump",
+    "fx_slow": "Slow",
+    "fx_invisible": "Invisible",
+    "fx_phase": "Phase",
+    "fx_decoy": "Decoy",
+    "fx_frozen": "Frozen",
+    "fx_trapped": "Trapped",
+    "fx_shield_name": "Shield",
+    "fx_rebound_name": "Rebound",
+    "fx_rebound_ready": "ready",
+    "result_title": "A ghost caught you!",
+    "result_saving": "Saving score...",
+    "result_reached": "You reached: ",
+    "result_rank1": "🏆 New world record! 1st place!",
+    "result_topN": "🏅 {n}th place on the global leaderboard!",
+    "result_miss": "Not in the top 10. Try again!",
+    "result_honey": "Honey collected",
+    "ghost_word": "ghost",
+    "badge_new": "NEW",
+    "biome_changing": "The world is changing…",
+    "biome_new_map_in": "New map in ",
+    "world_label": "World",
+    "cycle_label": "Cycle",
+    "rar_comum": "Common",
+    "rar_incomum": "Uncommon",
+    "rar_raro": "Rare",
+    "type_passive": "★ Passive (stackable)",
+    "type_map": "◆ Map Item",
+    "type_fixed": "◇ Fixed",
+    "worldChoiceTitle": "Choose a buff",
+    "btnReroll": "🔁 Reroll",
+    "fsHint": "iPhone Safari can't hide the browser bar. For true fullscreen: Share → \"Add to Home Screen\"."
+  },
+  "biome_names": {
+    "1": "Enchanted Forest",
+    "2": "Coconut Beach",
+    "3": "Frozen Mountain",
+    "4": "Green Swamp",
+    "5": "Echo Cave",
+    "6": "Haunted Village",
+    "7": "King's Castle",
+    "8": "Floating Islands",
+    "9": "Fluffy Inferno",
+    "10": "Ghost Dimension"
+  },
+  "buffs": {
+    "speed_base": {
+      "name": "Base Speed",
+      "desc": "Permanently increases the bear's speed."
+    },
+    "jump_cd": {
+      "name": "Jump Cooldown",
+      "desc": "Reduces the jump cooldown."
+    },
+    "jump_ext": {
+      "name": "Extended Jump",
+      "desc": "Increases jump duration."
+    },
+    "item_cd": {
+      "name": "Fast Recharge",
+      "desc": "Map items reappear faster."
+    },
+    "resist": {
+      "name": "Ghost Resistance",
+      "desc": "Reduces negative effects."
+    },
+    "post_jump": {
+      "name": "Post-Jump Recovery",
+      "desc": "Extra speed after jumping."
+    },
+    "light_steps": {
+      "name": "Light Steps",
+      "desc": "Ghosts chase you more slowly."
+    },
+    "speed_temp": {
+      "name": "Turbo Shoe",
+      "desc": "+80% speed for 4s."
+    },
+    "freeze_all": {
+      "name": "Freeze",
+      "desc": "Freezes ghosts for 4s."
+    },
+    "teleport": {
+      "name": "Teleport",
+      "desc": "Teleports to a safe spot."
+    },
+    "ghost_slow": {
+      "name": "Sleepy Spray",
+      "desc": "Every 15s: −30% ghost speed."
+    },
+    "dash": {
+      "name": "Dash",
+      "desc": "Dash in the current direction."
+    },
+    "spirit_trap": {
+      "name": "Web Launcher",
+      "desc": "Every 15s: traps the nearest ghost."
+    },
+    "fake_wall": {
+      "name": "Phase Through",
+      "desc": "Walk through walls for 4s."
+    },
+    "light_burst": {
+      "name": "Light Burst",
+      "desc": "Pushes nearby ghosts away."
+    },
+    "invisible": {
+      "name": "Invisibility",
+      "desc": "Ghosts stop chasing for 5s."
+    },
+    "slow_time": {
+      "name": "Slow Time",
+      "desc": "Ghosts in slow-mo for 4s."
+    },
+    "swap": {
+      "name": "Swap",
+      "desc": "Swap places with farthest ghost."
+    },
+    "lightning": {
+      "name": "Lightning",
+      "desc": "Every 50s: eliminates the nearest ghost."
+    },
+    "light_bomb": {
+      "name": "Light Bomb",
+      "desc": "Eliminates ghosts in an area."
+    },
+    "rebound": {
+      "name": "Rebound",
+      "desc": "Survive the next collision."
+    },
+    "decoy": {
+      "name": "Decoy Bear",
+      "desc": "Every 30s: deploys the decoy."
+    },
+    "shield": {
+      "name": "Shield",
+      "desc": "Absorbs the next collision (max 1 charge)."
+    }
+  },
+  "map_fx": {
+    "speed_temp": "+80% speed",
+    "dash": "dash!",
+    "freeze_all": "ghosts frozen",
+    "ghost_slow": "ghosts slowed",
+    "slow_time": "slow motion",
+    "teleport": "teleport!",
+    "swap": "swapped!",
+    "spirit_trap": "ghost trapped",
+    "fake_wall": "phase mode",
+    "invisible": "invisible",
+    "light_burst": "burst!",
+    "lightning": "ghost eliminated",
+    "light_bomb": "area cleared",
+    "rebound": "rebound ready",
+    "decoy": "decoy deployed",
+    "shield": "shield ready"
+  },
+  "attrs": {
+    "speed_base": "Base Speed",
+    "jump_cd": "Jump Cooldown",
+    "jump_ext": "Extended Jump",
+    "double_jump": "Double Jump",
+    "reroll": "Reroll"
+  },
+  "rarity": {
+    "comum": "Common",
+    "incomum": "Uncommon",
+    "raro": "Rare"
+  }
+}

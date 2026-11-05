@@ -1,0 +1,116 @@
+{
+  "defs": {
+    "speed_base": {
+      "icon": "👟",
+      "name": "Velocidade Base",
+      "maxLevel": 10,
+      "values": [
+        0.08,
+        0.16,
+        0.24,
+        0.32,
+        0.4,
+        0.48,
+        0.56,
+        0.64,
+        0.72,
+        0.8
+      ],
+      "costs": [
+        50,
+        80,
+        120,
+        170,
+        230,
+        300,
+        400,
+        520,
+        680,
+        900
+      ]
+    },
+    "jump_cd": {
+      "icon": "⏱️",
+      "name": "CD do Pulo",
+      "maxLevel": 10,
+      "values": [
+        0.1,
+        0.16,
+        0.22,
+        0.28,
+        0.34,
+        0.4,
+        0.46,
+        0.52,
+        0.58,
+        0.65
+      ],
+      "costs": [
+        50,
+        80,
+        120,
+        170,
+        230,
+        300,
+        400,
+        520,
+        680,
+        900
+      ]
+    },
+    "jump_ext": {
+      "icon": "🦘",
+      "name": "Pulo Estendido",
+      "maxLevel": 10,
+      "values": [
+        0.09,
+        0.18,
+        0.27,
+        0.36,
+        0.45,
+        0.54,
+        0.63,
+        0.72,
+        0.81,
+        0.9
+      ],
+      "costs": [
+        50,
+        80,
+        120,
+        170,
+        230,
+        300,
+        400,
+        520,
+        680,
+        900
+      ]
+    },
+    "double_jump": {
+      "icon": "⏫",
+      "name": "Pulo Duplo",
+      "maxLevel": 1,
+      "toggle": true,
+      "costs": [
+        2500
+      ]
+    },
+    "reroll": {
+      "icon": "🔁",
+      "name": "Reroll",
+      "maxLevel": 1,
+      "toggle": true,
+      "costs": [
+        3000
+      ]
+    }
+  },
+  "order": [
+    "speed_base",
+    "jump_cd",
+    "jump_ext",
+    "double_jump",
+    "reroll"
+  ]
+}

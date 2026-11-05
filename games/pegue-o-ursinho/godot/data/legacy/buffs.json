@@ -1,0 +1,177 @@
+{
+  "map_buffs": [
+    {
+      "id": "speed_temp",
+      "icon": "👟",
+      "type": "map",
+      "name": "Sapato Turbo",
+      "rar": "comum",
+      "selW": 14,
+      "mapW": 12,
+      "desc": "+80% velocidade por 4s."
+    },
+    {
+      "id": "freeze_all",
+      "icon": "❄️",
+      "type": "map",
+      "name": "Congelamento",
+      "rar": "comum",
+      "selW": 13,
+      "mapW": 10,
+      "desc": "Congela fantasmas por 4s."
+    },
+    {
+      "id": "teleport",
+      "icon": "🌀",
+      "type": "map",
+      "name": "Teleporte",
+      "rar": "comum",
+      "selW": 14,
+      "mapW": 11,
+      "desc": "Teleporta para ponto seguro."
+    },
+    {
+      "id": "ghost_slow",
+      "icon": "💤",
+      "type": "fixed",
+      "name": "Spray Sonolento",
+      "rar": "comum",
+      "selW": 13,
+      "mapW": 10,
+      "desc": "A cada 15s: −30% velocidade nos fantasmas."
+    },
+    {
+      "id": "dash",
+      "icon": "🏃",
+      "type": "map",
+      "name": "Dash",
+      "rar": "comum",
+      "selW": 14,
+      "mapW": 11,
+      "desc": "Arrancada na direção atual."
+    },
+    {
+      "id": "spirit_trap",
+      "icon": "🕸️",
+      "type": "fixed",
+      "name": "Lançador de Teia",
+      "rar": "comum",
+      "selW": 13,
+      "mapW": 10,
+      "desc": "A cada 15s: prende o fantasma mais próximo."
+    },
+    {
+      "id": "fake_wall",
+      "icon": "🧱",
+      "type": "map",
+      "name": "Parede Falsa",
+      "rar": "incomum",
+      "selW": 9,
+      "mapW": 7,
+      "desc": "Atravessa paredes por 4s."
+    },
+    {
+      "id": "light_burst",
+      "icon": "💥",
+      "type": "map",
+      "name": "Explosão de Luz",
+      "rar": "incomum",
+      "selW": 10,
+      "mapW": 8,
+      "desc": "Empurra fantasmas ao redor."
+    },
+    {
+      "id": "invisible",
+      "icon": "🫥",
+      "type": "map",
+      "name": "Invisibilidade",
+      "rar": "incomum",
+      "selW": 8,
+      "mapW": 6,
+      "desc": "Fantasmas param de perseguir 5s."
+    },
+    {
+      "id": "slow_time",
+      "icon": "🕰️",
+      "type": "map",
+      "name": "Tempo Lento",
+      "rar": "incomum",
+      "selW": 10,
+      "mapW": 8,
+      "desc": "Câmera lenta nos fantasmas 4s."
+    },
+    {
+      "id": "swap",
+      "icon": "🔀",
+      "type": "map",
+      "name": "Troca de Lugar",
+      "rar": "incomum",
+      "selW": 9,
+      "mapW": 7,
+      "desc": "Troca com o fantasma mais distante."
+    },
+    {
+      "id": "lightning",
+      "icon": "⚡",
+      "type": "fixed",
+      "name": "Raio",
+      "rar": "raro",
+      "selW": 5,
+      "mapW": 3,
+      "desc": "A cada 50s: elimina o fantasma mais próximo."
+    },
+    {
+      "id": "light_bomb",
+      "icon": "💣",
+      "type": "map",
+      "name": "Bomba de Luz",
+      "rar": "raro",
+      "selW": 5,
+      "mapW": 3,
+      "desc": "Elimina fantasmas em área."
+    },
+    {
+      "id": "rebound",
+      "icon": "🔆",
+      "type": "map",
+      "name": "Rebote",
+      "rar": "raro",
+      "selW": 6,
+      "mapW": 4,
+      "desc": "Sobrevive à próxima colisão."
+    },
+    {
+      "id": "decoy",
+      "icon": "🧸",
+      "type": "fixed",
+      "name": "Isca de Ursinho",
+      "rar": "raro",
+      "selW": 5,
+      "mapW": 4,
+      "desc": "A cada 30s: lança a isca."
+    },
+    {
+      "id": "shield",
+      "icon": "🛡️",
+      "type": "map",
+      "name": "Escudo",
+      "rar": "raro",
+      "selW": 6,
+      "mapW": 4,
+      "desc": "Absorve a próxima colisão (máx. 1 carga)."
+    }
+  ],
+  "fixed_intervals": {
+    "ghost_slow": 15,
+    "spirit_trap": 15,
+    "lightning": 50,
+    "decoy": 30
+  },
+  "spray_slow_mult": 0.7,
+  "spray_slow_dur": 3,
+  "rarity_labels": {
+    "comum": "Comum",
+    "incomum": "Incomum",
+    "raro": "Raro"
+  }
+}

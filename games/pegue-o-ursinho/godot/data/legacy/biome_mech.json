@@ -1,0 +1,69 @@
+{
+  "0": {
+    "type": "mushroom",
+    "count": 6,
+    "dist": 3,
+    "cd": 0.4
+  },
+  "1": {
+    "type": "tide",
+    "speed": 0.25,
+    "maxRows": 5
+  },
+  "2": {
+    "type": "ice",
+    "accel": 0.55,
+    "friction": 0.94,
+    "maxSpd": 3.6,
+    "bounce": 0.35
+  },
+  "3": {
+    "type": "lily",
+    "frac": 0.4,
+    "sinkDelay": 1.1,
+    "gone": 3.5
+  },
+  "4": {
+    "type": "bats",
+    "interval": 3.5,
+    "speed": 2.2,
+    "r": 16,
+    "freeze": 2
+  },
+  "5": {
+    "type": "windows",
+    "frac": 0.12,
+    "radius": 3,
+    "telegraph": 1.2,
+    "cd": 12
+  },
+  "6": {
+    "type": "castle",
+    "gateFrac": 0.5,
+    "gateSpeed": 1.1,
+    "carpetRows": 3,
+    "carpetBoost": 1.5
+  },
+  "7": {
+    "type": "sky",
+    "platforms": 5,
+    "platSpeed": 0.4,
+    "platRange": 2,
+    "windForce": 1.4
+  },
+  "8": {
+    "type": "fire",
+    "geyserCount": 10,
+    "geySpeed": 0.8,
+    "trailDrop": 0.12,
+    "trailLife": 1.4,
+    "trailFreeze": 0.6
+  },
+  "9": {
+    "type": "void",
+    "invertPeriod": 8,
+    "invertDur": 3,
+    "portals": 2,
+    "portalCd": 2
+  }
+}
