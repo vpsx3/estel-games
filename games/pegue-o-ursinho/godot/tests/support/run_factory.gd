@@ -34,3 +34,35 @@ static func advance(run: GameRun, seconds: float, input: Vector2 = Vector2.ZERO,
 		if protect:
 			run.bear.invuln = 100.0
 		run.step(1.0 / 60.0, input)
+
+
+## Run completa (E4b): mecanicas + buffs ligados. Sem selecao pre-run (reset_run_state direto).
+static func make_full(seed_value: int = 1, idx: int = 0, open: bool = true) -> GameRun:
+	var run: GameRun = GameRun.new(seed_value)
+	run.level_loader = func(i: int) -> Object: return open_level(i) if open else make_level(i)
+	MechFactory.install(run)
+	var b: BuffSystem = BuffSystem.new(run)
+	b.attach()
+	run.start(open_level(idx) if open else make_level(idx))
+	b.reset_run_state()
+	return run
+
+
+## Run iniciada na fase `idx` (mapa original ou aberto) com a mecanica daquele bioma montada.
+## `nodes` = marcadores colocados a mao (fake_level.mech_nodes).
+static func make_mech_run(idx: int, open: bool = false, seed_value: int = 1, nodes: Array = []) -> GameRun:
+	var lvl: Node2D = open_level(idx) if open else make_level(idx)
+	lvl.set("mech_nodes", nodes)
+	var run: GameRun = GameRun.new(seed_value)
+	run.start(lvl)
+	run.mech = MechFactory.create(run, idx) as Object
+	return run
+
+
+static func marker(kind: String, cell: Vector2i, props: Dictionary = {}) -> Node2D:
+	var m: Node2D = MechMarker.new()
+	m.set("kind", kind)
+	m.position = Units.cell_center(cell.x, cell.y)
+	for k: String in props:
+		m.set(k, props[k])
+	return m

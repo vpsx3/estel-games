@@ -58,6 +58,14 @@ var light_steps_mult: float = 1.0
 var invisible_timer: float = 0.0
 var phase_timer: float = 0.0
 var decoy: Variant = null           # null | {pos: Vector2, life: float, max_life: float}
+# maximos (barras do HUD; E4b) e sistemas ligados por BuffSystem.attach / MechFactory.install
+var bear_boost_max: float = 0.0
+var post_jump_max: float = 0.0
+var ghost_slow_max: float = 0.0
+var invisible_max: float = 0.0
+var phase_max: float = 0.0
+var buffs: Object = null            # BuffSystem
+var notifications: Array[Dictionary] = []   # addNotif: {text, color, pos, life, max_life, size}
 
 
 func _init(seed_value: int = -1) -> void:
@@ -96,6 +104,12 @@ func start(p_level: Object) -> void:
 	invisible_timer = 0.0
 	phase_timer = 0.0
 	decoy = null
+	bear_boost_max = 0.0
+	post_jump_max = 0.0
+	ghost_slow_max = 0.0
+	invisible_max = 0.0
+	phase_max = 0.0
+	notifications.clear()
 	bear = BearModel.new()
 	var bs: Vector2i = level.call("bear_spawn_cell") as Vector2i
 	var gs: Vector2i = level.call("ghost_spawn_cell") as Vector2i
@@ -238,11 +252,13 @@ func step(dt_raw: float, input: Vector2) -> void:
 					continue
 				if shield_charges > 0:
 					shield_charges -= 1
+					notify(I18n.t("fx_shield_name") + " -1", "#9ad8ff", bear.pos - Vector2(0, Units.px(28.0)), 13)
 					bear.invuln = GameplayLits.SHIELD_INVULN
 					ghost_sys.push_ghost(g)
 					continue
 				if rebound_active:
 					rebound_active = false
+					notify(I18n.t("fx_rebound_name") + "!", "#ffd166", bear.pos - Vector2(0, Units.px(28.0)), 14)
 					bear.invuln = GameplayLits.REBOUND_INVULN
 					ghost_sys.push_ghost(g)
 					continue
@@ -299,12 +315,14 @@ func update_effects(dt: float) -> void:
 		else:
 			var st: float = minf(d, Units.speed_px_frame_to_px_s(GameplayLits.LANDING_STEP) * dt)
 			bear.pos += delta / d * st
+	_update_notifications(dt)
 
 
 func resolve_landing_inside_wall() -> void:
 	var t: Variant = GridCollision.nearest_landing_target(level, bear.pos.x, bear.pos.y, bear.size)
 	if t != null:
 		bear.landing_target = t
+		bear.landing_glide = false   # alvo sem `glide` (JS: best = {x,y})
 
 
 ## tryJump() - chamado pelo input (Espaco / botao de pulo).
@@ -337,6 +355,22 @@ func ghost_global_mult() -> float:
 
 func is_phasing() -> bool:
 	return jump.active or phase_timer > 0.0
+
+
+## addNotif(text,color,x,y,size): textos flutuantes (o HUD/E4c desenha; game.gd tem placeholder).
+func notify(text: String, color: String, pos: Vector2, size: int = 13) -> void:
+	notifications.append({"text": text, "color": color, "pos": pos,
+		"life": GameplayLits.NOTIF_LIFE, "max_life": GameplayLits.NOTIF_LIFE, "size": size})
+
+
+func _update_notifications(dt: float) -> void:
+	var rise: float = Units.speed_px_frame_to_px_s(GameplayLits.NOTIF_RISE) * dt
+	for i in range(notifications.size() - 1, -1, -1):
+		var n: Dictionary = notifications[i]
+		n["life"] = float(n["life"]) - dt
+		n["pos"] = (n["pos"] as Vector2) - Vector2(0, rise)
+		if float(n["life"]) <= 0.0:
+			notifications.remove_at(i)
 
 
 func add_honey(amount: int) -> void:

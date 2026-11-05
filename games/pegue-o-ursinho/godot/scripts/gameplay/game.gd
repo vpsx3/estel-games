@@ -11,8 +11,11 @@ const FAKE_LEVEL_SCRIPT: String = "res://tests/support/fake_level.gd"
 @export var rng_seed: int = -1   # >= 0 => simulacao deterministica
 
 var run: GameRun
+var buffs: BuffSystem
 var level: Node2D
 var _bear_view: BearView
+var _under_view: WorldView
+var _over_view: WorldView
 var _ghost_views: Dictionary = {}   # GhostModel -> GhostView
 
 @onready var world: Node2D = $World
@@ -23,6 +26,13 @@ var _ghost_views: Dictionary = {}   # GhostModel -> GhostView
 
 func _ready() -> void:
 	touch.jump_pressed.connect(_on_jump)
+	_under_view = WorldView.new()   # mecanica/orbes/mel/isca abaixo dos atores
+	_under_view.mode = "under"
+	world.add_child(_under_view)
+	_over_view = WorldView.new()    # mecanica/notificacoes acima dos atores
+	_over_view.mode = "over"
+	_over_view.z_index = 10
+	world.add_child(_over_view)
 	new_run()
 
 
@@ -35,11 +45,19 @@ func new_run() -> void:
 		_bear_view.queue_free()
 	run = GameRun.new(rng_seed)
 	run.sync_game_state = true
-	run.attr_levels = (Save.data["attrs"] as Dictionary).duplicate()
+	run.attr_levels = Shop.new().levels()
+	MechFactory.install(run)
+	buffs = BuffSystem.new(run)
+	buffs.attach()
+	buffs.auto_choice = true   # placeholder: sem UI de escolha ate o E4c (que desliga isto)
 	run.level_loader = _load_level
 	run.game_ended.connect(_on_game_ended)
 	level = _load_level(0)
-	run.start(level)
+	buffs.open_selection()     # selecao pre-run 5 -> 3 (auto: 3 primeiras ate o E4c)
+	buffs.auto_pick()
+	buffs.start_run(level)
+	_under_view.bind(run)
+	_over_view.bind(run)
 	_bear_view = BEAR_SCENE.instantiate() as BearView
 	world.add_child(_bear_view)
 	_bear_view.bind(run)

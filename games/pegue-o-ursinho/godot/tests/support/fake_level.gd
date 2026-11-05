@@ -25,6 +25,7 @@ class FakeConfig extends RefCounted:
 
 
 var config: FakeConfig = FakeConfig.new()
+var mech_nodes: Array = []   # marcadores de mecanica (testes de fallback manual x procedural)
 var _grid: Array = []   # [r][c] 0/1
 var _bear_cell: Vector2i = Vector2i(8, 14)
 var _ghost_cell: Vector2i = Vector2i(16, 28)
@@ -87,7 +88,7 @@ func world_to_cell(pos: Vector2) -> Vector2i:
 
 
 func get_mechanic_nodes() -> Array:
-	return []
+	return mech_nodes
 
 
 func _draw() -> void:

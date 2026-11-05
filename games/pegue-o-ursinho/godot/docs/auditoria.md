@@ -67,3 +67,39 @@ Numeros "soltos" no `index.html` que nao estao em `data/legacy/constants.json`. 
 4. **Fantasma sobre o urso (d == 0)**: `pushGhost` do JS nao move (divisao por `||1` com delta 0); mantido igual.
 5. **Perseguicao** dos fantasmas e linha reta atravessando paredes (sem pathfinding), como no JS; so o errante vagando respeita `canMove`.
 6. **Letterbox** do `maxAspect` na camera: o JS corta a largura do canvas; no Godot so o zoom usa a largura limitada (area extra mostra a cor de fundo). Acabamento visual: E4c/E8.
+
+## E4b - literais, divergencias e observacoes (gameplay-porter, 05/11/2026)
+
+### Literais fora de `constants.json` (mantidos IGUAIS em `gameplay_lits.gd`; unidade legada, convertidos por `Units` no uso)
+
+| Literal | Valor | Onde no JS |
+|---|---|---|
+| Duracoes/multiplicadores dos buffs | speed_temp 4s x1.8; dash 0.8s x2.4; freeze_all 4s; ghost_slow 5s x0.5; slow_time 4s x0.4; spirit_trap 5s; fake_wall 4s; invisible 5s; decoy 6s; roubo +40% por 4s | `applyMapBuff` |
+| Alcances | teleport longe 6 celulas do fantasma mais proximo; light_burst/light_bomb 3.5 celulas, empurrao 2.2 celulas | `applyMapBuff` |
+| Escudo | maximo 1 carga | `applyMapBuff` (`Math.min(1,...)`) |
+| Orbes | longe do urso >= 3 celulas, espacamento 1.2 celulas, `born = rand*6` | `spawnCollectible` |
+| Selecao | 5 opcoes / 3 escolhas pre-run; 3 opcoes por troca de mundo | `openSelection`, `startRun`, `renderWorldChoiceCards` |
+| Notificacao | vida 1.7 s, sobe 0.5 px/frame | `addNotif`, `updateEffects` |
+| Cogumelo | longe do spawn > 3 celulas; squash 0.15 s | `mechInitMushroom`, `mechDrawMushroom` |
+| Morcegos | nascem/somem a 20/40 px fora do mapa; desvio +-0.4 rad; troca de quadro 0.18 s | `mechSpawnBat`, `mechUpdateBats` |
+| Castelo | grade bloqueia com `cl > 0.4` | `mechBlocksBear` |
+| Ilhas | 3 faixas de vento | `mechInitSky` |
+| Inferno | geiser fogo `sin>0.6`, aquecendo `>0.3`; invuln 0.4 s; raio do rastro 0.6 celula | `mechGeyserState`, `mechUpdateFire` |
+| Vazio | flash 0.3 s (troca) / 0.25 s (portal); `phaseTimer >= 0.2` em 'phase'; portal leva a >= 8 celulas; alpha dos fantasmas em 'blind' 0.15 | `mechUpdateVoid`, `mechGhostAlpha` |
+
+### Divergencias deliberadas (E4b)
+1. **Todo `Math.random` usa `run.rng`** (determinismo por seed): selecao, orbes, mecanicas procedurais. Mesma distribuicao; sequencia diferente.
+2. **Gelo: aceleracao e atrito por frame no JS** (`vx=(vx+ndx*accel)*friction` a cada frame, dependente de FPS). Aqui `f=dt*60`: `vel=(vel+n*accel*f)*friction^f`. Identico a 60 fps.
+3. **Morcegos, rastro, plataformas e vento** movem por `dt` (px/frame legado -> Units), identico a 60 fps.
+4. **Reroll so entre biomes**: no JS o botao de reroll existe apenas na escolha de +1 buff (nao na selecao pre-run). Port fiel; o pedido/handoff fala em "reroll na selecao" mas o codigo vence.
+5. **`landing_glide` (corrigido do E4a)**: `resolve_landing_inside_wall` nao zerava o flag apos um deslize de mecanica; agora zera (`landingTarget` do JS e um objeto novo sem `glide`).
+6. **Notificacoes sem emoji** (criterio §10): texto = nome do buff / efeito; o icone do JS (`b.icon`) entra como arte no HUD (E4c/E7). Orbes placeholder desenham a inicial do id no lugar do emoji.
+7. **Coleta de orbe**: o JS aplica o efeito e remove do array; aqui remove e aplica (mesmo resultado; evita mutacao durante o efeito).
+8. **"Mapa que respira" do bioma 10** (overlay alpha .18 das paredes) nao portado: depende dos tiles finais do bioma; fica para o E8. Nao afeta colisao.
+9. **Validador de fases** (`tools/editor/validate_levels.gd`, fora do meu escopo): marca "mecanica em parede" para qualquer filho de `Mecanicas` sobre parede. O marcador `window.tscn` DEVE ficar sobre parede (como no JS) e hoje seria reprovado; o level-designer precisa isentar `kind == "window"`.
+10. **Valores do Inspector vencem o JSON**: `MechFactory` usa `level.config.mech` quando preenchido (identico ao legado nas 10 fases, coberto por teste) e cai para `data/legacy/biome_mech.json`.
+
+### Observacoes sobre o JS (sem alteracao)
+- `type:'passive'` em `drawCollectibles` e `itemCdReduction/resistFrac/postJump*` sao restos de passivos removidos; `item_cd_reduction` fica 0 e `post_jump_*` nunca e escrito (campos mantidos para paridade das formulas).
+- A descricao do `dash` diz "arrancada na direcao atual", mas o efeito e so multiplicador de velocidade 2.4x por 0.8 s (o movimento segue o input). Portado como esta.
+- A mare usa o `elapsed` global da run (nao o tempo do bioma): a fase da onda depende de quando o bioma comeca.

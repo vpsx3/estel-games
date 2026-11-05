@@ -32,4 +32,48 @@ Status: `ok` = portado + testado; `gancho` = so o ponto de extensao existe (part
 | Teclado (input map) | `keysDown`, `moveBear` | `input_reader.gd` | test_gameplay_camera_input | ok |
 | Joystick virtual + botao de pulo (logica) | `joyStart/joyMove/joyEnd`, `btnJump` | `virtual_joystick.gd` (`PouJoystick`), `touch_controls.gd` | test_gameplay_camera_input | ok (arte: E4c) |
 | Cena de jogo (placeholder) | `initGame`, `gameLoop` | `scenes/game.tscn`, `scripts/gameplay/game.gd`, `scenes/actors/*` | test_gameplay_camera_input | ok |
-| Buffs de mapa/fixos, loja, mecanicas de bioma, HUD, i18n, save de atributos, ranking | - | - | - | pendente (E4b/E4c) |
+| Cena de jogo: orbes/mel/isca/notificacoes/mecanicas (placeholder) | `drawCollectibles`, `drawHoney`, `drawDecoy`, `drawNotifications`, `mechDraw*` | `scripts/gameplay/world_view.gd`, `game.gd` | test_gameplay_mech_factory (carga) + execucao com render | ok (arte: E8) |
+| HUD, i18n completo, save de atributos na UI, ranking, telas | - | - | - | pendente (E4c) |
+
+## E4b - buffs, loja e mecanicas de bioma
+
+| Sistema | Funcao JS de origem | Script GD | Teste | Status |
+|---|---|---|---|---|
+| Dados dos 16 buffs (12 map + 4 fixed), pesos selW/mapW, raridade, FIXED_INTERVALS, SPRAY_* | `MAP_BUFFS`, `FIXED_INTERVALS`, `SPRAY_SLOW_*`, `rarColor` | `scripts/gameplay/buffs.gd` (`BuffSystem`) | test_gameplay_buffs::test_data_16_buffs | ok |
+| Efeitos dos buffs de mapa (speed_temp, dash, freeze_all, ghost_slow, slow_time, teleport, swap, spirit_trap, fake_wall, invisible, light_burst, lightning, light_bomb, rebound, decoy, shield) | `applyMapBuff` | `buffs.gd::apply_map_buff`, `gameplay_lits.gd::BUFF_FX` | test_gameplay_buffs (timed_bear_buffs, teleport_swap, light_burst_and_bomb_radius, lightning_and_decoy..., shield_max_one_charge) | ok |
+| Roubo do orbe pelo fantasma (+40% vel., 4s) | `applyMapBuff(id, ghost)`, `updateCollectibles` | `buffs.gd::update_collectibles/apply_map_buff` | test_gameplay_buffs::test_ghost_steals_orb | ok |
+| Orbes no mapa: spawn ponderado por mapW, MAX_COLLECT, COLLECT_LIFE/R, expiracao | `spawnCollectible`, `updateCollectibles`, `weightedOne` | `buffs.gd::spawn_collectible/update_collectibles` | test_gameplay_buffs (spawn_rules, collect_by_bear_and_expiry), test_gameplay_buffs_flow::weighted_one_map_weights | ok |
+| Buffs fixos por intervalo (spray, teia, raio, isca) | `activateFixed`, `triggerFixed`, loop `fixedTimers` | `buffs.gd::activate_fixed/trigger_fixed/update_fixed` | test_gameplay_buffs::test_fixed_buffs_intervals, test_run_loop_runs_buffs | ok |
+| Escudo (max 1) e rebote absorvem captura | `gameLoop` (captura) | `run.gd::step`, `buffs.gd` | test_gameplay_buffs::test_shield_and_rebound_absorb_capture | ok |
+| Selecao pre-run "3 de 5" (selW), startRun | `weightedPick`, `selectablePool`, `openSelection`, `togglePick`, `startRun` | `buffs.gd::open_selection/toggle_pick/start_run` | test_gameplay_buffs_flow (selection, toggle_pick, start_run_splits, selectable_pool) | ok (UI: E4c) |
+| Escolha de +1 buff entre biomes e reroll (atributo) | `openWorldChoice`, `pickWorldBuff`, `worldReroll`, `resumeAfterChoice` | `buffs.gd::open_world_choice/pick_world_buff/world_reroll` | test_gameplay_buffs_flow (world_choice_flow, empty_pool, reroll_attribute, auto_choice) | ok (UI: E4c; `auto_choice` e placeholder) |
+| Loja de atributos (ATTR_DEFS: custos, niveis, efeitos, compra debita mel, persiste) | `attrNextCost`, `attrEffectText`, `buyAttr`, `recalcPassives` | `scripts/gameplay/shop.gd` (`Shop`), `run.gd::recalc_passives`, `jump_state.gd` | test_gameplay_shop | ok (UI: E4c) |
+| Mecanica: cogumelo-trampolim (bioma 1) | `mechInitMushroom`, `mechUpdateMushroom` | `scripts/gameplay/mechanics/mech_mushroom.gd` | test_gameplay_mech_a (mushroom_*) | ok |
+| Mecanica: mare ciclica (bioma 2) | `mechInitTide`, `mechUpdateTide` | `mechanics/mech_tide.gd` | test_gameplay_mech_a (tide_*) | ok (so config) |
+| Mecanica: piso de gelo / inercia (bioma 3) | `moveBearIce` | `mechanics/mech_ice.gd` | test_gameplay_mech_a (ice_*) | ok (so config) |
+| Mecanica: vitoria-regia que afunda (bioma 4) | `mechInitLily`, `mechUpdateLily` | `mechanics/mech_lily.gd` | test_gameplay_mech_a (lily_*) | ok |
+| Mecanica: morcegos que travam (bioma 5) | `mechInitBats`, `mechSpawnBat`, `mechUpdateBats` | `mechanics/mech_bats.gd` | test_gameplay_mech_a (bats_*) | ok |
+| Mecanica: janelas que espreitam (bioma 6) | `mechInitWindows`, `mechUpdateWindows` | `mechanics/mech_windows.gd` | test_gameplay_mech_b (windows_*) | ok |
+| Mecanica: grades + tapete (bioma 7) | `mechInitCastle`, `mechUpdateCastle`, `mechSpeedMult` | `mechanics/mech_castle.gd` | test_gameplay_mech_b (castle_*) | ok |
+| Mecanica: plataformas moveis + vento (bioma 8) | `mechInitSky`, `mechUpdateSky`, `mechApplyDrift` | `mechanics/mech_sky.gd` | test_gameplay_mech_b (sky_*) | ok |
+| Mecanica: geiseres + rastro de fogo (bioma 9) | `mechInitFire`, `mechUpdateFire`, `mechGeyserState` | `mechanics/mech_fire.gd` | test_gameplay_mech_b (fire_*) | ok |
+| Mecanica: inversao de fases + portais (bioma 10) | `mechInitVoid`, `mechUpdateVoid`, `mechGhostAlpha` | `mechanics/mech_void.gd` | test_gameplay_mech_b (void_*) | ok (overlay "mapa respira": E8) |
+| Fabrica + fallback manual x procedural (Mecanicas vazio = JS) | `mechReset`, `mechBlocksBear`, `mechSpeedMult`, `mechApplyDrift` | `mechanics/mech_factory.gd`, `mechanics/mech_base.gd`, `scripts/gameplay/mech_marker.gd` | test_gameplay_mech_factory | ok |
+| Cenas posicionaveis de mecanica | `MECH_SLOTS` | `scenes/mechanics/*.tscn` (+ `assets/_placeholder/mechanics/`) | test_gameplay_mech_factory::test_marker_scenes_load_and_defaults | ok (placeholder) |
+
+### Mecanicas posicionaveis (`scenes/mechanics/`)
+
+Arraste para `Mecanicas` da fase. Por subparte, se houver ao menos um marcador do `kind`, so valem os colocados a mao; sem nenhum, o jogo gera como o original (sorteio com a seed da run). Mare, gelo e inversao de fase (vazio) sao so configuracao do `BiomeConfig.mech`.
+
+| Cena | kind | Efeito da posicao | Parametros por instancia (-1 = config) |
+|---|---|---|---|
+| `mushroom.tscn` | mushroom | cogumelo na celula | `dist` |
+| `lilypad.tscn` | lilypad | vitoria-regia na celula | - |
+| `bat_spawn.tscn` | bat_spawn | ponto de entrada dos morcegos (posicao livre) | - |
+| `window.tscn` | window | janela em celula de PAREDE | `radius_cells`, `telegraph`, `cooldown` |
+| `gate.tscn` | gate | grade na celula | `phase` |
+| `carpet.tscn` | carpet | tapete a partir da celula, para a direita | `length_cells` |
+| `platform.tscn` | platform | plataforma movel | `axis`, `range_cells`, `phase` |
+| `wind.tscn` | wind | corrente de ar a partir da celula | `wind_dir`, `length_cells` |
+| `geyser.tscn` | geyser | geiser na celula | `phase` |
+| `portal.tscn` | portal | portal na celula | - |

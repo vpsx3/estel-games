@@ -78,6 +78,12 @@ func move(run: GameRun, dt: float, input: Vector2) -> void:
 	run.mech_apply_drift(dt)
 
 
+## landingTarget = {x,y,glide:true}: desliza ate a celula mesmo sobre parede (mecanicas de bioma).
+func glide_to(target: Vector2) -> void:
+	landing_target = target
+	landing_glide = true
+
+
 func clamp_to_world() -> void:
 	pos.x = maxf(size, minf(Units.WORLD_W - size, pos.x))
 	pos.y = maxf(size, minf(Units.WORLD_H - size, pos.y))
