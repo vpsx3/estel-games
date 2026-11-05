@@ -1,0 +1,29 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "686dc9f5-9da0-4f1f-9371-771c06cda819",
+  "prompt": "PREFIX_8.1 + round green lilypad on dark murky water, pink flower bud",
+  "parametros": "32x32;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "animate_object",
+  "id": "686dc9f5-9da0-4f1f-9371-771c06cda819",
+  "prompt": "lilypad floating and bobbing gently on water, slight sway and tiny ripple, seamless loop",
+  "parametros": "mode=v3;frame_count=6;keep_first_frame=false",
+  "custo": "~1 gen",
+  "status": "candidato"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "animate_object",
+  "id": "686dc9f5-9da0-4f1f-9371-771c06cda819",
+  "prompt": "lilypad slowly sinking under the water, shrinking and getting darker with ripples until almost submerged",
+  "parametros": "mode=v3;frame_count=8;keep_first_frame=false",
+  "custo": "~1 gen",
+  "status": "candidato"
+ }
+]

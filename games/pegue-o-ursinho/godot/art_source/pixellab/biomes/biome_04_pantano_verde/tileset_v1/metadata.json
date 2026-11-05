@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_topdown_tileset",
+  "id": "e994f5e1-e192-48d3-8000-abfa6c9ec66f",
+  "prompt": "PREFIX_8.1 + lower: soft muddy moss ground with small puddles | upper: tangle of twisted friendly mangrove roots and tall reeds, entire surface covered in dark brown-green woven roots and reed blades | transition: muddy bank with cattails",
+  "parametros": "mode=standard;tile=32;transition=0.5;view=high top-down;shading=medium;detail=medium;outline=single color outline",
+  "custo": "1 gen",
+  "status": "candidato (escolhido; terrenos invertidos pelo modelo: lower=raizes/upper=lama; usar swap)"
+ }
+]

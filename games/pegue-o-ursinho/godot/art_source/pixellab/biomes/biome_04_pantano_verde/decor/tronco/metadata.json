@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "5e0d7f7b-faa7-4291-9766-05c5ae6dfa8e",
+  "prompt": "PREFIX_8.1 + mossy fallen log with sprouts and tiny mushroom",
+  "parametros": "48x48;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]

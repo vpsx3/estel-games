@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_topdown_tileset",
+  "id": "9e8112df-6702-4fbd-828e-4f3d575b12d5",
+  "prompt": "PREFIX_8.1 + lower: soft muddy moss green ground with small puddles and tiny tufts | upper: dense thicket of twisted mangrove root arches and tall green reeds, dark olive leaves and curved brown roots | transition: muddy bank with cattails",
+  "parametros": "mode=standard;tile=32;transition=0.5;view=high top-down;shading=medium;detail=medium;outline=single color outline",
+  "custo": "1 gen",
+  "status": "reprovado (parede virou plato de grama clara; fica v1)"
+ }
+]

@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "5fb9862e-ca66-4a3d-9f40-18971f534491",
+  "prompt": "PREFIX_8.1 + tiny chubby green frog sitting",
+  "parametros": "32x32;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]

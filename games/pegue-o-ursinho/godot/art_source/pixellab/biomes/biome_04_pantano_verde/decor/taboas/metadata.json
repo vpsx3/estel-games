@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "fd5c6a54-59a0-449e-a0c5-4b72e17c9fe7",
+  "prompt": "PREFIX_8.1 + tuft of three brown cattails with green leaves",
+  "parametros": "32x32;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]
