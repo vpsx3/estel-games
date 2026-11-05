@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_topdown_tileset",
+  "id": "a4068b75-605d-4947-b472-2d7a29f0875c",
+  "prompt": "PREFIX_8.1 + lower: dark violet cave floor with tiny glowing crystal specks | upper: pile of round bumpy purple boulders with glowing pink and cyan crystals poking out, outlined rounded rocks, much lighter and bumpier than the floor | transition: pebbles and glowing green moss",
+  "parametros": "mode=standard;tile=32;transition=0.5;view=high top-down;shading=medium;detail=medium;outline=single color outline",
+  "custo": "1 gen",
+  "status": "candidato (escolhido; tile lower plano tem cristais grandes: usar var_xx no piso)"
+ }
+]

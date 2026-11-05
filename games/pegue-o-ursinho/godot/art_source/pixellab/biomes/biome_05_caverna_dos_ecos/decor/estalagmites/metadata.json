@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "69c2d689-c372-4b1e-8eb4-86e1c5929549",
+  "prompt": "PREFIX_8.1 + rounded lavender stalagmites with pink crystal tip",
+  "parametros": "32x32;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]

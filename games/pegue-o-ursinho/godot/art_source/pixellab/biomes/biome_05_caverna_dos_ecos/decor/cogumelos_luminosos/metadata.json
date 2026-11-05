@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "ff8a88ed-2848-4114-8383-6760a241b08b",
+  "prompt": "PREFIX_8.1 + cluster of glowing cave mushrooms cyan and pink",
+  "parametros": "32x32;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]

@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "a10b58e9-fd25-4d81-bfc1-08c8d7f4521f",
+  "prompt": "PREFIX_8.1 + cluster of glowing pastel pink and cyan crystals on lavender rock",
+  "parametros": "48x48;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]

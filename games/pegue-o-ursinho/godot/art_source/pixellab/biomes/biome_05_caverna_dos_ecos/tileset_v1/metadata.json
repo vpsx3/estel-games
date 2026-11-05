@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_topdown_tileset",
+  "id": "9cbcc032-6f80-4de5-9429-3af0240635c3",
+  "prompt": "PREFIX_8.1 + lower: dark violet cave floor with tiny glowing crystal specks | upper: rounded purple cave rock mass with glowing pastel pink and cyan crystals, entire surface covered in bumpy deep indigo rock | transition: pebbles and glowing green moss",
+  "parametros": "mode=standard;tile=32;transition=0.5;view=high top-down;shading=medium;detail=medium;outline=single color outline",
+  "custo": "1 gen",
+  "status": "reprovado (upper = placa roxa lisa; re-roll)"
+ }
+]

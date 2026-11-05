@@ -1,0 +1,20 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_8_direction_object",
+  "id": "7e68fdc3-42cf-4044-99ce-e404ee09b436",
+  "prompt": "PREFIX_8.1 + tiny cute round purple bat with big floppy wings spread, little fangs, rosy cheeks, big shiny eyes",
+  "parametros": "size=32 (final 34x34);view=high top-down",
+  "custo": "10 gen",
+  "status": "candidato"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "animate_object",
+  "id": "7e68fdc3-42cf-4044-99ce-e404ee09b436",
+  "prompt": "flying, flapping wings up and down in a gentle loop with a small hover bob",
+  "parametros": "mode=v3;frame_count=6;keep_first_frame=false;directions=south,north,east,west (2 chamadas)",
+  "custo": "~4 gen",
+  "status": "candidato"
+ }
+]

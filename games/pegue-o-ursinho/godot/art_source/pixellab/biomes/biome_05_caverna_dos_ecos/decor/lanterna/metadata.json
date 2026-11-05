@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "52da15a8-4770-4229-a69d-f8b94b24036b",
+  "prompt": "PREFIX_8.1 + small old brass lantern warm glowing flame",
+  "parametros": "32x32;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]
