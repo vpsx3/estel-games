@@ -80,6 +80,12 @@ static func validate(level: LevelRoot) -> Dictionary:
 	for m: Node in level.get_mechanic_nodes():
 		if m is Node2D:
 			var mc: Vector2i = level.world_to_cell((m as Node2D).position)
+			# janelas (bioma 6) ficam de proposito sobre parede
+			var kind: Variant = m.get("kind")
+			if kind == "window":
+				if not level.is_wall(mc.x, mc.y):
+					errors.append("janela '%s' fora de parede %s" % [m.name, str(mc)])
+				continue
 			if level.is_wall(mc.x, mc.y):
 				errors.append("mecanica '%s' em parede %s" % [m.name, str(mc)])
 
