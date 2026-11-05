@@ -1,0 +1,20 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "a370b844-6bc5-46af-9ff7-497c262877b0",
+  "prompt": "PREFIX_8.1 + flat square tile of shallow turquoise sea water, ripple lines",
+  "parametros": "32x32;lineless;basic shading;view=high top-down;outline=lineless;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "animate_object",
+  "id": "a370b844-6bc5-46af-9ff7-497c262877b0",
+  "prompt": "shallow sea water gently rippling, soft waves drifting slowly, seamless loop",
+  "parametros": "mode=v3;frame_count=6;keep_first_frame=false",
+  "custo": "~1 gen",
+  "status": "candidato"
+ }
+]

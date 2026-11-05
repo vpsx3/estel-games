@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "ef339639-17f4-414a-985f-79a3e9847ca6",
+  "prompt": "PREFIX_8.1 + little pink sand bucket with tiny yellow shovel",
+  "parametros": "32x32;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]

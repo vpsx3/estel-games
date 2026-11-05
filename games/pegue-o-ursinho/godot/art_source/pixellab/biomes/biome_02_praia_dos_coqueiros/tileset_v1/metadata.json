@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_topdown_tileset",
+  "id": "8d317673-9e53-44ef-b199-d5411435955c",
+  "prompt": "PREFIX_8.1 + lower: warm golden sand with tiny shells | upper: solid cluster of small round palm tree crowns and smooth beige boulders, entire surface covered in palm fronds and rounded stones, clearly a solid wall, much darker than the light sand | transition: damp darker sand edge with palm trunks and rock sides",
+  "parametros": "mode=standard;tile=32;transition=0.5;view=high top-down;shading=medium;detail=medium;outline=single color outline",
+  "custo": "1 gen",
+  "status": "candidato (escolhido)"
+ }
+]

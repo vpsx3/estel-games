@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "cf261a5f-8cc4-4d53-bdfe-85645a0072fb",
+  "prompt": "PREFIX_8.1 + chubby coral-orange starfish with tiny dots",
+  "parametros": "32x32;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]

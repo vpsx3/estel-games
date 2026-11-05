@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "b498be20-a5db-430f-99f3-73d9c883a880",
+  "prompt": "PREFIX_8.1 + striped beach umbrella seen from above, red and cream",
+  "parametros": "64x64;view=high top-down;outline=single color outline;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ }
+]

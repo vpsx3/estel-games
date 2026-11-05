@@ -1,0 +1,20 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "61ef317f-3767-4325-9fd3-f3acc94a5d44",
+  "prompt": "PREFIX_8.1 + small white sea foam bubbles and curly wave edge",
+  "parametros": "32x32;lineless;basic shading;view=high top-down;outline=lineless;detail=medium",
+  "custo": "n/d (ver saldo)",
+  "status": "candidato"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "animate_object",
+  "id": "61ef317f-3767-4325-9fd3-f3acc94a5d44",
+  "prompt": "sea foam bubbles bubbling and wave edge washing in and out gently, seamless loop",
+  "parametros": "mode=v3;frame_count=6;keep_first_frame=false",
+  "custo": "~1 gen",
+  "status": "candidato"
+ }
+]

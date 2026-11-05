@@ -1,0 +1,11 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_tiles_pro",
+  "id": "21cab867-37ec-441c-a87e-21b58113b8bf",
+  "prompt": "6 pisos de areia (numerados) com style_images=tile lower aprovado",
+  "parametros": "square_topdown;top-down;32;style_images=floor_ref.png;16 saidas",
+  "custo": "10 gen",
+  "status": "candidato (picks 0,4,8,12,2,10)"
+ }
+]
