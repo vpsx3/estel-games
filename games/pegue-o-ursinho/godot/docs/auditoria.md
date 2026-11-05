@@ -38,3 +38,32 @@ Densidade de paredes (% das 540 células): 1=37,0 · 2=31,1 · 3=48,9 · 4=37,0 
 7. **Emojis**: `BIOMES[].icon`, `MAP_BUFFS[].icon`, `ATTR_DEFS[].icon` e várias strings de UI usam emoji. Critério de aceite §10 proíbe emoji na UI final: o port deve trocar por ícones PixelLab (os dados legados ficam intactos).
 8. **Velocidade dos fantasmas**: o fator efetivo combina `GHOST_TYPES[].speed`, `BIOMES[].ghostSpeed`, `INITIAL_PACE` e `GHOST_PHASE_SCALING` (todos px/frame @60fps antes da conversão por `Units`); a fórmula exata está no `gameLoop` e deve ser portada na etapa E4, não aqui.
 9. Densidades reais dos mapas 7 a 10 (62% a 71%) são altas; o validador do E3 (±2pp da meta) deve usar como meta o valor atual do `BIOME_MAPS`/`generate_biome_maps.py`, não um número do HANDOFF.
+
+## E4a - literais fora de `constants.json` (gameplay-porter, 05/11/2026)
+
+Numeros "soltos" no `index.html` que nao estao em `data/legacy/constants.json`. Mantidos IGUAIS em `scripts/gameplay/gameplay_lits.gd` (unidade legada; convertidos por `Units` no ponto de uso). Nenhum foi alterado.
+
+| Literal | Valor | Onde no JS |
+|---|---|---|
+| Velocidade base do urso | 3.3 px/frame (x `INITIAL_PACE`) | `initGame` (`bear.speed`) |
+| Raio do urso | 14 px | `initGame` (`bear.size`) |
+| Caixa de colisao | `size * 0.45` | `canMove` |
+| Deslize na parede | 30% do passo | `moveBear` |
+| Margem de captura | `size_urso + size_fantasma - 5` px | `gameLoop` |
+| Aterrissagem | alcance < 6 px, passo 8 px/frame | `updateEffects` |
+| CD base do pulo | 10 s | `initGame`, `recalcPassives` (`jumpCdMax`) |
+| Escalada por ciclo | +0.10 velocidade, -2 s de taxa, minimo 5 s | `biomeEffective` |
+| Errante | modo 4000 + rand*4000 ms; retarget 2000 ms | `makeGhost`, `moveGhosts`, `wanderMove` |
+| Transicao | fantasmas ocultos 0.5 s, invuln 1 s, fantasma a >= 10 celulas | `executeBiomeTransition` |
+| Escudo/rebote | invuln 0.9 s / 1.1 s; empurrao `TILE*1.6` | `gameLoop`, `pushGhost` |
+| Mel | longe do urso >= 3 celulas, espacamento 1.2 celulas | `spawnHoney` |
+| Joystick | zona morta 0.18 | `joyMove` |
+| `dt` maximo | 0.05 s | `gameLoop` |
+
+### Divergencias deliberadas (E4a)
+1. **Veneno usa relogio de jogo.** JS: `bear.poisonEnd = Date.now() + POISON_DURATION` (relogio de parede, continua contando em pausa/escolha de buff). Port: `bear.poison_left` decrementado por `dt` (so conta enquanto o jogo roda). Duracao e cooldown iguais.
+2. **Deslize de aterrissagem** (`st=min(d,8)` por frame no JS) usa `8 px/frame` convertido para px/s x `dt` (identico a 60fps; independente de FPS).
+3. **Suavizacao da camera** (`+= (alvo-cam)*0.18` por frame): aqui `alpha = 1-(1-0.18)^(dt*60)` (identico a 60fps).
+4. **Fantasma sobre o urso (d == 0)**: `pushGhost` do JS nao move (divisao por `||1` com delta 0); mantido igual.
+5. **Perseguicao** dos fantasmas e linha reta atravessando paredes (sem pathfinding), como no JS; so o errante vagando respeita `canMove`.
+6. **Letterbox** do `maxAspect` na camera: o JS corta a largura do canvas; no Godot so o zoom usa a largura limitada (area extra mostra a cor de fundo). Acabamento visual: E4c/E8.
