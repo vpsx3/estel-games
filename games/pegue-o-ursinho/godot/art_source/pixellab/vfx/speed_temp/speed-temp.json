@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "speed-temp 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 85,
+    "h": 50
+   },
+   "pivot": {
+    "x": 0.7058823529411765,
+    "y": 0.9
+   },
+   "duration": 83
+  },
+  {
+   "filename": "speed-temp 1.png",
+   "frame": {
+    "x": 85,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 85,
+    "h": 50
+   },
+   "pivot": {
+    "x": 0.7058823529411765,
+    "y": 0.9
+   },
+   "duration": 83
+  },
+  {
+   "filename": "speed-temp 2.png",
+   "frame": {
+    "x": 170,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 85,
+    "h": 50
+   },
+   "pivot": {
+    "x": 0.7058823529411765,
+    "y": 0.9
+   },
+   "duration": 83
+  },
+  {
+   "filename": "speed-temp 3.png",
+   "frame": {
+    "x": 0,
+    "y": 50,
+    "w": 85,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 85,
+    "h": 50
+   },
+   "pivot": {
+    "x": 0.7058823529411765,
+    "y": 0.9
+   },
+   "duration": 83
+  },
+  {
+   "filename": "speed-temp 4.png",
+   "frame": {
+    "x": 85,
+    "y": 50,
+    "w": 85,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 85,
+    "h": 50
+   },
+   "pivot": {
+    "x": 0.7058823529411765,
+    "y": 0.9
+   },
+   "duration": 83
+  },
+  {
+   "filename": "speed-temp 5.png",
+   "frame": {
+    "x": 170,
+    "y": 50,
+    "w": 85,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 85,
+    "h": 50
+   },
+   "pivot": {
+    "x": 0.7058823529411765,
+    "y": 0.9
+   },
+   "duration": 83
+  },
+  {
+   "filename": "speed-temp 6.png",
+   "frame": {
+    "x": 0,
+    "y": 100,
+    "w": 85,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 85,
+    "h": 50
+   },
+   "pivot": {
+    "x": 0.7058823529411765,
+    "y": 0.9
+   },
+   "duration": 83
+  },
+  {
+   "filename": "speed-temp 7.png",
+   "frame": {
+    "x": 85,
+    "y": 100,
+    "w": 85,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 85,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 85,
+    "h": 50
+   },
+   "pivot": {
+    "x": 0.7058823529411765,
+    "y": 0.9
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "speed-temp.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 255,
+   "h": 150
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 60,
+   "y": 45
+  },
+  "frameTags": [
+   {
+    "name": "speed-temp",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

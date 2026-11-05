@@ -1,0 +1,121 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "ghost_eliminated",
+ "fps": 12,
+ "frame_ms": 83,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 74,
+  "h": 65
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 39,
+  "y": 35
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 68,
+    "h": 59
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 12,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -32
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 68,
+    "h": 59
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 12,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -32
+   }
+  },
+  {
+   "name": "part-smoke_poof",
+   "title": "the smoke poof part",
+   "part": "smoke_poof",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 68,
+    "h": 52
+   },
+   "sheets": [
+    {
+     "file": "part-smoke_poof.png",
+     "first_frame": 0,
+     "frames": 11,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -32
+   }
+  },
+  {
+   "name": "part-twinkles",
+   "title": "the twinkles part",
+   "part": "twinkles",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 3,
+   "frames": 9,
+   "frame": {
+    "w": 34,
+    "h": 54
+   },
+   "sheets": [
+    {
+     "file": "part-twinkles.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -10,
+    "y": -27
+   }
+  }
+ ]
+}

@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "rebound 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 1.png",
+   "frame": {
+    "x": 53,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 2.png",
+   "frame": {
+    "x": 106,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 3.png",
+   "frame": {
+    "x": 159,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 4.png",
+   "frame": {
+    "x": 0,
+    "y": 79,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 5.png",
+   "frame": {
+    "x": 53,
+    "y": 79,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 6.png",
+   "frame": {
+    "x": 106,
+    "y": 79,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 7.png",
+   "frame": {
+    "x": 159,
+    "y": 79,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 8.png",
+   "frame": {
+    "x": 0,
+    "y": 158,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 9.png",
+   "frame": {
+    "x": 53,
+    "y": 158,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 10.png",
+   "frame": {
+    "x": 106,
+    "y": 158,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  },
+  {
+   "filename": "rebound 11.png",
+   "frame": {
+    "x": 159,
+    "y": 158,
+    "w": 53,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 53,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 53,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49056603773584906,
+    "y": 0.7721518987341772
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "rebound.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 212,
+   "h": 237
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 26,
+   "y": 61
+  },
+  "frameTags": [
+   {
+    "name": "rebound",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

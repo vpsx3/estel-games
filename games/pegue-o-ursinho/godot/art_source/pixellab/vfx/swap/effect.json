@@ -1,0 +1,110 @@
+{
+ "id": "swap",
+ "fps": 12,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 74,
+  "h": 84
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 39,
+  "y": 56
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 68,
+    "h": 78
+   },
+   "offset": {
+    "x": -36,
+    "y": -53
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 68,
+    "h": 78
+   },
+   "offset": {
+    "x": -36,
+    "y": -53
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 68,
+    "h": 78
+   },
+   "offset": {
+    "x": -36,
+    "y": -53
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-smoke_poof",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 68,
+    "h": 52
+   },
+   "offset": {
+    "x": -36,
+    "y": -53
+   },
+   "sheet": "pack/part-smoke_poof.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-star_burst",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 59,
+    "h": 73
+   },
+   "offset": {
+    "x": -29,
+    "y": -48
+   },
+   "sheet": "pack/part-star_burst.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "0e54b11c-89c1-4ddd-bec5-3491dda1221a",
+ "source_step": "fb40cae0"
+}

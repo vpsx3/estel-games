@@ -1,0 +1,95 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "honey_pickup",
+ "fps": 15,
+ "frame_ms": 67,
+ "frames": 10,
+ "loop": false,
+ "canvas": {
+  "w": 43,
+  "h": 49
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 21,
+  "y": 32
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 37,
+    "h": 43
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -18,
+    "y": -29
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 37,
+    "h": 43
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -18,
+    "y": -29
+   }
+  },
+  {
+   "name": "part-collect_pop",
+   "title": "the collect pop part",
+   "part": "collect_pop",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 37,
+    "h": 43
+   },
+   "sheets": [
+    {
+     "file": "part-collect_pop.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -18,
+    "y": -29
+   }
+  }
+ ]
+}

@@ -1,0 +1,128 @@
+{
+ "id": "poison_aura",
+ "fps": 10,
+ "frames": 16,
+ "loop": true,
+ "canvas": {
+  "w": 146,
+  "h": 83
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 73,
+  "y": 60
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 146,
+    "h": 77
+   },
+   "offset": {
+    "x": -73,
+    "y": -57
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 146,
+    "h": 67
+   },
+   "offset": {
+    "x": -73,
+    "y": -51
+   },
+   "sheet": "pack/behind.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 122,
+    "h": 77
+   },
+   "offset": {
+    "x": -57,
+    "y": -57
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "part-water_ripple",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 78,
+    "h": 32
+   },
+   "offset": {
+    "x": -39,
+    "y": -16
+   },
+   "sheet": "pack/part-water_ripple.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "part-bubbles_rise",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 42,
+    "h": 61
+   },
+   "offset": {
+    "x": -18,
+    "y": -57
+   },
+   "sheet": "pack/part-bubbles_rise.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "part-frost_mist",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 146,
+    "h": 45
+   },
+   "offset": {
+    "x": -73,
+    "y": -25
+   },
+   "sheet": "pack/part-frost_mist.png",
+   "columns": 4,
+   "rows": 4
+  }
+ ],
+ "pixellab_effect_id": "ab787837-629a-4a64-a1fd-c713cb1a2992",
+ "source_step": "b5cf8456"
+}

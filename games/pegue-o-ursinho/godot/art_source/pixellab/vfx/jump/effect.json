@@ -1,0 +1,92 @@
+{
+ "id": "jump",
+ "fps": 9,
+ "frames": 6,
+ "loop": false,
+ "canvas": {
+  "w": 39,
+  "h": 56
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 20,
+  "y": 45
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 5,
+   "frame": {
+    "w": 33,
+    "h": 24
+   },
+   "offset": {
+    "x": -17,
+    "y": -16
+   },
+   "sheet": "pack/whole.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 6,
+   "frame": {
+    "w": 33,
+    "h": 50
+   },
+   "offset": {
+    "x": -17,
+    "y": -42
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 5,
+   "frame": {
+    "w": 33,
+    "h": 24
+   },
+   "offset": {
+    "x": -17,
+    "y": -16
+   },
+   "sheet": "pack/behind.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "part-dust_puff",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 5,
+   "frame": {
+    "w": 33,
+    "h": 24
+   },
+   "offset": {
+    "x": -17,
+    "y": -16
+   },
+   "sheet": "pack/part-dust_puff.png",
+   "columns": 3,
+   "rows": 2
+  }
+ ],
+ "pixellab_effect_id": "a92358c9-6d1d-482c-b837-3c4194e68df3",
+ "source_step": "e648885e"
+}

@@ -1,0 +1,120 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "jump",
+ "fps": 9,
+ "frame_ms": 111,
+ "frames": 6,
+ "loop": false,
+ "canvas": {
+  "w": 39,
+  "h": 56
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 20,
+  "y": 45
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 5,
+   "frame": {
+    "w": 33,
+    "h": 24
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 5,
+     "columns": 3,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -17,
+    "y": -16
+   }
+  },
+  {
+   "name": "whole-with-sprite",
+   "title": "the whole effect with the sprite in it",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 6,
+   "frame": {
+    "w": 33,
+    "h": 50
+   },
+   "sheets": [
+    {
+     "file": "whole-with-sprite.png",
+     "first_frame": 0,
+     "frames": 6,
+     "columns": 3,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -17,
+    "y": -42
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 5,
+   "frame": {
+    "w": 33,
+    "h": 24
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 5,
+     "columns": 3,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -17,
+    "y": -16
+   }
+  },
+  {
+   "name": "part-dust_puff",
+   "title": "the dust puff part",
+   "part": "dust_puff",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 5,
+   "frame": {
+    "w": 33,
+    "h": 24
+   },
+   "sheets": [
+    {
+     "file": "part-dust_puff.png",
+     "first_frame": 0,
+     "frames": 5,
+     "columns": 3,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -17,
+    "y": -16
+   }
+  }
+ ]
+}

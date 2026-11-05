@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "caught 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 1.png",
+   "frame": {
+    "x": 65,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 2.png",
+   "frame": {
+    "x": 130,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 3.png",
+   "frame": {
+    "x": 195,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 4.png",
+   "frame": {
+    "x": 0,
+    "y": 79,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 5.png",
+   "frame": {
+    "x": 65,
+    "y": 79,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 6.png",
+   "frame": {
+    "x": 130,
+    "y": 79,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 7.png",
+   "frame": {
+    "x": 195,
+    "y": 79,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 8.png",
+   "frame": {
+    "x": 0,
+    "y": 158,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 9.png",
+   "frame": {
+    "x": 65,
+    "y": 158,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 10.png",
+   "frame": {
+    "x": 130,
+    "y": 158,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  },
+  {
+   "filename": "caught 11.png",
+   "frame": {
+    "x": 195,
+    "y": 158,
+    "w": 65,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 65,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 65,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.49230769230769234,
+    "y": 0.6455696202531646
+   },
+   "duration": 63
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "caught.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 260,
+   "h": 237
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 32,
+   "y": 51
+  },
+  "frameTags": [
+   {
+    "name": "caught",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

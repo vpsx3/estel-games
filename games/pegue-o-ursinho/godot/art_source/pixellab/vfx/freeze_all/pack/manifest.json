@@ -1,0 +1,146 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "freeze_all",
+ "fps": 14,
+ "frame_ms": 71,
+ "frames": 10,
+ "loop": false,
+ "canvas": {
+  "w": 116,
+  "h": 77
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 58,
+  "y": 28
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 78,
+    "h": 71
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 10,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -39,
+    "y": -25
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 6,
+   "frame": {
+    "w": 78,
+    "h": 50
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 6,
+     "columns": 3,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -39,
+    "y": -25
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 1,
+   "frames": 9,
+   "frame": {
+    "w": 50,
+    "h": 60
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -28,
+    "y": -14
+   }
+  },
+  {
+   "name": "part-shockwave_ring",
+   "title": "the shockwave ring part",
+   "part": "shockwave_ring",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 6,
+   "frame": {
+    "w": 78,
+    "h": 30
+   },
+   "sheets": [
+    {
+     "file": "part-shockwave_ring.png",
+     "first_frame": 0,
+     "frames": 6,
+     "columns": 3,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -39,
+    "y": -15
+   }
+  },
+  {
+   "name": "part-ice_shatter",
+   "title": "the ice shatter part",
+   "part": "ice_shatter",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 1,
+   "frames": 9,
+   "frame": {
+    "w": 53,
+    "h": 71
+   },
+   "sheets": [
+    {
+     "file": "part-ice_shatter.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -28,
+    "y": -25
+   }
+  }
+ ]
+}

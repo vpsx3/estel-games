@@ -1,0 +1,110 @@
+{
+ "id": "decoy",
+ "fps": 12,
+ "frames": 10,
+ "loop": false,
+ "canvas": {
+  "w": 73,
+  "h": 59
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 39,
+  "y": 56
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 67,
+    "h": 52
+   },
+   "offset": {
+    "x": -36,
+    "y": -53
+   },
+   "sheet": "pack/whole.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 67,
+    "h": 53
+   },
+   "offset": {
+    "x": -36,
+    "y": -53
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 67,
+    "h": 52
+   },
+   "offset": {
+    "x": -36,
+    "y": -53
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-smoke_poof",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 67,
+    "h": 52
+   },
+   "offset": {
+    "x": -36,
+    "y": -53
+   },
+   "sheet": "pack/part-smoke_poof.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-collect_pop",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 37,
+    "h": 43
+   },
+   "offset": {
+    "x": -18,
+    "y": -50
+   },
+   "sheet": "pack/part-collect_pop.png",
+   "columns": 3,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "ab031bc0-d7a6-4f0e-8f87-6269a9f8c63b",
+ "source_step": "a6fc0f10"
+}

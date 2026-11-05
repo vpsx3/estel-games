@@ -1,0 +1,110 @@
+{
+ "id": "ghost_slow",
+ "fps": 12,
+ "frames": 24,
+ "loop": true,
+ "canvas": {
+  "w": 61,
+  "h": 59
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 30,
+  "y": 57
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 55,
+    "h": 53
+   },
+   "offset": {
+    "x": -27,
+    "y": -54
+   },
+   "sheet": "pack/whole.png",
+   "columns": 5,
+   "rows": 5
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 55,
+    "h": 53
+   },
+   "offset": {
+    "x": -27,
+    "y": -54
+   },
+   "sheet": "pack/behind.png",
+   "columns": 5,
+   "rows": 5
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 18,
+    "h": 24
+   },
+   "offset": {
+    "x": 4,
+    "y": -35
+   },
+   "sheet": "pack/front.png",
+   "columns": 5,
+   "rows": 5
+  },
+  {
+   "name": "part-debuff_arrows",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 55,
+    "h": 53
+   },
+   "offset": {
+    "x": -27,
+    "y": -54
+   },
+   "sheet": "pack/part-debuff_arrows.png",
+   "columns": 5,
+   "rows": 5
+  },
+  {
+   "name": "part-sleep_zzz",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 18,
+    "h": 24
+   },
+   "offset": {
+    "x": 4,
+    "y": -35
+   },
+   "sheet": "pack/part-sleep_zzz.png",
+   "columns": 5,
+   "rows": 5
+  }
+ ],
+ "pixellab_effect_id": "097265d3-db54-4411-b6cc-ed50b6fd12fe",
+ "source_step": "9d890eec"
+}

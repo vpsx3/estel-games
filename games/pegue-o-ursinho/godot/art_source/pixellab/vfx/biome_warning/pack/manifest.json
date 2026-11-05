@@ -1,0 +1,120 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "biome_warning",
+ "fps": 12,
+ "frame_ms": 83,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 18,
+  "h": 37
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 9,
+  "y": 47
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 12,
+    "h": 31
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 11,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -6,
+    "y": -44
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 1,
+   "frame": {
+    "w": 12,
+    "h": 12
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 1,
+     "columns": 1,
+     "rows": 1
+    }
+   ],
+   "offset": {
+    "x": -6,
+    "y": -32
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 11,
+    "h": 31
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 11,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -5,
+    "y": -44
+   }
+  },
+  {
+   "name": "part-alert_pop",
+   "title": "the alert pop part",
+   "part": "alert_pop",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 12,
+    "h": 31
+   },
+   "sheets": [
+    {
+     "file": "part-alert_pop.png",
+     "first_frame": 0,
+     "frames": 11,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -6,
+    "y": -44
+   }
+  }
+ ]
+}

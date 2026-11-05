@@ -1,0 +1,74 @@
+{
+ "id": "ice_sparkle",
+ "fps": 12,
+ "frames": 12,
+ "loop": true,
+ "canvas": {
+  "w": 40,
+  "h": 60
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 13,
+  "y": 30
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 31,
+    "h": 54
+   },
+   "offset": {
+    "x": -9,
+    "y": -27
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 31,
+    "h": 54
+   },
+   "offset": {
+    "x": -9,
+    "y": -27
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-twinkles",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 31,
+    "h": 54
+   },
+   "offset": {
+    "x": -9,
+    "y": -27
+   },
+   "sheet": "pack/part-twinkles.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "d6d77435-5559-4fb9-9467-b7ad5e2f0b9c",
+ "source_step": "56e57b60"
+}

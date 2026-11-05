@@ -1,0 +1,146 @@
+{
+ "id": "teleport",
+ "fps": 12,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 72,
+  "h": 82
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 38,
+  "y": 56
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 66,
+    "h": 76
+   },
+   "offset": {
+    "x": -35,
+    "y": -53
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 66,
+    "h": 76
+   },
+   "offset": {
+    "x": -35,
+    "y": -53
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 66,
+    "h": 76
+   },
+   "offset": {
+    "x": -35,
+    "y": -53
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-twinkles",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 34,
+    "h": 54
+   },
+   "offset": {
+    "x": -10,
+    "y": -48
+   },
+   "sheet": "pack/part-twinkles.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-smoke_poof",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 3,
+   "frames": 5,
+   "frame": {
+    "w": 66,
+    "h": 52
+   },
+   "offset": {
+    "x": -35,
+    "y": -53
+   },
+   "sheet": "pack/part-smoke_poof.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "part-flash_burst",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 3,
+   "frames": 7,
+   "frame": {
+    "w": 51,
+    "h": 52
+   },
+   "offset": {
+    "x": -26,
+    "y": -48
+   },
+   "sheet": "pack/part-flash_burst.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-star_burst",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 4,
+   "frames": 7,
+   "frame": {
+    "w": 58,
+    "h": 71
+   },
+   "offset": {
+    "x": -29,
+    "y": -48
+   },
+   "sheet": "pack/part-star_burst.png",
+   "columns": 3,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "d47986a9-ce95-4c3b-8d80-6d3d125c9dc3",
+ "source_step": "56c5d5b0"
+}

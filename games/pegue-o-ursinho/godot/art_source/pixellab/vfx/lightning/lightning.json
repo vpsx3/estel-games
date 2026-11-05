@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "lightning 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  },
+  {
+   "filename": "lightning 1.png",
+   "frame": {
+    "x": 69,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  },
+  {
+   "filename": "lightning 2.png",
+   "frame": {
+    "x": 138,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  },
+  {
+   "filename": "lightning 3.png",
+   "frame": {
+    "x": 207,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  },
+  {
+   "filename": "lightning 4.png",
+   "frame": {
+    "x": 0,
+    "y": 113,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  },
+  {
+   "filename": "lightning 5.png",
+   "frame": {
+    "x": 69,
+    "y": 113,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  },
+  {
+   "filename": "lightning 6.png",
+   "frame": {
+    "x": 138,
+    "y": 113,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  },
+  {
+   "filename": "lightning 7.png",
+   "frame": {
+    "x": 207,
+    "y": 113,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  },
+  {
+   "filename": "lightning 8.png",
+   "frame": {
+    "x": 0,
+    "y": 226,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  },
+  {
+   "filename": "lightning 9.png",
+   "frame": {
+    "x": 69,
+    "y": 226,
+    "w": 69,
+    "h": 113
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 113
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 113
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.8584070796460177
+   },
+   "duration": 71
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "lightning.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 276,
+   "h": 339
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 34,
+   "y": 97
+  },
+  "frameTags": [
+   {
+    "name": "lightning",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

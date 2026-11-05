@@ -1,0 +1,171 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "speed_temp",
+ "fps": 12,
+ "frame_ms": 83,
+ "frames": 8,
+ "loop": true,
+ "canvas": {
+  "w": 85,
+  "h": 50
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 60,
+  "y": 45
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 79,
+    "h": 40
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -57,
+    "y": -38
+   }
+  },
+  {
+   "name": "whole-with-sprite",
+   "title": "the whole effect with the sprite in it",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 79,
+    "h": 44
+   },
+   "sheets": [
+    {
+     "file": "whole-with-sprite.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -57,
+    "y": -42
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 69,
+    "h": 37
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -54,
+    "y": -36
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 79,
+    "h": 40
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -57,
+    "y": -38
+   }
+  },
+  {
+   "name": "part-speed_lines",
+   "title": "the speed lines part",
+   "part": "speed_lines",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 79,
+    "h": 33
+   },
+   "sheets": [
+    {
+     "file": "part-speed_lines.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -57,
+    "y": -38
+   }
+  },
+  {
+   "name": "part-dust_trail",
+   "title": "the dust trail part",
+   "part": "dust_trail",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 29,
+    "h": 11
+   },
+   "sheets": [
+    {
+     "file": "part-dust_trail.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -33,
+    "y": -9
+   }
+  }
+ ]
+}

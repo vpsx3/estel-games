@@ -1,0 +1,92 @@
+{
+ "id": "caught",
+ "fps": 16,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 65,
+  "h": 79
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 32,
+  "y": 51
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 59,
+    "h": 73
+   },
+   "offset": {
+    "x": -29,
+    "y": -48
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 59,
+    "h": 73
+   },
+   "offset": {
+    "x": -29,
+    "y": -48
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 59,
+    "h": 73
+   },
+   "offset": {
+    "x": -29,
+    "y": -48
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-star_burst",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 59,
+    "h": 73
+   },
+   "offset": {
+    "x": -29,
+    "y": -48
+   },
+   "sheet": "pack/part-star_burst.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "fcb21d33-735a-4faa-a2ed-0db5beb82c94",
+ "source_step": "70a18e16"
+}

@@ -1,0 +1,128 @@
+{
+ "id": "poisoned",
+ "fps": 12,
+ "frames": 16,
+ "loop": true,
+ "canvas": {
+  "w": 41,
+  "h": 57
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 19,
+  "y": 54
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 31,
+    "h": 45
+   },
+   "offset": {
+    "x": -12,
+    "y": -51
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 35,
+    "h": 51
+   },
+   "offset": {
+    "x": -16,
+    "y": -51
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 12,
+    "h": 34
+   },
+   "offset": {
+    "x": 7,
+    "y": -51
+   },
+   "sheet": "pack/behind.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 28,
+    "h": 39
+   },
+   "offset": {
+    "x": -12,
+    "y": -45
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "part-poison_bubbles",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 27,
+    "h": 38
+   },
+   "offset": {
+    "x": -11,
+    "y": -44
+   },
+   "sheet": "pack/part-poison_bubbles.png",
+   "columns": 4,
+   "rows": 4
+  },
+  {
+   "name": "part-curse_skulls",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 31,
+    "h": 37
+   },
+   "offset": {
+    "x": -12,
+    "y": -51
+   },
+   "sheet": "pack/part-curse_skulls.png",
+   "columns": 4,
+   "rows": 4
+  }
+ ],
+ "pixellab_effect_id": "41350ea8-1464-4b83-8583-b8a049ebda80",
+ "source_step": "54033bc8"
+}

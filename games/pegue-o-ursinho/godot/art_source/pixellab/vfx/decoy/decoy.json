@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "decoy 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  },
+  {
+   "filename": "decoy 1.png",
+   "frame": {
+    "x": 73,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  },
+  {
+   "filename": "decoy 2.png",
+   "frame": {
+    "x": 146,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  },
+  {
+   "filename": "decoy 3.png",
+   "frame": {
+    "x": 219,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  },
+  {
+   "filename": "decoy 4.png",
+   "frame": {
+    "x": 0,
+    "y": 59,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  },
+  {
+   "filename": "decoy 5.png",
+   "frame": {
+    "x": 73,
+    "y": 59,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  },
+  {
+   "filename": "decoy 6.png",
+   "frame": {
+    "x": 146,
+    "y": 59,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  },
+  {
+   "filename": "decoy 7.png",
+   "frame": {
+    "x": 219,
+    "y": 59,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  },
+  {
+   "filename": "decoy 8.png",
+   "frame": {
+    "x": 0,
+    "y": 118,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  },
+  {
+   "filename": "decoy 9.png",
+   "frame": {
+    "x": 73,
+    "y": 118,
+    "w": 73,
+    "h": 59
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 73,
+    "h": 59
+   },
+   "sourceSize": {
+    "w": 73,
+    "h": 59
+   },
+   "pivot": {
+    "x": 0.5342465753424658,
+    "y": 0.9491525423728814
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "decoy.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 292,
+   "h": 177
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 39,
+   "y": 56
+  },
+  "frameTags": [
+   {
+    "name": "decoy",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

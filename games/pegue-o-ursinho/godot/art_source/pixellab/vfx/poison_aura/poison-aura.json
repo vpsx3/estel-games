@@ -1,0 +1,443 @@
+{
+ "frames": [
+  {
+   "filename": "poison-aura 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 1.png",
+   "frame": {
+    "x": 146,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 2.png",
+   "frame": {
+    "x": 292,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 3.png",
+   "frame": {
+    "x": 438,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 4.png",
+   "frame": {
+    "x": 0,
+    "y": 83,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 5.png",
+   "frame": {
+    "x": 146,
+    "y": 83,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 6.png",
+   "frame": {
+    "x": 292,
+    "y": 83,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 7.png",
+   "frame": {
+    "x": 438,
+    "y": 83,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 8.png",
+   "frame": {
+    "x": 0,
+    "y": 166,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 9.png",
+   "frame": {
+    "x": 146,
+    "y": 166,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 10.png",
+   "frame": {
+    "x": 292,
+    "y": 166,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 11.png",
+   "frame": {
+    "x": 438,
+    "y": 166,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 12.png",
+   "frame": {
+    "x": 0,
+    "y": 249,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 13.png",
+   "frame": {
+    "x": 146,
+    "y": 249,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 14.png",
+   "frame": {
+    "x": 292,
+    "y": 249,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  },
+  {
+   "filename": "poison-aura 15.png",
+   "frame": {
+    "x": 438,
+    "y": 249,
+    "w": 146,
+    "h": 83
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 146,
+    "h": 83
+   },
+   "sourceSize": {
+    "w": 146,
+    "h": 83
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7228915662650602
+   },
+   "duration": 100
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "poison-aura.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 584,
+   "h": 332
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 73,
+   "y": 60
+  },
+  "frameTags": [
+   {
+    "name": "poison-aura",
+    "from": 0,
+    "to": 15,
+    "direction": "forward"
+   }
+  ]
+ }
+}

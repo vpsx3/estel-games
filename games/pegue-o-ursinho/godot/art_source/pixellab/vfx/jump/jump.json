@@ -1,0 +1,183 @@
+{
+ "frames": [
+  {
+   "filename": "jump 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 39,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 39,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 39,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5128205128205128,
+    "y": 0.8035714285714286
+   },
+   "duration": 111
+  },
+  {
+   "filename": "jump 1.png",
+   "frame": {
+    "x": 39,
+    "y": 0,
+    "w": 39,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 39,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 39,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5128205128205128,
+    "y": 0.8035714285714286
+   },
+   "duration": 111
+  },
+  {
+   "filename": "jump 2.png",
+   "frame": {
+    "x": 78,
+    "y": 0,
+    "w": 39,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 39,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 39,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5128205128205128,
+    "y": 0.8035714285714286
+   },
+   "duration": 111
+  },
+  {
+   "filename": "jump 3.png",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 39,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 39,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 39,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5128205128205128,
+    "y": 0.8035714285714286
+   },
+   "duration": 111
+  },
+  {
+   "filename": "jump 4.png",
+   "frame": {
+    "x": 39,
+    "y": 56,
+    "w": 39,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 39,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 39,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5128205128205128,
+    "y": 0.8035714285714286
+   },
+   "duration": 111
+  },
+  {
+   "filename": "jump 5.png",
+   "frame": {
+    "x": 78,
+    "y": 56,
+    "w": 39,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 39,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 39,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5128205128205128,
+    "y": 0.8035714285714286
+   },
+   "duration": 111
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "jump.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 117,
+   "h": 112
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 20,
+   "y": 45
+  },
+  "frameTags": [
+   {
+    "name": "jump",
+    "from": 0,
+    "to": 5,
+    "direction": "forward"
+   }
+  ]
+ }
+}

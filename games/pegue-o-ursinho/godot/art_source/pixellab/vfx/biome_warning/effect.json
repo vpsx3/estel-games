@@ -1,0 +1,92 @@
+{
+ "id": "biome_warning",
+ "fps": 12,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 18,
+  "h": 37
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 9,
+  "y": 47
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 12,
+    "h": 31
+   },
+   "offset": {
+    "x": -6,
+    "y": -44
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 1,
+   "frame": {
+    "w": 12,
+    "h": 12
+   },
+   "offset": {
+    "x": -6,
+    "y": -32
+   },
+   "sheet": "pack/behind.png",
+   "columns": 1,
+   "rows": 1
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 11,
+    "h": 31
+   },
+   "offset": {
+    "x": -5,
+    "y": -44
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-alert_pop",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 12,
+    "h": 31
+   },
+   "offset": {
+    "x": -6,
+    "y": -44
+   },
+   "sheet": "pack/part-alert_pop.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "56715af4-e144-4238-8054-abc86f3a4b4d",
+ "source_step": "362b521d"
+}

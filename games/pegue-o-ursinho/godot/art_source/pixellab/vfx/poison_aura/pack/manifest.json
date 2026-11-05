@@ -1,0 +1,172 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "poison_aura",
+ "fps": 10,
+ "frame_ms": 100,
+ "frames": 16,
+ "loop": true,
+ "canvas": {
+  "w": 146,
+  "h": 83
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 73,
+  "y": 60
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 146,
+    "h": 77
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -73,
+    "y": -57
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 146,
+    "h": 67
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -73,
+    "y": -51
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 122,
+    "h": 77
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -57,
+    "y": -57
+   }
+  },
+  {
+   "name": "part-water_ripple",
+   "title": "the water ripple part",
+   "part": "water_ripple",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 78,
+    "h": 32
+   },
+   "sheets": [
+    {
+     "file": "part-water_ripple.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -39,
+    "y": -16
+   }
+  },
+  {
+   "name": "part-bubbles_rise",
+   "title": "the bubbles rise part",
+   "part": "bubbles_rise",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 42,
+    "h": 61
+   },
+   "sheets": [
+    {
+     "file": "part-bubbles_rise.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -18,
+    "y": -57
+   }
+  },
+  {
+   "name": "part-frost_mist",
+   "title": "the frost mist part",
+   "part": "frost_mist",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 146,
+    "h": 45
+   },
+   "sheets": [
+    {
+     "file": "part-frost_mist.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -73,
+    "y": -25
+   }
+  }
+ ]
+}

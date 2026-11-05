@@ -1,0 +1,110 @@
+{
+ "id": "dash",
+ "fps": 14,
+ "frames": 8,
+ "loop": false,
+ "canvas": {
+  "w": 63,
+  "h": 61
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 37,
+  "y": 45
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 59,
+    "h": 38
+   },
+   "offset": {
+    "x": -34,
+    "y": -25
+   },
+   "sheet": "pack/whole.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 59,
+    "h": 55
+   },
+   "offset": {
+    "x": -34,
+    "y": -42
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 59,
+    "h": 38
+   },
+   "offset": {
+    "x": -34,
+    "y": -25
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-dust_kick",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 7,
+   "frame": {
+    "w": 50,
+    "h": 23
+   },
+   "offset": {
+    "x": -25,
+    "y": -10
+   },
+   "sheet": "pack/part-dust_kick.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-thrust_streak",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 36,
+    "h": 8
+   },
+   "offset": {
+    "x": -34,
+    "y": -25
+   },
+   "sheet": "pack/part-thrust_streak.png",
+   "columns": 3,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "88afc9dd-61c7-4847-a157-f4cdf88739c8",
+ "source_step": "c30bb4de"
+}

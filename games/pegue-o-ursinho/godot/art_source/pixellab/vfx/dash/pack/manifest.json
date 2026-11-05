@@ -1,0 +1,146 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "dash",
+ "fps": 14,
+ "frame_ms": 71,
+ "frames": 8,
+ "loop": false,
+ "canvas": {
+  "w": 63,
+  "h": 61
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 37,
+  "y": 45
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 59,
+    "h": 38
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -34,
+    "y": -25
+   }
+  },
+  {
+   "name": "whole-with-sprite",
+   "title": "the whole effect with the sprite in it",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 59,
+    "h": 55
+   },
+   "sheets": [
+    {
+     "file": "whole-with-sprite.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -34,
+    "y": -42
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 59,
+    "h": 38
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -34,
+    "y": -25
+   }
+  },
+  {
+   "name": "part-dust_kick",
+   "title": "the dust kick part",
+   "part": "dust_kick",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 7,
+   "frame": {
+    "w": 50,
+    "h": 23
+   },
+   "sheets": [
+    {
+     "file": "part-dust_kick.png",
+     "first_frame": 0,
+     "frames": 7,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -25,
+    "y": -10
+   }
+  },
+  {
+   "name": "part-thrust_streak",
+   "title": "the thrust streak part",
+   "part": "thrust_streak",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 36,
+    "h": 8
+   },
+   "sheets": [
+    {
+     "file": "part-thrust_streak.png",
+     "first_frame": 0,
+     "frames": 8,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -34,
+    "y": -25
+   }
+  }
+ ]
+}

@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "biome-transition 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 1.png",
+   "frame": {
+    "x": 116,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 2.png",
+   "frame": {
+    "x": 232,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 3.png",
+   "frame": {
+    "x": 348,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 4.png",
+   "frame": {
+    "x": 0,
+    "y": 79,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 5.png",
+   "frame": {
+    "x": 116,
+    "y": 79,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 6.png",
+   "frame": {
+    "x": 232,
+    "y": 79,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 7.png",
+   "frame": {
+    "x": 348,
+    "y": 79,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 8.png",
+   "frame": {
+    "x": 0,
+    "y": 158,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 9.png",
+   "frame": {
+    "x": 116,
+    "y": 158,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 10.png",
+   "frame": {
+    "x": 232,
+    "y": 158,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  },
+  {
+   "filename": "biome-transition 11.png",
+   "frame": {
+    "x": 348,
+    "y": 158,
+    "w": 116,
+    "h": 79
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 79
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 79
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.379746835443038
+   },
+   "duration": 71
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "biome-transition.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 464,
+   "h": 237
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 58,
+   "y": 30
+  },
+  "frameTags": [
+   {
+    "name": "biome-transition",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

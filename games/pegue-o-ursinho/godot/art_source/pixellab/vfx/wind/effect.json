@@ -1,0 +1,92 @@
+{
+ "id": "wind",
+ "fps": 12,
+ "frames": 12,
+ "loop": true,
+ "canvas": {
+  "w": 108,
+  "h": 57
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 56,
+  "y": 26
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 102,
+    "h": 51
+   },
+   "offset": {
+    "x": -53,
+    "y": -23
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 79,
+    "h": 38
+   },
+   "offset": {
+    "x": -48,
+    "y": -23
+   },
+   "sheet": "pack/behind.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 102,
+    "h": 41
+   },
+   "offset": {
+    "x": -53,
+    "y": -13
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-wind_gusts",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 102,
+    "h": 51
+   },
+   "offset": {
+    "x": -53,
+    "y": -23
+   },
+   "sheet": "pack/part-wind_gusts.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "5ec70f81-1617-4e4c-8b1d-72a29748d755",
+ "source_step": "3ef3b90b"
+}

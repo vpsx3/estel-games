@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "slow-time 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 1.png",
+   "frame": {
+    "x": 144,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 2.png",
+   "frame": {
+    "x": 288,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 3.png",
+   "frame": {
+    "x": 432,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 4.png",
+   "frame": {
+    "x": 0,
+    "y": 75,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 5.png",
+   "frame": {
+    "x": 144,
+    "y": 75,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 6.png",
+   "frame": {
+    "x": 288,
+    "y": 75,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 7.png",
+   "frame": {
+    "x": 432,
+    "y": 75,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 8.png",
+   "frame": {
+    "x": 0,
+    "y": 150,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 9.png",
+   "frame": {
+    "x": 144,
+    "y": 150,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 10.png",
+   "frame": {
+    "x": 288,
+    "y": 150,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  },
+  {
+   "filename": "slow-time 11.png",
+   "frame": {
+    "x": 432,
+    "y": 150,
+    "w": 144,
+    "h": 75
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 75
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 75
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "slow-time.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 576,
+   "h": 225
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 72,
+   "y": 45
+  },
+  "frameTags": [
+   {
+    "name": "slow-time",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

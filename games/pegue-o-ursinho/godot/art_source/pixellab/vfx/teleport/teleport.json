@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "teleport 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 1.png",
+   "frame": {
+    "x": 72,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 2.png",
+   "frame": {
+    "x": 144,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 3.png",
+   "frame": {
+    "x": 216,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 4.png",
+   "frame": {
+    "x": 0,
+    "y": 82,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 5.png",
+   "frame": {
+    "x": 72,
+    "y": 82,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 6.png",
+   "frame": {
+    "x": 144,
+    "y": 82,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 7.png",
+   "frame": {
+    "x": 216,
+    "y": 82,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 8.png",
+   "frame": {
+    "x": 0,
+    "y": 164,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 9.png",
+   "frame": {
+    "x": 72,
+    "y": 164,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 10.png",
+   "frame": {
+    "x": 144,
+    "y": 164,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  },
+  {
+   "filename": "teleport 11.png",
+   "frame": {
+    "x": 216,
+    "y": 164,
+    "w": 72,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 72,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 72,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.5277777777777778,
+    "y": 0.6829268292682927
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "teleport.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 288,
+   "h": 246
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 38,
+   "y": 56
+  },
+  "frameTags": [
+   {
+    "name": "teleport",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

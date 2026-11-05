@@ -1,0 +1,120 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "lightning",
+ "fps": 14,
+ "frame_ms": 71,
+ "frames": 10,
+ "loop": false,
+ "canvas": {
+  "w": 69,
+  "h": 113
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 34,
+  "y": 97
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 107
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 10,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -31,
+    "y": -94
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 3,
+   "frames": 7,
+   "frame": {
+    "w": 8,
+    "h": 3
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 7,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -4,
+    "y": -1
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 63,
+    "h": 107
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -31,
+    "y": -94
+   }
+  },
+  {
+   "name": "part-bolt_strike",
+   "title": "the bolt strike part",
+   "part": "bolt_strike",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 107
+   },
+   "sheets": [
+    {
+     "file": "part-bolt_strike.png",
+     "first_frame": 0,
+     "frames": 10,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -31,
+    "y": -94
+   }
+  }
+ ]
+}

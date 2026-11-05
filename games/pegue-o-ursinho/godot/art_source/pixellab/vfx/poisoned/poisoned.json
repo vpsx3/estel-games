@@ -1,0 +1,443 @@
+{
+ "frames": [
+  {
+   "filename": "poisoned 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 1.png",
+   "frame": {
+    "x": 41,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 2.png",
+   "frame": {
+    "x": 82,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 3.png",
+   "frame": {
+    "x": 123,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 4.png",
+   "frame": {
+    "x": 0,
+    "y": 57,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 5.png",
+   "frame": {
+    "x": 41,
+    "y": 57,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 6.png",
+   "frame": {
+    "x": 82,
+    "y": 57,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 7.png",
+   "frame": {
+    "x": 123,
+    "y": 57,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 8.png",
+   "frame": {
+    "x": 0,
+    "y": 114,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 9.png",
+   "frame": {
+    "x": 41,
+    "y": 114,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 10.png",
+   "frame": {
+    "x": 82,
+    "y": 114,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 11.png",
+   "frame": {
+    "x": 123,
+    "y": 114,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 12.png",
+   "frame": {
+    "x": 0,
+    "y": 171,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 13.png",
+   "frame": {
+    "x": 41,
+    "y": 171,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 14.png",
+   "frame": {
+    "x": 82,
+    "y": 171,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  },
+  {
+   "filename": "poisoned 15.png",
+   "frame": {
+    "x": 123,
+    "y": 171,
+    "w": 41,
+    "h": 57
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 41,
+    "h": 57
+   },
+   "sourceSize": {
+    "w": 41,
+    "h": 57
+   },
+   "pivot": {
+    "x": 0.4634146341463415,
+    "y": 0.9473684210526315
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "poisoned.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 164,
+   "h": 228
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 19,
+   "y": 54
+  },
+  "frameTags": [
+   {
+    "name": "poisoned",
+    "from": 0,
+    "to": 15,
+    "direction": "forward"
+   }
+  ]
+ }
+}

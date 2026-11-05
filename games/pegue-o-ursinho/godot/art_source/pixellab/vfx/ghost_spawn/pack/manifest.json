@@ -1,0 +1,172 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "ghost_spawn",
+ "fps": 8,
+ "frame_ms": 125,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 75,
+  "h": 110
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 39,
+  "y": 76
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 69,
+    "h": 104
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 12,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -73
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 66,
+    "h": 86
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -33,
+    "y": -73
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 2,
+   "frames": 10,
+   "frame": {
+    "w": 67,
+    "h": 73
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 10,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -42
+   }
+  },
+  {
+   "name": "part-spawn_rift",
+   "title": "the spawn rift part",
+   "part": "spawn_rift",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 66,
+    "h": 86
+   },
+   "sheets": [
+    {
+     "file": "part-spawn_rift.png",
+     "first_frame": 0,
+     "frames": 12,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -33,
+    "y": -73
+   }
+  },
+  {
+   "name": "part-smoke_poof",
+   "title": "the smoke poof part",
+   "part": "smoke_poof",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 7,
+   "frames": 4,
+   "frame": {
+    "w": 67,
+    "h": 52
+   },
+   "sheets": [
+    {
+     "file": "part-smoke_poof.png",
+     "first_frame": 0,
+     "frames": 4,
+     "columns": 2,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -42
+   }
+  },
+  {
+   "name": "part-star_burst",
+   "title": "the star burst part",
+   "part": "star_burst",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 7,
+   "frames": 4,
+   "frame": {
+    "w": 57,
+    "h": 67
+   },
+   "sheets": [
+    {
+     "file": "part-star_burst.png",
+     "first_frame": 0,
+     "frames": 4,
+     "columns": 2,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -28,
+    "y": -36
+   }
+  }
+ ]
+}

@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "spirit-trap 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 1.png",
+   "frame": {
+    "x": 64,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 2.png",
+   "frame": {
+    "x": 128,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 3.png",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 4.png",
+   "frame": {
+    "x": 0,
+    "y": 58,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 5.png",
+   "frame": {
+    "x": 64,
+    "y": 58,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 6.png",
+   "frame": {
+    "x": 128,
+    "y": 58,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 7.png",
+   "frame": {
+    "x": 192,
+    "y": 58,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 8.png",
+   "frame": {
+    "x": 0,
+    "y": 116,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 9.png",
+   "frame": {
+    "x": 64,
+    "y": 116,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 10.png",
+   "frame": {
+    "x": 128,
+    "y": 116,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  },
+  {
+   "filename": "spirit-trap 11.png",
+   "frame": {
+    "x": 192,
+    "y": 116,
+    "w": 64,
+    "h": 58
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 58
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 58
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7586206896551724
+   },
+   "duration": 125
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "spirit-trap.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 256,
+   "h": 174
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 32,
+   "y": 44
+  },
+  "frameTags": [
+   {
+    "name": "spirit-trap",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

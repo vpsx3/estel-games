@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "ghost-spawn 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 1.png",
+   "frame": {
+    "x": 75,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 2.png",
+   "frame": {
+    "x": 150,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 3.png",
+   "frame": {
+    "x": 225,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 4.png",
+   "frame": {
+    "x": 0,
+    "y": 110,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 5.png",
+   "frame": {
+    "x": 75,
+    "y": 110,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 6.png",
+   "frame": {
+    "x": 150,
+    "y": 110,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 7.png",
+   "frame": {
+    "x": 225,
+    "y": 110,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 8.png",
+   "frame": {
+    "x": 0,
+    "y": 220,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 9.png",
+   "frame": {
+    "x": 75,
+    "y": 220,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 10.png",
+   "frame": {
+    "x": 150,
+    "y": 220,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  },
+  {
+   "filename": "ghost-spawn 11.png",
+   "frame": {
+    "x": 225,
+    "y": 220,
+    "w": 75,
+    "h": 110
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 75,
+    "h": 110
+   },
+   "sourceSize": {
+    "w": 75,
+    "h": 110
+   },
+   "pivot": {
+    "x": 0.52,
+    "y": 0.6909090909090909
+   },
+   "duration": 125
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "ghost-spawn.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 300,
+   "h": 330
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 39,
+   "y": 76
+  },
+  "frameTags": [
+   {
+    "name": "ghost-spawn",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

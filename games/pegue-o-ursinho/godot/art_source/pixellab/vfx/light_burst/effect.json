@@ -1,0 +1,128 @@
+{
+ "id": "light_burst",
+ "fps": 16,
+ "frames": 8,
+ "loop": false,
+ "canvas": {
+  "w": 116,
+  "h": 81
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 58,
+  "y": 56
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 7,
+   "frame": {
+    "w": 110,
+    "h": 65
+   },
+   "offset": {
+    "x": -55,
+    "y": -43
+   },
+   "sheet": "pack/whole.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 110,
+    "h": 65
+   },
+   "offset": {
+    "x": -55,
+    "y": -43
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 1,
+   "frames": 6,
+   "frame": {
+    "w": 110,
+    "h": 44
+   },
+   "offset": {
+    "x": -55,
+    "y": -22
+   },
+   "sheet": "pack/behind.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 6,
+   "frame": {
+    "w": 80,
+    "h": 56
+   },
+   "offset": {
+    "x": -38,
+    "y": -43
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "part-flash_burst",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 6,
+   "frame": {
+    "w": 39,
+    "h": 41
+   },
+   "offset": {
+    "x": -19,
+    "y": -43
+   },
+   "sheet": "pack/part-flash_burst.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "part-shockwave_ring",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 1,
+   "frames": 6,
+   "frame": {
+    "w": 110,
+    "h": 44
+   },
+   "offset": {
+    "x": -55,
+    "y": -22
+   },
+   "sheet": "pack/part-shockwave_ring.png",
+   "columns": 3,
+   "rows": 2
+  }
+ ],
+ "pixellab_effect_id": "ce21e62a-c1b2-47ec-86f8-f8754b75016f",
+ "source_step": "67586e21"
+}

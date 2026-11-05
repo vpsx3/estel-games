@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "biome-warning 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 1.png",
+   "frame": {
+    "x": 18,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 2.png",
+   "frame": {
+    "x": 36,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 3.png",
+   "frame": {
+    "x": 54,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 4.png",
+   "frame": {
+    "x": 0,
+    "y": 37,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 5.png",
+   "frame": {
+    "x": 18,
+    "y": 37,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 6.png",
+   "frame": {
+    "x": 36,
+    "y": 37,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 7.png",
+   "frame": {
+    "x": 54,
+    "y": 37,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 8.png",
+   "frame": {
+    "x": 0,
+    "y": 74,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 9.png",
+   "frame": {
+    "x": 18,
+    "y": 74,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 10.png",
+   "frame": {
+    "x": 36,
+    "y": 74,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  },
+  {
+   "filename": "biome-warning 11.png",
+   "frame": {
+    "x": 54,
+    "y": 74,
+    "w": 18,
+    "h": 37
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 18,
+    "h": 37
+   },
+   "sourceSize": {
+    "w": 18,
+    "h": 37
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 1.2702702702702702
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "biome-warning.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 72,
+   "h": 111
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 9,
+   "y": 47
+  },
+  "frameTags": [
+   {
+    "name": "biome-warning",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

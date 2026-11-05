@@ -1,0 +1,92 @@
+{
+ "id": "spirit_trap",
+ "fps": 8,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 64,
+  "h": 58
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 32,
+  "y": 44
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 58,
+    "h": 52
+   },
+   "offset": {
+    "x": -29,
+    "y": -41
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 58,
+    "h": 52
+   },
+   "offset": {
+    "x": -29,
+    "y": -41
+   },
+   "sheet": "pack/behind.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 2,
+   "frames": 8,
+   "frame": {
+    "w": 47,
+    "h": 38
+   },
+   "offset": {
+    "x": -20,
+    "y": -30
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-shadow_snare",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 58,
+    "h": 52
+   },
+   "offset": {
+    "x": -29,
+    "y": -41
+   },
+   "sheet": "pack/part-shadow_snare.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "f78154ff-c0ef-4460-901e-40e14b734251",
+ "source_step": "94c3eae3"
+}

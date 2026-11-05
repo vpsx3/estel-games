@@ -1,0 +1,146 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "decoy",
+ "fps": 12,
+ "frame_ms": 83,
+ "frames": 10,
+ "loop": false,
+ "canvas": {
+  "w": 73,
+  "h": 59
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 39,
+  "y": 56
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 67,
+    "h": 52
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -53
+   }
+  },
+  {
+   "name": "whole-with-sprite",
+   "title": "the whole effect with the sprite in it",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 67,
+    "h": 53
+   },
+   "sheets": [
+    {
+     "file": "whole-with-sprite.png",
+     "first_frame": 0,
+     "frames": 10,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -53
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 67,
+    "h": 52
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -53
+   }
+  },
+  {
+   "name": "part-smoke_poof",
+   "title": "the smoke poof part",
+   "part": "smoke_poof",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 67,
+    "h": 52
+   },
+   "sheets": [
+    {
+     "file": "part-smoke_poof.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -36,
+    "y": -53
+   }
+  },
+  {
+   "name": "part-collect_pop",
+   "title": "the collect pop part",
+   "part": "collect_pop",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 37,
+    "h": 43
+   },
+   "sheets": [
+    {
+     "file": "part-collect_pop.png",
+     "first_frame": 0,
+     "frames": 9,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -18,
+    "y": -50
+   }
+  }
+ ]
+}

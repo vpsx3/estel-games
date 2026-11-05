@@ -1,0 +1,128 @@
+{
+ "id": "speed_temp",
+ "fps": 12,
+ "frames": 8,
+ "loop": true,
+ "canvas": {
+  "w": 85,
+  "h": 50
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 60,
+  "y": 45
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 79,
+    "h": 40
+   },
+   "offset": {
+    "x": -57,
+    "y": -38
+   },
+   "sheet": "pack/whole.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 79,
+    "h": 44
+   },
+   "offset": {
+    "x": -57,
+    "y": -42
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 69,
+    "h": 37
+   },
+   "offset": {
+    "x": -54,
+    "y": -36
+   },
+   "sheet": "pack/behind.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 79,
+    "h": 40
+   },
+   "offset": {
+    "x": -57,
+    "y": -38
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-speed_lines",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 79,
+    "h": 33
+   },
+   "offset": {
+    "x": -57,
+    "y": -38
+   },
+   "sheet": "pack/part-speed_lines.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-dust_trail",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 29,
+    "h": 11
+   },
+   "offset": {
+    "x": -33,
+    "y": -9
+   },
+   "sheet": "pack/part-dust_trail.png",
+   "columns": 3,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "1bb65761-6744-42cf-9a5a-0e751ca1103b",
+ "source_step": "cf03f6e5"
+}

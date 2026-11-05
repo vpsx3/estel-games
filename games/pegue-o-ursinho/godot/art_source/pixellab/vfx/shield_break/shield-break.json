@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "shield-break 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 1.png",
+   "frame": {
+    "x": 69,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 2.png",
+   "frame": {
+    "x": 138,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 3.png",
+   "frame": {
+    "x": 207,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 4.png",
+   "frame": {
+    "x": 0,
+    "y": 94,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 5.png",
+   "frame": {
+    "x": 69,
+    "y": 94,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 6.png",
+   "frame": {
+    "x": 138,
+    "y": 94,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 7.png",
+   "frame": {
+    "x": 207,
+    "y": 94,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 8.png",
+   "frame": {
+    "x": 0,
+    "y": 188,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 9.png",
+   "frame": {
+    "x": 69,
+    "y": 188,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 10.png",
+   "frame": {
+    "x": 138,
+    "y": 188,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  },
+  {
+   "filename": "shield-break 11.png",
+   "frame": {
+    "x": 207,
+    "y": 188,
+    "w": 69,
+    "h": 94
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 94
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 94
+   },
+   "pivot": {
+    "x": 0.5507246376811594,
+    "y": 0.5531914893617021
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "shield-break.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 276,
+   "h": 282
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 38,
+   "y": 52
+  },
+  "frameTags": [
+   {
+    "name": "shield-break",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -1,0 +1,92 @@
+{
+ "id": "ghost_eliminated",
+ "fps": 12,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 74,
+  "h": 65
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 39,
+  "y": 35
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 68,
+    "h": 59
+   },
+   "offset": {
+    "x": -36,
+    "y": -32
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 68,
+    "h": 59
+   },
+   "offset": {
+    "x": -36,
+    "y": -32
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-smoke_poof",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 68,
+    "h": 52
+   },
+   "offset": {
+    "x": -36,
+    "y": -32
+   },
+   "sheet": "pack/part-smoke_poof.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-twinkles",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 3,
+   "frames": 9,
+   "frame": {
+    "w": 34,
+    "h": 54
+   },
+   "offset": {
+    "x": -10,
+    "y": -27
+   },
+   "sheet": "pack/part-twinkles.png",
+   "columns": 3,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "8d55bb0c-4f47-486b-bc77-d7f11e57840f",
+ "source_step": "5817ad36"
+}

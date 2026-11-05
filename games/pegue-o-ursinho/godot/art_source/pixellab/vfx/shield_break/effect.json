@@ -1,0 +1,110 @@
+{
+ "id": "shield_break",
+ "fps": 12,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 69,
+  "h": 94
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 38,
+  "y": 52
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 63,
+    "h": 88
+   },
+   "offset": {
+    "x": -35,
+    "y": -49
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 63,
+    "h": 88
+   },
+   "offset": {
+    "x": -35,
+    "y": -49
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 6,
+   "frame": {
+    "w": 56,
+    "h": 56
+   },
+   "offset": {
+    "x": -28,
+    "y": -49
+   },
+   "sheet": "pack/behind.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 4,
+   "frames": 8,
+   "frame": {
+    "w": 56,
+    "h": 84
+   },
+   "offset": {
+    "x": -35,
+    "y": -45
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-shield_break",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 63,
+    "h": 88
+   },
+   "offset": {
+    "x": -35,
+    "y": -49
+   },
+   "sheet": "pack/part-shield_break.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "cea7d1b3-015c-44b0-b4cc-87594b670506",
+ "source_step": "2aeb9375"
+}

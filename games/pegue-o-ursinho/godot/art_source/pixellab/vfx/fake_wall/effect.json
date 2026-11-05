@@ -1,0 +1,128 @@
+{
+ "id": "fake_wall",
+ "fps": 6,
+ "frames": 12,
+ "loop": true,
+ "canvas": {
+  "w": 58,
+  "h": 54
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 29,
+  "y": 45
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 52,
+    "h": 39
+   },
+   "offset": {
+    "x": -26,
+    "y": -33
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 52,
+    "h": 48
+   },
+   "offset": {
+    "x": -26,
+    "y": -42
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 51,
+    "h": 39
+   },
+   "offset": {
+    "x": -25,
+    "y": -33
+   },
+   "sheet": "pack/behind.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 51,
+    "h": 14
+   },
+   "offset": {
+    "x": -26,
+    "y": -23
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-orbit_motes",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 52,
+    "h": 24
+   },
+   "offset": {
+    "x": -26,
+    "y": -33
+   },
+   "sheet": "pack/part-orbit_motes.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-soft_glow",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 32,
+    "h": 12
+   },
+   "offset": {
+    "x": -16,
+    "y": -6
+   },
+   "sheet": "pack/part-soft_glow.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "e75fd421-e3ff-42e2-a2e6-35048ba97cb6",
+ "source_step": "6eb496ba"
+}

@@ -1,0 +1,128 @@
+{
+ "id": "ghost_spawn",
+ "fps": 8,
+ "frames": 12,
+ "loop": false,
+ "canvas": {
+  "w": 75,
+  "h": 110
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 39,
+  "y": 76
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 69,
+    "h": 104
+   },
+   "offset": {
+    "x": -36,
+    "y": -73
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 66,
+    "h": 86
+   },
+   "offset": {
+    "x": -33,
+    "y": -73
+   },
+   "sheet": "pack/behind.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 2,
+   "frames": 10,
+   "frame": {
+    "w": 67,
+    "h": 73
+   },
+   "offset": {
+    "x": -36,
+    "y": -42
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-spawn_rift",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 66,
+    "h": 86
+   },
+   "offset": {
+    "x": -33,
+    "y": -73
+   },
+   "sheet": "pack/part-spawn_rift.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-smoke_poof",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 7,
+   "frames": 4,
+   "frame": {
+    "w": 67,
+    "h": 52
+   },
+   "offset": {
+    "x": -36,
+    "y": -42
+   },
+   "sheet": "pack/part-smoke_poof.png",
+   "columns": 2,
+   "rows": 2
+  },
+  {
+   "name": "part-star_burst",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 7,
+   "frames": 4,
+   "frame": {
+    "w": 57,
+    "h": 67
+   },
+   "offset": {
+    "x": -28,
+    "y": -36
+   },
+   "sheet": "pack/part-star_burst.png",
+   "columns": 2,
+   "rows": 2
+  }
+ ],
+ "pixellab_effect_id": "a4257e20-53f7-4352-bb90-1507e2b5b8f0",
+ "source_step": "3c797be6"
+}

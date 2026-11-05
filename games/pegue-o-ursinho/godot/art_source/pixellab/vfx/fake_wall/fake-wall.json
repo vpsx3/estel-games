@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "fake-wall 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 1.png",
+   "frame": {
+    "x": 58,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 2.png",
+   "frame": {
+    "x": 116,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 3.png",
+   "frame": {
+    "x": 174,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 4.png",
+   "frame": {
+    "x": 0,
+    "y": 54,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 5.png",
+   "frame": {
+    "x": 58,
+    "y": 54,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 6.png",
+   "frame": {
+    "x": 116,
+    "y": 54,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 7.png",
+   "frame": {
+    "x": 174,
+    "y": 54,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 8.png",
+   "frame": {
+    "x": 0,
+    "y": 108,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 9.png",
+   "frame": {
+    "x": 58,
+    "y": 108,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 10.png",
+   "frame": {
+    "x": 116,
+    "y": 108,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  },
+  {
+   "filename": "fake-wall 11.png",
+   "frame": {
+    "x": 174,
+    "y": 108,
+    "w": 58,
+    "h": 54
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 58,
+    "h": 54
+   },
+   "sourceSize": {
+    "w": 58,
+    "h": 54
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8333333333333334
+   },
+   "duration": 167
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "fake-wall.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 232,
+   "h": 162
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 29,
+   "y": 45
+  },
+  "frameTags": [
+   {
+    "name": "fake-wall",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

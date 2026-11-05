@@ -1,0 +1,74 @@
+{
+ "id": "honey_pickup",
+ "fps": 15,
+ "frames": 10,
+ "loop": false,
+ "canvas": {
+  "w": 43,
+  "h": 49
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 21,
+  "y": 32
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 37,
+    "h": 43
+   },
+   "offset": {
+    "x": -18,
+    "y": -29
+   },
+   "sheet": "pack/whole.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 37,
+    "h": 43
+   },
+   "offset": {
+    "x": -18,
+    "y": -29
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-collect_pop",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 37,
+    "h": 43
+   },
+   "offset": {
+    "x": -18,
+    "y": -29
+   },
+   "sheet": "pack/part-collect_pop.png",
+   "columns": 3,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "199280f2-06e5-4a2a-b2f0-b07905c963a8",
+ "source_step": "806ca46f"
+}

@@ -1,0 +1,146 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "ghost_slow",
+ "fps": 12,
+ "frame_ms": 83,
+ "frames": 24,
+ "loop": true,
+ "canvas": {
+  "w": 61,
+  "h": 59
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 30,
+  "y": 57
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 55,
+    "h": 53
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 24,
+     "columns": 5,
+     "rows": 5
+    }
+   ],
+   "offset": {
+    "x": -27,
+    "y": -54
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 55,
+    "h": 53
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 24,
+     "columns": 5,
+     "rows": 5
+    }
+   ],
+   "offset": {
+    "x": -27,
+    "y": -54
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 18,
+    "h": 24
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 24,
+     "columns": 5,
+     "rows": 5
+    }
+   ],
+   "offset": {
+    "x": 4,
+    "y": -35
+   }
+  },
+  {
+   "name": "part-debuff_arrows",
+   "title": "the debuff arrows part",
+   "part": "debuff_arrows",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 55,
+    "h": 53
+   },
+   "sheets": [
+    {
+     "file": "part-debuff_arrows.png",
+     "first_frame": 0,
+     "frames": 24,
+     "columns": 5,
+     "rows": 5
+    }
+   ],
+   "offset": {
+    "x": -27,
+    "y": -54
+   }
+  },
+  {
+   "name": "part-sleep_zzz",
+   "title": "the sleep zzz part",
+   "part": "sleep_zzz",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 24,
+   "frame": {
+    "w": 18,
+    "h": 24
+   },
+   "sheets": [
+    {
+     "file": "part-sleep_zzz.png",
+     "first_frame": 0,
+     "frames": 24,
+     "columns": 5,
+     "rows": 5
+    }
+   ],
+   "offset": {
+    "x": 4,
+    "y": -35
+   }
+  }
+ ]
+}

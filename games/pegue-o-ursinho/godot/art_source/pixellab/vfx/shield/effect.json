@@ -1,0 +1,110 @@
+{
+ "id": "shield",
+ "fps": 10,
+ "frames": 12,
+ "loop": true,
+ "canvas": {
+  "w": 61,
+  "h": 61
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 30,
+  "y": 51
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 55,
+    "h": 55
+   },
+   "offset": {
+    "x": -27,
+    "y": -48
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 55,
+    "h": 55
+   },
+   "offset": {
+    "x": -27,
+    "y": -48
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 36,
+    "h": 36
+   },
+   "offset": {
+    "x": -18,
+    "y": -39
+   },
+   "sheet": "pack/behind.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 55,
+    "h": 55
+   },
+   "offset": {
+    "x": -27,
+    "y": -48
+   },
+   "sheet": "pack/front.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-bubble_shield",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 55,
+    "h": 55
+   },
+   "offset": {
+    "x": -27,
+    "y": -48
+   },
+   "sheet": "pack/part-bubble_shield.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "30ba9b00-4cdb-4e77-89bc-3b5dbfd9fbb7",
+ "source_step": "c2ff7f1f"
+}

@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "light-bomb 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 1.png",
+   "frame": {
+    "x": 116,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 2.png",
+   "frame": {
+    "x": 232,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 3.png",
+   "frame": {
+    "x": 348,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 4.png",
+   "frame": {
+    "x": 0,
+    "y": 62,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 5.png",
+   "frame": {
+    "x": 116,
+    "y": 62,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 6.png",
+   "frame": {
+    "x": 232,
+    "y": 62,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 7.png",
+   "frame": {
+    "x": 348,
+    "y": 62,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 8.png",
+   "frame": {
+    "x": 0,
+    "y": 124,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 9.png",
+   "frame": {
+    "x": 116,
+    "y": 124,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 10.png",
+   "frame": {
+    "x": 232,
+    "y": 124,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  },
+  {
+   "filename": "light-bomb 11.png",
+   "frame": {
+    "x": 348,
+    "y": 124,
+    "w": 116,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 62
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5967741935483871
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "light-bomb.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 464,
+   "h": 186
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 58,
+   "y": 37
+  },
+  "frameTags": [
+   {
+    "name": "light-bomb",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

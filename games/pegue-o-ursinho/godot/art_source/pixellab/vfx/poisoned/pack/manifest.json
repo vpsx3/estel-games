@@ -1,0 +1,171 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "poisoned",
+ "fps": 12,
+ "frame_ms": 83,
+ "frames": 16,
+ "loop": true,
+ "canvas": {
+  "w": 41,
+  "h": 57
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 19,
+  "y": 54
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 31,
+    "h": 45
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -12,
+    "y": -51
+   }
+  },
+  {
+   "name": "whole-with-sprite",
+   "title": "the whole effect with the sprite in it",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 35,
+    "h": 51
+   },
+   "sheets": [
+    {
+     "file": "whole-with-sprite.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -16,
+    "y": -51
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 12,
+    "h": 34
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": 7,
+    "y": -51
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 28,
+    "h": 39
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -12,
+    "y": -45
+   }
+  },
+  {
+   "name": "part-poison_bubbles",
+   "title": "the poison bubbles part",
+   "part": "poison_bubbles",
+   "depth": "front",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 27,
+    "h": 38
+   },
+   "sheets": [
+    {
+     "file": "part-poison_bubbles.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -11,
+    "y": -44
+   }
+  },
+  {
+   "name": "part-curse_skulls",
+   "title": "the curse skulls part",
+   "part": "curse_skulls",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 16,
+   "frame": {
+    "w": 31,
+    "h": 37
+   },
+   "sheets": [
+    {
+     "file": "part-curse_skulls.png",
+     "first_frame": 0,
+     "frames": 16,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -12,
+    "y": -51
+   }
+  }
+ ]
+}

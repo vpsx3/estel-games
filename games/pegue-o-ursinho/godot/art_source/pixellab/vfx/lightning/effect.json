@@ -1,0 +1,92 @@
+{
+ "id": "lightning",
+ "fps": 14,
+ "frames": 10,
+ "loop": false,
+ "canvas": {
+  "w": 69,
+  "h": 113
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 34,
+  "y": 97
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 107
+   },
+   "offset": {
+    "x": -31,
+    "y": -94
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 3,
+   "frames": 7,
+   "frame": {
+    "w": 8,
+    "h": 3
+   },
+   "offset": {
+    "x": -4,
+    "y": -1
+   },
+   "sheet": "pack/behind.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 9,
+   "frame": {
+    "w": 63,
+    "h": 107
+   },
+   "offset": {
+    "x": -31,
+    "y": -94
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-bolt_strike",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 107
+   },
+   "offset": {
+    "x": -31,
+    "y": -94
+   },
+   "sheet": "pack/part-bolt_strike.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "5b584714-dfa6-4763-9323-ee1df40e0263",
+ "source_step": "eb72c190"
+}

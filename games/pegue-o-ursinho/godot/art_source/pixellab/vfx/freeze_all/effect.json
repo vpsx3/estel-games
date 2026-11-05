@@ -1,0 +1,110 @@
+{
+ "id": "freeze_all",
+ "fps": 14,
+ "frames": 10,
+ "loop": false,
+ "canvas": {
+  "w": 116,
+  "h": 77
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 58,
+  "y": 28
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 78,
+    "h": 71
+   },
+   "offset": {
+    "x": -39,
+    "y": -25
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 6,
+   "frame": {
+    "w": 78,
+    "h": 50
+   },
+   "offset": {
+    "x": -39,
+    "y": -25
+   },
+   "sheet": "pack/behind.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 1,
+   "frames": 9,
+   "frame": {
+    "w": 50,
+    "h": 60
+   },
+   "offset": {
+    "x": -28,
+    "y": -14
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-shockwave_ring",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 6,
+   "frame": {
+    "w": 78,
+    "h": 30
+   },
+   "offset": {
+    "x": -39,
+    "y": -15
+   },
+   "sheet": "pack/part-shockwave_ring.png",
+   "columns": 3,
+   "rows": 2
+  },
+  {
+   "name": "part-ice_shatter",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 1,
+   "frames": 9,
+   "frame": {
+    "w": 53,
+    "h": 71
+   },
+   "offset": {
+    "x": -28,
+    "y": -25
+   },
+   "sheet": "pack/part-ice_shatter.png",
+   "columns": 3,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "4099a3c1-157c-404c-b386-66c8260bae94",
+ "source_step": "6d1c6197"
+}
