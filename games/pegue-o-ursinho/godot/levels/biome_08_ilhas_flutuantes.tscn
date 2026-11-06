@@ -24,7 +24,7 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAAAAMAAAABAAAAAAAAAAMAAAACAAAAAAAAAAM
 tile_set = ExtResource("3_jueb0")
 
 [node name="DetalhePiso" type="TileMapLayer" parent="." unique_id=1544059296]
-tile_map_data = PackedByteArray("AAAEAAUA//////////8DAA0A//////////8OABUA//////////8KABcAAAACAAAAAAANAAMAAAACAAAAAAAEAAQAAAABAAEAAAACAA0AAAAAAAAAAAAEAA0AAAAAAAAAAAAJAA4AAAABAAEAAAACABQAAAAAAAEAAAAEABQAAAACAAEAAAAJABQAAAAAAAAAAAANABQAAAABAAAAAAAKABUAAAAAAAEAAAANABYAAAABAAAAAAADABcAAAACAAEAAAAEABcAAAAAAAEAAAAKABgAAAABAAAAAAAEABkAAAABAAEAAAANABkAAAABAAAAAAA=")
+tile_map_data = PackedByteArray("AAAEAAUA//////////8DAA0A//////////8OABUAAAACAAAAAAAKABcA//////////8NAAMA//////////8EAAQA//////////8CAA0A//////////8EAA0A//////////8JAA4A//////////8CABQA//////////8EABQA//////////8JABQA//////////8NABQA//////////8KABUA//////////8NABYA//////////8DABcA//////////8EABcA//////////8KABgA//////////8EABkA//////////8NABkA//////////8KABYAAAABAAEAAAA=")
 tile_set = ExtResource("4_mfhhc")
 
 [node name="Logica" type="TileMapLayer" parent="." unique_id=1983433416]
@@ -34,33 +34,33 @@ tile_set = ExtResource("4_1rr0c")
 [node name="Decor" type="Node2D" parent="." unique_id=2040264429]
 y_sort_enabled = true
 
-[node name="Bluebird_01" type="Sprite2D" parent="Decor" unique_id=806298287 instance=ExtResource("6_4jw1f")]
+[node name="Bluebird_01" type="Sprite2D" parent="Decor" unique_id=1559644680 instance=ExtResource("6_4jw1f")]
 position = Vector2(464, 688)
 texture = ExtResource("7_s1s4p")
 
-[node name="Daisies_02" type="Sprite2D" parent="Decor" unique_id=1647698862 instance=ExtResource("8_6ib64")]
+[node name="Daisies_02" type="Sprite2D" parent="Decor" unique_id=1492121852 instance=ExtResource("8_6ib64")]
 position = Vector2(144, 176)
 texture = ExtResource("9_m5rm2")
 
-[node name="Kite_03" type="Sprite2D" parent="Decor" unique_id=1135621966 instance=ExtResource("10_3y3qh")]
+[node name="Kite_03" type="Sprite2D" parent="Decor" unique_id=1392591923 instance=ExtResource("10_3y3qh")]
 position = Vector2(336, 720)
 texture = ExtResource("11_qy1gc")
 offset = Vector2(0, -8)
 
-[node name="Bluebird_04" type="Sprite2D" parent="Decor" unique_id=873149193 instance=ExtResource("6_4jw1f")]
+[node name="Bluebird_04" type="Sprite2D" parent="Decor" unique_id=604791058 instance=ExtResource("6_4jw1f")]
 position = Vector2(112, 432)
 texture = ExtResource("7_s1s4p")
 
-[node name="Daisies_05" type="Sprite2D" parent="Decor" unique_id=1698029900 instance=ExtResource("8_6ib64")]
+[node name="Daisies_05" type="Sprite2D" parent="Decor" unique_id=1486186669 instance=ExtResource("8_6ib64")]
 position = Vector2(144, 656)
 texture = ExtResource("9_m5rm2")
 
-[node name="Kite_06" type="Sprite2D" parent="Decor" unique_id=883717762 instance=ExtResource("10_3y3qh")]
+[node name="Kite_06" type="Sprite2D" parent="Decor" unique_id=589049372 instance=ExtResource("10_3y3qh")]
 position = Vector2(432, 368)
 texture = ExtResource("11_qy1gc")
 offset = Vector2(0, -8)
 
-[node name="Bluebird_07" type="Sprite2D" parent="Decor" unique_id=2098572384 instance=ExtResource("6_4jw1f")]
+[node name="Bluebird_07" type="Sprite2D" parent="Decor" unique_id=618620888 instance=ExtResource("6_4jw1f")]
 position = Vector2(304, 848)
 texture = ExtResource("7_s1s4p")
 

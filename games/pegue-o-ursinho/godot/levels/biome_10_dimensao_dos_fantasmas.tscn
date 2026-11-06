@@ -26,7 +26,7 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAAAAMAAAABAAAAAAAAAAMAAAACAAAAAAAAAAM
 tile_set = ExtResource("3_byytj")
 
 [node name="DetalhePiso" type="TileMapLayer" parent="." unique_id=1766019584]
-tile_map_data = PackedByteArray("AAABAAMAAAACAAEAAAAJAAYAAAACAAAAAAAHAAcAAAACAAAAAAAFABAAAAABAAAAAAADABEAAAAAAAEAAAALABMAAAABAAEAAAALABUAAAACAAEAAAALABkAAAACAAEAAAAHABsAAAABAAAAAAA=")
+tile_map_data = PackedByteArray("AAABAAMA//////////8JAAYA//////////8HAAcA//////////8FABAA//////////8DABEA//////////8LABMA//////////8LABUA//////////8LABkA//////////8HABsA//////////8=")
 tile_set = ExtResource("4_n38e0")
 
 [node name="Logica" type="TileMapLayer" parent="." unique_id=1043893139]
@@ -36,51 +36,51 @@ tile_set = ExtResource("4_41114")
 [node name="Decor" type="Node2D" parent="." unique_id=1984910753]
 y_sort_enabled = true
 
-[node name="Candle_01" type="Sprite2D" parent="Decor" unique_id=1962107419 instance=ExtResource("6_0kwro")]
+[node name="Candle_01" type="Sprite2D" parent="Decor" unique_id=617420516 instance=ExtResource("6_0kwro")]
 position = Vector2(176, 656)
 texture = ExtResource("7_isodq")
 
-[node name="CrystalShard_02" type="Sprite2D" parent="Decor" unique_id=76462968 instance=ExtResource("8_rlvst")]
+[node name="CrystalShard_02" type="Sprite2D" parent="Decor" unique_id=453690472 instance=ExtResource("8_rlvst")]
 position = Vector2(304, 240)
 texture = ExtResource("9_gtgu6")
 
-[node name="MeltingClock_03" type="Sprite2D" parent="Decor" unique_id=898691353 instance=ExtResource("10_yteb6")]
+[node name="MeltingClock_03" type="Sprite2D" parent="Decor" unique_id=861651447 instance=ExtResource("10_yteb6")]
 position = Vector2(432, 560)
 texture = ExtResource("11_jxa23")
 
-[node name="Star_04" type="Sprite2D" parent="Decor" unique_id=1938120435 instance=ExtResource("12_235fq")]
+[node name="Star_04" type="Sprite2D" parent="Decor" unique_id=1917683860 instance=ExtResource("12_235fq")]
 position = Vector2(48, 400)
 texture = ExtResource("13_efdyh")
 
-[node name="Candle_05" type="Sprite2D" parent="Decor" unique_id=898791596 instance=ExtResource("6_0kwro")]
+[node name="Candle_05" type="Sprite2D" parent="Decor" unique_id=631260669 instance=ExtResource("6_0kwro")]
 position = Vector2(240, 784)
 texture = ExtResource("7_isodq")
 
-[node name="CrystalShard_06" type="Sprite2D" parent="Decor" unique_id=1267048401 instance=ExtResource("8_rlvst")]
+[node name="CrystalShard_06" type="Sprite2D" parent="Decor" unique_id=1106940381 instance=ExtResource("8_rlvst")]
 position = Vector2(304, 880)
 texture = ExtResource("9_gtgu6")
 
-[node name="MeltingClock_07" type="Sprite2D" parent="Decor" unique_id=816054995 instance=ExtResource("10_yteb6")]
+[node name="MeltingClock_07" type="Sprite2D" parent="Decor" unique_id=950484618 instance=ExtResource("10_yteb6")]
 position = Vector2(48, 272)
 texture = ExtResource("11_jxa23")
 
-[node name="Star_08" type="Sprite2D" parent="Decor" unique_id=1068228993 instance=ExtResource("12_235fq")]
+[node name="Star_08" type="Sprite2D" parent="Decor" unique_id=1917876288 instance=ExtResource("12_235fq")]
 position = Vector2(208, 304)
 texture = ExtResource("13_efdyh")
 
-[node name="Candle_09" type="Sprite2D" parent="Decor" unique_id=1734026121 instance=ExtResource("6_0kwro")]
+[node name="Candle_09" type="Sprite2D" parent="Decor" unique_id=1522694885 instance=ExtResource("6_0kwro")]
 position = Vector2(208, 176)
 texture = ExtResource("7_isodq")
 
-[node name="CrystalShard_10" type="Sprite2D" parent="Decor" unique_id=1339675412 instance=ExtResource("8_rlvst")]
+[node name="CrystalShard_10" type="Sprite2D" parent="Decor" unique_id=696616230 instance=ExtResource("8_rlvst")]
 position = Vector2(48, 784)
 texture = ExtResource("9_gtgu6")
 
-[node name="MeltingClock_11" type="Sprite2D" parent="Decor" unique_id=226940362 instance=ExtResource("10_yteb6")]
+[node name="MeltingClock_11" type="Sprite2D" parent="Decor" unique_id=501092533 instance=ExtResource("10_yteb6")]
 position = Vector2(48, 656)
 texture = ExtResource("11_jxa23")
 
-[node name="Star_12" type="Sprite2D" parent="Decor" unique_id=999333438 instance=ExtResource("12_235fq")]
+[node name="Star_12" type="Sprite2D" parent="Decor" unique_id=1750589794 instance=ExtResource("12_235fq")]
 position = Vector2(240, 48)
 texture = ExtResource("13_efdyh")
 

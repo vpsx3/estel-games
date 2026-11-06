@@ -199,28 +199,21 @@ func _free_count() -> int:
 	return n
 
 
-## Celulas de piso que podem receber variacao (opaca): preferem 8 vizinhas livres (nao cobrem a borda
-## parede/piso do Visual); em mapas de corredor estreito cai para 4 vizinhas e, por fim, qualquer piso.
+## Celulas de piso que podem receber variacao (opaca): SO as com 8 vizinhas livres. A variacao fica na
+## grade logica e o Visual e dual (deslocado meio tile); perto de parede ela cobriria a borda e apareceria
+## como um "bloco". Mapas de corredor estreito simplesmente recebem menos (ou nenhum) detalhe.
 func detail_candidates() -> Array[Vector2i]:
-	var any: Array[Vector2i] = []
-	var f4: Array[Vector2i] = []
 	var f8: Array[Vector2i] = []
 	for r in ROWS:
 		for c in COLS:
-			if is_wall(c, r):
-				continue
-			any.append(Vector2i(c, r))
-			if is_wall(c + 1, r) or is_wall(c - 1, r) or is_wall(c, r + 1) or is_wall(c, r - 1):
-				continue
-			f4.append(Vector2i(c, r))
-			if not (is_wall(c + 1, r + 1) or is_wall(c - 1, r + 1) or is_wall(c + 1, r - 1) or is_wall(c - 1, r - 1)):
+			var free8: bool = true
+			for dr in [-1, 0, 1]:
+				for dc in [-1, 0, 1]:
+					if is_wall(c + dc, r + dr):
+						free8 = false
+			if free8:
 				f8.append(Vector2i(c, r))
-	var min_n: int = maxi(8, int(any.size() * 0.06))
-	if f8.size() >= min_n:
-		return f8
-	if f4.size() >= min_n:
-		return f4
-	return any
+	return f8
 
 
 func validate_and_print() -> Dictionary:

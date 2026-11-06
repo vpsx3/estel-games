@@ -26,7 +26,7 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAAAAMAAAABAAAAAAAAAAMAAAACAAAAAAAAAAM
 tile_set = ExtResource("3_76h3h")
 
 [node name="DetalhePiso" type="TileMapLayer" parent="." unique_id=1105243424]
-tile_map_data = PackedByteArray("AAACAAoAAAAAAAEAAAAMABIAAAAAAAEAAAALAAIAAAAAAAAAAAAMAAIAAAABAAEAAAAFAAUAAAACAAEAAAACABIAAAABAAAAAAANABIAAAABAAEAAAADABMAAAABAAEAAAADABcAAAABAAAAAAA=")
+tile_map_data = PackedByteArray("AAACAAoAAAABAAEAAAAMABIA//////////8LAAIA//////////8MAAIAAAAAAAAAAAAFAAUA//////////8CABIAAAACAAEAAAANABIA//////////8DABMA//////////8DABcA//////////8=")
 tile_set = ExtResource("4_gh50y")
 
 [node name="Logica" type="TileMapLayer" parent="." unique_id=741451827]
@@ -36,30 +36,30 @@ tile_set = ExtResource("4_1xm4n")
 [node name="Decor" type="Node2D" parent="." unique_id=1451959285]
 y_sort_enabled = true
 
-[node name="BonecoDeNeve_01" type="Sprite2D" parent="Decor" unique_id=1389247218 instance=ExtResource("6_feo13")]
+[node name="BonecoDeNeve_01" type="Sprite2D" parent="Decor" unique_id=1654946449 instance=ExtResource("6_feo13")]
 position = Vector2(80, 592)
 texture = ExtResource("7_tjppu")
 offset = Vector2(0, -8)
 
-[node name="Cristais_02" type="Sprite2D" parent="Decor" unique_id=969866923 instance=ExtResource("8_peiit")]
+[node name="Cristais_02" type="Sprite2D" parent="Decor" unique_id=736293481 instance=ExtResource("8_peiit")]
 position = Vector2(80, 336)
 texture = ExtResource("9_0u05j")
 
-[node name="MonteDeNeve_03" type="Sprite2D" parent="Decor" unique_id=193632241 instance=ExtResource("10_ahjdg")]
+[node name="MonteDeNeve_03" type="Sprite2D" parent="Decor" unique_id=674627947 instance=ExtResource("10_ahjdg")]
 position = Vector2(400, 80)
 texture = ExtResource("11_4hq5p")
 
-[node name="Treno_04" type="Sprite2D" parent="Decor" unique_id=2010690343 instance=ExtResource("12_g76lp")]
+[node name="Treno_04" type="Sprite2D" parent="Decor" unique_id=1455766529 instance=ExtResource("12_g76lp")]
 position = Vector2(112, 752)
 texture = ExtResource("13_dt1ln")
 offset = Vector2(0, -8)
 
-[node name="BonecoDeNeve_05" type="Sprite2D" parent="Decor" unique_id=509467064 instance=ExtResource("6_feo13")]
+[node name="BonecoDeNeve_05" type="Sprite2D" parent="Decor" unique_id=1234209409 instance=ExtResource("6_feo13")]
 position = Vector2(176, 240)
 texture = ExtResource("7_tjppu")
 offset = Vector2(0, -8)
 
-[node name="Cristais_06" type="Sprite2D" parent="Decor" unique_id=1093128845 instance=ExtResource("8_peiit")]
+[node name="Cristais_06" type="Sprite2D" parent="Decor" unique_id=1509830346 instance=ExtResource("8_peiit")]
 position = Vector2(304, 688)
 texture = ExtResource("9_0u05j")
 

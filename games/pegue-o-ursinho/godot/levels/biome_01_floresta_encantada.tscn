@@ -35,35 +35,35 @@ tile_set = ExtResource("4_lg0gv")
 [node name="Decor" type="Node2D" parent="." unique_id=2010329540]
 y_sort_enabled = true
 
-[node name="Flores_01" type="Sprite2D" parent="Decor" unique_id=1977951489 instance=ExtResource("6_20wfe")]
+[node name="Flores_01" type="Sprite2D" parent="Decor" unique_id=14851201 instance=ExtResource("6_20wfe")]
 position = Vector2(368, 848)
 texture = ExtResource("7_4mrn4")
 
-[node name="Toadstools_02" type="Sprite2D" parent="Decor" unique_id=80496639 instance=ExtResource("8_nyfik")]
+[node name="Toadstools_02" type="Sprite2D" parent="Decor" unique_id=950590206 instance=ExtResource("8_nyfik")]
 position = Vector2(336, 688)
 texture = ExtResource("9_iw5ib")
 
-[node name="Toco_03" type="Sprite2D" parent="Decor" unique_id=541064558 instance=ExtResource("10_toyli")]
+[node name="Toco_03" type="Sprite2D" parent="Decor" unique_id=1090749281 instance=ExtResource("10_toyli")]
 position = Vector2(80, 592)
 texture = ExtResource("11_oeb01")
 
-[node name="VagaLume_04" type="Sprite2D" parent="Decor" unique_id=1218075681 instance=ExtResource("12_xo3t1")]
+[node name="VagaLume_04" type="Sprite2D" parent="Decor" unique_id=604940018 instance=ExtResource("12_xo3t1")]
 position = Vector2(176, 144)
 texture = ExtResource("13_xcqe1")
 
-[node name="Flores_05" type="Sprite2D" parent="Decor" unique_id=1072353037 instance=ExtResource("6_20wfe")]
+[node name="Flores_05" type="Sprite2D" parent="Decor" unique_id=1066311693 instance=ExtResource("6_20wfe")]
 position = Vector2(176, 688)
 texture = ExtResource("7_4mrn4")
 
-[node name="Toadstools_06" type="Sprite2D" parent="Decor" unique_id=2009406693 instance=ExtResource("8_nyfik")]
+[node name="Toadstools_06" type="Sprite2D" parent="Decor" unique_id=63137946 instance=ExtResource("8_nyfik")]
 position = Vector2(272, 816)
 texture = ExtResource("9_iw5ib")
 
-[node name="Toco_07" type="Sprite2D" parent="Decor" unique_id=877451685 instance=ExtResource("10_toyli")]
+[node name="Toco_07" type="Sprite2D" parent="Decor" unique_id=270252837 instance=ExtResource("10_toyli")]
 position = Vector2(368, 304)
 texture = ExtResource("11_oeb01")
 
-[node name="VagaLume_08" type="Sprite2D" parent="Decor" unique_id=543074290 instance=ExtResource("12_xo3t1")]
+[node name="VagaLume_08" type="Sprite2D" parent="Decor" unique_id=1841921990 instance=ExtResource("12_xo3t1")]
 position = Vector2(80, 336)
 texture = ExtResource("13_xcqe1")
 

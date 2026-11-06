@@ -24,7 +24,7 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAAAAMAAAABAAAAAAAAAAMAAAACAAAAAAAAAAM
 tile_set = ExtResource("3_lxba5")
 
 [node name="DetalhePiso" type="TileMapLayer" parent="." unique_id=1048955289]
-tile_map_data = PackedByteArray("AAAOAAEAAAABAAEAAAABAAIAAAACAAEAAAAFAAMAAAABAAEAAAAHAAQAAAABAAAAAAACAAUAAAAAAAAAAAABAAYAAAACAAEAAAACAAYAAAABAAAAAAALAAgAAAABAAAAAAAIAAkAAAACAAEAAAACAAsAAAACAAAAAAAFAA0AAAACAAAAAAALAA4AAAAAAAAAAAAOAA4AAAAAAAEAAAAIAA8AAAAAAAEAAAAHABAAAAABAAEAAAALABAAAAABAAEAAAABABIAAAAAAAEAAAAJABQAAAABAAAAAAAFABUAAAABAAAAAAABABoAAAABAAAAAAANABoAAAACAAAAAAAFABsAAAAAAAAAAAAJABwAAAAAAAEAAAAOABwAAAACAAEAAAA=")
+tile_map_data = PackedByteArray("AAAOAAEA//////////8BAAIA//////////8FAAMA//////////8HAAQA//////////8CAAUA//////////8BAAYA//////////8CAAYA//////////8LAAgA//////////8IAAkA//////////8CAAsA//////////8FAA0A//////////8LAA4A//////////8OAA4A//////////8IAA8A//////////8HABAA//////////8LABAA//////////8BABIA//////////8JABQA//////////8FABUA//////////8BABoA//////////8NABoA//////////8FABsA//////////8JABwA//////////8OABwA//////////8=")
 tile_set = ExtResource("4_huex4")
 
 [node name="Logica" type="TileMapLayer" parent="." unique_id=1181178189]
@@ -34,54 +34,54 @@ tile_set = ExtResource("4_44h7q")
 [node name="Decor" type="Node2D" parent="." unique_id=2005255243]
 y_sort_enabled = true
 
-[node name="Campfire_01" type="Sprite2D" parent="Decor" unique_id=1801543334 instance=ExtResource("6_787pg")]
+[node name="Campfire_01" type="Sprite2D" parent="Decor" unique_id=848442314 instance=ExtResource("6_787pg")]
 position = Vector2(464, 528)
 texture = ExtResource("7_ndi2t")
 
-[node name="FlameSprite_02" type="Sprite2D" parent="Decor" unique_id=1235325708 instance=ExtResource("8_dk0oj")]
+[node name="FlameSprite_02" type="Sprite2D" parent="Decor" unique_id=1620792242 instance=ExtResource("8_dk0oj")]
 position = Vector2(176, 144)
 texture = ExtResource("9_1iv2p")
 
-[node name="HotSpring_03" type="Sprite2D" parent="Decor" unique_id=1131203100 instance=ExtResource("10_770vx")]
+[node name="HotSpring_03" type="Sprite2D" parent="Decor" unique_id=1863388916 instance=ExtResource("10_770vx")]
 position = Vector2(304, 624)
 texture = ExtResource("11_4wi7a")
 offset = Vector2(0, -16)
 
-[node name="Campfire_04" type="Sprite2D" parent="Decor" unique_id=1321417119 instance=ExtResource("6_787pg")]
+[node name="Campfire_04" type="Sprite2D" parent="Decor" unique_id=1344387622 instance=ExtResource("6_787pg")]
 position = Vector2(368, 240)
 texture = ExtResource("7_ndi2t")
 
-[node name="FlameSprite_05" type="Sprite2D" parent="Decor" unique_id=1287283830 instance=ExtResource("8_dk0oj")]
+[node name="FlameSprite_05" type="Sprite2D" parent="Decor" unique_id=1887595043 instance=ExtResource("8_dk0oj")]
 position = Vector2(48, 336)
 texture = ExtResource("9_1iv2p")
 
-[node name="HotSpring_06" type="Sprite2D" parent="Decor" unique_id=15198435 instance=ExtResource("10_770vx")]
+[node name="HotSpring_06" type="Sprite2D" parent="Decor" unique_id=1054751128 instance=ExtResource("10_770vx")]
 position = Vector2(304, 80)
 texture = ExtResource("11_4wi7a")
 offset = Vector2(0, -16)
 
-[node name="Campfire_07" type="Sprite2D" parent="Decor" unique_id=2063086028 instance=ExtResource("6_787pg")]
+[node name="Campfire_07" type="Sprite2D" parent="Decor" unique_id=169175748 instance=ExtResource("6_787pg")]
 position = Vector2(368, 880)
 texture = ExtResource("7_ndi2t")
 
-[node name="FlameSprite_08" type="Sprite2D" parent="Decor" unique_id=1542964599 instance=ExtResource("8_dk0oj")]
+[node name="FlameSprite_08" type="Sprite2D" parent="Decor" unique_id=494978207 instance=ExtResource("8_dk0oj")]
 position = Vector2(80, 720)
 texture = ExtResource("9_1iv2p")
 
-[node name="HotSpring_09" type="Sprite2D" parent="Decor" unique_id=1963373268 instance=ExtResource("10_770vx")]
+[node name="HotSpring_09" type="Sprite2D" parent="Decor" unique_id=1108889392 instance=ExtResource("10_770vx")]
 position = Vector2(80, 208)
 texture = ExtResource("11_4wi7a")
 offset = Vector2(0, -16)
 
-[node name="Campfire_10" type="Sprite2D" parent="Decor" unique_id=1505950148 instance=ExtResource("6_787pg")]
+[node name="Campfire_10" type="Sprite2D" parent="Decor" unique_id=1109915433 instance=ExtResource("6_787pg")]
 position = Vector2(80, 496)
 texture = ExtResource("7_ndi2t")
 
-[node name="FlameSprite_11" type="Sprite2D" parent="Decor" unique_id=1463718655 instance=ExtResource("8_dk0oj")]
+[node name="FlameSprite_11" type="Sprite2D" parent="Decor" unique_id=807395324 instance=ExtResource("8_dk0oj")]
 position = Vector2(272, 304)
 texture = ExtResource("9_1iv2p")
 
-[node name="HotSpring_12" type="Sprite2D" parent="Decor" unique_id=896425904 instance=ExtResource("10_770vx")]
+[node name="HotSpring_12" type="Sprite2D" parent="Decor" unique_id=138674434 instance=ExtResource("10_770vx")]
 position = Vector2(432, 784)
 texture = ExtResource("11_4wi7a")
 offset = Vector2(0, -16)

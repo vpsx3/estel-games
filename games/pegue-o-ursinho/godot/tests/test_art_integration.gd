@@ -40,7 +40,11 @@ func test_levels_have_art() -> void:
 		var lvl: Node2D = (load(LevelIndex.scene_path(i)) as PackedScene).instantiate() as Node2D
 		var decor: int = lvl.get_node("Decor").get_child_count()
 		check(decor >= 6 and decor <= 12, "decor 6-12 fase %d (%d)" % [i + 1, decor])
-		check((lvl.get_node("DetalhePiso") as TileMapLayer).get_used_cells().size() > 0, "detalhes fase %d" % (i + 1))
+		# detalhes opcionais (mapas de corredor podem ter 0), mas nunca encostados em parede (cobririam a borda do Visual dual)
+		for dc: Vector2i in (lvl.get_node("DetalhePiso") as TileMapLayer).get_used_cells():
+			for dr2 in [-1, 0, 1]:
+				for dc2 in [-1, 0, 1]:
+					check(not bool(lvl.call("is_wall", dc.x + dc2, dc.y + dr2)), "detalhe junto a parede fase %d %s" % [i + 1, str(dc)])
 		eq(lvl.get_node("Mecanicas").get_child_count(), 0, "Mecanicas intocada fase %d" % (i + 1))
 		for d: Node in lvl.get_node("Decor").get_children():
 			var c: Vector2i = lvl.world_to_cell((d as Node2D).position)

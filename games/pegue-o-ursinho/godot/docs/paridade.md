@@ -1,7 +1,7 @@
 # Paridade JS -> GDScript (Pegue o Ursinho)
 
 Fonte: `games/pegue-o-ursinho/index.html` (navegar por ancora de funcao). Unidades: ver `scripts/core/units.gd`.
-Status: `ok` = portado + testado; `gancho` = so o ponto de extensao existe (parte E4b/E4c).
+Status: `ok` = portado + testado (nenhum `gancho` restante apos E10).
 
 ## E4a - nucleo de gameplay
 
@@ -10,7 +10,7 @@ Status: `ok` = portado + testado; `gancho` = so o ponto de extensao existe (part
 | Colisao por celula | `tileAt`, `canMove`, `freeCells` | `scripts/gameplay/grid_collision.gd` | test_gameplay_movement | ok |
 | Movimento do urso | `moveBear`, `dirFromVec`, `bearSpeedMult` | `scripts/gameplay/bear_model.gd`, `run.gd` | test_gameplay_movement | ok |
 | Urso: veneno/congelado/atributo velocidade | `moveBear`, `recalcPassives` | `bear_model.gd`, `run.gd` | test_gameplay_movement | ok |
-| Mecanica de gelo (inercia) | `moveBearIce` | `run.gd::mech_move_bear` | - | gancho (E4b) |
+| Mecanica de gelo (inercia) | `moveBearIce` | `run.gd::mech_move_bear`, `mechanics/mech_ice.gd` | test_gameplay_mech_a (ice_*) | ok |
 | Fantasmas: criacao e 5 classes | `makeGhost`, `GHOST_TYPES` | `ghost_model.gd`, `ghost_system.gd` | test_gameplay_ghosts | ok |
 | Spawn ponderado + minDist | `weightedRandom`, `spawnGhost`, `randomFreePosAway` | `ghost_system.gd`, `run.gd` | test_gameplay_ghosts | ok |
 | Pace (INITIAL_PACE, GHOST_PHASE_SCALING, ciclo) | `getDiffMult`, `biomeEffective` | `ghost_system.gd`, `biome_cycle.gd` | test_gameplay_ghosts, _biomes | ok |
@@ -18,21 +18,21 @@ Status: `ok` = portado + testado; `gancho` = so o ponto de extensao existe (part
 | Fantasma errante | `wanderMove`, `moveGhosts` | `ghost_system.gd` | test_gameplay_ghosts | ok |
 | Fantasma venenoso (POISON_*) | `moveGhosts`, `updateEffects` | `ghost_system.gd`, `run.gd` | test_gameplay_ghosts | ok |
 | Separacao entre fantasmas | `resolveGhostCollisions`, `clampGhost` | `ghost_system.gd` | test_gameplay_ghosts | ok |
-| Flags de fantasma (frozen/trapped/boost) | `moveGhosts`, `updateEffects` | `ghost_model.gd`, `ghost_system.gd`, `run.gd` | test_gameplay_ghosts | ok (efeitos: gancho E4b) |
+| Flags de fantasma (frozen/trapped/boost) | `moveGhosts`, `updateEffects` | `ghost_model.gd`, `ghost_system.gd`, `run.gd` | test_gameplay_ghosts | ok |
 | Ciclo de biomes (120s, aviso 10s) | `gameLoop`, `executeBiomeTransition` | `biome_cycle.gd`, `run.gd` | test_gameplay_biomes | ok |
-| Anuncio do bioma / escolha de +1 buff | `resumeAfterChoice`, `openWorldChoice` | `run.gd::resume_after_choice`, `world_choice_handler` | test_gameplay_biomes | ok (UI/escolha: gancho E4b/E4c) |
+| Anuncio do bioma / escolha de +1 buff | `resumeAfterChoice`, `openWorldChoice` | `run.gd::resume_after_choice`, `world_choice_handler` | test_gameplay_biomes | ok |
 | Volta ao bioma 1 + escalada de ciclo | `executeBiomeTransition`, `biomeEffective` | `biome_cycle.gd`, `run.gd` | test_gameplay_biomes | ok |
 | Troca de cena de fase | `loadBiomeMap`, `placeBearSafe` | `run.gd`, `game.gd::_load_level` | test_gameplay_camera_input | ok |
 | Pulo (JUMP_DURATION, pulo duplo, jump_cd, jump_ext) | `tryJump`, `updateEffects`, `recalcPassives` | `jump_state.gd`, `run.gd` | test_gameplay_jump_honey | ok |
 | Aterrissagem em parede | `resolveLandingInsideWall`, `updateEffects` | `grid_collision.gd`, `run.gd` | test_gameplay_jump_honey | ok |
 | Mel: passivo, potes, limite, vida, raio, coleta | `updateHoney`, `spawnHoney`, `gameLoop` | `honey_system.gd` | test_gameplay_jump_honey | ok |
-| Captura / game over / estatisticas | `gameLoop` (captura), `endGame` | `run.gd::step/end_game` | test_gameplay_capture | ok (tela/ranking: E4c) |
-| Escudo / rebote na captura | `gameLoop`, `pushGhost` | `run.gd`, `ghost_system.gd` | test_gameplay_capture | ok (concessao do buff: E4b) |
+| Captura / game over / estatisticas | `gameLoop` (captura), `endGame` | `run.gd::step/end_game` | test_gameplay_capture | ok |
+| Escudo / rebote na captura | `gameLoop`, `pushGhost` | `run.gd`, `ghost_system.gd` | test_gameplay_capture | ok |
 | Camera (CAM_CONFIG, smoothing, bordas) | `resizeCanvas`, `cameraTarget`, `centerCameraOnBear` | `camera_rig.gd` | test_gameplay_camera_input | ok |
 | Teclado (input map) | `keysDown`, `moveBear` | `input_reader.gd` | test_gameplay_camera_input | ok |
-| Joystick virtual + botao de pulo (logica) | `joyStart/joyMove/joyEnd`, `btnJump` | `virtual_joystick.gd` (`PouJoystick`), `touch_controls.gd` | test_gameplay_camera_input | ok (arte: E4c) |
-| Cena de jogo (placeholder) | `initGame`, `gameLoop` | `scenes/game.tscn`, `scripts/gameplay/game.gd`, `scenes/actors/*` | test_gameplay_camera_input | ok |
-| Cena de jogo: orbes/mel/isca/notificacoes/mecanicas (placeholder) | `drawCollectibles`, `drawHoney`, `drawDecoy`, `drawNotifications`, `mechDraw*` | `scripts/gameplay/world_view.gd`, `game.gd` | test_gameplay_mech_factory (carga) + execucao com render | ok (arte: E8) |
+| Joystick virtual + botao de pulo (logica) | `joyStart/joyMove/joyEnd`, `btnJump` | `virtual_joystick.gd` (`PouJoystick`), `touch_controls.gd` | test_gameplay_camera_input | ok |
+| Cena de jogo | `initGame`, `gameLoop` | `scenes/game.tscn`, `scripts/gameplay/game.gd`, `scenes/actors/*` | test_gameplay_camera_input | ok |
+| Cena de jogo: orbes/mel/isca/notificacoes/mecanicas | `drawCollectibles`, `drawHoney`, `drawDecoy`, `drawNotifications`, `mechDraw*` | `scripts/gameplay/world_view.gd`, `game.gd` | test_gameplay_mech_factory (carga) + execucao com render | ok (arte: E8) |
 | HUD, i18n completo, save de atributos na UI, ranking, telas | ver tabela E4c | - | - | ok (E4c) |
 
 ## E4b - buffs, loja e mecanicas de bioma
@@ -57,9 +57,9 @@ Status: `ok` = portado + testado; `gancho` = so o ponto de extensao existe (part
 | Mecanica: grades + tapete (bioma 7) | `mechInitCastle`, `mechUpdateCastle`, `mechSpeedMult` | `mechanics/mech_castle.gd` | test_gameplay_mech_b (castle_*) | ok |
 | Mecanica: plataformas moveis + vento (bioma 8) | `mechInitSky`, `mechUpdateSky`, `mechApplyDrift` | `mechanics/mech_sky.gd` | test_gameplay_mech_b (sky_*) | ok |
 | Mecanica: geiseres + rastro de fogo (bioma 9) | `mechInitFire`, `mechUpdateFire`, `mechGeyserState` | `mechanics/mech_fire.gd` | test_gameplay_mech_b (fire_*) | ok |
-| Mecanica: inversao de fases + portais (bioma 10) | `mechInitVoid`, `mechUpdateVoid`, `mechGhostAlpha` | `mechanics/mech_void.gd` | test_gameplay_mech_b (void_*) | ok (overlay "mapa respira": E8) |
+| Mecanica: inversao de fases + portais (bioma 10) | `mechInitVoid`, `mechUpdateVoid`, `mechGhostAlpha` | `mechanics/mech_void.gd` | test_gameplay_mech_b (void_*) | ok (overlay "mapa respira" portado em draw_under) |
 | Fabrica + fallback manual x procedural (Mecanicas vazio = JS) | `mechReset`, `mechBlocksBear`, `mechSpeedMult`, `mechApplyDrift` | `mechanics/mech_factory.gd`, `mechanics/mech_base.gd`, `scripts/gameplay/mech_marker.gd` | test_gameplay_mech_factory | ok |
-| Cenas posicionaveis de mecanica | `MECH_SLOTS` | `scenes/mechanics/*.tscn` (+ `assets/_placeholder/mechanics/`) | test_gameplay_mech_factory::test_marker_scenes_load_and_defaults | ok (placeholder) |
+| Cenas posicionaveis de mecanica | `MECH_SLOTS` | `scenes/mechanics/*.tscn` (+ `assets/_placeholder/mechanics/`) | test_gameplay_mech_factory::test_marker_scenes_load_and_defaults | ok |
 
 ### Mecanicas posicionaveis (`scenes/mechanics/`)
 
@@ -97,3 +97,14 @@ Arraste para `Mecanicas` da fase. Por subparte, se houver ao menos um marcador d
 | Fluxo completo / main_scene | `showScreen`, `startGame` | `scenes/main.tscn`, `main_flow.gd` | test_ui_screens::test_full_flow | ok |
 | Controles touch so em `Device.is_touch` | `IS_TOUCH` | `touch_controls.gd` (E4a) | test_ui_screens | ok |
 | Tela `screenHowto` | `screenHowto` | - | - | nao portada (inalcancavel no HTML) |
+
+## E10 - correcoes do QA (guardas de regressao)
+
+| Sistema | Funcao JS de origem | Script GD | Teste | Status |
+|---|---|---|---|---|
+| Empurrao de captura TILE*1.6 (PUSH_CELLS) | `pushGhost` | `ghost_system.gd::push_ghost` | test_parity_guards::test_push_ghost_moves_exact_cells | ok |
+| Momento da erupcao do geiser (GEYSER_FIRE_AT 0.6) | `mechGeyserState` | `mechanics/mech_fire.gd::geyser_state/fire_progress` | test_parity_guards::test_geyser_eruption_moment | ok |
+| Distancia do portal do vazio (>= 8 celulas) | `mechUpdateVoid` | `mechanics/mech_void.gd::update` | test_parity_guards::test_void_portal_distance | ok |
+| Distancia minima do teleporte (6 celulas) | `applyMapBuff` (teleport) | `buffs.gd::apply_map_buff` | test_parity_guards::test_teleport_min_distance | ok |
+| VFX certo por evento/estado (jump, freeze_all, teleport, light_bomb, honey_pickup, biome_transition, shield, shield_break, poisoned, caught) | - (extensao PixelLab) | `scripts/vfx/vfx_director.gd` | test_parity_guards::test_vfx_director_right_effect_per_event | ok |
+| Icones de bioma do HUD (`biome_%02d` -> assets/ui/icons) | - (emoji no HTML) | `scripts/ui/hud.gd`, `ui_icons.gd` | test_parity_guards::test_biome_icon_keys_resolve_to_files | ok (result_screen nao usa icone de bioma) |

@@ -3,7 +3,7 @@ extends MechBase
 ## Dimensao dos Fantasmas: inversao de fases + portais (bioma 9). Porta mechInitVoid /
 ## mechUpdateVoid / mechGhostAlpha / mechDrawVoidUnder / mechDrawVoidOver.
 ## Ciclo: normal (period-dur) -> 'phase' (atravessa paredes, reusa phase_timer) -> normal -> 'blind'
-## (fantasmas a 15% de alpha) -> ... O "mapa respira" (overlay das paredes) fica para o E8.
+## (fantasmas a 15% de alpha) -> ... O "mapa respira" (overlay das paredes) em _draw_breathing_walls.
 
 var invert_mode: String = "normal"   # normal | phase | blind
 var invert_timer: float = 0.0
@@ -62,9 +62,27 @@ func ghost_alpha() -> float:
 
 
 func draw_under(ci: CanvasItem) -> void:
+	_draw_breathing_walls(ci)
 	for p in portals:
 		draw_tex(ci, frame_at("portal", "default", run.elapsed), Units.cell_center(p.x, p.y),
 			Color(0.7, 0.31, 1.0, 0.95), Color(1, 1, 1, 0.8 + 0.2 * sin(run.elapsed * 4.0)))
+
+
+## "Mapa respira" (mechDrawVoidUnder): cada parede ganha um halo de alpha 0.18 que pulsa
+## s = 1 + 0.04*sin(elapsed*1.5 + tileHash%6). Visual apenas; nao toca colisao.
+## No JS o halo e a propria textura da parede reescalada; aqui, com dual-grid, usamos um
+## retangulo no tom do cristal do bioma (mesmo alpha/ritmo).
+const BREATH_COLOR := Color(0.80, 0.74, 1.0, 0.18)
+
+func _draw_breathing_walls(ci: CanvasItem) -> void:
+	for r in Units.ROWS:
+		for c in Units.COLS:
+			if not wall(c, r):
+				continue
+			var s: float = 1.0 + 0.04 * sin(run.elapsed * 1.5 + float(tile_hash(r, c) % 6))
+			var w: float = Units.TILE * s
+			var center: Vector2 = Vector2((c + 0.5) * Units.TILE, (r + 0.5) * Units.TILE)
+			ci.draw_rect(Rect2(center - Vector2(w, w) * 0.5, Vector2(w, w)), BREATH_COLOR)
 
 
 func draw_over(ci: CanvasItem) -> void:

@@ -36,32 +36,32 @@ tile_set = ExtResource("4_s3lpa")
 [node name="Decor" type="Node2D" parent="." unique_id=1623430282]
 y_sort_enabled = true
 
-[node name="Cogumelo_01" type="Sprite2D" parent="Decor" unique_id=3530895 instance=ExtResource("6_hyckq")]
+[node name="Cogumelo_01" type="Sprite2D" parent="Decor" unique_id=472248266 instance=ExtResource("6_hyckq")]
 position = Vector2(496, 784)
 texture = ExtResource("7_5o45s")
 
-[node name="Sapinho_02" type="Sprite2D" parent="Decor" unique_id=2057537776 instance=ExtResource("8_iobve")]
+[node name="Sapinho_02" type="Sprite2D" parent="Decor" unique_id=1059439395 instance=ExtResource("8_iobve")]
 position = Vector2(240, 688)
 texture = ExtResource("9_cg7jm")
 
-[node name="Taboas_03" type="Sprite2D" parent="Decor" unique_id=1545985261 instance=ExtResource("10_oa644")]
+[node name="Taboas_03" type="Sprite2D" parent="Decor" unique_id=462949937 instance=ExtResource("10_oa644")]
 position = Vector2(336, 272)
 texture = ExtResource("11_wa11u")
 
-[node name="Tronco_04" type="Sprite2D" parent="Decor" unique_id=12704020 instance=ExtResource("12_0kl32")]
+[node name="Tronco_04" type="Sprite2D" parent="Decor" unique_id=1260742632 instance=ExtResource("12_0kl32")]
 position = Vector2(432, 144)
 texture = ExtResource("13_3100x")
 offset = Vector2(0, -8)
 
-[node name="Cogumelo_05" type="Sprite2D" parent="Decor" unique_id=921932028 instance=ExtResource("6_hyckq")]
+[node name="Cogumelo_05" type="Sprite2D" parent="Decor" unique_id=1289447282 instance=ExtResource("6_hyckq")]
 position = Vector2(368, 784)
 texture = ExtResource("7_5o45s")
 
-[node name="Sapinho_06" type="Sprite2D" parent="Decor" unique_id=169728115 instance=ExtResource("8_iobve")]
+[node name="Sapinho_06" type="Sprite2D" parent="Decor" unique_id=1803715905 instance=ExtResource("8_iobve")]
 position = Vector2(144, 240)
 texture = ExtResource("9_cg7jm")
 
-[node name="Taboas_07" type="Sprite2D" parent="Decor" unique_id=223823445 instance=ExtResource("10_oa644")]
+[node name="Taboas_07" type="Sprite2D" parent="Decor" unique_id=1640165322 instance=ExtResource("10_oa644")]
 position = Vector2(80, 464)
 texture = ExtResource("11_wa11u")
 

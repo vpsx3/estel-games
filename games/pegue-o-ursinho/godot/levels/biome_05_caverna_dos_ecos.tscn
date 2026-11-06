@@ -26,7 +26,7 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAAAAMAAAABAAAAAAAAAAMAAAACAAAAAAAAAAM
 tile_set = ExtResource("3_ednri")
 
 [node name="DetalhePiso" type="TileMapLayer" parent="." unique_id=2012511589]
-tile_map_data = PackedByteArray("AAAKAAEAAAABAAAAAAAJAAIAAAABAAEAAAAQAAkAAAAAAAEAAAAPAAoAAAAAAAEAAAAQAAoAAAACAAEAAAABAA0AAAABAAEAAAAPAA0AAAACAAAAAAAFAA4AAAAAAAEAAAAPAA8AAAAAAAEAAAABABAAAAABAAEAAAAQABAAAAACAAEAAAABABIAAAAAAAAAAAADABMAAAAAAAAAAAACABUAAAAAAAEAAAAEABUAAAAAAAEAAAAGABcAAAABAAAAAAAPABcAAAABAAEAAAAHABkAAAABAAAAAAALABsAAAACAAAAAAAGABwAAAACAAAAAAA=")
+tile_map_data = PackedByteArray("AAAKAAEA//////////8JAAIA//////////8QAAkA//////////8PAAoA//////////8QAAoA//////////8BAA0A//////////8PAA0A//////////8FAA4A//////////8PAA8A//////////8BABAA//////////8QABAA//////////8BABIA//////////8DABMA//////////8CABUA//////////8EABUA//////////8GABcA//////////8PABcA//////////8HABkA//////////8LABsA//////////8GABwA//////////8=")
 tile_set = ExtResource("4_nl6tt")
 
 [node name="Logica" type="TileMapLayer" parent="." unique_id=196338104]
@@ -36,28 +36,28 @@ tile_set = ExtResource("4_5opbb")
 [node name="Decor" type="Node2D" parent="." unique_id=2028111915]
 y_sort_enabled = true
 
-[node name="CogumelosLuminosos_01" type="Sprite2D" parent="Decor" unique_id=596689487 instance=ExtResource("6_etwuj")]
+[node name="CogumelosLuminosos_01" type="Sprite2D" parent="Decor" unique_id=1564567801 instance=ExtResource("6_etwuj")]
 position = Vector2(432, 880)
 texture = ExtResource("7_0wl3b")
 
-[node name="Cristais_02" type="Sprite2D" parent="Decor" unique_id=347168952 instance=ExtResource("8_arjqk")]
+[node name="Cristais_02" type="Sprite2D" parent="Decor" unique_id=830768914 instance=ExtResource("8_arjqk")]
 position = Vector2(496, 688)
 texture = ExtResource("9_2w3tu")
 offset = Vector2(0, -8)
 
-[node name="Estalagmites_03" type="Sprite2D" parent="Decor" unique_id=397172202 instance=ExtResource("10_rd08b")]
+[node name="Estalagmites_03" type="Sprite2D" parent="Decor" unique_id=840856909 instance=ExtResource("10_rd08b")]
 position = Vector2(240, 880)
 texture = ExtResource("11_ssv2a")
 
-[node name="Lanterna_04" type="Sprite2D" parent="Decor" unique_id=1722123699 instance=ExtResource("12_obk44")]
+[node name="Lanterna_04" type="Sprite2D" parent="Decor" unique_id=528229640 instance=ExtResource("12_obk44")]
 position = Vector2(496, 112)
 texture = ExtResource("13_5q8hk")
 
-[node name="CogumelosLuminosos_05" type="Sprite2D" parent="Decor" unique_id=1439213075 instance=ExtResource("6_etwuj")]
+[node name="CogumelosLuminosos_05" type="Sprite2D" parent="Decor" unique_id=551245880 instance=ExtResource("6_etwuj")]
 position = Vector2(496, 240)
 texture = ExtResource("7_0wl3b")
 
-[node name="Cristais_06" type="Sprite2D" parent="Decor" unique_id=1035639951 instance=ExtResource("8_arjqk")]
+[node name="Cristais_06" type="Sprite2D" parent="Decor" unique_id=867223135 instance=ExtResource("8_arjqk")]
 position = Vector2(208, 112)
 texture = ExtResource("9_2w3tu")
 offset = Vector2(0, -8)

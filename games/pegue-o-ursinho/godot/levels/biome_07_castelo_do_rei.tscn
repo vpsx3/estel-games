@@ -26,7 +26,7 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAAAAMAAAABAAAAAAAAAAMAAAACAAAAAAAAAAM
 tile_set = ExtResource("3_s33nu")
 
 [node name="DetalhePiso" type="TileMapLayer" parent="." unique_id=1750843210]
-tile_map_data = PackedByteArray("AAANAAEAAAAAAAEAAAABAAMAAAAAAAAAAAAHAAMAAAABAAAAAAANAAUAAAABAAAAAAAFAAYAAAABAAAAAAAFAAcAAAACAAAAAAAPAAcAAAACAAAAAAANAAkAAAABAAAAAAAJAAsAAAAAAAEAAAAGABAAAAACAAEAAAAIABAAAAABAAEAAAABABMAAAABAAEAAAABABQAAAAAAAAAAAANABYAAAABAAEAAAAPABYAAAACAAEAAAABABoAAAACAAAAAAAHABoAAAABAAEAAAA=")
+tile_map_data = PackedByteArray("AAANAAEA//////////8BAAMA//////////8HAAMA//////////8NAAUA//////////8FAAYA//////////8FAAcA//////////8PAAcA//////////8NAAkA//////////8JAAsA//////////8GABAA//////////8IABAA//////////8BABMA//////////8BABQA//////////8NABYA//////////8PABYA//////////8BABoA//////////8HABoA//////////8=")
 tile_set = ExtResource("4_ivjsi")
 
 [node name="Logica" type="TileMapLayer" parent="." unique_id=1297433726]
@@ -36,60 +36,60 @@ tile_set = ExtResource("4_glkso")
 [node name="Decor" type="Node2D" parent="." unique_id=116674735]
 y_sort_enabled = true
 
-[node name="Armor_01" type="Sprite2D" parent="Decor" unique_id=1977128022 instance=ExtResource("6_54h0h")]
+[node name="Armor_01" type="Sprite2D" parent="Decor" unique_id=1255941051 instance=ExtResource("6_54h0h")]
 position = Vector2(368, 48)
 texture = ExtResource("7_645ad")
 offset = Vector2(0, -8)
 
-[node name="Statue_02" type="Sprite2D" parent="Decor" unique_id=2083412846 instance=ExtResource("8_w6nsk")]
+[node name="Statue_02" type="Sprite2D" parent="Decor" unique_id=367947882 instance=ExtResource("8_w6nsk")]
 position = Vector2(432, 720)
 texture = ExtResource("9_5myud")
 offset = Vector2(0, -8)
 
-[node name="Torch_03" type="Sprite2D" parent="Decor" unique_id=2113911861 instance=ExtResource("10_pcse6")]
+[node name="Torch_03" type="Sprite2D" parent="Decor" unique_id=2054987967 instance=ExtResource("10_pcse6")]
 position = Vector2(240, 176)
 texture = ExtResource("11_cejro")
 offset = Vector2(0, -8)
 
-[node name="Vase_04" type="Sprite2D" parent="Decor" unique_id=1101007727 instance=ExtResource("12_y2bvj")]
+[node name="Vase_04" type="Sprite2D" parent="Decor" unique_id=1803092680 instance=ExtResource("12_y2bvj")]
 position = Vector2(368, 208)
 texture = ExtResource("13_67d0m")
 
-[node name="Armor_05" type="Sprite2D" parent="Decor" unique_id=405348901 instance=ExtResource("6_54h0h")]
+[node name="Armor_05" type="Sprite2D" parent="Decor" unique_id=929329894 instance=ExtResource("6_54h0h")]
 position = Vector2(240, 688)
 texture = ExtResource("7_645ad")
 offset = Vector2(0, -8)
 
-[node name="Statue_06" type="Sprite2D" parent="Decor" unique_id=1333965017 instance=ExtResource("8_w6nsk")]
+[node name="Statue_06" type="Sprite2D" parent="Decor" unique_id=1012034947 instance=ExtResource("8_w6nsk")]
 position = Vector2(496, 176)
 texture = ExtResource("9_5myud")
 offset = Vector2(0, -8)
 
-[node name="Torch_07" type="Sprite2D" parent="Decor" unique_id=1142705919 instance=ExtResource("10_pcse6")]
+[node name="Torch_07" type="Sprite2D" parent="Decor" unique_id=1626737842 instance=ExtResource("10_pcse6")]
 position = Vector2(432, 848)
 texture = ExtResource("11_cejro")
 offset = Vector2(0, -8)
 
-[node name="Vase_08" type="Sprite2D" parent="Decor" unique_id=823592269 instance=ExtResource("12_y2bvj")]
+[node name="Vase_08" type="Sprite2D" parent="Decor" unique_id=56456629 instance=ExtResource("12_y2bvj")]
 position = Vector2(48, 528)
 texture = ExtResource("13_67d0m")
 
-[node name="Armor_09" type="Sprite2D" parent="Decor" unique_id=1700569652 instance=ExtResource("6_54h0h")]
+[node name="Armor_09" type="Sprite2D" parent="Decor" unique_id=12547179 instance=ExtResource("6_54h0h")]
 position = Vector2(240, 784)
 texture = ExtResource("7_645ad")
 offset = Vector2(0, -8)
 
-[node name="Statue_10" type="Sprite2D" parent="Decor" unique_id=2038673324 instance=ExtResource("8_w6nsk")]
+[node name="Statue_10" type="Sprite2D" parent="Decor" unique_id=264284198 instance=ExtResource("8_w6nsk")]
 position = Vector2(48, 80)
 texture = ExtResource("9_5myud")
 offset = Vector2(0, -8)
 
-[node name="Torch_11" type="Sprite2D" parent="Decor" unique_id=907685676 instance=ExtResource("10_pcse6")]
+[node name="Torch_11" type="Sprite2D" parent="Decor" unique_id=1209895675 instance=ExtResource("10_pcse6")]
 position = Vector2(208, 912)
 texture = ExtResource("11_cejro")
 offset = Vector2(0, -8)
 
-[node name="Vase_12" type="Sprite2D" parent="Decor" unique_id=1088362665 instance=ExtResource("12_y2bvj")]
+[node name="Vase_12" type="Sprite2D" parent="Decor" unique_id=807408134 instance=ExtResource("12_y2bvj")]
 position = Vector2(80, 304)
 texture = ExtResource("13_67d0m")
 

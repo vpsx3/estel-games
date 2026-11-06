@@ -36,53 +36,53 @@ tile_set = ExtResource("4_cm7ci")
 [node name="Decor" type="Node2D" parent="." unique_id=2124632483]
 y_sort_enabled = true
 
-[node name="Balde_01" type="Sprite2D" parent="Decor" unique_id=20231226 instance=ExtResource("6_qisk4")]
+[node name="Balde_01" type="Sprite2D" parent="Decor" unique_id=1543827572 instance=ExtResource("6_qisk4")]
 position = Vector2(400, 112)
 texture = ExtResource("7_tnukx")
 
-[node name="Concha_02" type="Sprite2D" parent="Decor" unique_id=1601388844 instance=ExtResource("8_yuud8")]
+[node name="Concha_02" type="Sprite2D" parent="Decor" unique_id=1427418167 instance=ExtResource("8_yuud8")]
 position = Vector2(112, 656)
 texture = ExtResource("9_hessb")
 
-[node name="EstrelaDoMar_03" type="Sprite2D" parent="Decor" unique_id=1179138725 instance=ExtResource("10_q7ryn")]
+[node name="EstrelaDoMar_03" type="Sprite2D" parent="Decor" unique_id=1248565997 instance=ExtResource("10_q7ryn")]
 position = Vector2(272, 208)
 texture = ExtResource("11_ijgee")
 
-[node name="GuardaSol_04" type="Sprite2D" parent="Decor" unique_id=1040948542 instance=ExtResource("12_c2nxg")]
+[node name="GuardaSol_04" type="Sprite2D" parent="Decor" unique_id=663701847 instance=ExtResource("12_c2nxg")]
 position = Vector2(240, 880)
 texture = ExtResource("13_awu2d")
 offset = Vector2(0, -16)
 
-[node name="Balde_05" type="Sprite2D" parent="Decor" unique_id=183767463 instance=ExtResource("6_qisk4")]
+[node name="Balde_05" type="Sprite2D" parent="Decor" unique_id=1116167260 instance=ExtResource("6_qisk4")]
 position = Vector2(336, 656)
 texture = ExtResource("7_tnukx")
 
-[node name="Concha_06" type="Sprite2D" parent="Decor" unique_id=556029108 instance=ExtResource("8_yuud8")]
+[node name="Concha_06" type="Sprite2D" parent="Decor" unique_id=480551381 instance=ExtResource("8_yuud8")]
 position = Vector2(80, 528)
 texture = ExtResource("9_hessb")
 
-[node name="EstrelaDoMar_07" type="Sprite2D" parent="Decor" unique_id=235821367 instance=ExtResource("10_q7ryn")]
+[node name="EstrelaDoMar_07" type="Sprite2D" parent="Decor" unique_id=1449941545 instance=ExtResource("10_q7ryn")]
 position = Vector2(464, 720)
 texture = ExtResource("11_ijgee")
 
-[node name="GuardaSol_08" type="Sprite2D" parent="Decor" unique_id=1256817854 instance=ExtResource("12_c2nxg")]
+[node name="GuardaSol_08" type="Sprite2D" parent="Decor" unique_id=1741626208 instance=ExtResource("12_c2nxg")]
 position = Vector2(272, 304)
 texture = ExtResource("13_awu2d")
 offset = Vector2(0, -16)
 
-[node name="Balde_09" type="Sprite2D" parent="Decor" unique_id=344960476 instance=ExtResource("6_qisk4")]
+[node name="Balde_09" type="Sprite2D" parent="Decor" unique_id=1211469158 instance=ExtResource("6_qisk4")]
 position = Vector2(496, 560)
 texture = ExtResource("7_tnukx")
 
-[node name="Concha_10" type="Sprite2D" parent="Decor" unique_id=625093455 instance=ExtResource("8_yuud8")]
+[node name="Concha_10" type="Sprite2D" parent="Decor" unique_id=1325792704 instance=ExtResource("8_yuud8")]
 position = Vector2(496, 80)
 texture = ExtResource("9_hessb")
 
-[node name="EstrelaDoMar_11" type="Sprite2D" parent="Decor" unique_id=384391704 instance=ExtResource("10_q7ryn")]
+[node name="EstrelaDoMar_11" type="Sprite2D" parent="Decor" unique_id=1338044880 instance=ExtResource("10_q7ryn")]
 position = Vector2(80, 304)
 texture = ExtResource("11_ijgee")
 
-[node name="GuardaSol_12" type="Sprite2D" parent="Decor" unique_id=2008496390 instance=ExtResource("12_c2nxg")]
+[node name="GuardaSol_12" type="Sprite2D" parent="Decor" unique_id=2029277059 instance=ExtResource("12_c2nxg")]
 position = Vector2(80, 432)
 texture = ExtResource("13_awu2d")
 offset = Vector2(0, -16)
