@@ -120,11 +120,9 @@ func _table(l: String) -> Dictionary:
 func _load_lang() -> String:
 	var v: String = ""
 	if OS.has_feature("web"):
-		var r: Variant = JavaScriptBridge.eval("window.localStorage.getItem(%s)" % JSON.stringify(WEB_KEY), true)
-		v = str(r) if r != null else ""
+		v = WebBridge.ls_get(WEB_KEY)
 		if v != "en" and v != "pt":
-			var nav: Variant = JavaScriptBridge.eval("(navigator.language || '')", true)
-			return "pt" if str(nav).begins_with("pt") else "en"
+			return "pt" if WebBridge.nav_language().begins_with("pt") else "en"
 	elif FileAccess.file_exists(file_path):
 		v = FileAccess.get_file_as_string(file_path).strip_edges()
 	return v if v == "en" or v == "pt" else "pt"
@@ -132,7 +130,7 @@ func _load_lang() -> String:
 
 func _store_lang() -> void:
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.localStorage.setItem(%s, %s)" % [JSON.stringify(WEB_KEY), JSON.stringify(lang)], true)
+		WebBridge.ls_set(WEB_KEY, lang)
 	else:
 		var f: FileAccess = FileAccess.open(file_path, FileAccess.WRITE)
 		if f != null:

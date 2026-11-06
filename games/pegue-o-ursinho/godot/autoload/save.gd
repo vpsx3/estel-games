@@ -88,8 +88,7 @@ static func _norm(v: Variant) -> Variant:
 
 func _read_raw() -> String:
 	if OS.has_feature("web"):
-		var v: Variant = JavaScriptBridge.eval("window.localStorage.getItem(%s)" % JSON.stringify(WEB_KEY), true)
-		return str(v) if v != null else ""
+		return WebBridge.ls_get(WEB_KEY)
 	if FileAccess.file_exists(file_path):
 		return FileAccess.get_file_as_string(file_path)
 	return ""
@@ -97,7 +96,7 @@ func _read_raw() -> String:
 
 func _write_raw(text: String) -> void:
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.localStorage.setItem(%s, %s)" % [JSON.stringify(WEB_KEY), JSON.stringify(text)], true)
+		WebBridge.ls_set(WEB_KEY, text)
 		return
 	var f: FileAccess = FileAccess.open(file_path, FileAccess.WRITE)
 	if f != null:

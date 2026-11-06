@@ -23,7 +23,7 @@ var transport: Callable = Callable()
 ## Base URL: no web usa a mesma origem da pagina; fora, a configuracao do projeto.
 func base_url() -> String:
 	if OS.has_feature("web"):
-		return str(JavaScriptBridge.eval("window.location.origin", true))
+		return WebBridge.origin()
 	var v: String = str(ProjectSettings.get_setting(SETTING_BASE, DEFAULT_BASE_URL))
 	return v.trim_suffix("/")
 

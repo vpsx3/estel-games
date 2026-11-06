@@ -11,9 +11,7 @@ static func is_touch() -> bool:
 		return true
 	if is_web():
 		# Mesmo criterio do HTML: pointer:coarse ou ontouchstart.
-		var coarse: Variant = JavaScriptBridge.eval(
-			"(window.matchMedia && matchMedia('(pointer:coarse)').matches) || ('ontouchstart' in window)", true)
-		return bool(coarse)
+		return WebBridge.is_coarse_pointer()
 	return DisplayServer.is_touchscreen_available()
 
 
