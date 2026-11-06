@@ -1,17 +1,24 @@
 # Status — Pegue o Ursinho → Godot
 
-Gerações PixelLab: saldo inicial 2000 (05/11/2026). Gastas acumuladas: ~335 (saldo 1665 em 06/11).
+**Gerações PixelLab:** 532 de 2000 usadas (saldo 1468, reset 05/12/2026). VFX (vfx_workbench) não consumiu gerações.
 
 | Etapa | Responsável | Status | Notas |
 |---|---|---|---|
 | E0 Setup | Opus | concluída | Godot 4.7.2, templates web, Pillow, agentes |
-| E1 Dados legados | godot-architect | concluída | |
-| E2 Esqueleto | godot-architect | concluída | |
-| E3 Fases editáveis | level-designer | concluída | |
-| E4 Paridade gameplay | gameplay-porter | concluída | E4a núcleo, E4b buffs/loja/mecânicas, E4c telas/i18n/save/ranking; 132 testes |
-| E5 Arte herói | art-director + pixel-artist | concluída | urso cand_b, tileset floresta v3 |
-| E6 Arte por bioma | pixel-artist | biomas 1–10 concluídos; fantasmas/colecionáveis em andamento | Pântano = recolor do v1 |
-| E7 VFX + UI | vfx-artist, ui-artist | VFX concluído (28); UI em andamento | |
-| E8 Integração | asset-integrator | parte 1 em andamento | |
-| E9 Build web | web-release | pipeline + CSP no main; build final após E8 | Vercel envia 1 CSP (regra escopada vence; verificado em produção 06/11) |
-| E10 QA | ursinho-qa | pendente | |
+| E1 Dados legados | godot-architect | concluída | extract_legacy_data.mjs → data/legacy/*.json |
+| E2 Esqueleto | godot-architect | concluída | pixel-perfect + ScreenScaler (sem corte em janelas pequenas) |
+| E3 Fases editáveis | level-designer | concluída | 10 cenas, dual-grid, validador |
+| E4 Paridade gameplay | gameplay-porter | concluída | núcleo, buffs, loja, 10 mecânicas, telas, i18n, save, ranking |
+| E5 Arte herói | art-director + pixel-artist | concluída | urso cand_b, tileset Floresta v3, bíblia e paleta |
+| E6 Arte por bioma | pixel-artist | concluída | 10 biomas (Pântano = recolor do v1), 5 fantasmas, isca, colecionáveis |
+| E7 VFX + UI | vfx-artist, ui-artist | concluída | 28 VFX; 44 ícones, painéis, fonte UrsinhoCozy, cozy_theme |
+| E8 Integração | asset-integrator | concluída | tilesets, decor, urso, mecânicas, VFX, fantasmas, props |
+| E9 Build web | web-release + Opus | concluída | /games/pegue-o-ursinho/web/; CSP escopada sem 'unsafe-eval' (1 CSP por resposta, verificado em produção) |
+| E10 QA | ursinho-qa | concluída | 11/12 critérios aprovados na 1ª passada; F1–F5 corrigidos; 146 testes verdes |
+
+## Pendências / decisões do Vini
+- Ranking em produção: `GET /api/scores?game=pegue-o-ursinho` retorna HTTP 500 ("Erro ao buscar scores"). É do backend (`api/`, intocável) e afeta também o jogo HTML legado.
+- Fantasmas rápido/pesado parecem 1,3–1,4x maiores que o hitbox (mantidos 1:1 por pixel-perfect). Opção: regerar menores.
+- Fantasma venenoso com pouco contraste no piso lavanda do bioma 6.
+- Trocar a versão oficial (HTML → Godot) e/ou criar entrada no portal: só com ordem do Vini.
+- Não exercitado no navegador pelo QA: troca de bioma aos 120 s, escolha de +1 buff, loja, pausa (cobertos por testes headless).
