@@ -19,6 +19,7 @@ Save="*res://autoload/save.gd"
 I18n="*res://autoload/i18n.gd"
 ApiClient="*res://autoload/api_client.gd"
 Audio="*res://autoload/audio.gd"
+ScreenScaler="*res://autoload/screen_scaler.gd"
 
 [display]
 
