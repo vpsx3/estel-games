@@ -1,0 +1,21 @@
+DIFF biome_01_floresta_encantada.tscn mech {"type":"mushroom","count":6,"dist":3,"cd":0.4} {"cd":0.4,"count":6,"dist":3,"type":"mushroom"}
+biome_01_floresta_encantada.tscn mech children 0
+DIFF biome_02_praia_dos_coqueiros.tscn mech {"type":"tide","speed":0.25,"maxRows":5} {"maxRows":5,"speed":0.25,"type":"tide"}
+biome_02_praia_dos_coqueiros.tscn mech children 0
+DIFF biome_03_montanha_gelada.tscn mech {"type":"ice","accel":0.55,"friction":0.94,"maxSpd":3.6,"bounce":0.35} {"accel":0.55,"bounce":0.35,"friction":0.94,"maxSpd":3.6,"type":"ice"}
+biome_03_montanha_gelada.tscn mech children 0
+DIFF biome_04_pantano_verde.tscn mech {"type":"lily","frac":0.4,"sinkDelay":1.1,"gone":3.5} {"frac":0.4,"gone":3.5,"sinkDelay":1.1,"type":"lily"}
+biome_04_pantano_verde.tscn mech children 0
+DIFF biome_05_caverna_dos_ecos.tscn mech {"type":"bats","interval":3.5,"speed":2.2,"r":16,"freeze":2} {"freeze":2,"interval":3.5,"r":16,"speed":2.2,"type":"bats"}
+biome_05_caverna_dos_ecos.tscn mech children 0
+DIFF biome_06_vila_assombrada.tscn mech {"type":"windows","frac":0.12,"radius":3,"telegraph":1.2,"cd":12} {"cd":12,"frac":0.12,"radius":3,"telegraph":1.2,"type":"windows"}
+biome_06_vila_assombrada.tscn mech children 0
+DIFF biome_07_castelo_do_rei.tscn mech {"type":"castle","gateFrac":0.5,"gateSpeed":1.1,"carpetRows":3,"carpetBoost":1.5} {"carpetBoost":1.5,"carpetRows":3,"gateFrac":0.5,"gateSpeed":1.1,"type":"castle"}
+biome_07_castelo_do_rei.tscn mech children 0
+DIFF biome_08_ilhas_flutuantes.tscn mech {"type":"sky","platforms":5,"platSpeed":0.4,"platRange":2,"windForce":1.4} {"platRange":2,"platSpeed":0.4,"platforms":5,"type":"sky","windForce":1.4}
+biome_08_ilhas_flutuantes.tscn mech children 0
+DIFF biome_09_inferno_fofo.tscn mech {"type":"fire","geyserCount":10,"geySpeed":0.8,"trailDrop":0.12,"trailLife":1.4,"trailFreeze":0.6} {"geySpeed":0.8,"geyserCount":10,"trailDrop":0.12,"trailFreeze":0.6,"trailLife":1.4,"type":"fire"}
+biome_09_inferno_fofo.tscn mech children 0
+DIFF biome_10_dimensao_dos_fantasmas.tscn mech {"type":"void","invertPeriod":8,"invertDur":3,"portals":2,"portalCd":2} {"invertDur":3,"invertPeriod":8,"portalCd":2,"portals":2,"type":"void"}
+biome_10_dimensao_dos_fantasmas.tscn mech children 0
+BAD 10

@@ -1,0 +1,19 @@
+177 PNGs fora de art_source/.godot/docs
+SEM MATCH POR NOME no ledger: 17
+   ./art/palette/estel_cozy_swatch.png
+   ./assets/mechanics/bat/bat_frames_atlas.png
+   ./assets/ui/panels/button_disabled.png
+   ./assets/ui/panels/button_disabled_x2.png
+   ./assets/ui/panels/button_hover.png
+   ./assets/ui/panels/button_hover_x2.png
+   ./assets/ui/panels/button_normal.png
+   ./assets/ui/panels/button_normal_x2.png
+   ./assets/ui/panels/button_pressed.png
+   ./assets/ui/panels/button_pressed_x2.png
+   ./assets/ui/panels/card_comum_dark.png
+   ./assets/ui/panels/card_incomum_dark.png
+   ./assets/ui/panels/card_raro_dark.png
+   ./assets/ui/panels/chip_dark.png
+   ./assets/ui/panels/jump_cooldown.png
+   ./assets/ui/panels/jump_normal.png
+   ./assets/ui/panels/timebar_fill.png

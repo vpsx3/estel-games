@@ -1,0 +1,39 @@
+ok   BIOME_DURATION
+ok   TOTAL_BIOMES
+ok   BIOME_WARNING_TIME
+ok   JUMP_DURATION
+ok   INITIAL_PACE
+ok   GHOST_PHASE_SCALING
+ok   HONEY_PASSIVE_RATE
+ok   HONEY_PICKUP_VALUE
+ok   HONEY_SPAWN_INTERVAL
+ok   HONEY_MAX_ON_MAP
+ok   HONEY_LIFE
+ok   HONEY_R
+ok   POISON_RADIUS
+ok   POISON_DEBUFF
+ok   POISON_DURATION
+ok   POISON_COOLDOWN
+ok   SPRAY_SLOW_MULT
+ok   SPRAY_SLOW_DUR
+ok   JOY_RADIUS
+ok   TILE
+ok   SAVE_KEY
+ok   GAME_ID
+ok   CAM_CONFIG
+ok   FIXED_INTERVALS
+ok   GHOST_TYPES
+[
+  'map_buffs',
+  'fixed_intervals',
+  'spray_slow_mult',
+  'spray_slow_dur',
+  'rarity_labels'
+]
+ok   MAP_BUFFS id/rar/selW/mapW/type
+ok   ATTR speed_base
+ok   ATTR jump_cd
+ok   ATTR jump_ext
+ok   ATTR double_jump
+ok   ATTR reroll
+BAD 0

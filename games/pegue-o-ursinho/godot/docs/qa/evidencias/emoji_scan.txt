@@ -1,0 +1,12 @@
+./data/biomes/biome_01.tres 12 \U0001f332 icon = "\U0001f332"
+./data/biomes/biome_02.tres 13 \U0001f3d6\ufe0f icon = "\U0001f3d6\ufe0f"
+./data/biomes/biome_03.tres 13 \U0001f3d4\ufe0f icon = "\U0001f3d4\ufe0f"
+./data/biomes/biome_04.tres 13 \U0001f438 icon = "\U0001f438"
+./data/biomes/biome_05.tres 13 \U0001f987 icon = "\U0001f987"
+./data/biomes/biome_06.tres 13 \U0001f3da\ufe0f icon = "\U0001f3da\ufe0f"
+./data/biomes/biome_07.tres 13 \U0001f451 icon = "\U0001f451"
+./data/biomes/biome_08.tres 13 \u2601\ufe0f icon = "\u2601\ufe0f"
+./data/biomes/biome_09.tres 13 \U0001f525 icon = "\U0001f525"
+./data/biomes/biome_10.tres 13 \U0001f47b icon = "\U0001f47b"
+./tests/test_ui_i18n.gd 56 \U0001f3c6 eq(UiText.strip_emoji("\U0001f3c6 Ranking"), "Ranking", "strip")
+./tests/test_ui_i18n.gd 57 \u25b6 eq(UiText.strip_emoji("\u25b6 Jogar"), "Jogar", "strip simbolo")

@@ -1,0 +1,63 @@
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Access-Control-Allow-Origin: *
+Age: 0
+Cache-Control: public, max-age=0, must-revalidate
+Content-Disposition: inline; filename="index.html"
+Content-Length: 6424
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com; media-src 'self' blob:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'
+Content-Type: text/html; charset=utf-8
+Date: Fri, 06 Nov 2026 11:01:50 GMT
+Etag: "7264252193b9d6415df692bd075d56aa"
+Last-Modified: Fri, 06 Nov 2026 11:01:50 GMT
+Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
+Referrer-Policy: strict-origin-when-cross-origin
+Server: Vercel
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Vercel-Cache: MISS
+X-Vercel-Id: gru1::8kx9j-1793962910215-b77350d367d1
+
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Access-Control-Allow-Origin: *
+Age: 0
+Cache-Control: public, max-age=0, must-revalidate
+Content-Disposition: inline; filename="index.wasm"
+Content-Length: 39514754
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com; media-src 'self' blob:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'
+Content-Type: application/wasm
+Date: Fri, 06 Nov 2026 11:01:52 GMT
+Etag: "83e2f97ab834d857572e3da40d56e70d"
+Last-Modified: Fri, 06 Nov 2026 11:01:51 GMT
+Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
+Referrer-Policy: strict-origin-when-cross-origin
+Server: Vercel
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Vercel-Cache: MISS
+X-Vercel-Id: gru1::phqtk-1793962910879-9e91aedbc988
+
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Access-Control-Allow-Origin: *
+Age: 0
+Cache-Control: public, max-age=0, must-revalidate
+Content-Disposition: inline; filename="index.js"
+Content-Length: 279815
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com; media-src 'self' blob:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'
+Content-Type: application/javascript; charset=utf-8
+Date: Fri, 06 Nov 2026 11:01:53 GMT
+Etag: "304c6a520d2dbc82062dc50ef6a695bf"
+Last-Modified: Fri, 06 Nov 2026 11:01:52 GMT
+Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
+Referrer-Policy: strict-origin-when-cross-origin
+Server: Vercel
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Vercel-Cache: MISS
+X-Vercel-Id: gru1::q4fmt-1793962912558-32c1a68c9eba
+

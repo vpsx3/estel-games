@@ -1,0 +1,22 @@
+maps 10 scenes 10
+biome_01_floresta_encantada.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_02_praia_dos_coqueiros.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_03_montanha_gelada.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_04_pantano_verde.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_05_caverna_dos_ecos.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_06_vila_assombrada.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_07_castelo_do_rei.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_08_ilhas_flutuantes.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_09_inferno_fofo.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_10_dimensao_dos_fantasmas.tscn 1,0 [P: (0, 0), S: (18, 30)] legacy dims 30 18
+biome_01_floresta_encantada.tscn diff cells = 0
+biome_02_praia_dos_coqueiros.tscn diff cells = 0
+biome_03_montanha_gelada.tscn diff cells = 0
+biome_04_pantano_verde.tscn diff cells = 0
+biome_05_caverna_dos_ecos.tscn diff cells = 0
+biome_06_vila_assombrada.tscn diff cells = 0
+biome_07_castelo_do_rei.tscn diff cells = 0
+biome_08_ilhas_flutuantes.tscn diff cells = 0
+biome_09_inferno_fofo.tscn diff cells = 0
+biome_10_dimensao_dos_fantasmas.tscn diff cells = 0
+TOTAL diff 0

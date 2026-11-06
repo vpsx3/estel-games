@@ -1,0 +1,38 @@
+git diff --stat b375ac4..HEAD -- legacy paths:
+(fim; vazio = intacto)
+
+vercel.json diff:
+diff --git a/vercel.json b/vercel.json
+index e08d9ab..4387d16 100644
+--- a/vercel.json
++++ b/vercel.json
+@@ -28,6 +28,15 @@
+           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
+         }
+       ]
++    },
++    {
++      "source": "/games/pegue-o-ursinho/web/(.*)",
++      "headers": [
++        {
++          "key": "Content-Security-Policy",
++          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com; media-src 'self' blob:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
++        }
++      ]
+     }
+   ]
+ }
+
+other paths changed outside games/pegue-o-ursinho/godot and web:
+A	.claude/agents/ursinho-art-director.md
+A	.claude/agents/ursinho-asset-integrator.md
+A	.claude/agents/ursinho-gameplay-porter.md
+A	.claude/agents/ursinho-godot-architect.md
+A	.claude/agents/ursinho-level-designer.md
+A	.claude/agents/ursinho-pixel-artist.md
+A	.claude/agents/ursinho-qa.md
+A	.claude/agents/ursinho-ui-artist.md
+A	.claude/agents/ursinho-vfx-artist.md
+A	.claude/agents/ursinho-web-release.md
+A	.vercelignore
+M	vercel.json

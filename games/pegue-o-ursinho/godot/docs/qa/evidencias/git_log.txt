@@ -1,0 +1,93 @@
+0888ffe Vinicius feat(ursinho-godot): build web beta em /games/pegue-o-ursinho/web/
+0aabe4e Vinicius feat(ursinho-godot): integra fantasmas, isca, pote de mel e orbes
+8923739 Vinicius feat(ursinho-ui): HUD, telas, ícones e fonte
+3c1f22a Vinicius feat(ursinho-godot): integra arte nova (tilesets, decor, urso, mecânicas, VFX)
+3081e14 Vinicius feat(ursinho-godot): escala de tela pixel-perfect sem corte em janelas pequenas
+4ab45be Vinicius feat(ursinho-art): fantasmas, isca e colecionáveis
+a13e02b Vinicius docs(ursinho-godot): atualiza status das etapas
+63438fe Vinicius feat(ursinho-godot): pipeline do build web, shell com analytics e CSP escopada
+6d210f3 Vinicius feat(ursinho-godot): porta telas, HUD, i18n PT/EN, save compartilhado e ranking
+2b0de53 Vinicius feat(ursinho-art): bioma 01 floresta encantada
+531d80f Vinicius feat(ursinho-art): bioma 05 caverna dos ecos
+632c4b5 Vinicius feat(ursinho-art): bioma 04 pântano verde
+5bf9bac Vinicius feat(ursinho-art): bioma 03 montanha gelada
+68ed289 Vinicius feat(ursinho-art): bioma 02 praia dos coqueiros
+7c10f29 Vinicius feat(ursinho-art): bioma 10 dimensão dos fantasmas
+1f7a332 Vinicius feat(ursinho-art): bioma 09 inferno fofo
+56c4d1d Vinicius feat(ursinho-art): bioma 08 ilhas flutuantes
+10d4dbf Vinicius feat(ursinho-art): bioma 07 castelo do rei
+1b0ee52 Vinicius feat(ursinho-art): bioma 06 vila assombrada
+13cc9e0 Vinicius fix(ursinho-godot): validador aceita janelas do bioma 6 sobre parede
+3c30c29 Vinicius feat(ursinho-godot): porta buffs, loja de atributos e 10 mecânicas de bioma
+7bdc047 Vinicius feat(ursinho-art): vfx das skills
+693f1ff Vinicius feat(ursinho-godot): porta núcleo de gameplay (urso, fantasmas, biomes, pulo, mel, câmera, controles)
+bd96ed7 Vinicius chore(ursinho-godot): exclui art_source e docs da importação do Godot
+a095c8f Vinicius feat(ursinho-art): bíblia de estilo, paleta e lote herói
+ba71be4 Vinicius feat(ursinho-godot): 10 fases como cenas editáveis + validador
+b3c5851 Vinicius feat(ursinho-godot): esqueleto do projeto Godot 4 pixel-perfect
+4a913c6 Vinicius feat(ursinho-godot): extrai dados legados do index.html para JSON
+7259309 Vinicius chore(ursinho-godot): agentes e documentação de handoff
+
+== 0888ffe 9 files; dirs:
+      9 games/pegue-o-ursinho/web
+== 0aabe4e 43 files; dirs:
+     43 games/pegue-o-ursinho/godot
+== 8923739 259 files; dirs:
+    259 games/pegue-o-ursinho/godot
+== 3c1f22a 423 files; dirs:
+    423 games/pegue-o-ursinho/godot
+== 3081e14 6 files; dirs:
+      6 games/pegue-o-ursinho/godot
+== 4ab45be 225 files; dirs:
+    225 games/pegue-o-ursinho/godot
+== a13e02b 1 files; dirs:
+      1 games/pegue-o-ursinho/godot
+== 63438fe 10 files; dirs:
+      9 games/pegue-o-ursinho/godot
+      1 vercel.json//
+== 6d210f3 73 files; dirs:
+     73 games/pegue-o-ursinho/godot
+== 2b0de53 39 files; dirs:
+     39 games/pegue-o-ursinho/godot
+== 531d80f 90 files; dirs:
+     90 games/pegue-o-ursinho/godot
+== 632c4b5 76 files; dirs:
+     76 games/pegue-o-ursinho/godot
+== 5bf9bac 31 files; dirs:
+     31 games/pegue-o-ursinho/godot
+== 68ed289 67 files; dirs:
+     67 games/pegue-o-ursinho/godot
+== 7c10f29 49 files; dirs:
+     49 games/pegue-o-ursinho/godot
+== 1f7a332 64 files; dirs:
+     64 games/pegue-o-ursinho/godot
+== 56c4d1d 44 files; dirs:
+     44 games/pegue-o-ursinho/godot
+== 10d4dbf 66 files; dirs:
+     66 games/pegue-o-ursinho/godot
+== 1b0ee52 51 files; dirs:
+     51 games/pegue-o-ursinho/godot
+== 13cc9e0 1 files; dirs:
+      1 games/pegue-o-ursinho/godot
+== 3c30c29 92 files; dirs:
+     92 games/pegue-o-ursinho/godot
+== 7bdc047 1841 files; dirs:
+   1841 games/pegue-o-ursinho/godot
+== 693f1ff 58 files; dirs:
+     58 games/pegue-o-ursinho/godot
+== bd96ed7 23 files; dirs:
+     23 games/pegue-o-ursinho/godot
+== a095c8f 182 files; dirs:
+    182 games/pegue-o-ursinho/godot
+== ba71be4 81 files; dirs:
+     81 games/pegue-o-ursinho/godot
+== b3c5851 32 files; dirs:
+     31 games/pegue-o-ursinho/godot
+      1 .vercelignore//
+== 4a913c6 11 files; dirs:
+     11 games/pegue-o-ursinho/godot
+== 7259309 13 files; dirs:
+      3 games/pegue-o-ursinho/godot
+      1 .claude/agents/ursinho-web-release.md
+      1 .claude/agents/ursinho-vfx-artist.md
+      1 .claude/agents/ursinho-ui-artist.md
