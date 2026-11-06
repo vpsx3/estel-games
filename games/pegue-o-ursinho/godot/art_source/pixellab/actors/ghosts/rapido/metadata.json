@@ -1,0 +1,15 @@
+{
+ "object_id": "9b77c069-6730-4e04-a5df-f21d0b08cbd1",
+ "class": "rapido",
+ "canvas": 42,
+ "view": "high top-down",
+ "animation": "float",
+ "frames": 6,
+ "directions": [
+  "south",
+  "north",
+  "east",
+  "west"
+ ],
+ "status": "candidato"
+}

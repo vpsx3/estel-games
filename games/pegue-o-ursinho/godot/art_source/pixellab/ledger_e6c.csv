@@ -1,0 +1,23 @@
+data,ferramenta,id,prompt,parametros,custo,status,destino
+2026-11-05,create_8_direction_object,d818963f-0797-4846-95f8-427af435b607,"PREFIX + cute round jelly ghost blob ... pastel aqua blue, friendly mischievous smile",size=44 (saida 48);view=high top-down,10 gen,aprovado,actors/ghosts/comum
+2026-11-05,animate_object,d818963f-0797-4846-95f8-427af435b607,floating bob loop soft squash and stretch,v3;6f;keep_first_frame=false;4 dirs,~1 gen/dir (est.),aprovado,actors/ghosts/comum/float
+2026-11-05,create_8_direction_object,d83e78be-25e0-453e-b993-fe6d1287616b,"... mint teal, determined eyebrows, speed streaks",size=40 (saida 42);style_object=comum,10 gen,reprovado,actors/ghosts/_rapido_v1_rejeitado
+2026-11-05,create_8_direction_object,9b77c069-6730-4e04-a5df-f21d0b08cbd1,"... vivid mint green body, angry eyebrows, white speed streak lines",size=40 (saida 42);style_object=comum,10 gen,aprovado,actors/ghosts/rapido
+2026-11-06,animate_object,9b77c069-6730-4e04-a5df-f21d0b08cbd1,floating bob loop soft squash and stretch,v3;6f;4 dirs,~1 gen/dir (est.),aprovado,actors/ghosts/rapido/float
+2026-11-05,create_8_direction_object,4cd29a7f-f49b-422d-8333-b274fbbf7ba8,"... big chunky pale aqua ghost, heavier and wider",size=64 (saida 68);style_object=comum,10 gen,reprovado,actors/ghosts/_pesado_v1_rejeitado
+2026-11-05,create_8_direction_object,93578560-9d93-4e3c-ada1-b3c655986514,"... huge big chunky ghost filling the entire frame, very wide and heavy",size=64 (saida 68);sem style_object,10 gen,aprovado,actors/ghosts/pesado
+2026-11-06,animate_object,93578560-9d93-4e3c-ada1-b3c655986514,floating bob loop soft squash and stretch,v3;6f;4 dirs,~1 gen/dir (est.),aprovado,actors/ghosts/pesado/float
+2026-11-06,create_8_direction_object,ac7b4511-f2df-4f5c-bd5b-5d8e193ebcd9,"... soft orange body, one spiral dizzy eye, tongue out, floating sparkle dots",size=44 (saida 48);style_object=comum,10 gen,aprovado,actors/ghosts/errante
+2026-11-06,animate_object,ac7b4511-f2df-4f5c-bd5b-5d8e193ebcd9,floating bob loop soft squash and stretch,v3;6f;4 dirs,~1 gen/dir (est.),aprovado,actors/ghosts/errante/float
+2026-11-06,create_8_direction_object,4dd4b6ea-6a82-4b7a-bf96-e4837ea23fd9,"... lavender purple body, small skull mark on forehead, purple wisps, dripping tail",size=44 (saida 48);style_object=comum,10 gen,aprovado,actors/ghosts/venenoso
+2026-11-06,animate_object,4dd4b6ea-6a82-4b7a-bf96-e4837ea23fd9,floating bob loop soft squash and stretch,v3;6f;4 dirs,~1 gen/dir (est.),aprovado,actors/ghosts/venenoso/float
+2026-11-05,create_map_object,ddeceeda-87f9-43d6-8463-d3f1f4765fed,small stitched plush teddy bear toy sitting patched ear button eyes,32x32;high top-down,informado: nenhum (~1 gen),aprovado,actors/decoy/rotations
+2026-11-05,animate_object,ddeceeda-87f9-43d6-8463-d3f1f4765fed,gentle wobble side to side soft squash and stretch loop,v3;6f,~1 gen,aprovado,actors/decoy/wobble
+2026-11-05,create_map_object,4869bfce-2ad8-4080-a6ee-76d126608d33,round clay honey pot golden honey dripping,32x32;high top-down,~1 gen,reprovado (v1 refeito; pasta _honey_pot_v1_reprovado),collectibles/honey_pot/rotations
+2026-11-05,animate_object,4869bfce-2ad8-4080-a6ee-76d126608d33,golden sparkle twinkle loop,v3;6f,~1 gen,reprovado (v1 refeito; pasta _honey_pot_v1_reprovado),collectibles/honey_pot/sparkle
+2026-11-05,create_map_object,7dcc4660-cc06-4490-b273-caeccb34ed0c,glossy round magic orb pastel mint green #7CE0A0,32x32,~1 gen,aprovado,collectibles/buff_orb_verde
+2026-11-06,create_map_object,32448474-470d-44f8-b7be-86b9a61fa785,glossy round magic orb pastel sky blue #8AB4FF,32x32,~1 gen,aprovado,collectibles/buff_orb_azul
+2026-11-06,create_map_object,cfe7e9e7-3dbb-41a8-bf8f-8f9f19b8a1a8,glossy round magic orb pastel coral #FF8A8A,32x32,~1 gen,aprovado,collectibles/buff_orb_vermelho
+2026-11-06,animate_object,7dcc4660-cc06-4490-b273-caeccb34ed0c;32448474-470d-44f8-b7be-86b9a61fa785;cfe7e9e7-3dbb-41a8-bf8f-8f9f19b8a1a8,floating pulse loop,v3;6f,~1 gen cada,aprovado,collectibles/buff_orb_*/pulse
+2026-11-06,create_map_object,6e693b8c-a556-49ac-aeac-653559d87244,"PREFIX + small round glass honey jar seen slightly from above, golden honey dripping, wooden dipper, tiny bee sticker",32x32;high top-down (re-roll honey_pot),~1 gen,candidato (honey_pot v2),collectibles/honey_pot/rotations
+2026-11-06,animate_object,6e693b8c-a556-49ac-aeac-653559d87244,"two bright twinkle sparkles appear and fade on the jar, gentle shine sweep",v3;6f;keep_first_frame=false,~1 gen,candidato (honey_pot v2),collectibles/honey_pot/sparkle
