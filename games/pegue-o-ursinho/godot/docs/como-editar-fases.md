@@ -18,6 +18,6 @@ Cada fase e uma cena em `levels/` (ex.: `levels/biome_03_montanha_gelada.tscn`).
 ## Referencia rapida
 
 - Metas de densidade de paredes: 37, 31, 49, 37, 48, 34, 66, 47, 62 e 71 % (fases 1 a 10), medidas nos mapas originais.
-- Tilesets provisorios (`tilesets/placeholder/`) serao trocados pelos do PixelLab: basta apontar `tileset` e `corner_map_path` do `BiomeConfig` (ha um `corner_map` de exemplo em `tilesets/corner_maps/pixellab_biome_01_floresta_encantada.json`; gerar outro: `python tools/editor/make_placeholder_tilesets.py --pixellab <tileset_metadata.json> <saida.json>`).
+- Tilesets reais (PixelLab) em `tilesets/biome_XX.tres` + `tilesets/corner_maps/biome_XX_<slug>.json` + variacoes de piso em `tilesets/biome_XX_details.tres` (campo `detail_tiles`). Reimportar/atualizar: `python tools/import/import_all.py` -> `godot --headless --import` -> `godot --headless --path . --script res://tools/import/apply_to_levels.gd` (repinta Visual, espalha DetalhePiso ~10% do piso e 6-12 itens de Decor; refaz so DetalhePiso/Decor, nunca Logica/Spawns/Mecanicas). Converter um tileset avulso: `python tools/import/pixellab_tileset_to_godot.py <pasta> --biome N --slug nome`. Capturas reais: `tools/import/capture_game.gd` / `capture_level.gd`.
 - Cena base para uma fase nova: `levels/_template_biome.tscn`.
 - Recriar as 10 fases do zero a partir dos dados legados (APAGA edicoes): `--script res://tools/editor/import_legacy_levels.gd`.

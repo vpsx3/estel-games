@@ -1,7 +1,8 @@
 [gd_resource type="Resource" script_class="BiomeConfig" format=3]
 
 [ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_o8cf2"]
-[ext_resource type="TileSet" path="res://tilesets/placeholder/05-caverna-dos-ecos.tres" id="2_sjtvp"]
+[ext_resource type="TileSet" path="res://tilesets/biome_05.tres" id="2_sjtvp"]
+[ext_resource type="TileSet" path="res://tilesets/biome_05_details.tres" id="3_details"]
 
 [resource]
 script = ExtResource("1_o8cf2")
@@ -24,3 +25,4 @@ mech = {
 target_wall_density = 0.48
 tileset = ExtResource("2_sjtvp")
 corner_map_path = "res://tilesets/corner_maps/biome_05_caverna_dos_ecos.json"
+detail_tiles = ExtResource("3_details")

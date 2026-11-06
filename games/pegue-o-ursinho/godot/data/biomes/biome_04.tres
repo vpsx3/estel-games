@@ -1,7 +1,8 @@
 [gd_resource type="Resource" script_class="BiomeConfig" format=3]
 
 [ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_hkxdv"]
-[ext_resource type="TileSet" path="res://tilesets/placeholder/04-pantano-verde.tres" id="2_g521j"]
+[ext_resource type="TileSet" path="res://tilesets/biome_04.tres" id="2_g521j"]
+[ext_resource type="TileSet" path="res://tilesets/biome_04_details.tres" id="3_details"]
 
 [resource]
 script = ExtResource("1_hkxdv")
@@ -24,3 +25,4 @@ mech = {
 target_wall_density = 0.37
 tileset = ExtResource("2_g521j")
 corner_map_path = "res://tilesets/corner_maps/biome_04_pantano_verde.json"
+detail_tiles = ExtResource("3_details")

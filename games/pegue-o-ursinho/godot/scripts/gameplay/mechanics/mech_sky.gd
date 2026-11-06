@@ -125,13 +125,16 @@ func apply_drift(r: GameRun, dt: float) -> void:
 
 
 func draw_under(ci: CanvasItem) -> void:
-	var a: float = 0.22 + 0.08 * sin(run.elapsed * 3.0)
-	for cell: Vector2i in winds:   # correntes (sob plataformas)
+	var a: float = 0.5 + 0.1 * sin(run.elapsed * 3.0)
+	for cell: Vector2i in winds:   # correntes (sob plataformas); o VFX 'wind' e largo: 1 a cada 3 celulas
+		if (cell.x + cell.y) % 3 != 0:
+			continue
 		var d: Vector2 = winds[cell] as Vector2
 		ci.draw_set_transform(Units.cell_center(cell.x, cell.y), d.angle(), Vector2.ONE)
-		draw_slot(ci, "wind", Rect2(-Units.TILE / 2.0, -Units.TILE / 2.0, Units.TILE, Units.TILE), Color(0.78, 0.9, 1.0, 0.7), Color(1, 1, 1, a))
+		draw_tex(ci, frame_at("vfx:wind", "default", run.elapsed + cell.x * 0.1), Vector2.ZERO, Color(0.78, 0.9, 1.0, 0.7), Color(1, 1, 1, a))
 	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	for p in platforms:   # posicao sub-tile interpolada (desliza suave)
 		var x: float = (float(p["c0"]) + (float(p["cont"]) if str(p["axis"]) == "h" else 0.0)) * Units.TILE
 		var y: float = (float(p["r0"]) + (float(p["cont"]) if str(p["axis"]) == "v" else 0.0)) * Units.TILE
-		draw_slot(ci, "platform", Rect2(x, y, Units.TILE, Units.TILE), Color(0.59, 0.71, 0.82, 0.92))
+		draw_tex(ci, frame_at("platform", "float", run.elapsed + float(p["c0"]) * 0.3), Vector2(x, y) + Vector2(Units.TILE, Units.TILE) / 2.0,
+			Color(0.59, 0.71, 0.82, 0.92))

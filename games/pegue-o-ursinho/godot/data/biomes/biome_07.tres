@@ -1,7 +1,8 @@
 [gd_resource type="Resource" script_class="BiomeConfig" format=3]
 
 [ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_467os"]
-[ext_resource type="TileSet" path="res://tilesets/placeholder/07-castelo-do-rei.tres" id="2_70n08"]
+[ext_resource type="TileSet" path="res://tilesets/biome_07.tres" id="2_70n08"]
+[ext_resource type="TileSet" path="res://tilesets/biome_07_details.tres" id="3_details"]
 
 [resource]
 script = ExtResource("1_467os")
@@ -25,3 +26,4 @@ mech = {
 target_wall_density = 0.66
 tileset = ExtResource("2_70n08")
 corner_map_path = "res://tilesets/corner_maps/biome_07_castelo_do_rei.json"
+detail_tiles = ExtResource("3_details")

@@ -1,7 +1,8 @@
 [gd_resource type="Resource" script_class="BiomeConfig" format=3]
 
 [ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_xu1f4"]
-[ext_resource type="TileSet" path="res://tilesets/placeholder/03-montanha-gelada.tres" id="2_7ioil"]
+[ext_resource type="TileSet" path="res://tilesets/biome_03.tres" id="2_7ioil"]
+[ext_resource type="TileSet" path="res://tilesets/biome_03_details.tres" id="3_details"]
 
 [resource]
 script = ExtResource("1_xu1f4")
@@ -25,3 +26,4 @@ mech = {
 target_wall_density = 0.49
 tileset = ExtResource("2_7ioil")
 corner_map_path = "res://tilesets/corner_maps/biome_03_montanha_gelada.json"
+detail_tiles = ExtResource("3_details")

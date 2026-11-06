@@ -63,16 +63,25 @@ func update(r: GameRun, dt: float) -> void:
 
 
 func draw_under(ci: CanvasItem) -> void:
+	var bounce_dur: float = anim_duration("mushroom", "bounce")
 	for m in mushrooms:
 		var cell: Vector2i = m["cell"] as Vector2i
 		var h: float = float(tile_hash(cell.y, cell.x) % 628) / 100.0
-		var bob: float = sin(run.elapsed * 4.0 + h) * Units.px(2.0)
-		var sy: float = 1.0
+		var since: float = 999.0
 		if fired.has(cell):
-			var since: float = run.elapsed - float(fired[cell])
-			if since < GameplayLits.MUSH_SQUASH_TIME:
+			since = run.elapsed - float(fired[cell])
+		var sx: float = 1.0
+		var sy: float = 1.0
+		var t: Texture2D
+		if since < bounce_dur:
+			t = frame_p("mushroom", "bounce", since / bounce_dur)
+			if since < GameplayLits.MUSH_SQUASH_TIME:   # squash forte no impacto, volta ao normal
 				sy = 0.6 + 0.4 * (since / GameplayLits.MUSH_SQUASH_TIME)
-		var ctr: Vector2 = Units.cell_center(cell.x, cell.y) + Vector2(0, bob)
-		ci.draw_set_transform(ctr, 0.0, Vector2(1.0, sy))
-		draw_slot(ci, "mushroom", Rect2(-Units.TILE / 2.0, -Units.TILE / 2.0, Units.TILE, Units.TILE), Color(0.86, 0.31, 0.31, 0.9))
+				sx = 1.0 + (1.0 - sy) * 0.8
+		else:
+			t = frame_at("mushroom", "idle", run.elapsed + h)
+		# a escala e aplicada em torno da BASE do sprite (nao flutua ao achatar)
+		var ctr: Vector2 = Units.cell_center(cell.x, cell.y) + Vector2(0, Units.TILE / 2.0 * (1.0 - sy))
+		ci.draw_set_transform(ctr, 0.0, Vector2(sx, sy))
+		draw_tex(ci, t, Vector2.ZERO, Color(0.86, 0.31, 0.31, 0.9))
 	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

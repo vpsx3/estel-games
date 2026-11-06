@@ -63,10 +63,8 @@ func ghost_alpha() -> float:
 
 func draw_under(ci: CanvasItem) -> void:
 	for p in portals:
-		ci.draw_set_transform(Units.cell_center(p.x, p.y), run.elapsed * 1.5, Vector2.ONE)
-		draw_slot(ci, "portal", Rect2(-Units.TILE / 2.0, -Units.TILE / 2.0, Units.TILE, Units.TILE),
-			Color(0.7, 0.31, 1.0, 0.95), Color(1, 1, 1, 0.7 + 0.3 * sin(run.elapsed * 4.0)))
-	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		draw_tex(ci, frame_at("portal", "default", run.elapsed), Units.cell_center(p.x, p.y),
+			Color(0.7, 0.31, 1.0, 0.95), Color(1, 1, 1, 0.8 + 0.2 * sin(run.elapsed * 4.0)))
 
 
 func draw_over(ci: CanvasItem) -> void:

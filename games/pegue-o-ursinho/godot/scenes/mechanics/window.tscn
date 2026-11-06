@@ -1,13 +1,14 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/gameplay/mech_marker.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/_placeholder/mechanics/window_eyes.png" id="2"]
+[ext_resource type="SpriteFrames" path="res://assets/mechanics/window_eyes/window_eyes_frames.tres" id="2"]
 
 [node name="Window" type="Node2D"]
 script = ExtResource("1")
 kind = "window"
 radius_cells = -1.0
 
-[node name="Sprite" type="Sprite2D" parent="."]
-scale = Vector2(0.222222, 0.222222)
-texture = ExtResource("2")
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2")
+animation = &"blink"
+autoplay = "blink"

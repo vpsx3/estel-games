@@ -1,7 +1,8 @@
 [gd_resource type="Resource" script_class="BiomeConfig" format=3]
 
 [ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_efj0a"]
-[ext_resource type="TileSet" path="res://tilesets/placeholder/02-praia-dos-coqueiros.tres" id="2_7rosb"]
+[ext_resource type="TileSet" path="res://tilesets/biome_02.tres" id="2_7rosb"]
+[ext_resource type="TileSet" path="res://tilesets/biome_02_details.tres" id="3_details"]
 
 [resource]
 script = ExtResource("1_efj0a")
@@ -23,3 +24,4 @@ mech = {
 target_wall_density = 0.31
 tileset = ExtResource("2_7rosb")
 corner_map_path = "res://tilesets/corner_maps/biome_02_praia_dos_coqueiros.json"
+detail_tiles = ExtResource("3_details")

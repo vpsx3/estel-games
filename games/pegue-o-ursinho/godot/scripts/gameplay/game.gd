@@ -23,6 +23,7 @@ var run: GameRun
 var buffs: BuffSystem
 var level: Node2D
 var _bear_view: BearView
+var _vfx: VfxDirector
 var _under_view: WorldView
 var _over_view: WorldView
 var _ghost_views: Dictionary = {}   # GhostModel -> GhostView
@@ -67,6 +68,9 @@ func prepare() -> void:
 	if _bear_view != null:
 		_bear_view.queue_free()
 		_bear_view = null
+	if _vfx != null:
+		_vfx.queue_free()
+		_vfx = null
 	run = GameRun.new(rng_seed)
 	run.sync_game_state = true
 	run.attr_levels = Shop.new().levels()
@@ -89,6 +93,9 @@ func begin() -> bool:
 	_bear_view = BEAR_SCENE.instantiate() as BearView
 	world.add_child(_bear_view)
 	_bear_view.bind(run)
+	_vfx = VfxDirector.new()   # VFX ligados a Events/estado da run (scripts/vfx)
+	_vfx.bind(run, world)
+	world.add_child(_vfx)
 	camera.snap_to(run.bear.pos)
 	if use_api:
 		ApiClient.start_session()   # sem await: o token chega depois (falha silenciosa)

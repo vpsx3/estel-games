@@ -1,7 +1,8 @@
 [gd_resource type="Resource" script_class="BiomeConfig" format=3]
 
 [ext_resource type="Script" path="res://scripts/level/biome_config.gd" id="1_yebop"]
-[ext_resource type="TileSet" path="res://tilesets/placeholder/08-ilhas-flutuantes.tres" id="2_s38oa"]
+[ext_resource type="TileSet" path="res://tilesets/biome_08.tres" id="2_s38oa"]
+[ext_resource type="TileSet" path="res://tilesets/biome_08_details.tres" id="3_details"]
 
 [resource]
 script = ExtResource("1_yebop")
@@ -25,3 +26,4 @@ mech = {
 target_wall_density = 0.47
 tileset = ExtResource("2_s38oa")
 corner_map_path = "res://tilesets/corner_maps/biome_08_ilhas_flutuantes.json"
+detail_tiles = ExtResource("3_details")

@@ -63,17 +63,22 @@ func update(r: GameRun, dt: float) -> void:
 func draw_under(ci: CanvasItem) -> void:
 	for t in trail:
 		var a: float = float(t["life"]) / cfg_f("trailLife")
-		var pulse: float = 1.0 + 0.15 * sin(run.elapsed * 12.0 + (t["pos"] as Vector2).x)
-		ci.draw_set_transform(t["pos"] as Vector2, 0.0, Vector2(pulse, pulse))
-		var sz: float = Units.TILE * 0.8
-		draw_slot(ci, "fire_trail", Rect2(-sz / 2.0, -sz / 2.0, sz, sz), Color(1.0, 0.47, 0.16, 0.7), Color(1, 1, 1, a))
-	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		draw_tex(ci, frame_at("fire_trail", "default", run.elapsed + (t["pos"] as Vector2).x * 0.02), t["pos"] as Vector2,
+			Color(1.0, 0.47, 0.16, 0.7), Color(1, 1, 1, a), Vector2(Units.TILE * 0.8, Units.TILE * 0.8))
 	for g in geysers:
 		var cell: Vector2i = g["cell"] as Vector2i
 		var al: float = 1.0
 		if geyser_state(g) == "warming":
 			al = 0.7 + 0.3 * sin(run.elapsed * 20.0)   # shimmer telegrafa antes do fogo
-		draw_slot(ci, "geyser_idle", cell_rect(cell.x, cell.y), Color(0.47, 0.24, 0.16, 0.85), Color(1, 1, 1, al))
+		draw_tex(ci, frame_at("geyser", "idle", run.elapsed + float(g["phase"])), Units.cell_center(cell.x, cell.y),
+			Color(0.47, 0.24, 0.16, 0.85), Color(1, 1, 1, al))
+
+
+## Progresso 0..1 da janela de fogo do geiser (sin(theta) > GEYSER_FIRE_AT).
+func fire_progress(g: Dictionary) -> float:
+	var th: float = fposmod(run.elapsed * cfg_f("geySpeed") + float(g["phase"]), TAU)
+	var a: float = asin(GameplayLits.GEYSER_FIRE_AT)
+	return clampf((th - a) / (PI - 2.0 * a), 0.0, 1.0)
 
 
 func draw_over(ci: CanvasItem) -> void:
@@ -81,8 +86,5 @@ func draw_over(ci: CanvasItem) -> void:
 		if geyser_state(g) != "fire":
 			continue
 		var cell: Vector2i = g["cell"] as Vector2i
-		var flick: float = 1.0 + 0.12 * sin(run.elapsed * 25.0 + float(g["phase"]))
-		ci.draw_set_transform(Units.cell_center(cell.x, cell.y), 0.0, Vector2(flick, flick))
-		draw_slot(ci, "geyser_fire", Rect2(-Units.TILE / 2.0, -Units.TILE, Units.TILE, Units.TILE * 1.4),
-			Color(1.0, 0.47, 0.12, 0.9), Color(1, 1, 1, 0.85 + 0.15 * sin(run.elapsed * 30.0)))
-	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		draw_tex(ci, frame_p("geyser", "fire", fire_progress(g)), Units.cell_center(cell.x, cell.y),
+			Color(1.0, 0.47, 0.12, 0.9))

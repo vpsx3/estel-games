@@ -75,13 +75,12 @@ func speed_mult(r: GameRun) -> float:
 
 
 func draw_under(ci: CanvasItem) -> void:
-	for cell: Vector2i in carpet:   # tapete primeiro (grade por cima)
-		draw_slot(ci, "carpet", cell_rect(cell.x, cell.y), Color(0.67, 0.16, 0.16, 0.5))
+	for cell: Vector2i in carpet:   # tapete primeiro (grade por cima); 3 variacoes por hash da celula
+		var v: int = tile_hash(cell.y, cell.x) % 3
+		draw_tex(ci, frame_i("carpet", "v%d" % v, 0), Units.cell_center(cell.x, cell.y), Color(0.67, 0.16, 0.16, 0.5))
 	for g in gates:
-		var cl: float = maxf(0.0, float(g["cl"]))
-		if cl <= 0.02:
-			continue   # aberta: barras recolhidas
+		var cl: float = float(g["cl"])
 		var cell: Vector2i = g["cell"] as Vector2i
-		ci.draw_set_transform(Vector2(cell.x * Units.TILE, cell.y * Units.TILE), 0.0, Vector2(1.0, maxf(0.05, cl)))
-		draw_slot(ci, "gate", Rect2(0, 0, Units.TILE, Units.TILE), Color(0.75, 0.67, 0.35, 0.92), Color(1, 1, 1, 0.25 + 0.75 * cl))
-	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		# cl <= -0.2 aberta (frame 5) ... cl >= limiar fechada (frame 0): as 6 primeiras do open_close
+		var k: float = clampf((cl + 0.2) / (GameplayLits.CASTLE_CLOSED_THRESHOLD + 0.2), 0.0, 1.0)
+		draw_tex(ci, frame_i("gate", "open_close", int(round((1.0 - k) * 5.0))), Units.cell_center(cell.x, cell.y), Color(0.75, 0.67, 0.35, 0.92 * k))

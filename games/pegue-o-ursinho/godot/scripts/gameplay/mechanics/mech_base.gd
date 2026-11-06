@@ -8,9 +8,10 @@ extends RefCounted
 ## LevelRoot/Mecanicas do seu `kind`; se nao houver nenhum, gera proceduralmente como o JS
 ## (sorteios com run.rng). Parametros numericos: cfg (BIOME_MECH / BiomeConfig.mech).
 
-const TEX_DIR: String = "res://assets/_placeholder/mechanics/"
+const ART_DIR: String = "res://assets/mechanics/"
+const VFX_DIR: String = "res://assets/vfx/"
 
-static var _tex_cache: Dictionary = {}
+static var _frames_cache: Dictionary = {}
 
 var run: GameRun
 var cfg: Dictionary = {}
@@ -53,6 +54,11 @@ func apply_drift(_r: GameRun, _dt: float) -> void:
 
 func ghost_alpha() -> float:
 	return 1.0
+
+
+## Chamado pela WorldView quando a mecanica muda: cria nos auxiliares (ex.: camada de agua com shader).
+func attach_nodes(_host: Node2D) -> void:
+	pass
 
 
 func draw_under(_ci: CanvasItem) -> void:
@@ -152,25 +158,60 @@ static func tile_hash(r: int, c: int) -> int:
 	return ((r * 73856093) ^ (c * 19349663)) & 0xFFFFFFFF
 
 
-# ---- desenho ----
-static func tex(slot: String) -> Texture2D:
-	if _tex_cache.has(slot):
-		return _tex_cache[slot] as Texture2D
-	var path: String = TEX_DIR + slot + ".png"
-	var t: Texture2D = null
-	if ResourceLoader.exists(path):
-		t = load(path) as Texture2D
-	_tex_cache[slot] = t
-	return t
+# ---- desenho (arte PixelLab: SpriteFrames em assets/mechanics/<slot>/<slot>_frames.tres) ----
+## SpriteFrames do slot (ou do VFX "vfx:<id>"); null se nao existir (a mecanica usa o retangulo de reserva).
+static func frames(slot: String) -> SpriteFrames:
+	if _frames_cache.has(slot):
+		return _frames_cache[slot] as SpriteFrames
+	var path: String = VFX_DIR + slot.substr(4) + "/" + slot.substr(4) + "_frames.tres" if slot.begins_with("vfx:") 		else ART_DIR + slot + "/" + slot + "_frames.tres"
+	var sf: SpriteFrames = load(path) as SpriteFrames if ResourceLoader.exists(path) else null
+	_frames_cache[slot] = sf
+	return sf
+
+
+## Frame da animacao `anim` no instante t (s): em loop ou preso no ultimo frame.
+static func frame_at(slot: String, anim: String, t: float, loop: bool = true) -> Texture2D:
+	var sf: SpriteFrames = frames(slot)
+	if sf == null or not sf.has_animation(anim):
+		return null
+	var n: int = sf.get_frame_count(anim)
+	var i: int = int(floor(maxf(t, 0.0) * sf.get_animation_speed(anim)))
+	i = posmod(i, n) if loop else mini(i, n - 1)
+	return sf.get_frame_texture(anim, i)
+
+
+## Frame da animacao por progresso 0..1.
+static func frame_p(slot: String, anim: String, p: float) -> Texture2D:
+	var sf: SpriteFrames = frames(slot)
+	if sf == null or not sf.has_animation(anim):
+		return null
+	var n: int = sf.get_frame_count(anim)
+	return sf.get_frame_texture(anim, clampi(int(p * n), 0, n - 1))
+
+
+## Frame por indice (preso nos limites).
+static func frame_i(slot: String, anim: String, i: int) -> Texture2D:
+	var sf: SpriteFrames = frames(slot)
+	if sf == null or not sf.has_animation(anim):
+		return null
+	return sf.get_frame_texture(anim, clampi(i, 0, sf.get_frame_count(anim) - 1))
+
+
+static func anim_duration(slot: String, anim: String) -> float:
+	var sf: SpriteFrames = frames(slot)
+	if sf == null or not sf.has_animation(anim):
+		return 0.0
+	return float(sf.get_frame_count(anim)) / sf.get_animation_speed(anim)
 
 
 static func cell_rect(c: int, r: int) -> Rect2:
 	return Rect2(c * Units.TILE, r * Units.TILE, Units.TILE, Units.TILE)
 
 
-func draw_slot(ci: CanvasItem, slot: String, rect: Rect2, fallback: Color, modulate: Color = Color.WHITE) -> void:
-	var t: Texture2D = tex(slot)
+## Desenha `t` no TAMANHO NATIVO (pixel-perfect), centrado em `center` (no espaco atual do CanvasItem).
+## Sem textura: retangulo de reserva `fallback` do tamanho de `fb_size`.
+func draw_tex(ci: CanvasItem, t: Texture2D, center: Vector2, fallback: Color, modulate: Color = Color.WHITE, fb_size: Vector2 = Vector2(32, 32)) -> void:
 	if t != null:
-		ci.draw_texture_rect(t, rect, false, modulate)
+		ci.draw_texture(t, (center - t.get_size() / 2.0).round(), modulate)
 	else:
-		ci.draw_rect(rect, fallback)
+		ci.draw_rect(Rect2(center - fb_size / 2.0, fb_size), fallback)

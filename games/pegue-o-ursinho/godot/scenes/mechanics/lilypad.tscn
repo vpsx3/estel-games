@@ -1,12 +1,13 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/gameplay/mech_marker.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/_placeholder/mechanics/lilypad.png" id="2"]
+[ext_resource type="SpriteFrames" path="res://assets/mechanics/lilypad/lilypad_frames.tres" id="2"]
 
 [node name="Lilypad" type="Node2D"]
 script = ExtResource("1")
 kind = "lilypad"
 
-[node name="Sprite" type="Sprite2D" parent="."]
-scale = Vector2(0.222222, 0.222222)
-texture = ExtResource("2")
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2")
+animation = &"float"
+autoplay = "float"

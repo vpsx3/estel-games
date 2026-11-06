@@ -69,14 +69,11 @@ func update(r: GameRun, dt: float) -> void:
 
 func draw_over(ci: CanvasItem) -> void:
 	var sz: float = Units.px(34.0)
-	var sheet: Texture2D = tex("bat_sheet")
 	for b in bats:
 		var p: Vector2 = b["pos"] as Vector2
+		var v: Vector2 = b["vel"] as Vector2
 		ci.draw_circle(p, sz * 0.9, Color(0.78, 0.67, 1.0, 0.25))   # halo
-		var flip: float = -1.0 if (b["vel"] as Vector2).x < 0.0 else 1.0
-		ci.draw_set_transform(p, 0.0, Vector2(flip, 1.0))
-		if sheet != null:
-			ci.draw_texture_rect_region(sheet, Rect2(-sz / 2.0, -sz / 2.0, sz, sz), Rect2(int(b["frame"]) * 144, 0, 144, 144))
-		else:
-			ci.draw_circle(Vector2.ZERO, sz * 0.4, Color("6a5a8a"))
-	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		var dir: String = "east" if v.x >= 0.0 else "west"
+		if absf(v.y) > absf(v.x):
+			dir = "south" if v.y > 0.0 else "north"
+		draw_tex(ci, frame_at("bat", "fly_" + dir, run.elapsed + p.x * 0.01), p.round(), Color("6a5a8a"), Color.WHITE, Vector2(sz * 0.8, sz * 0.8))

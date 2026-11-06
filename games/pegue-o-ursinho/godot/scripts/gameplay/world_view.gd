@@ -15,7 +15,17 @@ func bind(r: GameRun) -> void:
 	run = r
 
 
+var _mech_seen: Object = null
+
+
 func _process(_dt: float) -> void:
+	var m: Object = run.mech if run != null else null
+	if m != _mech_seen:   # mecanica nova (troca de bioma/run): refaz os nos auxiliares (ex.: agua com shader)
+		for c: Node in get_children():
+			c.queue_free()
+		_mech_seen = m
+		if m != null and mode == "under" and m.has_method("attach_nodes"):
+			m.call("attach_nodes", self)
 	queue_redraw()
 
 

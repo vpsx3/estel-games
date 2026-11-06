@@ -59,4 +59,6 @@ func draw_under(ci: CanvasItem) -> void:
 			continue
 		var cell: Vector2i = w["cell"] as Vector2i
 		var p: float = minf(1.0, float(w["t"]) / float(w["telegraph"]))
-		draw_slot(ci, "window_eyes", cell_rect(cell.x, cell.y), Color(1.0, 0.82, 0.31, 0.95), Color(1, 1, 1, 0.35 + 0.65 * p))
+		# olhos piscam no comeco da espreita e passam a brilhar perto do spawn
+		draw_tex(ci, frame_at("window_eyes", "blink" if p < 0.5 else "glow", run.elapsed), Units.cell_center(cell.x, cell.y),
+			Color(1.0, 0.82, 0.31, 0.95), Color(1, 1, 1, 0.35 + 0.65 * p))

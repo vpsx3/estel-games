@@ -178,12 +178,49 @@ func scatter_details() -> void:
 		return
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = detail_seed
+	var cands: Array[Vector2i] = detail_candidates()
+	if cands.is_empty():
+		return
+	# detail_density = fracao do PISO TOTAL; sobre os candidatos (piso afastado de parede) fica proporcional
+	var p: float = minf(0.35, detail_density * float(_free_count()) / float(cands.size()))
+	for cell: Vector2i in cands:
+		var roll: float = rng.randf()
+		var pick: int = rng.randi() % src.get_tiles_count()
+		if roll < p:
+			det.set_cell(cell, src_id, src.get_tile_id(pick))
+
+
+func _free_count() -> int:
+	var n: int = 0
 	for r in ROWS:
 		for c in COLS:
-			var roll: float = rng.randf()
-			var pick: int = rng.randi() % src.get_tiles_count()
-			if not is_wall(c, r) and roll < detail_density:
-				det.set_cell(Vector2i(c, r), src_id, src.get_tile_id(pick))
+			if not is_wall(c, r):
+				n += 1
+	return n
+
+
+## Celulas de piso que podem receber variacao (opaca): preferem 8 vizinhas livres (nao cobrem a borda
+## parede/piso do Visual); em mapas de corredor estreito cai para 4 vizinhas e, por fim, qualquer piso.
+func detail_candidates() -> Array[Vector2i]:
+	var any: Array[Vector2i] = []
+	var f4: Array[Vector2i] = []
+	var f8: Array[Vector2i] = []
+	for r in ROWS:
+		for c in COLS:
+			if is_wall(c, r):
+				continue
+			any.append(Vector2i(c, r))
+			if is_wall(c + 1, r) or is_wall(c - 1, r) or is_wall(c, r + 1) or is_wall(c, r - 1):
+				continue
+			f4.append(Vector2i(c, r))
+			if not (is_wall(c + 1, r + 1) or is_wall(c - 1, r + 1) or is_wall(c + 1, r - 1) or is_wall(c - 1, r - 1)):
+				f8.append(Vector2i(c, r))
+	var min_n: int = maxi(8, int(any.size() * 0.06))
+	if f8.size() >= min_n:
+		return f8
+	if f4.size() >= min_n:
+		return f4
+	return any
 
 
 func validate_and_print() -> Dictionary:

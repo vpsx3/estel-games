@@ -34,12 +34,23 @@ func blocks_bear(x: float, y: float) -> bool:
 	return flooded.has(Units.world_to_cell(Vector2(x, y)))
 
 
+var _overlay: WaterOverlay
+
+
+func attach_nodes(host: Node2D) -> void:
+	_overlay = WaterOverlay.new()   # agua com shader (scroll + brilho) atras do desenho da WorldView
+	host.add_child(_overlay)
+
+
 func draw_under(ci: CanvasItem) -> void:
-	for cell: Vector2i in flooded:
-		draw_slot(ci, "water", cell_rect(cell.x, cell.y), Color(0.157, 0.43, 0.78, 0.8), Color(1, 1, 1, 0.8))
+	if _overlay != null and is_instance_valid(_overlay):
+		_overlay.set_state(flooded.keys(), run.elapsed)
+	else:   # sem a camada (testes/fallback): retangulos
+		for cell: Vector2i in flooded:
+			ci.draw_rect(cell_rect(cell.x, cell.y), Color(0.157, 0.43, 0.78, 0.8))
 	for cell: Vector2i in flooded:
 		if flooded.has(Vector2i(cell.x, cell.y - 1)):
 			continue
 		var sway: float = sin(run.elapsed * 3.0 + cell.x * 0.6) * Units.px(2.0)
-		var rect: Rect2 = Rect2(cell.x * Units.TILE, cell.y * Units.TILE - Units.TILE * 0.25 + sway, Units.TILE, Units.TILE * 0.5)
-		draw_slot(ci, "foam", rect, Color(1, 1, 1, 0.55))
+		var ctr: Vector2 = Vector2(cell.x * Units.TILE + Units.TILE / 2.0, cell.y * Units.TILE + sway)
+		draw_tex(ci, frame_at("foam", "default", run.elapsed + cell.x * 0.13), ctr, Color(1, 1, 1, 0.55), Color.WHITE, Vector2(Units.TILE, Units.TILE * 0.5))

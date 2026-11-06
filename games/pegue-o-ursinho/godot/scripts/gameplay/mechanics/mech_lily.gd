@@ -64,13 +64,12 @@ func draw_under(ci: CanvasItem) -> void:
 		if st == "gone":
 			continue
 		var ctr: Vector2 = Units.cell_center(key.x, key.y)
-		var rect: Rect2 = Rect2(-Units.TILE / 2.0, -Units.TILE / 2.0, Units.TILE, Units.TILE)
 		if st == "stable":
 			ci.draw_set_transform(ctr, 0.0, Vector2.ONE)
-			draw_slot(ci, "lilypad", rect, Color(0.24, 0.59, 0.27, 0.9))
+			draw_tex(ci, frame_at("lilypad", "float", run.elapsed + float(tile_hash(key.y, key.x) % 628) / 100.0), Vector2.ZERO, Color(0.24, 0.59, 0.27, 0.9))
 		else:   # sinking: tremor/tilt proporcional ao progresso
 			var prog: float = 1.0 - float(l["t"]) / cfg_f("sinkDelay")
 			var tilt: float = sin(run.elapsed * 30.0) * 0.12 * prog
 			ci.draw_set_transform(ctr, tilt, Vector2(1.0, 1.0 - 0.25 * prog))
-			draw_slot(ci, "lilypad_sink", rect, Color(0.2, 0.47, 0.24, 0.8), Color(1, 1, 1, 1.0 - 0.3 * prog))
+			draw_tex(ci, frame_p("lilypad", "sink", prog), Vector2.ZERO, Color(0.2, 0.47, 0.24, 0.8), Color(1, 1, 1, 1.0 - 0.3 * prog))
 	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
