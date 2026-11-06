@@ -1,0 +1,82 @@
+[
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_tiles_pro",
+  "id": "4471feab-cf72-4571-81b5-ab584ffba786",
+  "prompt": "6 pisos de grama com style_images=lower do tileset v3 (76ca9949)",
+  "parametros": "square_topdown;top-down;32;16 saidas",
+  "custo": "10 gen",
+  "status": "candidato (picks 0,3,4,8,10,12)",
+  "destino": "art_source/pixellab/biomes/biome_01_floresta_encantada/variations"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "9d600ec7-1028-4b5b-976b-95b20e792817",
+  "prompt": "PREFIX_8.1 + cute bouncy red mushroom spring with white polka dots on the cap, chubby cream stem",
+  "parametros": "32x32;view=high top-down;outline=single color outline;shading=basic;detail=medium",
+  "custo": "n/d",
+  "status": "candidato",
+  "destino": "art_source/pixellab/biomes/biome_01_floresta_encantada/mechanics/mushroom"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "animate_object",
+  "id": "9d600ec7-1028-4b5b-976b-95b20e792817",
+  "prompt": "gentle wobble, the mushroom sways softly side to side, seamless loop",
+  "parametros": "mode=v3;frame_count=6;keep_first_frame=false",
+  "custo": "~1 gen",
+  "status": "candidato",
+  "destino": "art_source/pixellab/biomes/biome_01_floresta_encantada/mechanics/mushroom/idle"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "animate_object",
+  "id": "9d600ec7-1028-4b5b-976b-95b20e792817",
+  "prompt": "bouncy squash and spring up, the cap squashes flat then springs up tall and settles back",
+  "parametros": "mode=v3;frame_count=8;keep_first_frame=false",
+  "custo": "~1 gen",
+  "status": "candidato",
+  "destino": "art_source/pixellab/biomes/biome_01_floresta_encantada/mechanics/mushroom/bounce"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "62b1b006-d960-4d3f-a6f5-f3f117362587",
+  "prompt": "PREFIX_8.1 + small cluster of toadstools with orange and cream caps and tiny dots",
+  "parametros": "32x32;view=high top-down;outline=single color outline;shading=basic;detail=medium",
+  "custo": "n/d",
+  "status": "candidato",
+  "destino": "art_source/pixellab/biomes/biome_01_floresta_encantada/decor/toadstools"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "869a8209-c518-4e24-9346-80cb882d9aee",
+  "prompt": "PREFIX_8.1 + small bunch of pink and white wildflowers with green leaves",
+  "parametros": "32x32;view=high top-down;outline=single color outline;shading=basic;detail=medium",
+  "custo": "n/d",
+  "status": "candidato",
+  "destino": "art_source/pixellab/biomes/biome_01_floresta_encantada/decor/flores"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "0591abd6-04fc-4be0-bc53-a32e71f54ef0",
+  "prompt": "PREFIX_8.1 + cute glowing firefly with a round yellow glowing belly, tiny pale wings, soft warm yellow glow halo",
+  "parametros": "32x32;view=high top-down;outline=single color outline;shading=basic;detail=medium",
+  "custo": "n/d",
+  "status": "candidato",
+  "destino": "art_source/pixellab/biomes/biome_01_floresta_encantada/decor/vaga_lume"
+ },
+ {
+  "data": "2026-11-05",
+  "ferramenta": "create_map_object",
+  "id": "e5e013ae-20ca-40e3-b219-fc8a8822706e",
+  "prompt": "PREFIX_8.1 + round tree stump with visible rings seen from above, covered with soft green moss and a tiny sprout",
+  "parametros": "32x32;view=high top-down;outline=single color outline;shading=basic;detail=medium",
+  "custo": "n/d",
+  "status": "candidato",
+  "destino": "art_source/pixellab/biomes/biome_01_floresta_encantada/decor/toco"
+ }
+]
