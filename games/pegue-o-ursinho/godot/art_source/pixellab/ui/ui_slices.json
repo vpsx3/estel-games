@@ -1,0 +1,238 @@
+{
+ "_note": "Margens 9-slice em px nativos da textura (left,top,right,bottom). Texturas sao pixel art nativa: filtro nearest e escala inteira (2x/3x). Botoes: custom_minimum_size >= 48 logicos (ex.: 69x28 nativo x2 = 138x56).",
+ "panel.png": {
+  "size": [
+   234,
+   233
+  ],
+  "margins": [
+   40,
+   40,
+   40,
+   40
+  ]
+ },
+ "button_normal.png": {
+  "size": [
+   69,
+   28
+  ],
+  "margins": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "states": {
+   "hover": "button_hover.png",
+   "pressed": "button_pressed.png (conteudo 1px abaixo)",
+   "disabled": "button_disabled.png"
+  },
+  "min_touch_size_logical": [
+   48,
+   48
+  ]
+ },
+ "card_comum.png": {
+  "size": [
+   165,
+   219
+  ],
+  "margins": [
+   24,
+   24,
+   24,
+   24
+  ],
+  "rarity_color": "#7CE0A0"
+ },
+ "timebar_bg.png": {
+  "size": [
+   214,
+   41
+  ],
+  "margins": [
+   16,
+   14,
+   16,
+   14
+  ],
+  "fill_offset": [
+   18,
+   10
+  ]
+ },
+ "timebar_fill.png": {
+  "size": [
+   180,
+   20
+  ],
+  "margins": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "usage": "TextureProgressBar: texture_under=timebar_bg, texture_progress=timebar_fill, offset (18,10)"
+ },
+ "joystick_base.png": {
+  "size": [
+   242,
+   241
+  ],
+  "margins": null,
+  "note": "sem 9-slice; centro ~ (121,120)"
+ },
+ "joystick_knob.png": {
+  "size": [
+   108,
+   107
+  ],
+  "margins": null
+ },
+ "jump_normal.png": {
+  "size": [
+   108,
+   108
+  ],
+  "margins": null
+ },
+ "jump_cooldown.png": {
+  "size": [
+   108,
+   108
+  ],
+  "margins": null,
+  "note": "mesmo sprite dessaturado/escurecido; sobrepor arco de recarga no Godot"
+ },
+ "card_incomum.png": {
+  "size": [
+   165,
+   219
+  ],
+  "margins": [
+   24,
+   24,
+   24,
+   24
+  ],
+  "rarity_color": "#8AB4FF"
+ },
+ "card_raro.png": {
+  "size": [
+   165,
+   219
+  ],
+  "margins": [
+   24,
+   24,
+   24,
+   24
+  ],
+  "rarity_color": "#FF8A8A"
+ },
+ "card_comum_dark.png": {
+  "size": [
+   165,
+   219
+  ],
+  "margins": [
+   24,
+   24,
+   24,
+   24
+  ],
+  "note": "interior escuro (texto claro); usado em BuffCard<Raridade> no cozy_theme"
+ },
+ "card_incomum_dark.png": {
+  "size": [
+   165,
+   219
+  ],
+  "margins": [
+   24,
+   24,
+   24,
+   24
+  ],
+  "note": "interior escuro (texto claro); usado em BuffCard<Raridade> no cozy_theme"
+ },
+ "card_raro_dark.png": {
+  "size": [
+   165,
+   219
+  ],
+  "margins": [
+   24,
+   24,
+   24,
+   24
+  ],
+  "note": "interior escuro (texto claro); usado em BuffCard<Raridade> no cozy_theme"
+ },
+ "button_normal_x2.png": {
+  "size": [
+   138,
+   56
+  ],
+  "margins": [
+   16,
+   16,
+   16,
+   16
+  ],
+  "note": "2x nearest de button_normal.png; usado no tema"
+ },
+ "button_hover_x2.png": {
+  "size": [
+   138,
+   56
+  ],
+  "margins": [
+   16,
+   16,
+   16,
+   16
+  ],
+  "note": "2x nearest de button_hover.png; usado no tema"
+ },
+ "button_pressed_x2.png": {
+  "size": [
+   138,
+   56
+  ],
+  "margins": [
+   16,
+   16,
+   16,
+   16
+  ],
+  "note": "2x nearest de button_pressed.png; usado no tema"
+ },
+ "button_disabled_x2.png": {
+  "size": [
+   138,
+   56
+  ],
+  "margins": [
+   16,
+   16,
+   16,
+   16
+  ],
+  "note": "2x nearest de button_disabled.png; usado no tema"
+ },
+ "chip_dark.png": {
+  "size": [
+   69,
+   28
+  ],
+  "margins": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "note": "PanelContainer/LineEdit/linhas/BuffCard padrao"
+ }
+}

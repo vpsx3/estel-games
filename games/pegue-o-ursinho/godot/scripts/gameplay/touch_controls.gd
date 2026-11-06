@@ -13,7 +13,12 @@ var jump_cd_text: String = ""          # preenchido pela cena de jogo (ex.: "3s"
 var _joy_finger: int = -2              # -2 nenhum, -1 mouse, >=0 indice do toque
 var _joy_center: Vector2 = Vector2.ZERO
 var _jump_center: Vector2 = Vector2.ZERO
-const JUMP_R: float = 40.0
+const JUMP_R: float = 54.0            # botao 108 px = textura jump_normal 1:1 (area de toque >= 48)
+const TEX_JOY_BASE: Texture2D = preload("res://assets/ui/panels/joystick_base.png")
+const TEX_JOY_KNOB: Texture2D = preload("res://assets/ui/panels/joystick_knob.png")
+const TEX_JUMP: Texture2D = preload("res://assets/ui/panels/jump_normal.png")
+const TEX_JUMP_CD: Texture2D = preload("res://assets/ui/panels/jump_cooldown.png")
+var jump_cd_ratio: float = 0.0         # recarga restante 0..1 (jump.cd / jump.cd_max), preenchido pela cena de jogo
 
 
 func _ready() -> void:
@@ -69,7 +74,22 @@ func _input(event: InputEvent) -> void:
 		queue_redraw()
 
 
+## Recebe o estado do pulo (cena de jogo chama todo frame).
+func set_jump_cooldown(cd: float, cd_max: float) -> void:
+	var ratio: float = clampf(cd / cd_max, 0.0, 1.0) if cd_max > 0.0 else 0.0
+	if absf(ratio - jump_cd_ratio) > 0.002 or (ratio == 0.0) != (jump_cd_ratio == 0.0):
+		jump_cd_ratio = ratio
+		queue_redraw()
+
+
 func _draw() -> void:
-	draw_circle(_joy_center, PouJoystick.radius(), Color(1, 1, 1, 0.12))
-	draw_circle(_joy_center + joystick.knob_offset(), PouJoystick.radius() * 0.45, Color(1, 1, 1, 0.45))
-	draw_circle(_jump_center, JUMP_R, Color(0.6, 1.0, 0.6, 0.3))
+	# Arte em escala 0.5 (pixel-perfect); o raio logico (JOY_RADIUS) nao muda, so o desenho e maior.
+	var br: Vector2 = TEX_JOY_BASE.get_size() * 0.5 * 0.5
+	draw_texture_rect(TEX_JOY_BASE, Rect2(_joy_center - br, br * 2.0), false, Color(1, 1, 1, 0.85))
+	var kr: float = TEX_JOY_KNOB.get_size().x * 0.25
+	draw_texture_rect(TEX_JOY_KNOB, Rect2(_joy_center + joystick.knob_offset() - Vector2(kr, kr), Vector2(kr, kr) * 2.0), false)
+	var jr: Vector2 = Vector2(JUMP_R, JUMP_R)
+	var tex: Texture2D = TEX_JUMP_CD if jump_cd_ratio > 0.0 else TEX_JUMP
+	draw_texture_rect(tex, Rect2(_jump_center - jr, jr * 2.0), false)
+	if jump_cd_ratio > 0.0:   # arco de recarga: some no sentido horario ate liberar
+		draw_arc(_jump_center, JUMP_R + 5.0, -PI / 2.0, -PI / 2.0 + TAU * jump_cd_ratio, 48, Color("#FFC83D"), 5.0, false)

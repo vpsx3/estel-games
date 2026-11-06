@@ -34,7 +34,7 @@ window/handheld/orientation=1
 
 [gui]
 
-theme/custom="res://themes/_placeholder_theme.tres"
+theme/custom="res://themes/cozy_theme.tres"
 
 [ursinho]
 

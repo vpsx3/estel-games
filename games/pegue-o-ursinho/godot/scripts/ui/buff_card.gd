@@ -24,6 +24,7 @@ func setup(buff: Dictionary, show_number: bool) -> void:
 	sel_num.visible = show_number
 	sel_num.text = ""
 	var rar: String = str(buff["rar"])
+	theme_type_variation = StringName("BuffCard" + rar.capitalize())   # moldura por raridade (cozy_theme)
 	rarity_label.theme_type_variation = StringName("Rarity" + rar.capitalize())
 	UiIcons.apply(icon_rect, buff_id, UiIcons.rarity_color(rar), I18n.buff_name(buff_id))
 	_texts()

@@ -30,8 +30,8 @@ func test_each_scene_instantiates_without_emoji() -> void:
 		inst.queue_free()
 	check(load("res://scenes/main.tscn") != null, "main.tscn")
 	eq(str(ProjectSettings.get_setting("application/run/main_scene")), "res://scenes/main.tscn", "main_scene")
-	check(ProjectSettings.get_setting("gui/theme/custom") == "res://themes/_placeholder_theme.tres", "tema placeholder")
-	check(load("res://themes/_placeholder_theme.tres") is Theme, "tema carrega")
+	check(ProjectSettings.get_setting("gui/theme/custom") == "res://themes/cozy_theme.tres", "tema cozy")
+	check(load("res://themes/cozy_theme.tres") is Theme, "tema carrega")
 
 
 func test_buttons_min_height_and_viewport() -> void:

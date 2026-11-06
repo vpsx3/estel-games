@@ -1,0 +1,6 @@
+{
+ "font": "UrsinhoCozy.ttf",
+ "pixel_size": 16,
+ "note": "use size multiple of 16, antialiasing off",
+ "codepoints": " !\"#$%'()*+,-./0123456789:;<=>?ABCDEFGHIJKLMNOPQRSTUVWXYZ[]_abcdefghijklmnopqrstuvwxyz| ª·ºÀÁÂÃÇÈÉÊÌÍÎÒÓÔÕ×ÙÚÛàáâãçèéêìíîòóôõùúûĨĩŨũẼẽ–—•…←→−▶◆◇★⬆"
+}

@@ -2,13 +2,20 @@ class_name UiIcons
 extends RefCounted
 ## Icones PLACEHOLDER da UI (o HTML usa emoji; a UI final nao). Cada icone e um TextureRect de nome
 ## estavel (`Icon` ou `*Icon`, grupo `ui_icon`): quadrado colorido + filho `Initial` (Label com a inicial). O ui-artist troca assim:
-##   - solte res://art/ui/icons/<key>.png  (chave = id do buff/atributo, "honey", "ghost", "biome_3"...)
+##   - solte res://assets/ui/icons/<key>.png  (chave = id do buff/atributo, "honey", "ghost", "biome_3"...)
 ##     e o apply() usa a textura e esconde `Initial`; ou
 ##   - defina `texture` do no `Icon` direto na cena (apply() respeita texture ja definida).
 ## Chaves: buff id | atributo id | "biome_<id 1..10>" | "honey" | "ghost" | "bear" | "jump" |
 ##   "medal_1..3" | "fx_<speed|postjump|slow|invisible|phase|decoy|frozen|trapped|shield|rebound>".
 
-const DIR: String = "res://art/ui/icons/"
+const DIR: String = "res://assets/ui/icons/"
+## Chaves sem arte propria apontam para o icone equivalente (fx_* = efeito ativo -> icone do buff).
+const ALIAS: Dictionary = {
+	"fx_speed": "speed_temp", "fx_postjump": "jump_ext", "fx_slow": "ghost_slow",
+	"fx_invisible": "invisible", "fx_phase": "fake_wall", "fx_decoy": "decoy",
+	"fx_frozen": "freeze_all", "fx_trapped": "spirit_trap", "fx_shield": "shield",
+	"fx_rebound": "rebound", "jump": "jump_ext",
+}
 const NEUTRAL: Color = Color("#E9A14D")
 
 static var _tex_cache: Dictionary = {}   # "#hex" -> ImageTexture
@@ -52,7 +59,7 @@ static func texture_for(color: Color) -> ImageTexture:
 	return tex
 
 
-## Aplica o placeholder (ou a arte em art/ui/icons) a um TextureRect existente.
+## Aplica o placeholder (ou a arte em assets/ui/icons) a um TextureRect existente.
 static func apply(icon: TextureRect, key: String, color: Color, letter: String) -> void:
 	icon.add_to_group("ui_icon")
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -62,7 +69,7 @@ static func apply(icon: TextureRect, key: String, color: Color, letter: String) 
 	icon.tooltip_text = key
 	icon.set_meta("icon_key", key)
 	var initial: Label = icon.get_node_or_null("Initial") as Label
-	var art_path: String = DIR + key + ".png"
+	var art_path: String = DIR + str(ALIAS.get(key, key)) + ".png"
 	if ResourceLoader.exists(art_path):
 		icon.texture = load(art_path) as Texture2D
 		if initial != null:

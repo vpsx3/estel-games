@@ -116,6 +116,7 @@ func _process(delta: float) -> void:
 	if run.state == "playing" and not paused:
 		run.step(delta, InputReader.move_vector(touch.joystick))
 		camera.follow(run.bear.pos, delta)
+		touch.set_jump_cooldown(run.jump.cd, run.jump.cd_max)
 	_sync_ghost_views()
 	if show_debug:
 		_update_debug()
