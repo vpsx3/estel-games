@@ -13,7 +13,7 @@ func test_game_state_loaded() -> void:
 		return
 	eq((gs.get("maps") as Array).size(), 10, "GameState.maps")
 	eq((gs.get("biomes") as Array).size(), 10, "GameState.biomes")
-	eq(int(gs.call("const_value", "BIOME_DURATION")), 120, "const_value BIOME_DURATION")
+	eq(int(gs.call("const_value", "BIOME_DURATION")), 45, "const_value BIOME_DURATION")
 	check(bool(gs.call("is_wall", 0, 0, 0)), "borda e parede")
 	check(bool(gs.call("is_wall", 0, -1, 5)), "fora do mapa e parede")
 	check(not bool(gs.call("is_wall", 0, 8, 14)), "spawn do urso (bioma 1) e livre")

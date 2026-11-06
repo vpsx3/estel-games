@@ -21,4 +21,4 @@
 - Fantasma venenoso com pouco contraste no piso lavanda do bioma 6.
 - 06/11/2026: por ordem do Vini a versão Godot virou a oficial. `/games/pegue-o-ursinho/` redireciona (302, `permanent:false` no vercel.json) para `/games/pegue-o-ursinho/web/`; a versão HTML continua em `/games/pegue-o-ursinho/index.html` ("versão clássica"). Para desfazer: remover o bloco `redirects` do vercel.json.
 - Ranking: o banco Upstash "pegue-ursinho" (store_jrfSmAeRsfxVOUFo) está arquivado por inatividade; restaurar pelo painel Vercel/Upstash.
-- Não exercitado no navegador pelo QA: troca de bioma aos 120 s, escolha de +1 buff, loja, pausa (cobertos por testes headless).
+- Não exercitado no navegador pelo QA: troca de bioma aos 45 s, escolha de +1 buff, loja, pausa (cobertos por testes headless).

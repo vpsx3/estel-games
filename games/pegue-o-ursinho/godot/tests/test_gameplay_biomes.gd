@@ -25,8 +25,8 @@ func test_warning_and_transition_timing() -> void:
 		if run.cycle.current_biome == 1:
 			changed_at = run.elapsed
 		guard += 1
-	near(warned_at, 110.0, "aviso aos 110s (BIOME_DURATION-WARNING)", 0.06)
-	near(changed_at, 120.0, "troca aos 120s (BIOME_DURATION)", 0.06)
+	near(warned_at, 35.0, "aviso aos 35s (BIOME_DURATION-WARNING)", 0.06)
+	near(changed_at, 45.0, "troca aos 45s (BIOME_DURATION)", 0.06)
 	eq(run.cycle.phases_cleared, 1, "phasesCleared 1")
 	eq(run.cycle.phase, "playing", "retomou (sem handler)")
 	near(run.cycle.start_time, changed_at, "biomeStartTime = elapsed", 0.001)

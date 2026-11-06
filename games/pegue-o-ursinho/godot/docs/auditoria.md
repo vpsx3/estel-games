@@ -8,7 +8,7 @@ Fonte: `games/pegue-o-ursinho/index.html`. Extração: `node tools/extract_legac
 |---|---|
 | Grid | `BIOME_MAPS` = 10 mapas, 30 linhas x 18 colunas, só 0/1. `ROWS=30`, `COLS=18` derivados |
 | Tile / canvas | `TILE=36`, `CW=648`, `CH=1080` |
-| Duração | `BIOME_DURATION=120`, `TOTAL_BIOMES=10`, `BIOME_WARNING_TIME=10` |
+| Duração | `BIOME_DURATION=45` (legado: 120; override Godot), `TOTAL_BIOMES=10`, `BIOME_WARNING_TIME=10` |
 | `BIOMES` | 10 entradas com id, name, icon, wallTint, bgColor, ghostSpeed, ghostSpawnRate, bearSpawn{c,r}, ghostSpawn{c,r} (+ `MAP_TEMPLATE`, referência a `BIOME_MAPS`, descartado do JSON) |
 | Fantasmas | `GHOST_TYPES` comum/rapido/pesado/errante/venenoso com speed,size,minDist,weight; `POISON_RADIUS=80`, `POISON_DEBUFF=0.6`, `POISON_DURATION=2000`, `POISON_COOLDOWN=1000` |
 | Pace | `INITIAL_PACE=0.5`, `GHOST_PHASE_SCALING=0.10` |

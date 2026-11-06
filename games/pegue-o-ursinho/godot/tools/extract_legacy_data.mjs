@@ -126,6 +126,8 @@ const constants = {};
 for (const st of statements) for (const n of st.names) {
   if (n in values && !DEDICATED.has(n)) constants[n] = values[n];
 }
+// Override Godot (nao altera o index.html legado): mundo dura 45s em vez de 120s. Aviso continua em BIOME_WARNING_TIME=10 (aos 35s).
+constants.BIOME_DURATION = 45;
 
 const strings = need('STRINGS_GAME');
 const pt = {

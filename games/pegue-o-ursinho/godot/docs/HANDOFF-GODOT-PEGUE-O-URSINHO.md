@@ -36,7 +36,7 @@
 | Grid | `BIOME_MAPS`: 10 mapas **30 linhas × 18 colunas** (retrato). `ROWS`/`COLS` derivados dos dados. `0`=livre, `1`=parede |
 | Tile legado | `TILE=36` → canvas 648×1080 |
 | Biomes | `BIOMES[]` (id, name, icon, wallTint, bgColor, ghostSpeed, ghostSpawnRate, `bearSpawn{c,r}`, `ghostSpawn{c,r}`) |
-| Duração | `BIOME_DURATION=120` s, `TOTAL_BIOMES=10`, `BIOME_WARNING_TIME=10`, volta ao bioma 1 com escalada de ciclo |
+| Duração | `BIOME_DURATION=45` (override do legado 120) s, `TOTAL_BIOMES=10`, `BIOME_WARNING_TIME=10`, volta ao bioma 1 com escalada de ciclo |
 | Loop | `gameLoop` com `dt=min((ts-lastTime)/1000,0.05)`; velocidades em **px/frame @60fps** multiplicadas por `dt*60` |
 | Fantasmas | `GHOST_TYPES` comum/rapido/pesado/errante/venenoso (`speed,size,minDist,weight`); `POISON_*` |
 | Pace | `INITIAL_PACE=0.5`, `GHOST_PHASE_SCALING=0.10` |

@@ -51,7 +51,7 @@ func test_expected_keys() -> void:
 			"BIOME_ANNOUNCE_DURATION", "SAVE_KEY", "GAME_ID", "MECH_SLOTS"]:
 		check(c.has(k), "constants sem " + k)
 	eq(c.get("TILE"), 36.0, "TILE legado = 36")
-	eq(c.get("BIOME_DURATION"), 120.0, "BIOME_DURATION")
+	eq(c.get("BIOME_DURATION"), 45.0, "BIOME_DURATION")
 	eq(c.get("GAME_ID"), "pegue-o-ursinho", "GAME_ID")
 	eq(c.get("SAVE_KEY"), "estel_pou_save", "SAVE_KEY")
 	var pt: Dictionary = read_json(DIR + "strings_pt.json") as Dictionary
