@@ -1,0 +1,26 @@
+{
+  "pt": {
+    "pause_button": "Pausa",
+    "pause_title": "Pausado",
+    "btn_continue": "Continuar",
+    "btn_quit_menu": "Sair para o menu",
+    "lang_label": "Idioma",
+    "nick_required": "Digite um apelido",
+    "rankingColGhosts": "Fantasmas",
+    "hud_ghosts": "Fantasmas",
+    "hud_honey": "Mel",
+    "build_label": "Build"
+  },
+  "en": {
+    "pause_button": "Pause",
+    "pause_title": "Paused",
+    "btn_continue": "Resume",
+    "btn_quit_menu": "Quit to menu",
+    "lang_label": "Language",
+    "nick_required": "Enter a nickname",
+    "rankingColGhosts": "Ghosts",
+    "hud_ghosts": "Ghosts",
+    "hud_honey": "Honey",
+    "build_label": "Build"
+  }
+}

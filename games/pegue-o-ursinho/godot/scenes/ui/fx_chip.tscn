@@ -1,0 +1,50 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/fx_chip.gd" id="1_6budx"]
+
+[node name="FxChip" type="PanelContainer" unique_id=239044099]
+custom_minimum_size = Vector2(250, 0)
+size_flags_horizontal = 0
+mouse_filter = 2
+script = ExtResource("1_6budx")
+
+[node name="Row" type="HBoxContainer" parent="." unique_id=897337337]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="Row" unique_id=1987718922]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="Info" type="VBoxContainer" parent="Row" unique_id=511728110]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Top" type="HBoxContainer" parent="Row/Info" unique_id=2113601190]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="NameLabel" type="Label" parent="Row/Info/Top" unique_id=121002853]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TimeLabel" type="Label" parent="Row/Info/Top" unique_id=1245103933]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Bar" type="ProgressBar" parent="Row/Info" unique_id=950610061]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+mouse_filter = 2
+show_percentage = false

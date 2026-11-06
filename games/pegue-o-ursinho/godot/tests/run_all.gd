@@ -30,7 +30,7 @@ func _initialize() -> void:
 		names.sort()
 		for mn: String in names:
 			var inst: RefCounted = script.new() as RefCounted
-			inst.call(mn)
+			await inst.call(mn)   # testes async (E4c) tambem sao aguardados
 			var fails: Array = inst.get("failures")
 			if fails.is_empty():
 				print("PASS  %s::%s (%d checks)" % [f, mn, int(inst.get("checks"))])

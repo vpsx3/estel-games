@@ -1,0 +1,87 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/nick_screen.gd" id="1_3df50"]
+[ext_resource type="PackedScene" path="res://scenes/ui/lang_toggle.tscn" id="2_7mpld"]
+[ext_resource type="Script" path="res://scripts/ui/lang_toggle.gd" id="3_pwsir"]
+
+[node name="NickScreen" type="Control" unique_id=85372907]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_3df50")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1135503917]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1922, 0.0118, 0.0314, 0.92)
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=1843749262]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="Margin" unique_id=913943757]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="Margin/Content" unique_id=423710863]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "Pegue o Ursinho!"
+horizontal_alignment = 1
+metadata/i18n = "screenNickTitle"
+
+[node name="Icon" type="TextureRect" parent="Margin/Content" unique_id=753783237]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="Desc" type="Label" parent="Margin/Content" unique_id=784661548]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Fuja dos fantasmas e sobreviva o máximo possível! Antes de cada partida, escolha 3 buffs e monte sua build."
+horizontal_alignment = 1
+autowrap_mode = 3
+metadata/i18n = "screenNickDesc"
+
+[node name="NickInput" type="LineEdit" parent="Margin/Content" unique_id=2099601949]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+placeholder_text = "Seu apelido..."
+alignment = 1
+max_length = 16
+metadata/i18n_placeholder = "nickPlaceholder"
+
+[node name="PlayButton" type="Button" parent="Margin/Content" unique_id=677609321]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Jogar"
+metadata/i18n = "btnPlay"
+
+[node name="RankingButton" type="Button" parent="Margin/Content" unique_id=1722647488]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Ranking"
+metadata/i18n = "btnShowRanking"
+
+[node name="LangToggle" type="HBoxContainer" parent="Margin/Content" unique_id=82999786 instance=ExtResource("2_7mpld")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+script = ExtResource("3_pwsir")

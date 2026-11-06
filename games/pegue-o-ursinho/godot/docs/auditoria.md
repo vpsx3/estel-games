@@ -103,3 +103,15 @@ Numeros "soltos" no `index.html` que nao estao em `data/legacy/constants.json`. 
 - `type:'passive'` em `drawCollectibles` e `itemCdReduction/resistFrac/postJump*` sao restos de passivos removidos; `item_cd_reduction` fica 0 e `post_jump_*` nunca e escrito (campos mantidos para paridade das formulas).
 - A descricao do `dash` diz "arrancada na direcao atual", mas o efeito e so multiplicador de velocidade 2.4x por 0.8 s (o movimento segue o input). Portado como esta.
 - A mare usa o `elapsed` global da run (nao o tempo do bioma): a fase da onda depende de quando o bioma comeca.
+
+## E4c - divergencias e observacoes (gameplay-porter, 06/11/2026)
+
+1. **Emoji removidos na saida.** `I18n.*` passa tudo por `UiText.strip_emoji` (emoji, setas, formas geometricas como a seta de Jogar e a estrela de Passivo). Dados legados intactos; `I18n.t_raw` devolve o original. Icones = `TextureRect` placeholder (`UiIcons`), troca de arte soltando `res://art/ui/icons/<chave>.png`.
+2. **Pausa nao existe no HTML**; adicionada (Esc / botao). Abandonar a run pelo menu nao envia score. O mel da run so e somado no game over (como `endGame`).
+3. **Toggle de atributo maximo**: o HTML mostra um "check" + Desbloquear; aqui "Desbloquear - MAX" (sem simbolo).
+4. **Medalhas**: o HTML usa emoji de medalha nos 3 primeiros; aqui icone placeholder `medal_N` + "Nº".
+5. **Literais de UI** (nao balanceamento) mantidos do JS: maximos de barra Congelados 4 s / Presos 5 s (`activeEffects`), fade do anuncio 0,4 s / 0,8 s, pulso do aviso.
+6. **Nick**: validacao identica ao JS (trim, vazio recusado, maxlength 16); a API ja sanitiza. O envio e automatico no game over, como `endGame`.
+7. **Deteccao de idioma**: web = salvo, senao `navigator.language` (igual ao HTML); fora do web = salvo, senao PT.
+8. `tests/run_all.gd` agora usa `await` para suportar testes assincronos. `project.godot`: `gui/theme/custom` e `[ursinho] api_base`; `main_scene` = `res://scenes/main.tscn` (o `main.tscn` da raiz foi removido).
+9. **Nao verificado no navegador**: `JavaScriptBridge`/`HTTPRequest` na exportacao web (so caminho nao-web testado headless).

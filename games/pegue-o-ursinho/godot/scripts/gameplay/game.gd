@@ -1,14 +1,23 @@
 extends Node2D
 ## Cena de jogo (E4a): liga GameRun (simulacao) a nos (level, urso, fantasmas, camera, controles).
 ## Fase: LevelIndex.scene_path(i) se existir (contrato do level-designer), senao o duplo de
-## tests/support/fake_level.gd. HUD/telas finais sao E4c: aqui so um Label de debug e um
-## texto simples de game over (toque/Enter/Espaco reinicia).
+## tests/support/fake_level.gd.
+## Fluxo com telas (E4c): scripts/ui/main_flow.gd instancia esta cena com auto_start = false, chama
+## prepare() (cria a run + sorteia as 5 opcoes), a UI de selecao escolhe 3 e begin() inicia
+## (startRun). Com auto_start = true (testes/standalone) faz tudo sozinho: auto_pick + auto_choice.
 
 const BEAR_SCENE: PackedScene = preload("res://scenes/actors/bear.tscn")
 const GHOST_SCENE: PackedScene = preload("res://scenes/actors/ghost.tscn")
 const FAKE_LEVEL_SCRIPT: String = "res://tests/support/fake_level.gd"
 
+signal run_ended(stats: Dictionary)   # depois de somar o mel ao save (saveData.honey += runHoney)
+
 @export var rng_seed: int = -1   # >= 0 => simulacao deterministica
+@export var auto_start: bool = true    # false => a UI chama prepare() / begin()
+@export var show_debug: bool = true    # Label de debug do E4a (a HUD real a substitui)
+@export var use_api: bool = false      # true => begin() pede o token de sessao do ranking (startSession)
+
+var paused: bool = false
 
 var run: GameRun
 var buffs: BuffSystem
@@ -33,61 +42,100 @@ func _ready() -> void:
 	_over_view.mode = "over"
 	_over_view.z_index = 10
 	world.add_child(_over_view)
-	new_run()
+	debug_label.visible = show_debug
+	if auto_start:
+		new_run()
 
 
+## Fluxo automatico (sem UI): 3 primeiras opcoes + escolha de mundo automatica.
 func new_run() -> void:
+	prepare()
+	buffs.auto_choice = true
+	buffs.auto_pick()
+	begin()
+
+
+## initGame ate openSelection: cria a run, carrega a fase 1 e sorteia as 5 opcoes pre-run.
+func prepare() -> void:
 	GameState.reset_run()
+	paused = false
+	_under_view.bind(null)
+	_over_view.bind(null)
 	for v: GhostView in _ghost_views.values():
 		v.queue_free()
 	_ghost_views.clear()
 	if _bear_view != null:
 		_bear_view.queue_free()
+		_bear_view = null
 	run = GameRun.new(rng_seed)
 	run.sync_game_state = true
 	run.attr_levels = Shop.new().levels()
 	MechFactory.install(run)
 	buffs = BuffSystem.new(run)
 	buffs.attach()
-	buffs.auto_choice = true   # placeholder: sem UI de escolha ate o E4c (que desliga isto)
+	buffs.auto_choice = false  # a UI de escolha de mundo responde (pick_world_buff / world_reroll)
 	run.level_loader = _load_level
 	run.game_ended.connect(_on_game_ended)
 	level = _load_level(0)
-	buffs.open_selection()     # selecao pre-run 5 -> 3 (auto: 3 primeiras ate o E4c)
-	buffs.auto_pick()
-	buffs.start_run(level)
+	buffs.open_selection()     # selecao pre-run 5 -> 3
+
+
+## startRun(): exige 3 picks. Inicia a simulacao, cria as views e pede a sessao do ranking.
+func begin() -> bool:
+	if not buffs.start_run(level):
+		return false
 	_under_view.bind(run)
 	_over_view.bind(run)
 	_bear_view = BEAR_SCENE.instantiate() as BearView
 	world.add_child(_bear_view)
 	_bear_view.bind(run)
 	camera.snap_to(run.bear.pos)
+	if use_api:
+		ApiClient.start_session()   # sem await: o token chega depois (falha silenciosa)
+	return true
+
+
+func set_paused(p: bool) -> void:
+	if paused == p:
+		return
+	paused = p
+	GameState.paused = p
+	Events.pause_changed.emit(p)
 
 
 func _process(delta: float) -> void:
-	if run.state == "playing":
+	if run == null:
+		return
+	if run.state == "playing" and not paused:
 		run.step(delta, InputReader.move_vector(touch.joystick))
 		camera.follow(run.bear.pos, delta)
 	_sync_ghost_views()
-	_update_debug()
+	if show_debug:
+		_update_debug()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if run == null:
+		return
 	if event.is_action_pressed("jump"):
 		_on_jump()
-	elif run.state == "lose" and (event.is_action_pressed("ui_accept") or event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed):
+	elif auto_start and run.state == "lose" and (event.is_action_pressed("ui_accept") or event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed):
 		new_run()
 
 
 func _on_jump() -> void:
+	if run == null:
+		return
 	if run.state == "lose":
-		new_run()
-	else:
+		if auto_start:
+			new_run()
+	elif run.state == "playing" and not paused and run.cycle.phase != "choosing":
 		run.try_jump()
 
 
 func _on_game_ended(stats: Dictionary) -> void:
 	Save.add_honey(int(stats["honey"]))   # saveData.honey += runHoney
+	run_ended.emit(stats)
 
 
 func _sync_ghost_views() -> void:

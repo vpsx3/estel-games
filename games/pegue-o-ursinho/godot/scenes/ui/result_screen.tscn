@@ -1,0 +1,115 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/result_screen.gd" id="1_3ubwy"]
+
+[node name="ResultScreen" type="Control" unique_id=419610737]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_3ubwy")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1331676756]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1922, 0.0118, 0.0314, 0.92)
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=981808706]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="Margin" unique_id=1167226078]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="GhostIcon" type="TextureRect" parent="Margin/Content" unique_id=599900150]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="Title" type="Label" parent="Margin/Content" unique_id=776714748]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "O fantasma te pegou!"
+horizontal_alignment = 1
+metadata/i18n = "result_title"
+
+[node name="TimeLabel" type="Label" parent="Margin/Content" unique_id=1934613650]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BigTimeLabel"
+horizontal_alignment = 1
+
+[node name="GhostsLabel" type="Label" parent="Margin/Content" unique_id=900066963]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="BuildRow" type="HBoxContainer" parent="Margin/Content" unique_id=1269008576]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="BuildLabel" type="Label" parent="Margin/Content/BuildRow" unique_id=1559989078]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+text = "Build"
+metadata/i18n = "build_label"
+
+[node name="BuildIcons" type="HBoxContainer" parent="Margin/Content/BuildRow" unique_id=1445686062]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="HoneyLabel" type="Label" parent="Margin/Content" unique_id=1344398064]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="BiomeLabel" type="Label" parent="Margin/Content" unique_id=956537558]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="RankMsgLabel" type="Label" parent="Margin/Content" unique_id=2137534446]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="PlayAgainButton" type="Button" parent="Margin/Content" unique_id=1890796928]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Jogar de novo"
+metadata/i18n = "btnPlayAgain"
+
+[node name="MenuButton" type="Button" parent="Margin/Content" unique_id=876566483]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Menu"
+metadata/i18n = "btnResultMenu"
+
+[node name="RankingButton" type="Button" parent="Margin/Content" unique_id=1223541204]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Ranking"
+metadata/i18n = "btnResultRanking"

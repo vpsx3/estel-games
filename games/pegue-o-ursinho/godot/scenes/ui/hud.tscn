@@ -1,0 +1,148 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_0mwgc"]
+
+[node name="Hud" type="Control" unique_id=956735265]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("1_0mwgc")
+
+[node name="TopMargin" type="MarginContainer" parent="." unique_id=1073719430]
+layout_mode = 0
+anchor_right = 1.0
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Top" type="VBoxContainer" parent="TopMargin" unique_id=1251060088]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Row" type="HBoxContainer" parent="TopMargin/Top" unique_id=1459821333]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="TimerLabel" type="Label" parent="TopMargin/Top/Row" unique_id=544300978]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"HudBigLabel"
+text = "0:00"
+
+[node name="GhostBox" type="HBoxContainer" parent="TopMargin/Top/Row" unique_id=796785613]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="GhostIcon" type="TextureRect" parent="TopMargin/Top/Row/GhostBox" unique_id=1890896440]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="GhostCountLabel" type="Label" parent="TopMargin/Top/Row/GhostBox" unique_id=75469797]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudBigLabel"
+
+[node name="HoneyBox" type="HBoxContainer" parent="TopMargin/Top/Row" unique_id=510178545]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="HoneyIcon" type="TextureRect" parent="TopMargin/Top/Row/HoneyBox" unique_id=1713021945]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="HoneyLabel" type="Label" parent="TopMargin/Top/Row/HoneyBox" unique_id=169067566]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudBigLabel"
+
+[node name="PauseButton" type="Button" parent="TopMargin/Top/Row" unique_id=580660811]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 56)
+layout_mode = 2
+text = "Pausa"
+metadata/i18n = "pause_button"
+
+[node name="BiomeLabel" type="Label" parent="TopMargin/Top" unique_id=858553219]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+
+[node name="PassiveList" type="HBoxContainer" parent="TopMargin/Top" unique_id=1053618485]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="FxList" type="VBoxContainer" parent="TopMargin/Top" unique_id=495323940]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="WarningLabel" type="Label" parent="." unique_id=1887487311]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_top = 0.3
+anchor_right = 1.0
+anchor_bottom = 0.3
+offset_left = 16.0
+offset_top = -40.0
+offset_right = -16.0
+offset_bottom = 40.0
+theme_type_variation = &"WarningLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Banner" type="VBoxContainer" parent="." unique_id=2118314206]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_top = 0.36
+anchor_right = 1.0
+anchor_bottom = 0.36
+offset_left = 16.0
+offset_top = -10.0
+offset_right = -16.0
+offset_bottom = 110.0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="BiomeIcon" type="TextureRect" parent="Banner" unique_id=302933884]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="BannerName" type="Label" parent="Banner" unique_id=851268266]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+horizontal_alignment = 1
+
+[node name="BannerSub" type="Label" parent="Banner" unique_id=1615120318]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+horizontal_alignment = 1

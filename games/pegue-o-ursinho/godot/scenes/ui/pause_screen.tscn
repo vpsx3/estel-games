@@ -1,0 +1,61 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/pause_screen.gd" id="1_xceqw"]
+[ext_resource type="PackedScene" path="res://scenes/ui/lang_toggle.tscn" id="2_nxavn"]
+[ext_resource type="Script" path="res://scripts/ui/lang_toggle.gd" id="3_wrw5x"]
+
+[node name="PauseScreen" type="Control" unique_id=2084377855]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_xceqw")
+
+[node name="Background" type="ColorRect" parent="." unique_id=160360726]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1922, 0.0118, 0.0314, 0.92)
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=1399735955]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="Margin" unique_id=1722628387]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="Margin/Content" unique_id=2077707467]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Pausado"
+horizontal_alignment = 1
+metadata/i18n = "pause_title"
+
+[node name="ResumeButton" type="Button" parent="Margin/Content" unique_id=1162157650]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Continuar"
+metadata/i18n = "btn_continue"
+
+[node name="MenuButton" type="Button" parent="Margin/Content" unique_id=565659273]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Sair para o menu"
+metadata/i18n = "btn_quit_menu"
+
+[node name="LangToggle" type="HBoxContainer" parent="Margin/Content" unique_id=82999786 instance=ExtResource("2_nxavn")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+script = ExtResource("3_wrw5x")

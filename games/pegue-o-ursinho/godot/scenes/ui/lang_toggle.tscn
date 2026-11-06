@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/lang_toggle.gd" id="1_ew8g7"]
+
+[node name="LangToggle" type="HBoxContainer" unique_id=82999786]
+theme_override_constants/separation = 8
+alignment = 1
+script = ExtResource("1_ew8g7")
+
+[node name="EN" type="Button" parent="." unique_id=1817301026]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 48)
+layout_mode = 2
+toggle_mode = true
+text = "EN"
+
+[node name="Sep" type="Label" parent="." unique_id=857713854]
+unique_name_in_owner = true
+layout_mode = 2
+text = "|"
+horizontal_alignment = 1
+
+[node name="PT" type="Button" parent="." unique_id=1080677987]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 48)
+layout_mode = 2
+toggle_mode = true
+text = "PT"

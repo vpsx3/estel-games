@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/passive_chip.gd" id="1_yrw1e"]
+
+[node name="PassiveChip" type="PanelContainer" unique_id=922304632]
+mouse_filter = 2
+script = ExtResource("1_yrw1e")
+
+[node name="Row" type="HBoxContainer" parent="." unique_id=1859507279]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Icon" type="TextureRect" parent="Row" unique_id=2125366126]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="CooldownLabel" type="Label" parent="Row" unique_id=1304880030]
+unique_name_in_owner = true
+layout_mode = 2

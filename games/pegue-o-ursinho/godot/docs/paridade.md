@@ -33,7 +33,7 @@ Status: `ok` = portado + testado; `gancho` = so o ponto de extensao existe (part
 | Joystick virtual + botao de pulo (logica) | `joyStart/joyMove/joyEnd`, `btnJump` | `virtual_joystick.gd` (`PouJoystick`), `touch_controls.gd` | test_gameplay_camera_input | ok (arte: E4c) |
 | Cena de jogo (placeholder) | `initGame`, `gameLoop` | `scenes/game.tscn`, `scripts/gameplay/game.gd`, `scenes/actors/*` | test_gameplay_camera_input | ok |
 | Cena de jogo: orbes/mel/isca/notificacoes/mecanicas (placeholder) | `drawCollectibles`, `drawHoney`, `drawDecoy`, `drawNotifications`, `mechDraw*` | `scripts/gameplay/world_view.gd`, `game.gd` | test_gameplay_mech_factory (carga) + execucao com render | ok (arte: E8) |
-| HUD, i18n completo, save de atributos na UI, ranking, telas | - | - | - | pendente (E4c) |
+| HUD, i18n completo, save de atributos na UI, ranking, telas | ver tabela E4c | - | - | ok (E4c) |
 
 ## E4b - buffs, loja e mecanicas de bioma
 
@@ -77,3 +77,23 @@ Arraste para `Mecanicas` da fase. Por subparte, se houver ao menos um marcador d
 | `wind.tscn` | wind | corrente de ar a partir da celula | `wind_dir`, `length_cells` |
 | `geyser.tscn` | geyser | geiser na celula | `phase` |
 | `portal.tscn` | portal | portal na celula | - |
+
+## E4c - i18n, save, ranking e telas
+
+| Sistema | Funcao JS de origem | Script GD | Teste | Status |
+|---|---|---|---|---|
+| i18n PT/EN, `estel_lang`, deteccao do navegador, fallback PT, troca em runtime | `T`, `setLang`, `initLang`, `buffName/Desc`, `mapFxText`, `biomeName`, `rarLabel` | `autoload/i18n.gd`, `i18n/ui_extra.json`, `scripts/ui/ui_text.gd`, `scripts/ui/lang_toggle.gd` | test_ui_i18n | ok (texto sem emoji via `strip_emoji`) |
+| Save `{honey, attrs, skins}` (`estel_pou_save` / `user://save.json`), campos desconhecidos preservados | `loadSave`, `persistSave`, `DEFAULT_SAVE` | `autoload/save.gd` | test_ui_save_api | ok |
+| Ranking: sessao ao iniciar a run, listar, enviar score (falha silenciosa) | `startSession`, `loadScores`, `saveScore` | `autoload/api_client.gd`, `game.gd::begin` | test_ui_save_api, test_ui_screens | ok (HTTPRequest; mock via `transport`) |
+| Tela de apelido (trim, max 16) | `btnPlay` handler, `#nickInput` | `scripts/ui/nick_screen.gd`, `scenes/ui/nick_screen.tscn` | test_ui_screens | ok |
+| Menu inicial | `screenMenu`, `refreshMenu` | `menu_screen.gd` | test_ui_screens | ok |
+| Loja de atributos (UI) | `renderUpgrades`, `buyAttr` | `upgrades_screen.gd`, `upgrade_card.gd` | test_ui_screens | ok |
+| Selecao 3 de 5 | `openSelection`, `togglePick`, `updateStartBtn`, `startRun` | `buff_select_screen.gd`, `buff_card.gd`, `game.gd::prepare/begin` | test_ui_screens | ok |
+| Escolha +1 buff com reroll | `renderWorldChoiceCards`, `openWorldChoice`, `worldReroll` | `world_choice_screen.gd` (`buffs.auto_choice = false`) | test_ui_screens | ok |
+| HUD (tempo, mel, fantasmas, bioma, efeitos com barra, fixos, aviso, anuncio) | `renderEffectsHud`, `activeEffects`, `renderPassiveHud`, `drawBiomeWarning`, `drawBiomeAnnounce` | `hud.gd`, `fx_chip.gd`, `passive_chip.gd` | test_ui_screens | ok |
+| Game over + envio do score | `endGame` | `result_screen.gd`, `main_flow.gd::_on_run_ended` | test_ui_screens | ok |
+| Ranking (lista, destaque da partida) | `renderRanking` | `ranking_screen.gd`, `ranking_row.gd` | test_ui_screens | ok |
+| Pausa (Esc / botao) | - (nao existe no HTML) | `pause_screen.gd`, `main_flow.gd`, `game.gd::set_paused` | test_ui_screens | ok (extensao) |
+| Fluxo completo / main_scene | `showScreen`, `startGame` | `scenes/main.tscn`, `main_flow.gd` | test_ui_screens::test_full_flow | ok |
+| Controles touch so em `Device.is_touch` | `IS_TOUCH` | `touch_controls.gd` (E4a) | test_ui_screens | ok |
+| Tela `screenHowto` | `screenHowto` | - | - | nao portada (inalcancavel no HTML) |

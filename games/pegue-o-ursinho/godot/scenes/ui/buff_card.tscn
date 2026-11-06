@@ -1,0 +1,74 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/buff_card.gd" id="1_x6oid"]
+
+[node name="BuffCard" type="Button" unique_id=1843526827]
+custom_minimum_size = Vector2(0, 118)
+theme_type_variation = &"BuffCard"
+toggle_mode = true
+script = ExtResource("1_x6oid")
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=1888830433]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Margin" unique_id=1087609339]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="SelNum" type="Label" parent="Margin/Row" unique_id=182415803]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 0)
+layout_mode = 2
+theme_type_variation = &"HudBigLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Margin/Row" unique_id=902516576]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="Info" type="VBoxContainer" parent="Margin/Row" unique_id=923399210]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="Margin/Row/Info" unique_id=1184737255]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DescLabel" type="Label" parent="Margin/Row/Info" unique_id=675400598]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+autowrap_mode = 3
+
+[node name="Tags" type="HBoxContainer" parent="Margin/Row/Info" unique_id=690384713]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="RarityLabel" type="Label" parent="Margin/Row/Info/Tags" unique_id=1281247622]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"RarityComum"
+
+[node name="TypeLabel" type="Label" parent="Margin/Row/Info/Tags" unique_id=1332585352]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DimLabel"

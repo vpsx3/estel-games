@@ -1,0 +1,75 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/upgrades_screen.gd" id="1_jbrx1"]
+
+[node name="UpgradesScreen" type="Control" unique_id=2033284886]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_jbrx1")
+
+[node name="Background" type="ColorRect" parent="." unique_id=196778177]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1922, 0.0118, 0.0314, 0.92)
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=1246404704]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="Margin" unique_id=371059955]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Margin/Content" unique_id=1632597614]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Upgrades"
+horizontal_alignment = 1
+metadata/i18n = "upgradesTitle"
+
+[node name="BalanceRow" type="HBoxContainer" parent="Margin/Content" unique_id=1279313013]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="BalanceIcon" type="TextureRect" parent="Margin/Content/BalanceRow" unique_id=1759753518]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="BalanceLabel" type="Label" parent="Margin/Content/BalanceRow" unique_id=2141576827]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudBigLabel"
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Content" unique_id=1008722535]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="Margin/Content/Scroll" unique_id=774932704]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BackButton" type="Button" parent="Margin/Content" unique_id=1889793132]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Voltar"
+metadata/i18n = "btnBackRanking"

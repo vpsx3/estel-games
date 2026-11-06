@@ -1,0 +1,103 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/main_flow.gd" id="1_0ld40"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="2_gqmmt"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3_yc10j"]
+[ext_resource type="PackedScene" path="res://scenes/ui/nick_screen.tscn" id="4_jscy8"]
+[ext_resource type="Script" path="res://scripts/ui/nick_screen.gd" id="5_pm3ni"]
+[ext_resource type="PackedScene" path="res://scenes/ui/menu_screen.tscn" id="6_y6deb"]
+[ext_resource type="Script" path="res://scripts/ui/menu_screen.gd" id="7_og1vs"]
+[ext_resource type="PackedScene" path="res://scenes/ui/upgrades_screen.tscn" id="8_2wyq8"]
+[ext_resource type="Script" path="res://scripts/ui/upgrades_screen.gd" id="9_vxglm"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ranking_screen.tscn" id="10_2f3dj"]
+[ext_resource type="Script" path="res://scripts/ui/ranking_screen.gd" id="11_yq6so"]
+[ext_resource type="PackedScene" path="res://scenes/ui/buff_select_screen.tscn" id="12_fv21b"]
+[ext_resource type="Script" path="res://scripts/ui/buff_select_screen.gd" id="13_tel4y"]
+[ext_resource type="PackedScene" path="res://scenes/ui/world_choice_screen.tscn" id="14_qkpxi"]
+[ext_resource type="Script" path="res://scripts/ui/world_choice_screen.gd" id="15_5q0nq"]
+[ext_resource type="PackedScene" path="res://scenes/ui/result_screen.tscn" id="16_dgi5k"]
+[ext_resource type="Script" path="res://scripts/ui/result_screen.gd" id="17_j8jky"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_screen.tscn" id="18_kmb1v"]
+[ext_resource type="Script" path="res://scripts/ui/pause_screen.gd" id="19_fuf3a"]
+
+[node name="Main" type="Node" unique_id=748345715]
+script = ExtResource("1_0ld40")
+
+[node name="GameHolder" type="Node" parent="." unique_id=1687341703]
+unique_name_in_owner = true
+
+[node name="Screens" type="CanvasLayer" parent="." unique_id=1625475534]
+layer = 10
+
+[node name="Hud" type="Control" parent="Screens" unique_id=956735265 instance=ExtResource("2_gqmmt")]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("3_yc10j")
+
+[node name="NickScreen" type="Control" parent="Screens" unique_id=85372907 instance=ExtResource("4_jscy8")]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("5_pm3ni")
+
+[node name="MenuScreen" type="Control" parent="Screens" unique_id=40659929 instance=ExtResource("6_y6deb")]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("7_og1vs")
+
+[node name="UpgradesScreen" type="Control" parent="Screens" unique_id=2033284886 instance=ExtResource("8_2wyq8")]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("9_vxglm")
+
+[node name="RankingScreen" type="Control" parent="Screens" unique_id=2118485532 instance=ExtResource("10_2f3dj")]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("11_yq6so")
+
+[node name="BuffSelectScreen" type="Control" parent="Screens" unique_id=1537000661 instance=ExtResource("12_fv21b")]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("13_tel4y")
+
+[node name="WorldChoiceScreen" type="Control" parent="Screens" unique_id=674192420 instance=ExtResource("14_qkpxi")]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("15_5q0nq")
+
+[node name="ResultScreen" type="Control" parent="Screens" unique_id=419610737 instance=ExtResource("16_dgi5k")]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("17_j8jky")
+
+[node name="PauseScreen" type="Control" parent="Screens" unique_id=2084377855 instance=ExtResource("18_kmb1v")]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("19_fuf3a")

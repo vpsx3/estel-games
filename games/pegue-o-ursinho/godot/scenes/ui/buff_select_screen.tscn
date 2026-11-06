@@ -1,0 +1,62 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/buff_select_screen.gd" id="1_y54fr"]
+
+[node name="BuffSelectScreen" type="Control" unique_id=1537000661]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_y54fr")
+
+[node name="Background" type="ColorRect" parent="." unique_id=568730336]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1922, 0.0118, 0.0314, 0.92)
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=1964855692]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="Margin" unique_id=1043921005]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Margin/Content" unique_id=2029801767]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Escolha seus buffs"
+horizontal_alignment = 1
+metadata/i18n = "buffScreenTitle"
+
+[node name="SubLabel" type="Label" parent="Margin/Content" unique_id=777677755]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+text = "Selecione 3 dos 5 para esta run"
+horizontal_alignment = 1
+metadata/i18n = "buffScreenSub"
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Content" unique_id=1481455225]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Cards" type="VBoxContainer" parent="Margin/Content/Scroll" unique_id=1329458945]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="StartButton" type="Button" parent="Margin/Content" unique_id=1736128065]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+text = "Iniciar (0/3)"

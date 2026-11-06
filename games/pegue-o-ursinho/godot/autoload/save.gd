@@ -1,11 +1,13 @@
 extends Node
-## Persistencia: {honey, attrs{}, skins{owned,equipped}}.
+## Persistencia: {honey, attrs{}, skins{owned,equipped}} (DEFAULT_SAVE / loadSave / persistSave).
 ## Web: localStorage['estel_pou_save'] via JavaScriptBridge. Fora do web: user://save.json.
+## Compativel com o que o HTML grava; campos desconhecidos (topo, attrs, skins) sao preservados.
 
 const WEB_KEY: String = "estel_pou_save"
 const FILE_PATH: String = "user://save.json"
 
 var data: Dictionary = {}
+var file_path: String = FILE_PATH   # sobrescrevivel em testes
 
 
 func _ready() -> void:
@@ -20,22 +22,38 @@ static func default_save() -> Dictionary:
 	}
 
 
-func load_save() -> Dictionary:
+## loadSave() a partir do texto cru (JSON). Texto vazio/invalido => default.
+static func parse_text(raw: String) -> Dictionary:
 	var d: Dictionary = default_save()
-	var raw: String = _read_raw()
-	if not raw.is_empty():
-		var parsed: Variant = JSON.parse_string(raw)
-		if parsed is Dictionary:
-			var p: Dictionary = parsed
-			d["honey"] = int(p.get("honey", 0))
-			(d["attrs"] as Dictionary).merge(p.get("attrs", {}) as Dictionary, true)
-			(d["skins"] as Dictionary).merge(p.get("skins", {}) as Dictionary, true)
-	data = d
+	if raw.is_empty():
+		return d
+	var j: JSON = JSON.new()
+	if j.parse(raw) != OK or not (j.data is Dictionary):
+		return d   # try/catch do JS: save invalido => default
+	var p: Dictionary = _norm(j.data) as Dictionary
+	for k: String in p:
+		if k != "honey" and k != "attrs" and k != "skins":
+			d[k] = p[k]   # campo desconhecido: preservado
+	d["honey"] = int(p.get("honey", 0))
+	if p.get("attrs") is Dictionary:
+		(d["attrs"] as Dictionary).merge(p["attrs"] as Dictionary, true)
+	if p.get("skins") is Dictionary:
+		(d["skins"] as Dictionary).merge(p["skins"] as Dictionary, true)
+	return d
+
+
+## persistSave(): JSON do save.
+static func to_text(d: Dictionary) -> String:
+	return JSON.stringify(d)
+
+
+func load_save() -> Dictionary:
+	data = parse_text(_read_raw())
 	return data
 
 
 func persist() -> void:
-	_write_raw(JSON.stringify(data))
+	_write_raw(to_text(data))
 
 
 func honey() -> int:
@@ -51,12 +69,29 @@ func attr_level(attr_id: String) -> int:
 	return int((data["attrs"] as Dictionary).get(attr_id, 0))
 
 
+# JSON entrega numeros como float: inteiros voltam a int (evita "1.0" no JSON gravado).
+static func _norm(v: Variant) -> Variant:
+	if v is Dictionary:
+		var out: Dictionary = {}
+		for k: Variant in (v as Dictionary):
+			out[k] = _norm((v as Dictionary)[k])
+		return out
+	if v is Array:
+		var arr: Array = []
+		for e: Variant in (v as Array):
+			arr.append(_norm(e))
+		return arr
+	if v is float and is_equal_approx(floorf(v), v) and absf(v) < 1.0e15:
+		return int(v)
+	return v
+
+
 func _read_raw() -> String:
 	if OS.has_feature("web"):
 		var v: Variant = JavaScriptBridge.eval("window.localStorage.getItem(%s)" % JSON.stringify(WEB_KEY), true)
 		return str(v) if v != null else ""
-	if FileAccess.file_exists(FILE_PATH):
-		return FileAccess.get_file_as_string(FILE_PATH)
+	if FileAccess.file_exists(file_path):
+		return FileAccess.get_file_as_string(file_path)
 	return ""
 
 
@@ -64,6 +99,6 @@ func _write_raw(text: String) -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.localStorage.setItem(%s, %s)" % [JSON.stringify(WEB_KEY), JSON.stringify(text)], true)
 		return
-	var f: FileAccess = FileAccess.open(FILE_PATH, FileAccess.WRITE)
+	var f: FileAccess = FileAccess.open(file_path, FileAccess.WRITE)
 	if f != null:
 		f.store_string(text)

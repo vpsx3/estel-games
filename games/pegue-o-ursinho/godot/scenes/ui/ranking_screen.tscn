@@ -1,0 +1,104 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/ranking_screen.gd" id="1_2uiss"]
+
+[node name="RankingScreen" type="Control" unique_id=2118485532]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_2uiss")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1745780422]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1922, 0.0118, 0.0314, 0.92)
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=1078752364]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="Margin" unique_id=233072767]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Margin/Content" unique_id=744400774]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Ranking Global"
+horizontal_alignment = 1
+metadata/i18n = "rankingSubtitle"
+
+[node name="Header" type="HBoxContainer" parent="Margin/Content" unique_id=409460584]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Pad" type="Control" parent="Margin/Content/Header" unique_id=931609096]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+
+[node name="HeaderRank" type="Label" parent="Margin/Content/Header" unique_id=85401651]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(52, 0)
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+text = "#"
+
+[node name="HeaderPlayer" type="Label" parent="Margin/Content/Header" unique_id=1577975820]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DimLabel"
+text = "Jogador"
+metadata/i18n = "rankingColPlayer"
+
+[node name="HeaderTime" type="Label" parent="Margin/Content/Header" unique_id=1299984817]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+text = "Tempo"
+metadata/i18n = "rankingColTime"
+
+[node name="GhostHeaderIcon" type="TextureRect" parent="Margin/Content/Header" unique_id=1675084110]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="StatusLabel" type="Label" parent="Margin/Content" unique_id=2090541501]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Carregando..."
+horizontal_alignment = 1
+autowrap_mode = 3
+metadata/i18n = "rankingLoading"
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Content" unique_id=1764867706]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Rows" type="VBoxContainer" parent="Margin/Content/Scroll" unique_id=847437623]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="BackButton" type="Button" parent="Margin/Content" unique_id=630719174]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Voltar"
+metadata/i18n = "btnBackRanking"

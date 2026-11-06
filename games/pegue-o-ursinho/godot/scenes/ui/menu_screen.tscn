@@ -1,0 +1,95 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/menu_screen.gd" id="1_mkhoe"]
+[ext_resource type="PackedScene" path="res://scenes/ui/lang_toggle.tscn" id="2_u5qb7"]
+[ext_resource type="Script" path="res://scripts/ui/lang_toggle.gd" id="3_c4iww"]
+
+[node name="MenuScreen" type="Control" unique_id=40659929]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_mkhoe")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1250561668]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1922, 0.0118, 0.0314, 0.92)
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=911336157]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="Margin" unique_id=131011668]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="Margin/Content" unique_id=158962418]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "Pegue o Ursinho!"
+horizontal_alignment = 1
+metadata/i18n = "screenNickTitle"
+
+[node name="HoneyRow" type="HBoxContainer" parent="Margin/Content" unique_id=2062400279]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="HoneyIcon" type="TextureRect" parent="Margin/Content/HoneyRow" unique_id=1670438250]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+
+[node name="HoneyLabel" type="Label" parent="Margin/Content/HoneyRow" unique_id=926256347]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudBigLabel"
+
+[node name="PlayButton" type="Button" parent="Margin/Content" unique_id=1897230784]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Jogar"
+metadata/i18n = "menuPlay"
+
+[node name="UpgradesButton" type="Button" parent="Margin/Content" unique_id=1030016700]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Upgrades"
+metadata/i18n = "menuUpgrades"
+
+[node name="SkinsButton" type="Button" parent="Margin/Content" unique_id=1607180611]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Skins (em breve)"
+metadata/i18n = "menuSkins"
+
+[node name="RankingButton" type="Button" parent="Margin/Content" unique_id=269350478]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Ranking"
+metadata/i18n = "menuRanking"
+
+[node name="LangToggle" type="HBoxContainer" parent="Margin/Content" unique_id=82999786 instance=ExtResource("2_u5qb7")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+script = ExtResource("3_c4iww")
