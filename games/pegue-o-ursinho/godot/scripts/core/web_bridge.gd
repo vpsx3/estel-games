@@ -31,6 +31,16 @@ static func origin() -> String:
 	return "" if loc == null else str(loc.origin)
 
 
+## window.prompt(message, default): caixa de texto nativa do navegador (abre o teclado do celular).
+## Devolve null se o jogador cancelar ou fora do web.
+static func prompt(message: String, default_text: String = "") -> Variant:
+	var win: JavaScriptObject = _iface("window")
+	if win == null:
+		return null
+	var v: Variant = win.prompt(message, default_text)
+	return null if v == null else str(v)
+
+
 ## navigator.language
 static func nav_language() -> String:
 	var nav: JavaScriptObject = _iface("navigator")
