@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://10yxutha2w2t"
-path="res://.godot/imported/ghost_sheet.png-0290ace10fff031d14fc28ac507d5bd8.ctex"
+uid="uid://knnwa16vua2y"
+path="res://.godot/imported/decoy_frames_atlas.png-7b684e0daf970b5f3f4e464e4ea637b1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/_placeholder/actors/ghost_sheet.png"
-dest_files=["res://.godot/imported/ghost_sheet.png-0290ace10fff031d14fc28ac507d5bd8.ctex"]
+source_file="res://assets/actors/decoy/decoy_frames_atlas.png"
+dest_files=["res://.godot/imported/decoy_frames_atlas.png-7b684e0daf970b5f3f4e464e4ea637b1.ctex"]
 
 [params]
 

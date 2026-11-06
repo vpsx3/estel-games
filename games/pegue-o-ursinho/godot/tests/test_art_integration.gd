@@ -71,7 +71,7 @@ func test_mechanic_and_vfx_frames() -> void:
 		check(sf != null and sf.get_frame_count("default") > 0 and sf.has_meta("anchor") and sf.has_meta("offset"), "vfx " + id)
 		n += 1
 	eq(n, 28, "28 VFX (16 buffs + 9 eventos + 3 ambiente)")
-	check(FileAccess.file_exists("res://assets/_placeholder/actors/ghost_sheet.png"), "ghost_sheet mantido")
+	check(not FileAccess.file_exists("res://assets/_placeholder/actors/ghost_sheet.png"), "ghost_sheet placeholder removido")
 	check(not FileAccess.file_exists("res://assets/_placeholder/actors/bear_sheet.png"), "bear_sheet legado removido")
 
 

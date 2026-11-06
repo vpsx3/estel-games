@@ -115,3 +115,9 @@ Numeros "soltos" no `index.html` que nao estao em `data/legacy/constants.json`. 
 7. **Deteccao de idioma**: web = salvo, senao `navigator.language` (igual ao HTML); fora do web = salvo, senao PT.
 8. `tests/run_all.gd` agora usa `await` para suportar testes assincronos. `project.godot`: `gui/theme/custom` e `[ursinho] api_base`; `main_scene` = `res://scenes/main.tscn` (o `main.tscn` da raiz foi removido).
 9. **Nao verificado no navegador**: `JavaScriptBridge`/`HTTPRequest` na exportacao web (so caminho nao-web testado headless).
+
+## E8 parte 2 — tamanho visual × hitbox dos fantasmas (decisão do orquestrador, 06/11/2026)
+Sprites a 1:1 (pixel-perfect). Corpo/diâmetro de colisão: comum/errante/venenoso ~1,1x; rápido ~1,4x; pesado ~1,3x.
+Mantido assim: escalar 0,8x quebraria o pixel-perfect e hitbox menor que o desenho é mais generoso com o jogador.
+Números de colisão inalterados. Pendente de decisão do Vini: regerar rápido/pesado menores no PixelLab, se desejar.
+Contraste: o venenoso (lilás) perde leitura sobre o piso lavanda do bioma 6 — candidato a ajuste de arte.

@@ -1,7 +1,8 @@
 """E8 parte 1: copia a arte APROVADA (art_source/pixellab -> assets/) e gera TileSets, corner maps,
 SpriteFrames, cenas de decor e marcadores de mecanica. Idempotente.
 Uso (a partir de games/pegue-o-ursinho/godot):  python tools/import/import_all.py [etapa ...]
-  etapas: tilesets decor mechanics markers bear vfx configs   (sem argumento = todas)
+  etapas: tilesets decor mechanics markers bear vfx configs ghosts props   (sem argumento = todas)
+  (E8 parte 2: ghosts = fantasmas 5 classes; props = isca, pote de mel, orbes de buff)
 Depois:  godot --headless --path . --import
          godot --headless --path . --script res://tools/import/apply_to_levels.gd
 Fontes aprovadas: art_source/pixellab/ledger*.csv (tileset, variacoes escolhidas, decor, mecanicas).
@@ -274,6 +275,50 @@ def do_vfx():
     print("vfx: %d efeitos" % n)
 
 
+# ---------------------------------------------------------------- fantasmas / isca / mel / orbes (E8 parte 2)
+GHOSTS = ("comum", "rapido", "pesado", "errante", "venenoso")   # canvas 48/42/68/48/48, centro, 1:1
+ACT = os.path.join(SRC, "actors")
+COL = os.path.join(SRC, "collectibles")
+# orbe por raridade (comum=verde, incomum=azul, raro=vermelho)
+ORBS = ("buff_orb_verde", "buff_orb_azul", "buff_orb_vermelho")
+
+
+def do_ghosts():
+    for c in GHOSTS:
+        anims = [anim("float_" + d, frames_of(os.path.join(ACT, "ghosts", c, "float", d)), 8)
+                 for d in ("south", "north", "east", "west")]
+        assert all(len(a["frames"]) == 6 for a in anims), c
+        bsf.build("assets/actors/ghosts/%s_frames.tres" % c, anims, root=ROOT)
+    print("fantasmas: %d SpriteFrames" % len(GHOSTS))
+
+
+def _diameter(im):
+    """diametro equivalente (pela area opaca) do corpo; ignora faiscas soltas."""
+    h = im.getchannel("A").histogram()
+    n = sum(h[1:])
+    return (4.0 * n / 3.14159265) ** 0.5
+
+
+def do_props():
+    fs = frames_of(os.path.join(ACT, "decoy", "wobble", "unknown"))
+    assert len(fs) == 6
+    bsf.build("assets/actors/decoy/decoy_frames.tres", [anim("wobble", fs, 8)], root=ROOT)
+    fs = frames_of(os.path.join(COL, "honey_pot", "sparkle", "unknown"))   # honey_pot v2 (v1 reprovado fica fora)
+    assert len(fs) == 6
+    bsf.build("assets/collectibles/honey_pot/honey_pot_frames.tres", [anim("sparkle", fs, 8)], root=ROOT)
+    orbs = {o: [cl(f) for f in frames_of(os.path.join(COL, o, "pulse", "unknown"))] for o in ORBS}
+    diam = {o: [_diameter(im) for im in ims] for o, ims in orbs.items()}
+    ref = sum(sum(d) for d in diam.values()) / sum(len(d) for d in diam.values())   # diametro-alvo comum
+    for o, ims in orbs.items():
+        assert len(ims) == 6
+        # escala por frame que uniformiza o diametro aparente (o orbe azul e menor e encolhe nos frames 3-5)
+        sc = ", ".join("%.4f" % (ref / x) for x in diam[o])
+        bsf.build("assets/collectibles/%s/%s_frames.tres" % (o, o),
+                  [{"name": "pulse", "frames": ims, "fps": 8, "loop": True}], root=ROOT,
+                  meta={"frame_scale": "PackedFloat32Array(%s)" % sc})
+    print("props: isca, pote de mel, 3 orbes")
+
+
 # ---------------------------------------------------------------- data/biomes/*.tres
 def do_biome_configs():
     for n in B:
@@ -295,8 +340,9 @@ def do_biome_configs():
 
 if __name__ == "__main__":
     os.chdir(ROOT)
-    steps = sys.argv[1:] or ["tilesets", "decor", "mechanics", "markers", "bear", "vfx", "configs"]
+    steps = sys.argv[1:] or ["tilesets", "decor", "mechanics", "markers", "bear", "vfx", "configs", "ghosts", "props"]
     table = {"tilesets": do_tilesets, "decor": do_decor, "mechanics": do_mechanics, "markers": do_markers,
-             "bear": do_bear, "vfx": do_vfx, "configs": do_biome_configs}
+             "bear": do_bear, "vfx": do_vfx, "configs": do_biome_configs,
+             "ghosts": do_ghosts, "props": do_props}
     for s in steps:
         table[s]()
