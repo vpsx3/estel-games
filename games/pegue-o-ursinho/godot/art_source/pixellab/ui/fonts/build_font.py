@@ -76,6 +76,9 @@ NEW['#'] = P('.##..##.', '.##..##.', '########', '########', '.##..##.', '######
 NEW['|'] = {(c, r) for c in (7, 8) for r in range(3, 15)}
 NEW['['] = P('####', '##..', '##..', '##..', '##..', '##..', '##..', '##..', '##..', '####', ox=5, oy=3)
 NEW[']'] = {(15 - x + 0, y) for x, y in NEW['[']}
+# 'l' redesenhado: haste com bandeira no topo e pe curvo a direita (distinto de | I 1)
+NEW['l'] = P('.####.', '..###.', '..###.', '..###.', '..###.', '..###.', '..###.', '..###.', '..####', '..#####', ox=4, oy=3)
+NEW['l'] = {(c, r) for c, r in NEW['l']}
 ALL = dict(G); ALL.update(NEW)
 adv = lambda ch: ADV.get(ch, ADV.get(ch.lower(), 800))
 for ch in NEW:

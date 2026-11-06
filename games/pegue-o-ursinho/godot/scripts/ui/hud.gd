@@ -35,7 +35,7 @@ func _ready() -> void:
 	pause_button.pressed.connect(func() -> void: pause_pressed.emit())
 	UiIcons.apply(%GhostIcon as TextureRect, "ghost", UiIcons.color_for("ghost"), "F")
 	UiIcons.apply(%HoneyIcon as TextureRect, "honey", UiIcons.color_for("honey"), "M")
-	UiIcons.apply(%BiomeIcon as TextureRect, "biome_1", UiIcons.color_for("biome_1"), "B")
+	UiIcons.apply(%BiomeIcon as TextureRect, "biome_01", UiIcons.color_for("biome_01"), "B")
 	banner.modulate.a = 0.0
 	warning_label.visible = false
 
@@ -104,7 +104,7 @@ func _update_banner(run: GameRun) -> void:
 	banner_name.text = I18n.biome_name(b)
 	var cycle_str: String = (" · %s %d" % [I18n.t("cycle_label"), run.cycle.cycle_count + 1]) if run.cycle.cycle_count > 0 else ""
 	banner_sub.text = "%s %d/%d%s" % [I18n.t("world_label"), b + 1, int(GameplayLits.c("TOTAL_BIOMES")), cycle_str]
-	var key: String = "biome_%d" % (b + 1)
+	var key: String = "biome_%02d" % (b + 1)
 	UiIcons.apply(%BiomeIcon as TextureRect, key, UiIcons.color_for(key), banner_name.text)
 
 

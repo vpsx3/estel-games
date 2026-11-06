@@ -49,10 +49,10 @@ box('bigpanel', 'panel', 40, (44, 44, 44, 44))
 cream = 'Color(0.9804, 0.9333, 0.7725, 1)'
 ink = 'Color(0.1922, 0.0118, 0.0314, 1)'
 honey = 'Color(0.9529, 0.8549, 0.6078, 1)'
-dim = 'Color(0.8431, 0.6549, 0.4784, 1)'
+dim = 'Color(0.9608, 0.8784, 0.7059, 1)'
 r = ['[resource]', 'default_font = ExtResource("font_main")', 'default_font_size = 16',
      'Label/colors/font_color = ' + cream, 'Label/colors/font_shadow_color = ' + ink,
-     'Label/constants/shadow_offset_x = 1', 'Label/constants/shadow_offset_y = 1', 'Label/font_sizes/font_size = 16',
+     'Label/constants/shadow_offset_x = 1', 'Label/constants/shadow_offset_y = 1', 'Label/constants/outline_size = 1', 'Label/colors/font_outline_color = ' + ink, 'Label/font_sizes/font_size = 16',
      'Button/colors/font_color = ' + ink, 'Button/colors/font_hover_color = ' + ink, 'Button/colors/font_pressed_color = ' + ink,
      'Button/colors/font_focus_color = ' + ink, 'Button/colors/font_disabled_color = Color(0.4784, 0.4157, 0.5569, 1)',
      'Button/font_sizes/font_size = 32',

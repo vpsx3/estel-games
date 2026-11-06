@@ -26,6 +26,8 @@ theme_override_constants/margin_bottom = 28
 
 [node name="Content" type="VBoxContainer" parent="Margin" unique_id=371059955]
 layout_mode = 2
+custom_minimum_size = Vector2(520, 0)
+size_flags_horizontal = 4
 theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="Margin/Content" unique_id=1632597614]

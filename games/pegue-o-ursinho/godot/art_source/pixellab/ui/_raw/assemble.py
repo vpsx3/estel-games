@@ -62,7 +62,7 @@ def plum(im):
             r, g, b_, a = px[x, y]
             if a == 0: continue
             h, s, v = colorsys.rgb_to_hsv(r/255, g/255, b_/255)
-            r, g, b_ = [round(c*255) for c in colorsys.hsv_to_rgb(0.95, min(1, s*0.75), v*0.42)]
+            r, g, b_ = [round(c*255) for c in colorsys.hsv_to_rgb(0.95, min(1, s*0.75), v*0.30)]
             px[x, y] = (r, g, b_, a)
     return out
 save(plum(b), 'chip_dark.png')

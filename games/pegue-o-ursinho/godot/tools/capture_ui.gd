@@ -66,6 +66,13 @@ func _initialize() -> void:
 	for i in 90:
 		await process_frame
 	await _shot("05_hud_jogo")
+	DisplayServer.window_set_size(Vector2i(390, 844))
+	for i in 20:
+		await process_frame
+	await _shot("07_hud_390x844")
+	DisplayServer.window_set_size(Vector2i(576, 1024))
+	for i in 10:
+		await process_frame
 	main.toggle_pause()
 	await _shot("06_pausa")
 	main.resume()
