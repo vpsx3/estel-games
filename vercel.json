@@ -38,5 +38,17 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/games/pegue-o-ursinho",
+      "destination": "/games/pegue-o-ursinho/web/",
+      "permanent": false
+    },
+    {
+      "source": "/games/pegue-o-ursinho/",
+      "destination": "/games/pegue-o-ursinho/web/",
+      "permanent": false
+    }
   ]
 }

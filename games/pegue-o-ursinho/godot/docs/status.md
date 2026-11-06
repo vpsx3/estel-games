@@ -17,8 +17,8 @@
 | E10 QA | ursinho-qa | concluída | 11/12 critérios aprovados na 1ª passada; F1–F5 corrigidos; 146 testes verdes |
 
 ## Pendências / decisões do Vini
-- Ranking em produção: `GET /api/scores?game=pegue-o-ursinho` retorna HTTP 500 ("Erro ao buscar scores"). É do backend (`api/`, intocável) e afeta também o jogo HTML legado.
 - Fantasmas rápido/pesado parecem 1,3–1,4x maiores que o hitbox (mantidos 1:1 por pixel-perfect). Opção: regerar menores.
 - Fantasma venenoso com pouco contraste no piso lavanda do bioma 6.
-- Trocar a versão oficial (HTML → Godot) e/ou criar entrada no portal: só com ordem do Vini.
+- 06/11/2026: por ordem do Vini a versão Godot virou a oficial. `/games/pegue-o-ursinho/` redireciona (302, `permanent:false` no vercel.json) para `/games/pegue-o-ursinho/web/`; a versão HTML continua em `/games/pegue-o-ursinho/index.html` ("versão clássica"). Para desfazer: remover o bloco `redirects` do vercel.json.
+- Ranking: o banco Upstash "pegue-ursinho" (store_jrfSmAeRsfxVOUFo) está arquivado por inatividade; restaurar pelo painel Vercel/Upstash.
 - Não exercitado no navegador pelo QA: troca de bioma aos 120 s, escolha de +1 buff, loja, pausa (cobertos por testes headless).
