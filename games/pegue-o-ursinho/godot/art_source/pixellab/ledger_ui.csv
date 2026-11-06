@@ -66,3 +66,16 @@ data,ferramenta,id,prompt,parametros,custo,status,destino
 2026-11-06,pillow,bear,urso cand_b south reduzido para 30px centrado em 32x32,derivado,0 gen,aprovado,art_source/pixellab/ui/icons/bear.png
 2026-11-06,pillow,ghost,copia de ghost_counter,derivado,0 gen,aprovado,art_source/pixellab/ui/icons/ghost.png
 2026-11-06,build_font.py,UrsinhoCozy-v2,til = zigzag 1px (4 de largura); i acentuado com haste limpa; +glifos # | [ ] . · º ª × − → ← ▶ ◆ ◇ ★ ⬆,fonttools,0 gen,aprovado,art_source/pixellab/ui/fonts/UrsinhoCozy.ttf
+2026-11-06,pillow,chip_dark,"origem: button_normal.png (Pillow: matiz 0.95 plum, sat*0.75, valor*0.30)",script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/chip_dark.png
+2026-11-06,pillow,card_comum_dark,origem: card_comum.png (Pillow: interior creme -> plum escuro #4A2530/#3A1C26),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/card_comum_dark.png
+2026-11-06,pillow,card_incomum_dark,origem: card_incomum.png (idem),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/card_incomum_dark.png
+2026-11-06,pillow,card_raro_dark,origem: card_raro.png (idem),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/card_raro_dark.png
+2026-11-06,pillow,button_normal_x2,origem: button_normal.png (Pillow: dobro nearest 69x28 -> 138x56),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/button_normal_x2.png
+2026-11-06,pillow,button_hover_x2,origem: button_hover.png (Pillow: dobro nearest 69x28 -> 138x56),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/button_hover_x2.png
+2026-11-06,pillow,button_pressed_x2,origem: button_pressed.png (Pillow: dobro nearest 69x28 -> 138x56),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/button_pressed_x2.png
+2026-11-06,pillow,button_disabled_x2,origem: button_disabled.png (Pillow: dobro nearest 69x28 -> 138x56),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/button_disabled_x2.png
+2026-11-06,pillow,jump_cooldown,origem: jump_normal.png (Pillow: dessaturado e escurecido),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/jump_cooldown.png
+2026-11-06,pillow,timebar_fill,"origem: desenhada em Pillow (paleta honey FFC83D/FFE48A/E9A14D, contorno 993920)",script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/timebar_fill.png
+2026-11-06,pillow,button_hover/pressed/disabled,origem: button_normal.png (Pillow: brilho/saturacao),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/button_*.png
+2026-11-06,pillow,card_comum/card_raro,origem: card_incomum.png (rotacao de matiz azul->verde/rosa),script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),art_source/pixellab/ui/panels/card_*.png
+2026-11-06,pillow,app_icon (256/144/180/512),"origem: urso cand_b south.png sobre fundo creme #FAEEC5, escala nearest",script art_source/pixellab/ui/_raw/assemble.py,0 gen,derivado (Pillow),assets/ui/app_icon*.png (config/icon e icones PWA)
