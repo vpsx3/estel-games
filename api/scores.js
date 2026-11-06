@@ -110,6 +110,7 @@ export default async function handler(req, res) {
       const scores = (await redis.get(scoresKey(gameId))) || [];
       return res.status(200).json(scores);
     } catch (e) {
+      console.error('[api/scores] GET falhou:', e?.name, e?.message);
       return res.status(500).json({ error: 'Erro ao buscar scores' });
     }
   }
@@ -184,6 +185,7 @@ export default async function handler(req, res) {
       const rank = top.findIndex(s => s.nick === nick) + 1;
       return res.status(200).json({ rank: rank || null, scores: top });
     } catch (e) {
+      console.error('[api/scores] POST falhou:', e?.name, e?.message);
       return res.status(500).json({ error: 'Erro ao salvar score' });
     }
   }
