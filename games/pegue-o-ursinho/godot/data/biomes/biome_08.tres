@@ -13,8 +13,8 @@ name_en = "Floating Islands"
 icon = "☁️"
 wall_tint = Color(0.3529412, 0.47843137, 0.627451, 1)
 bg_color = Color(0.22352941, 0.34509805, 0.4745098, 1)
-ghost_speed = 1.15
-ghost_spawn_rate = 11.0
+ghost_speed = 1.05
+ghost_spawn_rate = 9.0
 mech_type = "sky"
 mech = {
 "platRange": 2.0,

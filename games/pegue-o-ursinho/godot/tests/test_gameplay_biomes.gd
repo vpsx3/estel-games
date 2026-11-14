@@ -6,10 +6,10 @@ const F: GDScript = preload("res://tests/support/run_factory.gd")
 
 func test_effective_values() -> void:
 	near(BiomeCycle.effective_speed(0.75, 0), 0.75, "ciclo 0 velocidade")
-	near(BiomeCycle.effective_speed(0.75, 2), 0.95, "ciclo 2: +0.10/ciclo")
+	near(BiomeCycle.effective_speed(0.75, 2), 0.99, "ciclo 2: +0.12/ciclo")
 	near(BiomeCycle.effective_spawn_rate(20.0, 0), 20.0, "ciclo 0 taxa")
-	near(BiomeCycle.effective_spawn_rate(20.0, 3), 14.0, "ciclo 3: -2s/ciclo")
-	near(BiomeCycle.effective_spawn_rate(14.0, 10), 5.0, "minimo 5s")
+	near(BiomeCycle.effective_spawn_rate(20.0, 3), 17.0, "ciclo 3: -1s/ciclo")
+	near(BiomeCycle.effective_spawn_rate(14.0, 10), 6.0, "minimo 6s")
 
 
 func test_warning_and_transition_timing() -> void:
@@ -44,9 +44,9 @@ func test_transition_repositions_and_rescales() -> void:
 	eq(run.bear.pos, Units.cell_center(sp.x, sp.y), "urso no spawn do novo bioma")
 	for g in run.ghosts:
 		check(g.pos.distance_to(run.bear.pos) > Units.TILE * 10.0 - 0.001, "fantasma a >10 celulas do urso")
-		# bioma 2: ghostSpeed 0.8; 1 fase concluida
-		near(g.speed, g.base_class_speed * 0.8 * 0.5 * 1.1, "re-escala por fase")
-	near(run.next_ghost_time, run.elapsed + 18.0 + 0.0 * 0, "proximo spawn: taxa do bioma 2 (18s)")
+		# bioma 2: ghostSpeed 0.70; 1 fase concluida (GHOST_PHASE_SCALING 0.03)
+		near(g.speed, g.base_class_speed * 0.70 * 0.5 * 1.03, "re-escala por fase")
+	near(run.next_ghost_time, run.elapsed + 12.0, "proximo spawn: taxa do bioma 2 (12s)")
 
 
 func test_transition_spawns_ghost_if_none() -> void:
@@ -79,10 +79,10 @@ func test_full_cycle_wraps_and_escalates() -> void:
 	eq(run.cycle.current_biome, 0, "volta ao bioma 1")
 	eq(run.cycle.cycle_count, 1, "cycleCount 1")
 	eq(run.cycle.phases_cleared, 10, "phasesCleared 10")
-	near(run.biome_effective_speed(), 0.75 + 0.10, "bioma 1 ciclo 2: velocidade +0.10")
-	near(run.biome_effective_spawn_rate(), 18.0, "bioma 1 ciclo 2: taxa 18s")
+	near(run.biome_effective_speed(), 0.62 + 0.12, "bioma 1 ciclo 2: velocidade +0.12")
+	near(run.biome_effective_spawn_rate(), 11.0, "bioma 1 ciclo 2: taxa 11s")
 	var g: GhostModel = run.ghosts[0]
-	near(g.speed, g.base_class_speed * 0.85 * 0.5 * 2.0, "pace com 10 fases e ciclo 1")
+	near(g.speed, g.base_class_speed * 0.74 * 0.5 * 1.3, "pace com 10 fases e ciclo 1 (abaixo do teto 0.93)")
 
 
 func test_biome_events() -> void:

@@ -16,7 +16,7 @@ extends RefCounted
 ##   on_transition_reset()      limpa collectibles etc. na troca de bioma
 ##   world_choice_handler()     abre a escolha de +1 buff; DEVE chamar resume_after_choice().
 ##                              Sem handler => retoma na hora (pool vazio no JS)
-##   Campos de buff lidos pelo nucleo: shield_charges, rebound_active, bear_boost_*, post_jump_*,
+##   Campos de buff lidos pelo nucleo: shield_charges, bear_boost_*, post_jump_*,
 ##   ghost_slow_*, light_steps_mult, invisible_timer, phase_timer, decoy, GhostModel.frozen/trapped/boost_*.
 
 signal game_ended(stats: Dictionary)
@@ -47,7 +47,6 @@ var last_stats: Dictionary = {}
 
 # --- estado de buffs lido pelo nucleo (E4b os escreve) ---
 var shield_charges: int = 0
-var rebound_active: bool = false
 var bear_boost_timer: float = 0.0
 var bear_boost_mult: float = 1.0
 var post_jump_timer: float = 0.0
@@ -93,7 +92,6 @@ func start(p_level: Object) -> void:
 	jump.reset()
 	honey.reset()
 	shield_charges = 0
-	rebound_active = false
 	bear_boost_timer = 0.0
 	bear_boost_mult = 1.0
 	post_jump_timer = 0.0
@@ -167,6 +165,51 @@ func place_bear_safe() -> void:
 	bear.pos = Units.cell_center(cell.x, cell.y)
 
 
+## Teto de fantasmas simultaneos (rebalanceamento): cresce com as fases, limitado por ciclo e pelo absoluto.
+func ghost_cap() -> int:
+	return mini(mini(GameplayLits.GHOST_CAP_BASE + GameplayLits.GHOST_CAP_PER_PHASE * cycle.phases_cleared,
+		GameplayLits.GHOST_CAP_MAX + GameplayLits.GHOST_CAP_PER_CYCLE * cycle.cycle_count), GameplayLits.GHOST_CAP_ABS)
+
+
+## Celula livre mais segura: ordena pela MAIOR distancia ao fantasma mais proximo e sorteia (rng da
+## run) entre as 5 melhores. Sem fantasmas => random_free_pos_away.
+func safest_free_pos() -> Vector2:
+	if ghost_sys.ghosts.is_empty():
+		return random_free_pos_away(bear.pos, Units.TILE * GameplayLits.TRANSITION_GHOST_MIN_CELLS)
+	var scored: Array = []   # [min_dist, Vector2i]
+	for cell in GridCollision.free_cells(level):
+		var ctr: Vector2 = Units.cell_center(cell.x, cell.y)
+		var md: float = INF
+		for g in ghost_sys.ghosts:
+			md = minf(md, ctr.distance_to(g.pos))
+		scored.append([md, cell])
+	if scored.is_empty():
+		return bear.pos
+	scored.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) > float(b[0]))
+	var n: int = mini(5, scored.size())
+	var pick: Vector2i = (scored[int(rng.randf() * n)] as Array)[1] as Vector2i
+	return Units.cell_center(pick.x, pick.y)
+
+
+## Teleporte (buff e portais do vazio): ponto mais seguro + invulnerabilidade curta.
+func teleport_bear_safe() -> void:
+	bear.pos = safest_free_pos()
+	bear.landing_target = null
+	bear.invuln = maxf(bear.invuln, GameplayLits.TELEPORT_INVULN)
+
+
+## Lentidao nao se sobrescreve: com outra ativa vale o menor multiplicador e o maior tempo.
+func apply_ghost_slow(mult: float, dur: float) -> void:
+	if ghost_slow_timer > 0.0:
+		ghost_slow_mult = minf(ghost_slow_mult, mult)
+		ghost_slow_timer = maxf(ghost_slow_timer, dur)
+		ghost_slow_max = maxf(ghost_slow_max, dur)
+	else:
+		ghost_slow_mult = mult
+		ghost_slow_timer = dur
+		ghost_slow_max = dur
+
+
 ## randomFreePosAway(from, minD): sorteia entre celulas livres a mais de minD de `from`.
 func random_free_pos_away(from: Vector2, min_d: float) -> Vector2:
 	var all_cells: Array[Vector2i] = GridCollision.free_cells(level)
@@ -198,6 +241,10 @@ func execute_biome_transition() -> void:
 	bear.invuln = maxf(bear.invuln, GameplayLits.TRANSITION_INVULN)
 	cycle.start_time = elapsed
 	next_ghost_time = elapsed + biome_effective_spawn_rate()
+	var bonus: int = mini(GameplayLits.BIOME_CLEAR_HONEY_MAX, GameplayLits.BIOME_CLEAR_HONEY * cycle.phases_cleared)
+	if bonus > 0:
+		add_honey(bonus)
+		notify(I18n.tf("notif_world_clear", {"n": bonus}), "#ffd166", bear.pos - Vector2(0, Units.px(40.0)), 14)
 	bear.vel = Vector2.ZERO
 	bear.mush_cd = 0.0
 	_mech_reset()
@@ -231,7 +278,8 @@ func step(dt_raw: float, input: Vector2) -> void:
 	if cycle.phase == "choosing":
 		return   # entrou em escolha agora: nao integra fisica neste frame
 	if elapsed >= next_ghost_time:
-		ghost_sys.spawn_ghost()
+		if ghost_sys.ghosts.size() < ghost_cap():
+			ghost_sys.spawn_ghost()
 		next_ghost_time = elapsed + biome_effective_spawn_rate()
 	bear.move(self, dt, input)
 	ghost_sys.move_ghosts(dt)
@@ -247,6 +295,8 @@ func step(dt_raw: float, input: Vector2) -> void:
 		Events.biome_warning.emit(cycle.remaining(elapsed))
 	if cycle.ghost_hide_timer <= 0.0:
 		for g in ghost_sys.ghosts:
+			if g.spawn_timer > 0.0 or invisible_timer > 0.0 or jump.active:
+				continue   # graca de spawn / invisivel / em pulo: nao captura
 			if bear.pos.distance_to(g.pos) < bear.size + g.size - Units.px(GameplayLits.CAPTURE_MARGIN):
 				if bear.invuln > 0.0:
 					continue
@@ -254,12 +304,6 @@ func step(dt_raw: float, input: Vector2) -> void:
 					shield_charges -= 1
 					notify(I18n.t("fx_shield_name") + " -1", "#9ad8ff", bear.pos - Vector2(0, Units.px(28.0)), 13)
 					bear.invuln = GameplayLits.SHIELD_INVULN
-					ghost_sys.push_ghost(g)
-					continue
-				if rebound_active:
-					rebound_active = false
-					notify(I18n.t("fx_rebound_name") + "!", "#ffd166", bear.pos - Vector2(0, Units.px(28.0)), 14)
-					bear.invuln = GameplayLits.REBOUND_INVULN
 					ghost_sys.push_ghost(g)
 					continue
 				end_game()
@@ -285,6 +329,10 @@ func update_effects(dt: float) -> void:
 			g.trapped = maxf(0.0, g.trapped - dt)
 		if g.boost_timer > 0.0:
 			g.boost_timer = maxf(0.0, g.boost_timer - dt)
+		if g.stunned > 0.0:
+			g.stunned = maxf(0.0, g.stunned - dt)
+		if g.spawn_timer > 0.0:
+			g.spawn_timer = maxf(0.0, g.spawn_timer - dt)
 	if bear_boost_timer > 0.0:
 		bear_boost_timer = maxf(0.0, bear_boost_timer - dt)
 	if post_jump_timer > 0.0:
@@ -293,6 +341,8 @@ func update_effects(dt: float) -> void:
 		ghost_slow_timer = maxf(0.0, ghost_slow_timer - dt)
 	if invisible_timer > 0.0:
 		invisible_timer = maxf(0.0, invisible_timer - dt)
+		if invisible_timer <= 0.0:
+			bear.invuln = maxf(bear.invuln, GameplayLits.INVISIBLE_END_INVULN)
 	if phase_timer > 0.0:
 		phase_timer -= dt
 		if phase_timer <= 0.0:
@@ -306,6 +356,10 @@ func update_effects(dt: float) -> void:
 	cycle.update_timers(dt)
 	if jump.update(dt):
 		resolve_landing_inside_wall()
+		bear.invuln = maxf(bear.invuln, GameplayLits.JUMP_LAND_INVULN)
+		Events.bear_landed.emit()
+		if buffs != null and buffs.has_method("on_bear_landed"):
+			buffs.call("on_bear_landed")
 	if bear.landing_target != null:
 		var t: Vector2 = bear.landing_target as Vector2
 		var delta: Vector2 = t - bear.pos

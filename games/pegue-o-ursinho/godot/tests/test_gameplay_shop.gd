@@ -19,13 +19,13 @@ func test_defs_and_order() -> void:
 	eq(s.max_level("speed_base"), 10, "speed_base 10 niveis")
 	eq(s.max_level("double_jump"), 1, "toggle 1 nivel")
 	eq(s.next_cost("speed_base"), 50, "custo nivel 1")
-	eq(s.next_cost("double_jump"), 2500, "pulo duplo 2500")
-	eq(s.next_cost("reroll"), 3000, "reroll 3000")
-	eq(s.next_value("speed_base"), 0.08, "+8%")
+	eq(s.next_cost("double_jump"), 1500, "pulo duplo 1500")
+	eq(s.next_cost("reroll"), 1200, "reroll 1200")
+	eq(s.next_value("speed_base"), 0.04, "+4%")
 	eq(s.next_value("double_jump"), null, "toggle sem valor")
-	eq(s.effect_text("speed_base"), "+8%", "texto velocidade")
-	eq(s.effect_text("jump_cd"), "−10%", "texto cd")
-	eq(s.effect_text("jump_ext"), "+0.09s", "texto pulo")
+	eq(s.effect_text("speed_base"), "+4%", "texto velocidade")
+	eq(s.effect_text("jump_cd"), "−4%", "texto cd")
+	eq(s.effect_text("jump_ext"), "+0.045s", "texto pulo")
 	eq(s.effect_text("reroll"), "", "toggle sem texto")
 
 
@@ -39,7 +39,7 @@ func test_buy_debits_honey_and_levels_up() -> void:
 	check(not s.buy("speed_base"), "50 < 80 => recusa")
 	eq(s.honey(), 50, "mel intacto na recusa")
 	eq(s.level("speed_base"), 1, "nivel intacto")
-	eq(s.effect_text("speed_base"), "+16%", "proximo efeito")
+	eq(s.effect_text("speed_base"), "+8%", "proximo efeito")
 
 
 func test_cost_curve_total_and_max() -> void:
@@ -62,7 +62,7 @@ func test_toggle_attrs_buy_once() -> void:
 	var s: Shop = _shop(6000)
 	check(s.buy("double_jump"), "pulo duplo")
 	check(s.buy("reroll"), "reroll")
-	eq(s.honey(), 6000 - 2500 - 3000, "debitos")
+	eq(s.honey(), 6000 - 1500 - 1200, "debitos")
 	check(not s.buy("double_jump"), "so uma vez")
 	eq(s.level("double_jump"), 1, "nivel 1")
 
@@ -88,9 +88,9 @@ func test_levels_apply_in_run() -> void:
 	var run: GameRun = GameRun.new(1)
 	run.attr_levels = s.levels()
 	run.start(F.open_level(0))
-	near(run.bear.speed, run.bear.base_speed * (1.0 + 0.24), "speed_base nivel 3 = +24%", 0.0001)
-	near(run.jump.cd_max, 10.0 * (1.0 - 0.16), "jump_cd nivel 2 = -16%", 0.0001)
-	near(run.jump.duration, 0.55 + 0.36, "jump_ext nivel 4 = +0.36s", 0.0001)
+	near(run.bear.speed, run.bear.base_speed * (1.0 + 0.12), "speed_base nivel 3 = +12%", 0.0001)
+	near(run.jump.cd_max, 8.0 * (1.0 - 0.08), "jump_cd nivel 2 = -8%", 0.0001)
+	near(run.jump.duration, 0.55 + 0.18, "jump_ext nivel 4 = +0.18s", 0.0001)
 	eq(run.jump.max_jumps(), 2, "pulo duplo")
 
 

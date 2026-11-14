@@ -82,7 +82,10 @@ func effect_text(id: String) -> String:
 	if id == "jump_cd":
 		return "−%d%%" % roundi(f * 100.0)
 	if id == "jump_ext":
-		return "+%.2fs" % f
+		var txt: String = "%.3f" % f
+		if txt.ends_with("0"):
+			txt = txt.left(-1)   # 0.090 -> 0.09; 0.045 fica 0.045
+		return "+" + txt + "s"
 	return ""
 
 

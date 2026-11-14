@@ -13,13 +13,13 @@ name_en = "King's Castle"
 icon = "👑"
 wall_tint = Color(0.5411765, 0.47843137, 0.2901961, 1)
 bg_color = Color(0.23921569, 0.19215687, 0.09803922, 1)
-ghost_speed = 1.1
-ghost_spawn_rate = 12.0
+ghost_speed = 1.01
+ghost_spawn_rate = 9.0
 mech_type = "castle"
 mech = {
 "carpetBoost": 1.5,
 "carpetRows": 3.0,
-"gateFrac": 0.5,
+"gateFrac": 0.35,
 "gateSpeed": 1.1,
 "type": "castle"
 }

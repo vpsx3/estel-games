@@ -12,7 +12,8 @@ name_en = "Enchanted Forest"
 icon = "🌲"
 wall_tint = Color(0.1764706, 0.3529412, 0.105882354, 1)
 bg_color = Color(0.101960786, 0.22745098, 0.039215688, 1)
-ghost_speed = 0.75
+ghost_speed = 0.62
+ghost_spawn_rate = 12.0
 mech_type = "mushroom"
 mech = {
 "cd": 0.4,

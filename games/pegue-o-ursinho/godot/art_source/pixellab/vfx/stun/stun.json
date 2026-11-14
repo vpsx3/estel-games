@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "stun 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 1.png",
+   "frame": {
+    "x": 57,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 2.png",
+   "frame": {
+    "x": 114,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 3.png",
+   "frame": {
+    "x": 171,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 4.png",
+   "frame": {
+    "x": 0,
+    "y": 31,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 5.png",
+   "frame": {
+    "x": 57,
+    "y": 31,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 6.png",
+   "frame": {
+    "x": 114,
+    "y": 31,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 7.png",
+   "frame": {
+    "x": 171,
+    "y": 31,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 8.png",
+   "frame": {
+    "x": 0,
+    "y": 62,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 9.png",
+   "frame": {
+    "x": 57,
+    "y": 62,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 10.png",
+   "frame": {
+    "x": 114,
+    "y": 62,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  },
+  {
+   "filename": "stun 11.png",
+   "frame": {
+    "x": 171,
+    "y": 62,
+    "w": 57,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 57,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 57,
+    "h": 31
+   },
+   "pivot": {
+    "x": 0.49122807017543857,
+    "y": 1.2258064516129032
+   },
+   "duration": 111
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "stun.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 228,
+   "h": 93
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 28,
+   "y": 38
+  },
+  "frameTags": [
+   {
+    "name": "stun",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

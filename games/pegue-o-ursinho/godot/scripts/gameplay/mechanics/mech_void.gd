@@ -50,8 +50,7 @@ func update(r: GameRun, dt: float) -> void:
 	if portal_cd <= 0.0:
 		for p in portals:
 			if p == bc:
-				r.bear.pos = r.random_free_pos_away(r.bear.pos, Units.TILE * GameplayLits.VOID_PORTAL_AWAY_CELLS)
-				r.bear.landing_target = null
+				r.teleport_bear_safe()   # ponto mais seguro + invulnerabilidade curta
 				portal_cd = cfg_f("portalCd")
 				flash = GameplayLits.VOID_FLASH_PORTAL
 				break

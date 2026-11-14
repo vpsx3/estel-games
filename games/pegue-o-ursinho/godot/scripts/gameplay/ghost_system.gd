@@ -18,13 +18,18 @@ func clear() -> void:
 
 
 ## weightedRandom(GHOST_TYPES): ordem do JSON (comum, rapido, pesado, errante, venenoso).
+## So entram tipos com minPhase <= fases concluidas (rebalanceamento: tipos novos aparecem aos poucos).
 func weighted_random() -> String:
 	var types: Dictionary = GameState.ghost_types
+	var phase: int = run.cycle.phases_cleared
 	var total: float = 0.0
 	for k: String in types:
-		total += float((types[k] as Dictionary)["weight"])
+		if int((types[k] as Dictionary).get("minPhase", 0)) <= phase:
+			total += float((types[k] as Dictionary)["weight"])
 	var r: float = run.rng.randf() * total
 	for k: String in types:
+		if int((types[k] as Dictionary).get("minPhase", 0)) > phase:
+			continue
 		r -= float((types[k] as Dictionary)["weight"])
 		if r <= 0.0:
 			return k
@@ -32,7 +37,12 @@ func weighted_random() -> String:
 
 
 ## getDiffMult(): ghostSpeed efetivo do bioma * INITIAL_PACE * (1 + GHOST_PHASE_SCALING * fases).
+## Limitado a GHOST_DIFF_CAP (rebalanceamento).
 func diff_mult() -> float:
+	return minf(GameplayLits.GHOST_DIFF_CAP, _diff_raw())
+
+
+func _diff_raw() -> float:
 	return run.biome_effective_speed() * GameplayLits.c("INITIAL_PACE") \
 		* (1.0 + GameplayLits.c("GHOST_PHASE_SCALING") * run.cycle.phases_cleared)
 
@@ -64,6 +74,7 @@ func spawn_ghost(min_dist_override_px: float = -1.0) -> GhostModel:
 	var tpl: Dictionary = GameState.ghost_types[tipo]
 	var md: float = min_dist_override_px if min_dist_override_px >= 0.0 else float(tpl["minDist"]) * Units.TILE
 	var g: GhostModel = make_ghost(tipo, run.random_free_pos_away(run.bear.pos, md))
+	g.spawn_timer = GameplayLits.GHOST_SPAWN_GRACE   # todo fantasma criado depois do inicio da run
 	ghosts.append(g)
 	Events.ghost_spawned.emit(tipo)
 	return g
@@ -127,9 +138,10 @@ func move_ghosts(dt: float) -> void:
 	var gm: float = run.ghost_global_mult()
 	var bear: BearModel = run.bear
 	for g in ghosts:
-		if g.frozen > 0.0 or g.trapped > 0.0:
+		if g.frozen > 0.0 or g.trapped > 0.0 or g.stunned > 0.0 or g.spawn_timer > 0.0:
 			continue
 		if run.invisible_timer > 0.0:
+			wander_move(g, dt, gm)   # invisivel: perdem o urso de vista e vagam (nao envenenam)
 			continue
 		if g.tipo == "errante":
 			g.mode_timer -= dt * 1000.0
@@ -162,6 +174,10 @@ func move_ghosts(dt: float) -> void:
 	resolve_collisions()
 
 
+func _can_move(g: GhostModel) -> bool:
+	return g.frozen <= 0.0 and g.trapped <= 0.0 and g.stunned <= 0.0 and g.spawn_timer <= 0.0
+
+
 ## resolveGhostCollisions(): separacao par a par por soma dos raios; clamp no fim.
 func resolve_collisions() -> void:
 	for i in ghosts.size():
@@ -174,9 +190,9 @@ func resolve_collisions() -> void:
 			if d < min_dist and d > 0.0:
 				var o: float = (min_dist - d) / 2.0
 				var u: Vector2 = delta / d
-				if a.frozen <= 0.0 and a.trapped <= 0.0:
+				if _can_move(a):
 					a.pos -= u * o
-				if b.frozen <= 0.0 and b.trapped <= 0.0:
+				if _can_move(b):
 					b.pos += u * o
 			elif d == 0.0:
 				b.pos.x += min_dist * 0.5

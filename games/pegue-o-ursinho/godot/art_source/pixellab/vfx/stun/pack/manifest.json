@@ -1,0 +1,69 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "stun",
+ "fps": 9,
+ "frame_ms": 111,
+ "frames": 12,
+ "loop": true,
+ "canvas": {
+  "w": 57,
+  "h": 31
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 28,
+  "y": 38
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 51,
+    "h": 25
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 12,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -25,
+    "y": -35
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 51,
+    "h": 25
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 12,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -25,
+    "y": -35
+   }
+  }
+ ]
+}

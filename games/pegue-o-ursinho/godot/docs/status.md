@@ -22,3 +22,4 @@
 - 06/11/2026: por ordem do Vini a versão Godot virou a oficial. `/games/pegue-o-ursinho/` redireciona (302, `permanent:false` no vercel.json) para `/games/pegue-o-ursinho/web/`; a versão HTML continua em `/games/pegue-o-ursinho/index.html` ("versão clássica"). Para desfazer: remover o bloco `redirects` do vercel.json.
 - Ranking: o banco Upstash "pegue-ursinho" (store_jrfSmAeRsfxVOUFo) está arquivado por inatividade; restaurar pelo painel Vercel/Upstash.
 - Não exercitado no navegador pelo QA: troca de bioma aos 45 s, escolha de +1 buff, loja, pausa (cobertos por testes headless).
+- 14/11/2026: REBALANCEAMENTO FINAL aplicado por ordem do dono (o Godot e a fonte da verdade; `../index.html` intocado e agora divergente). Valores e sistemas em `docs/balanceamento.md`; `extract_legacy_data.mjs` exige `--force`; testes: `tests/test_rebalance.gd` + guardas em `test_parity_guards.gd`. Arte pendente dos VFX stomp/stun/ghost_boost/magnet (ligacao pronta no VfxDirector).

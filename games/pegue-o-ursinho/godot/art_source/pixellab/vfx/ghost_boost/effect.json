@@ -1,0 +1,56 @@
+{
+ "id": "ghost_boost",
+ "fps": 12,
+ "frames": 8,
+ "loop": true,
+ "canvas": {
+  "w": 66,
+  "h": 69
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 34,
+  "y": 44
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 60,
+    "h": 63
+   },
+   "offset": {
+    "x": -31,
+    "y": -41
+   },
+   "sheet": "pack/whole.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 8,
+   "frame": {
+    "w": 60,
+    "h": 63
+   },
+   "offset": {
+    "x": -31,
+    "y": -41
+   },
+   "sheet": "pack/behind.png",
+   "columns": 3,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "1ea6760e-fed1-496f-ad5f-eb4e0fa6cb34",
+ "source_step": "33f91b6e"
+}

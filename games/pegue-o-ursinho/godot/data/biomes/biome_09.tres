@@ -13,8 +13,8 @@ name_en = "Fluffy Inferno"
 icon = "🔥"
 wall_tint = Color(0.627451, 0.2901961, 0.22745098, 1)
 bg_color = Color(0.22745098, 0.12156863, 0.11764706, 1)
-ghost_speed = 1.25
-ghost_spawn_rate = 10.0
+ghost_speed = 1.08
+ghost_spawn_rate = 8.0
 mech_type = "fire"
 mech = {
 "geySpeed": 0.8,

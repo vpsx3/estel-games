@@ -16,13 +16,13 @@ func _first_interior_wall(run: GameRun) -> Vector2i:
 func test_windows_procedural_on_walls() -> void:
 	var run: GameRun = F.make_mech_run(5, false, 4)
 	var m: MechWindows = run.mech as MechWindows
-	check(m.windows.size() > 5, "frac=0.12 das paredes internas (%d)" % m.windows.size())
+	check(m.windows.size() >= 1, "frac=0.08 das paredes internas (%d)" % m.windows.size())
 	for w in m.windows:
 		var c: Vector2i = w["cell"] as Vector2i
 		check(bool(run.level.call("is_wall", c.x, c.y)), "janela em parede")
 		eq(w["radius"], 3.0, "radius 3 celulas")
 		eq(w["telegraph"], 1.2, "telegraph")
-		eq(w["cd_max"], 12.0, "cd")
+		eq(w["cd_max"], 15.0, "cd")
 
 
 func test_windows_telegraph_spawn_and_cooldown() -> void:

@@ -21,13 +21,17 @@ var _sprite: AnimatedSprite2D
 var _offset: Vector2 = Vector2.ZERO
 var _frame_w: float = 0.0
 var _stopping: bool = false
+static var _unloadable: Dictionary = {}   # ids cujo .tres nao carrega (arte ainda nao importada): nao insiste
 
 
 ## Cria e adiciona ao `host`. opts: pos, follow, follow_dy, loop (forcar repeticao), flip, scale,
-## modulate, z, speed. Retorna null se o efeito nao existir.
+## modulate, z, speed. Retorna null se o efeito nao existir (ou nao carregar).
 static func spawn(host: Node, id: String, opts: Dictionary = {}) -> VfxPlayer:
 	var path: String = DIR + id + "/" + id + "_frames.tres"
-	if not ResourceLoader.exists(path):
+	if not ResourceLoader.exists(path) or _unloadable.has(id):
+		return null
+	if load(path) as SpriteFrames == null:   # arte presente mas invalida/nao importada: tolera (sem efeito)
+		_unloadable[id] = true
 		return null
 	var fx: VfxPlayer = SCENE.instantiate() as VfxPlayer
 	fx.vfx_id = id

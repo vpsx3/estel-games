@@ -22,7 +22,7 @@ func test_pt_en_and_fallback() -> void:
 	eq(I18n.t("btnPlay"), "Play", "en")
 	eq(I18n.biome_name(0), I18n.biome_name(0), "biome en")
 	check(I18n.biome_name(0) != "Floresta Encantada", "bioma traduzido em EN")
-	eq(I18n.buff_name("dash"), "Dash", "buff en")
+	eq(I18n.buff_name("stomp"), "Stomp", "buff en")
 	eq(I18n.t("pause_title"), "Paused", "extra en")
 	I18n.lang = old
 

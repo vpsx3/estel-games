@@ -13,10 +13,11 @@ name_en = "Echo Cave"
 icon = "🦇"
 wall_tint = Color(0.3529412, 0.2901961, 0.41568628, 1)
 bg_color = Color(0.13333334, 0.11372549, 0.18431373, 1)
-ghost_spawn_rate = 14.0
+ghost_speed = 0.91
+ghost_spawn_rate = 10.0
 mech_type = "bats"
 mech = {
-"freeze": 2.0,
+"freeze": 1.2,
 "interval": 3.5,
 "r": 16.0,
 "speed": 2.2,

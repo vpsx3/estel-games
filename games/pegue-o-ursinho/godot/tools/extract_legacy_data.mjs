@@ -2,11 +2,19 @@
 // Extrai dados puros do index.html legado para data/legacy/*.json.
 // Sem dependencias. Localiza cada `const NOME=` por ancora de string (nunca por numero de linha),
 // recorta o literal ate o fechamento balanceado e avalia em `vm` isolado.
-// Uso: node tools/extract_legacy_data.mjs   (a partir de qualquer pasta)
+// Uso: node tools/extract_legacy_data.mjs --force   (a partir de qualquer pasta)
+// ATENCAO: o REBALANCEAMENTO FINAL vive direto em data/legacy/*.json (o Godot e a fonte da verdade);
+// rodar este script sobrescreve esses arquivos com os valores do index.html legado. Exige --force.
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
+
+if (!process.argv.includes('--force')) {
+  console.warn('AVISO: extract_legacy_data sobrescreveria data/legacy/*.json (balanceamento final do Godot) com os valores do index.html legado.');
+  console.warn('Nada foi feito. Rode com --force se for isso mesmo.');
+  process.exit(1);
+}
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GODOT_DIR = path.resolve(HERE, '..');

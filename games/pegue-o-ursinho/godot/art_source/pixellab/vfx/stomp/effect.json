@@ -1,0 +1,128 @@
+{
+ "id": "stomp",
+ "fps": 14,
+ "frames": 11,
+ "loop": false,
+ "canvas": {
+  "w": 182,
+  "h": 88
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 91,
+  "y": 45
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 176,
+    "h": 74
+   },
+   "offset": {
+    "x": -88,
+    "y": -34
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 11,
+   "frame": {
+    "w": 176,
+    "h": 82
+   },
+   "offset": {
+    "x": -88,
+    "y": -42
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 176,
+    "h": 68
+   },
+   "offset": {
+    "x": -88,
+    "y": -34
+   },
+   "sheet": "pack/behind.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "front",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 1,
+   "frames": 9,
+   "frame": {
+    "w": 133,
+    "h": 72
+   },
+   "offset": {
+    "x": -65,
+    "y": -32
+   },
+   "sheet": "pack/front.png",
+   "columns": 3,
+   "rows": 3
+  },
+  {
+   "name": "part-ring",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 176,
+    "h": 68
+   },
+   "offset": {
+    "x": -88,
+    "y": -34
+   },
+   "sheet": "pack/part-ring.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "part-stars",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 1,
+   "frames": 9,
+   "frame": {
+    "w": 59,
+    "h": 72
+   },
+   "offset": {
+    "x": -29,
+    "y": -32
+   },
+   "sheet": "pack/part-stars.png",
+   "columns": 3,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "0c81215d-65e9-4ed1-8e81-dc8cebf3a5ac",
+ "source_step": "8fa472c3"
+}

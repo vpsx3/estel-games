@@ -17,9 +17,12 @@ func move_bear(r: GameRun, dt: float, input: Vector2) -> bool:
 	if mag > 1.0:
 		n = input / mag
 	var f: float = dt * Units.LEGACY_FPS
-	bear.vel = (bear.vel + n * cfg_f("accel") * f) * pow(cfg_f("friction"), f)
+	# velocidade maxima proporcional a velocidade do urso (loja, turbo, veneno); aceleracao acompanha
+	var poison: float = GameplayLits.c("POISON_DEBUFF") if bear.poisoned else 1.0
+	var mx: float = bear.speed * r.bear_speed_mult() * poison * GameplayLits.ICE_MAX_SPEED_MULT
+	var accel: float = cfg_f("accel") * (mx / GameplayLits.ICE_ACCEL_REF_SPEED)
+	bear.vel = (bear.vel + n * accel * f) * pow(cfg_f("friction"), f)
 	var sp: float = bear.vel.length()
-	var mx: float = cfg_f("maxSpd")
 	if sp > mx:
 		bear.vel = bear.vel / sp * mx
 	var step: Vector2 = bear.vel * f * Units.TILE_SCALE

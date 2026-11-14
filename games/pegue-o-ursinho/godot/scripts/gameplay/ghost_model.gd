@@ -12,6 +12,8 @@ var tipo: String = "comum"
 # Ganchos para buffs (E4b): congelado, preso (spirit_trap), impulso (fantasma roubou buff).
 var frozen: float = 0.0
 var trapped: float = 0.0
+var stunned: float = 0.0       # s: atordoado (explosao de luz / pisao) - nao se move
+var spawn_timer: float = 0.0   # s: graca apos nascer - nao move, nao captura, nao envenena, nao rouba
 var boost_timer: float = 0.0
 var boost_mult: float = 1.0
 var facing: String = "south"

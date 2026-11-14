@@ -42,4 +42,10 @@ func _texts() -> void:
 	name_label.text = I18n.buff_name(buff_id)
 	desc_label.text = I18n.buff_desc(buff_id)
 	rarity_label.text = I18n.rarity_label(str(buff["rar"]))
-	type_label.text = I18n.t("type_fixed") if str(buff["type"]) == "fixed" else I18n.t("type_map")
+	match str(buff["type"]):
+		"fixed":
+			type_label.text = I18n.t("type_fixed")
+		"passive":
+			type_label.text = I18n.t("type_skill_passive")
+		_:
+			type_label.text = I18n.t("type_map")

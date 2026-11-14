@@ -24,6 +24,8 @@ var spawn_timer: float = 0.0
 var fixed_buffs: Array[String] = []        # fixos ativos nesta run
 var fixed_timers: Dictionary = {}          # id -> s ate o proximo disparo
 var item_cd_reduction: float = 0.0         # passivo removido no JS; fica 0 (formula preservada)
+var passives: Array[String] = []           # passivos sem timer ativos (stomp, magnet)
+var magnet_pulling: bool = false           # true no frame em que o imã puxou algo (VFX)
 var build_ids: Array[String] = []          # ordem em que os buffs foram obtidos (buildIcons)
 
 # selecao pre-run
@@ -73,14 +75,38 @@ static func rarity_color(rar: String) -> String:
 	return "#7CE0A0"
 
 
-## selectablePool(): universo selecionavel; exclui fixos ja ativos.
+func has_passive(id: String) -> bool:
+	return passives.has(id)
+
+
+## selectablePool(): universo selecionavel; exclui fixos e passivos ja ativos e buffs de mapa ja no pool.
 func selectable_pool() -> Array:
 	var out: Array = []
 	for b: Dictionary in all_buffs():
-		if str(b["type"]) == "fixed" and fixed_buffs.has(str(b["id"])):
+		var id: String = str(b["id"])
+		var t: String = str(b["type"])
+		if t == "fixed" and fixed_buffs.has(id):
+			continue
+		if t == "passive" and passives.has(id):
+			continue
+		if t == "map" and _in_spawn_pool(id):
 			continue
 		out.append(b)
 	return out
+
+
+func _in_spawn_pool(id: String) -> bool:
+	for b in spawn_pool:
+		if str(b["id"]) == id:
+			return true
+	return false
+
+
+## Intervalo entre orbes: mais buffs de mapa no pool => orbes mais frequentes (sem diluir).
+func orb_interval() -> float:
+	var extra: int = maxi(0, spawn_pool.size() - 1)
+	return maxf(GameplayLits.ORB_INTERVAL_MIN,
+		GameplayLits.c("SPAWN_INTERVAL_BASE") / (1.0 + GameplayLits.ORB_INTERVAL_POOL_FACTOR * extra))
 
 
 ## addMapToPool(id)
@@ -99,6 +125,9 @@ func open_selection() -> Array:
 	selection_picks.clear()
 	fixed_buffs.clear()
 	fixed_timers.clear()
+	spawn_pool.clear()
+	passives.clear()
+	build_ids.clear()
 	selection_options = run.rng.weighted_pick(selectable_pool(), "selW", GameplayLits.PRE_RUN_OPTIONS)
 	selection_opened.emit(selection_options)
 	return selection_options
@@ -141,9 +170,13 @@ func start_run(level: Object) -> bool:
 		return false
 	var map_picks: Array[String] = []
 	var fixed_picks: Array[String] = []
+	var passive_picks: Array[String] = []
 	for id in selection_picks:
-		if str(buff_def(id)["type"]) == "fixed":
+		var t: String = str(buff_def(id)["type"])
+		if t == "fixed":
 			fixed_picks.append(id)
+		elif t == "passive":
+			passive_picks.append(id)
 		else:
 			map_picks.append(id)
 	spawn_pool.clear()
@@ -153,6 +186,9 @@ func start_run(level: Object) -> bool:
 	build_ids.assign(selection_picks)
 	run.start(level)         # initGame()
 	reset_run_state()
+	passives.clear()
+	for id in passive_picks:
+		activate_passive(id)
 	for id in fixed_picks:
 		activate_fixed(id)
 	run.recalc_passives()
@@ -164,7 +200,8 @@ func start_run(level: Object) -> bool:
 ## Parte de initGame que zera os buffs (collectibles, spawnTimer, fixos).
 func reset_run_state() -> void:
 	collectibles.clear()
-	spawn_timer = GameplayLits.c("SPAWN_INTERVAL_BASE")
+	spawn_timer = orb_interval()
+	magnet_pulling = false
 	fixed_buffs.clear()
 	fixed_timers.clear()
 	item_cd_reduction = 0.0
@@ -196,8 +233,11 @@ func pick_world_buff(id: String) -> void:
 	var def: Dictionary = buff_def(id)
 	if def.is_empty():
 		return
-	if str(def["type"]) == "fixed":
+	var t: String = str(def["type"])
+	if t == "fixed":
 		activate_fixed(id)
+	elif t == "passive":
+		activate_passive(id)
 	else:
 		add_map_to_pool(id)   # passa a spawnar no mapa daqui pra frente
 	build_ids.append(id)
@@ -222,6 +262,49 @@ func on_transition_reset() -> void:
 	collectibles.clear()
 
 
+# ---------------------------------------------------------------- passivos (sem timer)
+func activate_passive(id: String) -> void:
+	if not passives.has(id):
+		passives.append(id)
+
+
+## Pouso do pulo (GameRun.update_effects): Pisao afasta e atordoa fantasmas proximos.
+func on_bear_landed() -> void:
+	if not has_passive("stomp"):
+		return
+	var bear: BearModel = run.bear
+	for g in run.ghost_sys.ghosts:
+		var d: float = g.pos.distance_to(bear.pos)
+		if d < Units.TILE * GameplayLits.STOMP_PUSH_RADIUS_CELLS:
+			run.ghost_sys.push_ghost(g)
+		if d < Units.TILE * GameplayLits.STOMP_RADIUS_CELLS:
+			g.stunned = maxf(g.stunned, GameplayLits.STOMP_STUN)
+	Events.buff_activated.emit("stomp")
+
+
+## Ima de Mel: potes de mel e orbes proximos andam ate o urso.
+func update_magnet(dt: float) -> void:
+	magnet_pulling = false
+	if not has_passive("magnet"):
+		return
+	var bpos: Vector2 = run.bear.pos
+	var radius: float = Units.TILE * GameplayLits.MAGNET_RADIUS_CELLS
+	var step: float = Units.TILE * GameplayLits.MAGNET_PULL_CELLS_S * dt
+	for col in collectibles:
+		magnet_pulling = _pull(col, bpos, radius, step) or magnet_pulling
+	for h in run.honey.drops:
+		magnet_pulling = _pull(h, bpos, radius, step) or magnet_pulling
+
+
+func _pull(item: Dictionary, bpos: Vector2, radius: float, step: float) -> bool:
+	var p: Vector2 = item["pos"] as Vector2
+	var d: float = p.distance_to(bpos)
+	if d >= radius or d <= 0.0:
+		return false
+	item["pos"] = p + (bpos - p) / d * minf(step, d)
+	return true
+
+
 # ---------------------------------------------------------------- buffs fixos
 func activate_fixed(id: String) -> void:
 	if fixed_buffs.has(id):
@@ -235,9 +318,7 @@ func trigger_fixed(id: String) -> void:
 	match id:
 		"ghost_slow":
 			var dur: float = GameplayLits.c("SPRAY_SLOW_DUR")
-			run.ghost_slow_timer = dur
-			run.ghost_slow_mult = GameplayLits.c("SPRAY_SLOW_MULT")
-			run.ghost_slow_max = dur
+			run.apply_ghost_slow(GameplayLits.c("SPRAY_SLOW_MULT"), dur)
 			run.notify(I18n.buff_name(id), "#bfe0ff", run.bear.pos - Vector2(0, Units.px(30.0)))
 		"spirit_trap":
 			var g: GhostModel = run.ghost_sys.nearest_ghost()
@@ -293,37 +374,13 @@ func apply_map_buff(id: String, ghost: GhostModel = null) -> void:
 			run.bear_boost_timer = float((fx["speed_temp"] as Dictionary)["dur"])
 			run.bear_boost_mult = float((fx["speed_temp"] as Dictionary)["mult"])
 			run.bear_boost_max = run.bear_boost_timer
-		"dash":
-			run.bear_boost_timer = float((fx["dash"] as Dictionary)["dur"])
-			run.bear_boost_mult = float((fx["dash"] as Dictionary)["mult"])
-			run.bear_boost_max = run.bear_boost_timer
 		"freeze_all":
 			for g in run.ghost_sys.ghosts:
 				g.frozen = maxf(g.frozen, float((fx["freeze_all"] as Dictionary)["dur"]))
-		"ghost_slow":
-			run.ghost_slow_timer = float((fx["ghost_slow"] as Dictionary)["dur"])
-			run.ghost_slow_mult = float((fx["ghost_slow"] as Dictionary)["mult"])
-			run.ghost_slow_max = run.ghost_slow_timer
 		"slow_time":
-			run.ghost_slow_timer = float((fx["slow_time"] as Dictionary)["dur"])
-			run.ghost_slow_mult = float((fx["slow_time"] as Dictionary)["mult"])
-			run.ghost_slow_max = run.ghost_slow_timer
+			run.apply_ghost_slow(float((fx["slow_time"] as Dictionary)["mult"]), float((fx["slow_time"] as Dictionary)["dur"]))
 		"teleport":
-			var near_g: GhostModel = run.ghost_sys.nearest_ghost()
-			var from: Vector2 = near_g.pos if near_g != null else bear.pos
-			bear.pos = run.random_free_pos_away(from, Units.TILE * GameplayLits.TELEPORT_MIN_CELLS)
-			bear.landing_target = null
-		"swap":
-			var far_g: GhostModel = run.ghost_sys.farthest_ghost()
-			if far_g != null:
-				var bp: Vector2 = bear.pos
-				bear.pos = far_g.pos
-				far_g.pos = bp
-				run.ghost_sys.clamp_ghost(far_g)
-		"spirit_trap":
-			var tg: GhostModel = run.ghost_sys.nearest_ghost()
-			if tg != null:
-				tg.trapped = float((fx["spirit_trap"] as Dictionary)["dur"])
+			run.teleport_bear_safe()
 		"fake_wall":
 			run.phase_timer = float((fx["fake_wall"] as Dictionary)["dur"])
 			run.phase_max = run.phase_timer
@@ -338,9 +395,8 @@ func apply_map_buff(id: String, ghost: GhostModel = null) -> void:
 					d = 1.0
 				if d < Units.TILE * GameplayLits.BURST_RADIUS_CELLS:
 					g.pos += delta / d * Units.TILE * GameplayLits.BURST_PUSH_CELLS
+					g.stunned = maxf(g.stunned, GameplayLits.BURST_STUN)
 					run.ghost_sys.clamp_ghost(g)
-		"lightning":
-			_eliminate(run.ghost_sys.nearest_ghost())
 		"light_bomb":
 			var arr: Array[GhostModel] = run.ghost_sys.ghosts
 			for i in range(arr.size() - 1, -1, -1):
@@ -348,10 +404,6 @@ func apply_map_buff(id: String, ghost: GhostModel = null) -> void:
 					var gone: GhostModel = arr[i]
 					arr.remove_at(i)
 					Events.ghost_eliminated.emit(gone.tipo)
-		"rebound":
-			run.rebound_active = true
-		"decoy":
-			_make_decoy()
 		"shield":
 			run.shield_charges = mini(GameplayLits.MAX_SHIELD_CHARGES, run.shield_charges + 1)   # max 1 carga
 	Events.buff_activated.emit(id)
@@ -390,11 +442,12 @@ func spawn_collectible() -> void:
 
 ## updateCollectibles(dt): spawn periodico, expira, coleta pelo urso ou ROUBO pelo fantasma.
 func update_collectibles(dt: float) -> void:
+	update_magnet(dt)
 	spawn_timer -= dt
 	if spawn_timer <= 0.0:
 		if collectibles.size() < int(GameplayLits.c("MAX_COLLECT")):
 			spawn_collectible()
-		spawn_timer = GameplayLits.c("SPAWN_INTERVAL_BASE") * (1.0 - item_cd_reduction)
+		spawn_timer = orb_interval() * (1.0 - item_cd_reduction)
 	var collect_r: float = Units.px(GameplayLits.c("COLLECT_R"))
 	for i in range(collectibles.size() - 1, -1, -1):
 		var col: Dictionary = collectibles[i]
@@ -409,6 +462,8 @@ func update_collectibles(dt: float) -> void:
 			continue
 		if str(col["type"]) == "map":
 			for g in run.ghost_sys.ghosts:
+				if g.spawn_timer > 0.0:
+					continue   # graca de spawn: nao rouba
 				if g.pos.distance_to(cpos) < g.size + collect_r:
 					collectibles.remove_at(i)
 					apply_map_buff(str(col["id"]), g)   # fantasma roubou: nerf (+40% vel. 4s)

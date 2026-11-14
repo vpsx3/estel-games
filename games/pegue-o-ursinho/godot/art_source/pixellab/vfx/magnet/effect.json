@@ -1,0 +1,74 @@
+{
+ "id": "magnet",
+ "fps": 12,
+ "frames": 10,
+ "loop": true,
+ "canvas": {
+  "w": 67,
+  "h": 67
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 33,
+  "y": 54
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 59
+   },
+   "offset": {
+    "x": -31,
+    "y": -47
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "whole-with-sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 59
+   },
+   "offset": {
+    "x": -31,
+    "y": -47
+   },
+   "sheet": "pack/whole-with-sprite.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 59
+   },
+   "offset": {
+    "x": -31,
+    "y": -47
+   },
+   "sheet": "pack/behind.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "944632fa-5052-44b2-a67a-48f371119463",
+ "source_step": "41b59900"
+}

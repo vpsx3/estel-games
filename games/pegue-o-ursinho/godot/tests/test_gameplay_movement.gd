@@ -5,7 +5,7 @@ const F: GDScript = preload("res://tests/support/run_factory.gd")
 
 
 func _speed() -> float:
-	return Units.speed_px_frame_to_px_s(3.3 * 0.5)
+	return Units.speed_px_frame_to_px_s(4.3 * 0.5)
 
 
 func test_dir_from_vec() -> void:
@@ -40,8 +40,8 @@ func test_speed_conversion_straight() -> void:
 	var x0: float = run.bear.pos.x
 	for i in 60:
 		run.bear.move(run, 1.0 / 60.0, Vector2.RIGHT)
-	near(run.bear.pos.x - x0, _speed(), "1s a 3.3*0.5 px/frame@60 convertidos", 0.01)
-	near(_speed(), 1.65 * 60.0 * 32.0 / 36.0, "px/s = legado*60*TILE_SCALE")
+	near(run.bear.pos.x - x0, _speed(), "1s a 4.3*0.5 px/frame@60 convertidos", 0.01)
+	near(_speed(), 2.15 * 60.0 * 32.0 / 36.0, "px/s = legado*60*TILE_SCALE")
 	eq(run.bear.facing, "east", "facing east")
 	check(run.bear.moving, "moving")
 
@@ -76,7 +76,7 @@ func test_world_clamp_and_poison_and_frozen() -> void:
 	for i in 300:
 		run.bear.move(run, 1.0 / 60.0, Vector2(-1, -1))
 	# JS: so anda se nx > size; para a menos de um passo da borda e nunca sai do mundo
-	var step: float = Units.speed_px_frame_to_px_s(3.3 * 0.5) / 60.0
+	var step: float = Units.speed_px_frame_to_px_s(4.3 * 0.5) / 60.0
 	check(run.bear.pos.x >= run.bear.size and run.bear.pos.x < run.bear.size + step, "x preso na borda do mundo")
 	check(run.bear.pos.y >= run.bear.size and run.bear.pos.y < run.bear.size + step, "y preso na borda do mundo")
 	run = F.make_run()
@@ -84,7 +84,7 @@ func test_world_clamp_and_poison_and_frozen() -> void:
 	var x0: float = run.bear.pos.x
 	for i in 60:
 		run.bear.move(run, 1.0 / 60.0, Vector2.RIGHT)
-	near(run.bear.pos.x - x0, _speed() * 0.6, "veneno POISON_DEBUFF 0.6", 0.01)
+	near(run.bear.pos.x - x0, _speed() * 0.75, "veneno POISON_DEBUFF 0.75", 0.01)
 	run = F.make_run()
 	run.bear.frozen = 1.0
 	x0 = run.bear.pos.x
@@ -113,4 +113,4 @@ func test_buff_hooks_multiply_speed() -> void:
 	run = F.make_run()
 	run.attr_levels = {"speed_base": 5}
 	run.recalc_passives()
-	near(run.bear.speed, 3.3 * 0.5 * 1.4, "atributo speed_base nivel 5 = +40%")
+	near(run.bear.speed, 4.3 * 0.5 * 1.2, "atributo speed_base nivel 5 = +20%")

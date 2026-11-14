@@ -61,32 +61,53 @@ func test_start_run_splits_fixed_and_map() -> void:
 	var b: BuffSystem = _new(3)
 	b.open_selection()
 	b.selection_options = [BuffSystem.buff_def("speed_temp"), BuffSystem.buff_def("ghost_slow"),
-		BuffSystem.buff_def("dash"), BuffSystem.buff_def("decoy"), BuffSystem.buff_def("shield")]
+		BuffSystem.buff_def("stomp"), BuffSystem.buff_def("decoy"), BuffSystem.buff_def("shield")]
 	b.toggle_pick("speed_temp")
-	b.toggle_pick("ghost_slow")
+	b.toggle_pick("stomp")
 	b.toggle_pick("decoy")
 	check(b.start_run(F.open_level(0)), "inicia")
 	eq(b.run.state, "playing", "run jogando")
-	eq(b.fixed_buffs, ["ghost_slow", "decoy"] as Array[String], "fixos ativados")
+	eq(b.fixed_buffs, ["decoy"] as Array[String], "fixos ativados")
+	eq(b.passives, ["stomp"] as Array[String], "passivos ativados")
+	check(b.has_passive("stomp") and not b.has_passive("magnet"), "has_passive")
 	eq(b.spawn_pool.size(), 1, "pool de spawn = so buffs de mapa escolhidos")
 	eq(str((b.spawn_pool[0] as Dictionary)["id"]), "speed_temp", "speed_temp no pool")
-	near(float(b.fixed_timers["decoy"]), 30.0, "timer do fixo")
+	near(float(b.fixed_timers["decoy"]), 25.0, "timer do fixo")
 	near(b.spawn_timer, 8.0, "spawnTimer = SPAWN_INTERVAL_BASE")
 	eq(b.build_ids.size(), 3, "build")
 
 
 func test_selectable_pool_excludes_active_fixed() -> void:
 	var b: BuffSystem = _new(4)
-	eq(b.selectable_pool().size(), 16, "16 no inicio")
+	eq(b.selectable_pool().size(), 15, "15 no inicio")
 	b.activate_fixed("lightning")
 	b.activate_fixed("decoy")
-	eq(b.selectable_pool().size(), 14, "fixos ativos saem")
+	eq(b.selectable_pool().size(), 13, "fixos ativos saem")
 	for id in ["ghost_slow", "spirit_trap"]:
 		b.activate_fixed(id)
-	eq(b.selectable_pool().size(), 12, "so os 12 de mapa")
-	# openSelection zera os fixos da run anterior
+	eq(b.selectable_pool().size(), 11, "so os 9 de mapa + 2 passivos")
+	# openSelection zera fixos, passivos, pool de spawn e build da run anterior
+	b.activate_passive("magnet")
+	b.add_map_to_pool("shield")
+	b.build_ids.append("shield")
 	b.open_selection()
 	eq(b.fixed_buffs.size(), 0, "openSelection limpa fixos")
+	eq(b.passives.size(), 0, "openSelection limpa passivos")
+	eq(b.spawn_pool.size(), 0, "openSelection limpa spawn_pool")
+	eq(b.build_ids.size(), 0, "openSelection limpa build_ids")
+
+
+func test_selectable_pool_excludes_repeats() -> void:
+	var b: BuffSystem = _new(4)
+	b.add_map_to_pool("shield")
+	b.add_map_to_pool("teleport")
+	b.activate_passive("stomp")
+	var ids: Array = []
+	for d: Dictionary in b.selectable_pool():
+		ids.append(str(d["id"]))
+	check(not ids.has("shield") and not ids.has("teleport"), "buffs de mapa ja no pool saem")
+	check(not ids.has("stomp") and ids.has("magnet"), "passivo ativo sai; o outro fica")
+	eq(ids.size(), 15 - 3, "15 - 2 mapa - 1 passivo")
 
 
 func test_world_choice_flow_with_transition() -> void:
@@ -109,7 +130,10 @@ func test_world_choice_flow_with_transition() -> void:
 	if str(pick["type"]) == "fixed":
 		check(b.fixed_buffs.has(str(pick["id"])), "fixo ativado")
 	else:
-		eq(str((b.spawn_pool[0] as Dictionary)["id"]), str(pick["id"]), "buff de mapa entra no pool")
+		if str(pick["type"]) == "passive":
+			check(b.has_passive(str(pick["id"])), "passivo ativado")
+		else:
+			eq(str((b.spawn_pool[0] as Dictionary)["id"]), str(pick["id"]), "buff de mapa entra no pool")
 
 
 func test_world_choice_empty_pool_skips() -> void:
@@ -120,10 +144,10 @@ func test_world_choice_empty_pool_skips() -> void:
 	for id in ["ghost_slow", "spirit_trap", "lightning", "decoy"]:
 		b.activate_fixed(id)
 	b.run.execute_biome_transition()
-	eq(b.run.cycle.phase, "choosing", "ainda ha 12 de mapa => escolhe")
+	eq(b.run.cycle.phase, "choosing", "ainda ha 11 (mapa + passivos) => escolhe")
 	eq(b.world_options.size(), 3, "3")
 	for o: Dictionary in b.world_options:
-		eq(str(o["type"]), "map", "fixos ativos nao aparecem")
+		check(str(o["type"]) != "fixed", "fixos ativos nao aparecem")
 
 
 func test_reroll_attribute() -> void:

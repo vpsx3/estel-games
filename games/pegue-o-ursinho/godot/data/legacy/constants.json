@@ -99,10 +99,10 @@
   "GAME_ID": "pegue-o-ursinho",
   "JUMP_DURATION": 0.55,
   "INITIAL_PACE": 0.5,
-  "GHOST_PHASE_SCALING": 0.1,
+  "GHOST_PHASE_SCALING": 0.03,
   "HONEY_PASSIVE_RATE": 1,
   "HONEY_PICKUP_VALUE": 5,
-  "HONEY_SPAWN_INTERVAL": 12,
+  "HONEY_SPAWN_INTERVAL": 10,
   "HONEY_MAX_ON_MAP": 3,
   "HONEY_LIFE": 14,
   "HONEY_R": 12,
@@ -137,18 +137,18 @@
       "glow": "rgba(60,160,255,0.5)"
     }
   ],
-  "POISON_RADIUS": 80,
-  "POISON_DEBUFF": 0.6,
+  "POISON_RADIUS": 64,
+  "POISON_DEBUFF": 0.75,
   "POISON_DURATION": 2000,
-  "POISON_COOLDOWN": 1000,
+  "POISON_COOLDOWN": 3000,
   "FIXED_INTERVALS": {
-    "ghost_slow": 15,
-    "spirit_trap": 15,
-    "lightning": 50,
-    "decoy": 30
+    "ghost_slow": 12,
+    "spirit_trap": 12,
+    "lightning": 35,
+    "decoy": 25
   },
-  "SPRAY_SLOW_MULT": 0.7,
-  "SPRAY_SLOW_DUR": 3,
+  "SPRAY_SLOW_MULT": 0.6,
+  "SPRAY_SLOW_DUR": 4,
   "SAVE_KEY": "estel_pou_save",
   "DEFAULT_SAVE": {
     "honey": 0,

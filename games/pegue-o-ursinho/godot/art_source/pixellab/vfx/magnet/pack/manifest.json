@@ -1,0 +1,94 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "magnet",
+ "fps": 12,
+ "frame_ms": 83,
+ "frames": 10,
+ "loop": true,
+ "canvas": {
+  "w": 67,
+  "h": 67
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 33,
+  "y": 54
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 59
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 10,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -31,
+    "y": -47
+   }
+  },
+  {
+   "name": "whole-with-sprite",
+   "title": "the whole effect with the sprite in it",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 59
+   },
+   "sheets": [
+    {
+     "file": "whole-with-sprite.png",
+     "first_frame": 0,
+     "frames": 10,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -31,
+    "y": -47
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 10,
+   "frame": {
+    "w": 63,
+    "h": 59
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 10,
+     "columns": 4,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -31,
+    "y": -47
+   }
+  }
+ ]
+}

@@ -47,6 +47,8 @@ func _process(_dt: float) -> void:
 			sprite.set_frame_and_progress(model.palette_index % 6, 0.0)
 	var tint: Color = _state_tint()
 	tint.a *= self_modulate.a   # alfa global (game.gd define self_modulate.a)
+	if model.spawn_timer > 0.0:   # graca de spawn: materializa de 0.25 a 1
+		tint.a *= lerpf(0.25, 1.0, 1.0 - clampf(model.spawn_timer / GameplayLits.GHOST_SPAWN_GRACE, 0.0, 1.0))
 	sprite.modulate = tint
 
 

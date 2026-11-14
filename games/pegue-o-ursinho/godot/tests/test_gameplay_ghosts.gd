@@ -8,12 +8,12 @@ func test_first_ghost_and_initial_pace() -> void:
 	var run: GameRun = F.make_run()
 	eq(run.ghosts.size(), 1, "1 fantasma inicial")
 	eq(run.ghosts[0].tipo, "comum", "1o e comum")
-	# diff = ghostSpeed(0.75) * INITIAL_PACE(0.5) * (1 + 0.1 * 0)
-	near(run.ghosts[0].speed, 1.7 * 0.75 * 0.5, "velocidade inicial legada")
-	near(run.ghost_sys.diff_mult(), 0.375, "diff_mult")
+	# diff = ghostSpeed(0.62) * INITIAL_PACE(0.5) * (1 + 0.03 * 0)
+	near(run.ghosts[0].speed, 2.9 * 0.62 * 0.5, "velocidade inicial")
+	near(run.ghost_sys.diff_mult(), 0.31, "diff_mult")
 	run.cycle.cycle_count = 1
 	run.cycle.phases_cleared = 10
-	near(run.ghost_sys.diff_mult(), (0.75 + 0.10) * 0.5 * (1.0 + 0.10 * 10.0), "diff_mult c/ ciclo e fases")
+	near(run.ghost_sys.diff_mult(), (0.62 + 0.12) * 0.5 * (1.0 + 0.03 * 10.0), "diff_mult c/ ciclo e fases")
 
 
 func test_class_stats_px() -> void:
@@ -26,6 +26,7 @@ func test_class_stats_px() -> void:
 
 func test_weighted_spawn_distribution() -> void:
 	var run: GameRun = F.make_run(42)
+	run.cycle.phases_cleared = 10   # todos os tipos liberados (minPhase)
 	var counts: Dictionary = {"comum": 0, "rapido": 0, "pesado": 0, "errante": 0, "venenoso": 0}
 	var n: int = 20000
 	for i in n:
@@ -51,11 +52,11 @@ func test_spawn_min_dist_and_determinism() -> void:
 
 func test_spawn_by_rate() -> void:
 	var run: GameRun = F.make_run(3)
-	F.advance(run, 19.9, Vector2.ZERO, true)
-	eq(run.ghosts.size(), 1, "antes de ghostSpawnRate (20s)")
+	F.advance(run, 11.9, Vector2.ZERO, true)
+	eq(run.ghosts.size(), 1, "antes de ghostSpawnRate (12s)")
 	F.advance(run, 0.3, Vector2.ZERO, true)
-	eq(run.ghosts.size(), 2, "spawn aos 20s")
-	near(run.next_ghost_time, 40.0, "proximo spawn +20s", 0.05)
+	eq(run.ghosts.size(), 2, "spawn aos 12s")
+	near(run.next_ghost_time, 24.0, "proximo spawn +12s", 0.05)
 
 
 func test_straight_chase_ignores_walls() -> void:
@@ -100,8 +101,9 @@ func test_frozen_trapped_invisible_hide() -> void:
 	g.trapped = 0.0
 	run.invisible_timer = 1.0
 	run.ghost_sys.move_ghosts(0.1)
-	eq(g.pos, Vector2(300, 300), "bear invisivel => parados")
+	check(g.pos != Vector2(300, 300), "bear invisivel => fantasmas vagam (nao ficam parados)")
 	run.invisible_timer = 0.0
+	g.pos = Vector2(300, 300)
 	run.cycle.ghost_hide_timer = 0.5
 	run.ghost_sys.move_ghosts(0.1)
 	eq(g.pos, Vector2(300, 300), "hide timer => parados")
@@ -127,16 +129,17 @@ func test_errante_modes() -> void:
 func test_poison() -> void:
 	var run: GameRun = F.make_run()
 	run.ghosts.clear()
-	var g: GhostModel = run.ghost_sys.make_ghost("venenoso", run.bear.pos + Vector2(Units.px(80) - 5.0, 0))
+	var pr: float = Units.px(GameplayLits.c("POISON_RADIUS"))
+	var g: GhostModel = run.ghost_sys.make_ghost("venenoso", run.bear.pos + Vector2(pr - 5.0, 0))
 	run.ghosts.append(g)
 	run.ghost_sys.move_ghosts(1.0 / 60.0)
 	check(run.bear.poisoned, "envenena dentro de POISON_RADIUS")
 	near(run.bear.poison_left, 2.0, "POISON_DURATION 2000ms")
-	near(g.poison_timer, 1000.0, "POISON_COOLDOWN 1000ms")
+	near(g.poison_timer, 3000.0, "POISON_COOLDOWN 3000ms")
 	run.bear.poisoned = false
 	run.ghost_sys.move_ghosts(1.0 / 60.0)
 	check(not run.bear.poisoned, "cooldown impede")
-	var g2: GhostModel = run.ghost_sys.make_ghost("venenoso", run.bear.pos + Vector2(Units.px(80) + 20.0, 0))
+	var g2: GhostModel = run.ghost_sys.make_ghost("venenoso", run.bear.pos + Vector2(pr + 20.0, 0))
 	run.ghosts.clear()
 	run.ghosts.append(g2)
 	run.ghost_sys.move_ghosts(0.0)

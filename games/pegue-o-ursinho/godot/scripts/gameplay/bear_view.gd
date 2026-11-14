@@ -2,7 +2,7 @@ class_name BearView
 extends Node2D
 ## Visual do urso: AnimatedSprite2D com assets/actors/bear/bear_frames.tres (PixelLab cand_b, canvas 64
 ## com o corpo centrado em model.pos: offset -8). Escala 1:1 (48 px). Segue BearModel; sem logica de jogo.
-## Animacao pelo estado: caught (run perdida) > celebrate (novo bioma) > jump_<dir> > dash/walk_<dir> > idle_<dir>.
+## Animacao pelo estado: caught (run perdida) > celebrate (novo bioma) > jump_<dir> > walk_<dir> > idle_<dir>.
 ## Modificadores: invisivel a=0.45 (o overlay vem do VfxDirector), congelado 0.6, invulneravel pisca.
 
 const FEET_DY: float = 21.0       ## pes do sprite abaixo de model.pos (VfxDirector ancora efeitos "feet" aqui)
@@ -11,7 +11,6 @@ const SHADOW_COLOR: Color = Color(0.19, 0.01, 0.03, 0.28)
 var model: BearModel
 var run: GameRun
 var _anim: String = ""
-var _dash_on: bool = false
 var _celebrate_left: float = 0.0
 @onready var sprite: AnimatedSprite2D = $Sprite
 
@@ -19,22 +18,13 @@ var _celebrate_left: float = 0.0
 func bind(p_run: GameRun) -> void:
 	run = p_run
 	model = p_run.bear
-	if not Events.buff_activated.is_connected(_on_buff):
-		Events.buff_activated.connect(_on_buff)
 	if not Events.biome_announce.is_connected(_on_announce):
 		Events.biome_announce.connect(_on_announce)
 
 
 func _exit_tree() -> void:
-	if Events.buff_activated.is_connected(_on_buff):
-		Events.buff_activated.disconnect(_on_buff)
 	if Events.biome_announce.is_connected(_on_announce):
 		Events.biome_announce.disconnect(_on_announce)
-
-
-func _on_buff(id: String) -> void:
-	if id == "dash":
-		_dash_on = true
 
 
 func _on_announce(_biome: int) -> void:
@@ -52,8 +42,6 @@ func _process(dt: float) -> void:
 		return
 	model = run.bear
 	position = model.pos
-	if run.bear_boost_timer <= 0.0:
-		_dash_on = false
 	_celebrate_left = maxf(0.0, _celebrate_left - dt)
 	_play(_pick_animation())
 	var a: float = 1.0
@@ -75,7 +63,7 @@ func _pick_animation() -> String:
 	if run.jump.active:
 		return "jump_" + d
 	if model.moving and model.frozen <= 0.0:
-		return ("dash_" if _dash_on else "walk_") + d
+		return "walk_" + d
 	return "idle_" + d
 
 

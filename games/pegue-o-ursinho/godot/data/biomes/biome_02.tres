@@ -13,8 +13,8 @@ name_en = "Coconut Beach"
 icon = "🏖️"
 wall_tint = Color(0.6901961, 0.5529412, 0.2901961, 1)
 bg_color = Color(0.7764706, 0.64705884, 0.40392157, 1)
-ghost_speed = 0.8
-ghost_spawn_rate = 18.0
+ghost_speed = 0.7
+ghost_spawn_rate = 12.0
 mech_type = "tide"
 mech = {
 "maxRows": 5.0,

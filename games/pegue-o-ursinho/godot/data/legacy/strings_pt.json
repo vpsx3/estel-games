@@ -9,11 +9,11 @@
     "btnPlay": "Jogar",
     "btnShowRanking": "🏆 Ranking",
     "howtoSubtitle": "Como jogar",
-    "leg1": "🦘 Pular obstáculo",
+    "leg1": "🦘 Pular paredes e fantasmas",
     "leg2": "Monte sua build no início",
     "leg3": "Colete buffs no mapa",
     "leg4": "Sobreviva o máximo!",
-    "howtoTip": "Passivos (brilho dourado) empilham níveis. Itens de mapa dão efeito instantâneo — mas fantasmas também os roubam! No celular: arraste o joystick e toque no 🦘 para pular.",
+    "howtoTip": "Passivos (brilho dourado) empilham níveis. Itens de mapa dão efeito instantâneo — mas fantasmas também os roubam! O pulo atravessa paredes e passa por cima dos fantasmas. No celular: arraste o joystick e toque no 🦘 para pular.",
     "btnStartGame": "Começar!",
     "rankingSubtitle": "🏆 Ranking Global",
     "rankingColPlayer": "Jogador",
@@ -49,8 +49,6 @@
     "fx_frozen": "Congelados",
     "fx_trapped": "Preso",
     "fx_shield_name": "Escudo",
-    "fx_rebound_name": "Rebote",
-    "fx_rebound_ready": "pronto",
     "result_title": "O fantasma te pegou!",
     "result_saving": "Salvando recorde...",
     "result_reached": "Você chegou até: ",
@@ -72,7 +70,9 @@
     "type_fixed": "◇ Fixo",
     "worldChoiceTitle": "Escolha um buff",
     "btnReroll": "🔁 Reroll",
-    "fsHint": "O Safari do iPhone não permite esconder a barra do navegador. Para tela cheia real: Compartilhar → \"Adicionar à Tela de Início\"."
+    "fsHint": "O Safari do iPhone não permite esconder a barra do navegador. Para tela cheia real: Compartilhar → \"Adicionar à Tela de Início\".",
+    "type_skill_passive": "★ Passivo",
+    "notif_world_clear": "Mundo concluído! +{n} mel"
   },
   "biome_names": {
     "1": "Floresta Encantada",
@@ -97,19 +97,15 @@
     },
     "teleport": {
       "name": "Teleporte",
-      "desc": "Teleporta para ponto seguro."
+      "desc": "Teleporta para o ponto mais seguro do mapa."
     },
     "ghost_slow": {
       "name": "Spray Sonolento",
-      "desc": "A cada 15s: −30% velocidade nos fantasmas."
-    },
-    "dash": {
-      "name": "Dash",
-      "desc": "Arrancada na direção atual."
+      "desc": "A cada 12s: −40% de velocidade nos fantasmas por 4s."
     },
     "spirit_trap": {
       "name": "Lançador de Teia",
-      "desc": "A cada 15s: prende o fantasma mais próximo."
+      "desc": "A cada 12s: prende o fantasma mais próximo por 4s."
     },
     "fake_wall": {
       "name": "Parede Falsa",
@@ -117,58 +113,57 @@
     },
     "light_burst": {
       "name": "Explosão de Luz",
-      "desc": "Empurra fantasmas ao redor."
+      "desc": "Empurra e atordoa os fantasmas ao redor."
     },
     "invisible": {
       "name": "Invisibilidade",
-      "desc": "Fantasmas param de perseguir 5s."
+      "desc": "Por 5s os fantasmas perdem você de vista e não te pegam."
     },
     "slow_time": {
       "name": "Tempo Lento",
       "desc": "Câmera lenta nos fantasmas 4s."
     },
-    "swap": {
-      "name": "Troca de Lugar",
-      "desc": "Troca com o fantasma mais distante."
-    },
     "lightning": {
       "name": "Raio",
-      "desc": "A cada 50s: elimina o fantasma mais próximo."
+      "desc": "A cada 35s: elimina o fantasma mais próximo."
     },
     "light_bomb": {
       "name": "Bomba de Luz",
       "desc": "Elimina fantasmas em área."
     },
-    "rebound": {
-      "name": "Rebote",
-      "desc": "Sobrevive à próxima colisão."
-    },
     "decoy": {
       "name": "Isca de Ursinho",
-      "desc": "A cada 30s: lança a isca."
+      "desc": "A cada 25s: lança uma isca que atrai os fantasmas."
     },
     "shield": {
       "name": "Escudo",
       "desc": "Absorve a próxima colisão (máx. 1 carga)."
+    },
+    "stomp": {
+      "name": "Pisão",
+      "desc": "Ao pousar de um pulo, afasta e atordoa fantasmas próximos por 2s."
+    },
+    "magnet": {
+      "name": "Ímã de Mel",
+      "desc": "Atrai potes de mel e orbes de poder próximos."
     }
   },
   "map_fx": {
     "speed_temp": "+80% velocidade",
-    "dash": "arrancada!",
     "freeze_all": "fantasmas congelados",
     "ghost_slow": "fantasmas lentos",
     "slow_time": "tempo lento",
     "teleport": "teleporte!",
-    "swap": "troca de lugar",
     "spirit_trap": "fantasma preso",
     "fake_wall": "atravessa paredes",
     "invisible": "invisível",
     "light_burst": "empurrão",
     "lightning": "fantasma eliminado",
     "light_bomb": "área limpa",
-    "rebound": "rebote pronto",
     "decoy": "isca lançada",
-    "shield": "escudo pronto"
+    "shield": "escudo pronto",
+    "stomp": "pisão!",
+    "magnet": "ímã ativo"
   },
   "attrs": {
     "speed_base": "Velocidade Base",

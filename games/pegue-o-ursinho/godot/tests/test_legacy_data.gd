@@ -35,10 +35,10 @@ func test_expected_keys() -> void:
 	var ghosts: Dictionary = read_json(DIR + "ghost_types.json") as Dictionary
 	for gt: String in ["comum", "rapido", "pesado", "errante", "venenoso"]:
 		check(ghosts.has(gt), "ghost_type " + gt)
-		for k: String in ["speed", "size", "minDist", "weight"]:
+		for k: String in ["speed", "size", "minDist", "weight", "minPhase"]:
 			check((ghosts.get(gt, {}) as Dictionary).has(k), "ghost %s.%s" % [gt, k])
 	var buffs: Dictionary = read_json(DIR + "buffs.json") as Dictionary
-	eq((buffs["map_buffs"] as Array).size(), 16, "16 buffs")
+	eq((buffs["map_buffs"] as Array).size(), 15, "15 buffs (sem dash/swap/rebound; +stomp/magnet)")
 	var attrs: Dictionary = read_json(DIR + "attrs.json") as Dictionary
 	for a: String in ["speed_base", "jump_cd", "jump_ext", "double_jump", "reroll"]:
 		check((attrs["defs"] as Dictionary).has(a), "attr " + a)

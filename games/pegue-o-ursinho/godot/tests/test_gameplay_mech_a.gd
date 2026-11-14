@@ -104,30 +104,33 @@ func test_ice_inertia_clamp_friction() -> void:
 	var m: MechIce = run.mech as MechIce
 	run.bear.pos = Units.cell_center(9, 14)
 	var x0: float = run.bear.pos.x
+	var mx: float = run.bear.speed * 1.65   # velocidade maxima proporcional ao urso (ICE_MAX_SPEED_MULT)
+	var ac: float = 0.55 * (mx / 3.6)       # aceleracao proporcional
 	check(m.move_bear(run, DT, Vector2(1, 0)), "gelo assume o movimento")
-	near(run.bear.vel.x, 0.55 * 0.94, "vel = (0 + accel)*friction", 0.0001)
-	near(run.bear.pos.x - x0, 0.55 * 0.94 * Units.TILE_SCALE, "deslocamento em px do Godot", 0.0001)
+	near(run.bear.vel.x, ac * 0.94, "vel = (0 + accel)*friction", 0.0001)
+	near(run.bear.pos.x - x0, ac * 0.94 * Units.TILE_SCALE, "deslocamento em px do Godot", 0.0001)
 	for i in 40:
 		m.move_bear(run, DT, Vector2(0, 0))
 		run.bear.pos = Units.cell_center(9, 14)
-	check(run.bear.vel.x < 0.517 and run.bear.vel.x > 0.0, "atrito reduz sem input")
+	check(run.bear.vel.x < ac * 0.94 and run.bear.vel.x > 0.0, "atrito reduz sem input")
 	run.bear.vel = Vector2.ZERO
 	for i in 30:
 		m.move_bear(run, DT, Vector2(1, 0))
 		run.bear.pos = Units.cell_center(9, 14)
-	near(run.bear.vel.length(), 3.6, "maxSpd=3.6", 0.0001)
+	near(run.bear.vel.length(), mx, "max = bear.speed * 1.65", 0.0001)
 
 
 func test_ice_bounce_and_phasing() -> void:
 	var run: GameRun = F.make_mech_run(2, true)
 	var m: MechIce = run.mech as MechIce
 	run.bear.pos = Vector2(536.0, Units.cell_center(16, 10).y)
-	run.bear.vel = Vector2(3.6, 0.0)
+	var mx: float = run.bear.speed * 1.65
+	run.bear.vel = Vector2(mx, 0.0)
 	m.move_bear(run, DT, Vector2.ZERO)
 	check(run.bear.vel.x < 0.0, "quica na parede")
-	near(run.bear.vel.x, 3.6 * 0.94 * -0.35, "bounce=0.35", 0.0001)
+	near(run.bear.vel.x, mx * 0.94 * -0.35, "bounce=0.35", 0.0001)
 	run.bear.pos = Vector2(536.0, Units.cell_center(16, 10).y)
-	run.bear.vel = Vector2(3.6, 0.0)
+	run.bear.vel = Vector2(mx, 0.0)
 	run.phase_timer = 1.0
 	m.move_bear(run, DT, Vector2.ZERO)
 	check(run.bear.vel.x > 0.0, "phasing atravessa (sem quicar)")
@@ -192,7 +195,7 @@ func test_bats_spawn_hit_freeze_cull() -> void:
 	run.bear.pos = Units.cell_center(9, 14)
 	m.bats.append({"pos": run.bear.pos + Vector2(Units.px(10.0), 0), "vel": Vector2.ZERO, "frame": 0, "ft": 0.0, "hit": false})
 	m.update(run, DT)
-	near(run.bear.frozen, 2.0, "trava o urso 2s")
+	near(run.bear.frozen, 1.2, "trava o urso 1.2s")
 	check(bool(m.bats[0]["hit"]), "hit marcado")
 	run.bear.frozen = 0.0
 	m.update(run, DT)
@@ -214,4 +217,4 @@ func test_bats_radius_uses_units() -> void:
 	near(run.bear.frozen, 0.0, "fora do raio (size + r*TILE_SCALE)")
 	m.bats[0]["pos"] = run.bear.pos + Vector2(edge - 0.5, 0)
 	m.update(run, DT)
-	near(run.bear.frozen, 2.0, "dentro do raio")
+	near(run.bear.frozen, 1.2, "dentro do raio")

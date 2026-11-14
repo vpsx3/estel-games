@@ -108,3 +108,23 @@ Arraste para `Mecanicas` da fase. Por subparte, se houver ao menos um marcador d
 | Distancia minima do teleporte (6 celulas) | `applyMapBuff` (teleport) | `buffs.gd::apply_map_buff` | test_parity_guards::test_teleport_min_distance | ok |
 | VFX certo por evento/estado (jump, freeze_all, teleport, light_bomb, honey_pickup, biome_transition, shield, shield_break, poisoned, caught) | - (extensao PixelLab) | `scripts/vfx/vfx_director.gd` | test_parity_guards::test_vfx_director_right_effect_per_event | ok |
 | Icones de bioma do HUD (`biome_%02d` -> assets/ui/icons) | - (emoji no HTML) | `scripts/ui/hud.gd`, `ui_icons.gd` | test_parity_guards::test_biome_icon_keys_resolve_to_files | ok (result_screen nao usa icone de bioma) |
+
+## Rebalanceamento final (divergente do legado de proposito; ver balanceamento.md)
+
+| Sistema | Funcao JS de origem | Script GD | Teste | Status |
+|---|---|---|---|---|
+| Pulo desvia + invuln no pouso | `gameLoop` (captura) / `updateEffects` (pulo) | `run.gd` | test_rebalance | novo (diverge) |
+| Teto de fantasmas | `gameLoop` (spawn) / `mechUpdateWindows` | `run.gd` `ghost_cap`, `mech_windows.gd` | test_rebalance | novo (diverge) |
+| Graca de spawn | `spawnGhost` | `ghost_system.gd`, `ghost_view.gd` | test_rebalance | novo (diverge) |
+| minPhase / teto de diff_mult | `weightedRandom` / `getDiffMult` | `ghost_system.gd` | test_rebalance | novo (diverge) |
+| Atordoamento | - | `ghost_model.gd`, `ghost_system.gd`, `run.gd` | test_rebalance | novo |
+| Lentidao nao sobrescreve | `applyMapBuff` / `triggerFixed` | `run.gd` `apply_ghost_slow` | test_rebalance | novo (diverge) |
+| Teleporte seguro | `applyMapBuff` teleport / `mechUpdateVoid` | `run.gd` `safest_free_pos` | test_rebalance | novo (diverge) |
+| Invisibilidade retrabalhada | `moveGhosts` | `ghost_system.gd`, `run.gd` | test_rebalance | novo (diverge) |
+| Explosao de Luz atordoa | `applyMapBuff` light_burst | `buffs.gd` | test_gameplay_buffs, test_rebalance | novo (diverge) |
+| Gelo proporcional | `moveBearIce` | `mech_ice.gd` | test_rebalance, test_gameplay_mech_a | novo (diverge) |
+| Pisao / Ima de Mel (passivos) | - | `buffs.gd` | test_rebalance | novo |
+| Pool sem repetidos / ritmo de orbes | `selectablePool` / `updateCollectibles` | `buffs.gd` | test_rebalance, test_gameplay_buffs_flow | novo (diverge) |
+| Mel por fase e bonus de mundo | `updateHoney` / `executeBiomeTransition` | `honey_system.gd`, `run.gd` | test_rebalance | novo (diverge) |
+| VFX stomp/stun/ghost_boost/magnet | - | `vfx_director.gd`, `vfx_player.gd` | test_rebalance | ligado (arte pendente) |
+| Skills removidas dash/swap/rebound | `applyMapBuff` | `buffs.gd`, `run.gd`, UI | test_rebalance | removido |

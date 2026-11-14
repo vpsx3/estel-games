@@ -1,14 +1,10 @@
 extends "res://tests/case.gd"
-## QA E10 (F1/F4): guardas comportamentais contra regressao silenciosa de literais de GameplayLits
-## (PUSH_CELLS, GEYSER_FIRE_AT, VOID_PORTAL_AWAY_CELLS, TELEPORT_MIN_CELLS) + efeito CERTO do VfxDirector
-## + icones de bioma resolvendo para arquivos reais. Os valores esperados sao os do legado (index.html):
-## pushGhost TILE*1.6; mechGeyserState sin>0.6; mechUpdateVoid portal >= 8 celulas; applyMapBuff teleport 6 celulas.
+## Guardas dos valores FINAIS do rebalanceamento (docs/balanceamento.md): literais de GameplayLits,
+## constants.json, ghost_types.json, attrs.json, biomes.json, biome_mech.json. O Godot e a fonte da
+## verdade; mudar um numero de balanceamento exige atualizar este teste e docs/balanceamento.md.
+## Tambem: efeito CERTO do VfxDirector + icones de bioma resolvendo para arquivos reais.
 
 const F: GDScript = preload("res://tests/support/run_factory.gd")
-const LEGACY_PUSH_CELLS: float = 1.6
-const LEGACY_GEYSER_FIRE_AT: float = 0.6
-const LEGACY_PORTAL_AWAY_CELLS: float = 8.0
-const LEGACY_TELEPORT_MIN_CELLS: float = 6.0
 const TRIALS: int = 150
 
 
@@ -16,14 +12,71 @@ func _tree() -> SceneTree:
 	return Engine.get_main_loop() as SceneTree
 
 
-func test_lits_match_legacy() -> void:
-	near(GameplayLits.PUSH_CELLS, LEGACY_PUSH_CELLS, "PUSH_CELLS")
-	near(GameplayLits.GEYSER_FIRE_AT, LEGACY_GEYSER_FIRE_AT, "GEYSER_FIRE_AT")
-	near(GameplayLits.VOID_PORTAL_AWAY_CELLS, LEGACY_PORTAL_AWAY_CELLS, "VOID_PORTAL_AWAY_CELLS")
-	near(GameplayLits.TELEPORT_MIN_CELLS, LEGACY_TELEPORT_MIN_CELLS, "TELEPORT_MIN_CELLS")
+func test_lits_final_values() -> void:
+	var expect: Dictionary = {
+		"BEAR_BASE_SPEED": 4.3, "JUMP_CD_BASE": 8.0, "CYCLE_SPEED_ADD": 0.12, "CYCLE_RATE_SUB": 1.0,
+		"MIN_GHOST_SPAWN_RATE": 6.0, "GHOST_DIFF_CAP": 0.93, "GHOST_CAP_BASE": 5, "GHOST_CAP_PER_PHASE": 1,
+		"GHOST_CAP_MAX": 14, "GHOST_CAP_PER_CYCLE": 2, "GHOST_CAP_ABS": 18, "GHOST_SPAWN_GRACE": 0.8,
+		"JUMP_LAND_INVULN": 0.3, "INVISIBLE_END_INVULN": 0.6, "BURST_STUN": 1.5, "BURST_PUSH_CELLS": 3.0,
+		"STOMP_RADIUS_CELLS": 2.5, "STOMP_STUN": 2.0, "STOMP_PUSH_RADIUS_CELLS": 1.6, "MAGNET_RADIUS_CELLS": 4.0,
+		"MAGNET_PULL_CELLS_S": 6.0, "ORB_INTERVAL_POOL_FACTOR": 0.15, "ORB_INTERVAL_MIN": 4.0,
+		"HONEY_PICKUP_PER_PHASE": 1, "HONEY_PICKUP_MAX": 15, "BIOME_CLEAR_HONEY": 10, "ICE_MAX_SPEED_MULT": 1.65,
+		"PUSH_CELLS": 1.6, "GEYSER_FIRE_AT": 0.6,
+	}
+	var consts: Dictionary = (GameplayLits as GDScript).get_script_constant_map()
+	for k: String in expect:
+		check(consts.has(k), "constante existe: " + k)
+		near(float(consts.get(k, -999.0)), float(expect[k]), k)
+	var fx: Dictionary = GameplayLits.BUFF_FX
+	check(not fx.has("dash") and not fx.has("ghost_slow"), "BUFF_FX sem dash/ghost_slow")
+	near(float((fx["spirit_trap"] as Dictionary)["dur"]), 4.0, "spirit_trap dur 4")
 
 
-## Empurrao de captura: o fantasma anda exatamente TILE*1.6 para longe do urso.
+func test_data_final_values() -> void:
+	var c: Dictionary = GameState.constants
+	near(float(c["GHOST_PHASE_SCALING"]), 0.03, "GHOST_PHASE_SCALING")
+	near(float(c["HONEY_SPAWN_INTERVAL"]), 10.0, "HONEY_SPAWN_INTERVAL")
+	near(float(c["POISON_RADIUS"]), 64.0, "POISON_RADIUS")
+	near(float(c["POISON_DEBUFF"]), 0.75, "POISON_DEBUFF")
+	near(float(c["POISON_COOLDOWN"]), 3000.0, "POISON_COOLDOWN")
+	near(float(c["SPRAY_SLOW_MULT"]), 0.6, "SPRAY_SLOW_MULT")
+	near(float(c["SPRAY_SLOW_DUR"]), 4.0, "SPRAY_SLOW_DUR")
+	eq(c["FIXED_INTERVALS"], {"ghost_slow": 12.0, "spirit_trap": 12.0, "lightning": 35.0, "decoy": 25.0}, "FIXED_INTERVALS")
+	var gt: Dictionary = GameState.ghost_types
+	var spd: Dictionary = {"comum": 2.9, "rapido": 3.9, "pesado": 1.9, "errante": 2.9, "venenoso": 2.55}
+	var mp: Dictionary = {"comum": 0, "rapido": 1, "pesado": 1, "errante": 2, "venenoso": 3}
+	for k: String in spd:
+		near(float((gt[k] as Dictionary)["speed"]), float(spd[k]), "speed " + k)
+		eq(int((gt[k] as Dictionary)["minPhase"]), int(mp[k]), "minPhase " + k)
+	var sp: Array = [0.62, 0.70, 0.78, 0.85, 0.91, 0.97, 1.01, 1.05, 1.08, 1.12]
+	var rt: Array = [12, 12, 11, 11, 10, 10, 9, 9, 8, 8]
+	for i in 10:
+		near(float((GameState.biomes[i] as Dictionary)["ghostSpeed"]), float(sp[i]), "biomes.json ghostSpeed %d" % i)
+		near(float((GameState.biomes[i] as Dictionary)["ghostSpawnRate"]), float(rt[i]), "biomes.json ghostSpawnRate %d" % i)
+		# o BiomeConfig (.tres) e lido ANTES do JSON por run._biome_base(): precisa estar igual
+		var cfg: BiomeConfig = load("res://data/biomes/biome_%02d.tres" % (i + 1)) as BiomeConfig
+		near(cfg.ghost_speed, float(sp[i]), "BiomeConfig ghost_speed %d" % i)
+		near(cfg.ghost_spawn_rate, float(rt[i]), "BiomeConfig ghost_spawn_rate %d" % i)
+	var d: Dictionary = (GameState.attrs["defs"] as Dictionary)
+	for i in 10:
+		near(float(((d["speed_base"] as Dictionary)["values"] as Array)[i]), 0.04 * (i + 1), "speed_base values %d" % i)
+		near(float(((d["jump_cd"] as Dictionary)["values"] as Array)[i]), 0.04 * (i + 1), "jump_cd values %d" % i)
+		near(float(((d["jump_ext"] as Dictionary)["values"] as Array)[i]), 0.045 * (i + 1), "jump_ext values %d" % i)
+	eq(int(((d["double_jump"] as Dictionary)["costs"] as Array)[0]), 1500, "double_jump custo")
+	eq(int(((d["reroll"] as Dictionary)["costs"] as Array)[0]), 1200, "reroll custo")
+	var bm: Dictionary = GameState.biome_mech
+	near(float((bm["4"] as Dictionary)["freeze"]), 1.2, "bats.freeze")
+	near(float((bm["5"] as Dictionary)["frac"]), 0.08, "windows.frac")
+	near(float((bm["5"] as Dictionary)["cd"]), 15.0, "windows.cd")
+	near(float((bm["6"] as Dictionary)["gateFrac"]), 0.35, "castle.gateFrac")
+	# mecanicas dos .tres (BiomeConfig.mech) iguais ao JSON
+	near(float((load("res://data/biomes/biome_05.tres") as BiomeConfig).mech["freeze"]), 1.2, "tres bats.freeze")
+	near(float((load("res://data/biomes/biome_06.tres") as BiomeConfig).mech["frac"]), 0.08, "tres windows.frac")
+	near(float((load("res://data/biomes/biome_06.tres") as BiomeConfig).mech["cd"]), 15.0, "tres windows.cd")
+	near(float((load("res://data/biomes/biome_07.tres") as BiomeConfig).mech["gateFrac"]), 0.35, "tres castle.gateFrac")
+
+
+## Empurrao de captura: o fantasma anda exatamente TILE*PUSH_CELLS para longe do urso.
 func test_push_ghost_moves_exact_cells() -> void:
 	var run: GameRun = F.make_run(1, true)
 	run.bear.pos = Units.cell_center(8, 14)
@@ -31,7 +84,7 @@ func test_push_ghost_moves_exact_cells() -> void:
 	run.ghost_sys.ghosts.append(g)
 	var before: Vector2 = g.pos
 	run.ghost_sys.push_ghost(g)
-	near(g.pos.distance_to(before), Units.TILE * LEGACY_PUSH_CELLS, "deslocamento = TILE*1.6", 0.01)
+	near(g.pos.distance_to(before), Units.TILE * GameplayLits.PUSH_CELLS, "deslocamento = TILE*PUSH_CELLS", 0.01)
 	check(g.pos.x > before.x and absf(g.pos.y - before.y) < 0.01, "empurra para longe do urso")
 
 
@@ -42,7 +95,7 @@ func test_geyser_eruption_moment() -> void:
 	var speed: float = m.cfg_f("geySpeed")
 	near(speed, 0.8, "geySpeed legado")
 	m.geysers = [{"cell": Vector2i(6, 12), "phase": 0.0}]
-	var th: float = asin(LEGACY_GEYSER_FIRE_AT)
+	var th: float = asin(GameplayLits.GEYSER_FIRE_AT)
 	run.elapsed = (th - 0.02) / speed
 	eq(m.geyser_state(m.geysers[0]), "warming", "antes do limiar 0.6 ainda nao e fogo")
 	run.elapsed = (th + 0.02) / speed
@@ -54,38 +107,6 @@ func test_geyser_eruption_moment() -> void:
 	eq(m.geyser_state(m.geysers[0]), "fire", "ainda fogo logo antes do fim")
 	run.elapsed = (PI - th + 0.02) / speed
 	eq(m.geyser_state(m.geysers[0]), "warming", "fim da janela de fogo simetrico")
-
-
-## Portal do vazio: destino sempre > 8 celulas da origem (e o limiar nao e maior que 8).
-func test_void_portal_distance() -> void:
-	var run: GameRun = F.make_mech_run(9, true, 7)
-	var m: MechVoid = run.mech as MechVoid
-	var cell: Vector2i = Vector2i(1, 1)
-	var origin: Vector2 = Units.cell_center(cell.x, cell.y)
-	var lo: float = INF
-	for i in TRIALS:
-		m.portals = [cell]
-		m.portal_cd = 0.0
-		run.bear.pos = origin
-		m.update(run, 1.0 / 60.0)
-		lo = minf(lo, run.bear.pos.distance_to(origin))
-		check(m.portal_cd > 0.0, "portal disparou")
-	check(lo > Units.TILE * LEGACY_PORTAL_AWAY_CELLS, "portal sempre > 8 celulas (min=%.1f px)" % lo)
-	check(lo < Units.TILE * (LEGACY_PORTAL_AWAY_CELLS + 1.0), "limiar nao e maior que 8 celulas (min=%.1f px)" % lo)
-
-
-## Teleporte: destino > 6 celulas do fantasma mais proximo (e o limiar nao e maior que 6).
-func test_teleport_min_distance() -> void:
-	var lo: float = INF
-	for i in TRIALS:
-		var run: GameRun = F.make_full(1000 + i)
-		var g: GhostModel = run.ghosts[0]
-		g.pos = Units.cell_center(1, 1)
-		run.ghosts.resize(1)
-		(run.buffs as BuffSystem).apply_map_buff("teleport")
-		lo = minf(lo, run.bear.pos.distance_to(g.pos))
-	check(lo > Units.TILE * LEGACY_TELEPORT_MIN_CELLS, "teleporte sempre > 6 celulas (min=%.1f px)" % lo)
-	check(lo < Units.TILE * (LEGACY_TELEPORT_MIN_CELLS + 1.0), "limiar nao e maior que 6 celulas (min=%.1f px)" % lo)
 
 
 # ---------------------------------------------------------------- VfxDirector

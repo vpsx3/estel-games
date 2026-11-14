@@ -7,6 +7,7 @@ signal pause_changed(paused: bool)
 
 signal bear_caught()
 signal bear_jumped()
+signal bear_landed()                      # pouso do pulo (invulnerabilidade curta, pisao)
 signal ghost_spawned(ghost_type: String)
 signal ghost_eliminated(ghost_type: String)
 

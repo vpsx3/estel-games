@@ -1,0 +1,56 @@
+{
+ "id": "stun",
+ "fps": 9,
+ "frames": 12,
+ "loop": true,
+ "canvas": {
+  "w": 57,
+  "h": 31
+ },
+ "anchor": {
+  "kind": "origin",
+  "x": 28,
+  "y": 38
+ },
+ "pivot_note": "draw frame i at anchor_world + clip.offset; anchor = feet of sprite on effect canvas",
+ "clips": [
+  {
+   "name": "whole",
+   "depth": "both",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 51,
+    "h": 25
+   },
+   "offset": {
+    "x": -25,
+    "y": -35
+   },
+   "sheet": "pack/whole.png",
+   "columns": 4,
+   "rows": 3
+  },
+  {
+   "name": "behind",
+   "depth": "behind",
+   "loop": true,
+   "start_frame": 0,
+   "frames": 12,
+   "frame": {
+    "w": 51,
+    "h": 25
+   },
+   "offset": {
+    "x": -25,
+    "y": -35
+   },
+   "sheet": "pack/behind.png",
+   "columns": 4,
+   "rows": 3
+  }
+ ],
+ "pixellab_effect_id": "1994de51-2153-44cb-95cf-ec542b8eed30",
+ "source_step": "a69bac72"
+}

@@ -13,8 +13,8 @@ name_en = "Green Swamp"
 icon = "🐸"
 wall_tint = Color(0.24705882, 0.3529412, 0.16470589, 1)
 bg_color = Color(0.16862746, 0.19607843, 0.07058824, 1)
-ghost_speed = 0.95
-ghost_spawn_rate = 15.0
+ghost_speed = 0.85
+ghost_spawn_rate = 11.0
 mech_type = "lily"
 mech = {
 "frac": 0.4,

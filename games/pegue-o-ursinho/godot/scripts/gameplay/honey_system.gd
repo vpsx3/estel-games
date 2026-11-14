@@ -45,6 +45,12 @@ func spawn_honey() -> void:
 	drops.append({"pos": Units.cell_center(cell.x, cell.y), "life": GameplayLits.c("HONEY_LIFE"), "born": run.rng.randf() * 6.0})
 
 
+## Valor do pote: cresce com as fases concluidas ate HONEY_PICKUP_MAX.
+func pickup_value() -> int:
+	return mini(GameplayLits.HONEY_PICKUP_MAX,
+		int(GameplayLits.c("HONEY_PICKUP_VALUE")) + GameplayLits.HONEY_PICKUP_PER_PHASE * run.cycle.phases_cleared)
+
+
 func update(dt: float) -> void:
 	spawn_timer -= dt
 	if spawn_timer <= 0.0:
@@ -59,7 +65,7 @@ func update(dt: float) -> void:
 			drops.remove_at(i)
 			continue
 		if run.bear.pos.distance_to(h["pos"] as Vector2) < pick_r:
-			var v: int = int(GameplayLits.c("HONEY_PICKUP_VALUE"))
+			var v: int = pickup_value()
 			run.add_honey(v)
 			Events.honey_collected.emit(v)
 			drops.remove_at(i)

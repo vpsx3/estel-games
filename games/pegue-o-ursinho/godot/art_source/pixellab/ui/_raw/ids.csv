@@ -48,3 +48,6 @@ sound_on,4c1d01b2-db14-4ad2-8b0d-22125f29bfba
 sound_off,derived-from-sound_on
 reroll,a90b86df-add9-44bf-adcd-adc89f571c62
 reroll_unused,ef2f9d62-ec1d-417c-b229-a0e4831cd774
+stomp,909c4cf7-b2af-48c8-93e4-fd7c203339c4
+magnet,f82d3c12-a045-4cac-aeda-533649a891ea
+stomp,74a67b3a-9af8-465e-95fb-ee8d6f9fd580

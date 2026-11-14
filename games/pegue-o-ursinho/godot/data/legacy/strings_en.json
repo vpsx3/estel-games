@@ -9,11 +9,11 @@
     "btnPlay": "Play",
     "btnShowRanking": "🏆 Leaderboard",
     "howtoSubtitle": "How to play",
-    "leg1": "🦘 Jump over obstacles",
+    "leg1": "🦘 Jump over walls and ghosts",
     "leg2": "Build your loadout at the start",
     "leg3": "Collect buffs on the map",
     "leg4": "Survive as long as you can!",
-    "howtoTip": "Passives (golden glow) stack levels. Map items give instant effects — but ghosts can steal them too! On mobile: drag the joystick and tap 🦘 to jump.",
+    "howtoTip": "Passives (golden glow) stack levels. Map items give instant effects — but ghosts can steal them too! Jumping goes through walls and over ghosts. On mobile: drag the joystick and tap 🦘 to jump.",
     "btnStartGame": "Start!",
     "rankingSubtitle": "🏆 Global Leaderboard",
     "rankingColPlayer": "Player",
@@ -49,8 +49,6 @@
     "fx_frozen": "Frozen",
     "fx_trapped": "Trapped",
     "fx_shield_name": "Shield",
-    "fx_rebound_name": "Rebound",
-    "fx_rebound_ready": "ready",
     "result_title": "A ghost caught you!",
     "result_saving": "Saving score...",
     "result_reached": "You reached: ",
@@ -72,7 +70,9 @@
     "type_fixed": "◇ Fixed",
     "worldChoiceTitle": "Choose a buff",
     "btnReroll": "🔁 Reroll",
-    "fsHint": "iPhone Safari can't hide the browser bar. For true fullscreen: Share → \"Add to Home Screen\"."
+    "fsHint": "iPhone Safari can't hide the browser bar. For true fullscreen: Share → \"Add to Home Screen\".",
+    "type_skill_passive": "★ Passive",
+    "notif_world_clear": "World cleared! +{n} honey"
   },
   "biome_names": {
     "1": "Enchanted Forest",
@@ -125,19 +125,15 @@
     },
     "teleport": {
       "name": "Teleport",
-      "desc": "Teleports to a safe spot."
+      "desc": "Teleports to the safest spot on the map."
     },
     "ghost_slow": {
       "name": "Sleepy Spray",
-      "desc": "Every 15s: −30% ghost speed."
-    },
-    "dash": {
-      "name": "Dash",
-      "desc": "Dash in the current direction."
+      "desc": "Every 12s: −40% ghost speed for 4s."
     },
     "spirit_trap": {
       "name": "Web Launcher",
-      "desc": "Every 15s: traps the nearest ghost."
+      "desc": "Every 12s: traps the nearest ghost for 4s."
     },
     "fake_wall": {
       "name": "Phase Through",
@@ -145,58 +141,57 @@
     },
     "light_burst": {
       "name": "Light Burst",
-      "desc": "Pushes nearby ghosts away."
+      "desc": "Pushes and stuns the ghosts around you."
     },
     "invisible": {
       "name": "Invisibility",
-      "desc": "Ghosts stop chasing for 5s."
+      "desc": "For 5s ghosts lose sight of you and can't catch you."
     },
     "slow_time": {
       "name": "Slow Time",
       "desc": "Ghosts in slow-mo for 4s."
     },
-    "swap": {
-      "name": "Swap",
-      "desc": "Swap places with farthest ghost."
-    },
     "lightning": {
       "name": "Lightning",
-      "desc": "Every 50s: eliminates the nearest ghost."
+      "desc": "Every 35s: eliminates the nearest ghost."
     },
     "light_bomb": {
       "name": "Light Bomb",
       "desc": "Eliminates ghosts in an area."
     },
-    "rebound": {
-      "name": "Rebound",
-      "desc": "Survive the next collision."
-    },
     "decoy": {
       "name": "Decoy Bear",
-      "desc": "Every 30s: deploys the decoy."
+      "desc": "Every 25s: throws a decoy that lures the ghosts."
     },
     "shield": {
       "name": "Shield",
       "desc": "Absorbs the next collision (max 1 charge)."
+    },
+    "stomp": {
+      "name": "Stomp",
+      "desc": "On landing from a jump, pushes away and stuns nearby ghosts for 2s."
+    },
+    "magnet": {
+      "name": "Honey Magnet",
+      "desc": "Pulls in nearby honey pots and power orbs."
     }
   },
   "map_fx": {
     "speed_temp": "+80% speed",
-    "dash": "dash!",
     "freeze_all": "ghosts frozen",
     "ghost_slow": "ghosts slowed",
     "slow_time": "slow motion",
     "teleport": "teleport!",
-    "swap": "swapped!",
     "spirit_trap": "ghost trapped",
     "fake_wall": "phase mode",
     "invisible": "invisible",
     "light_burst": "burst!",
     "lightning": "ghost eliminated",
     "light_bomb": "area cleared",
-    "rebound": "rebound ready",
     "decoy": "decoy deployed",
-    "shield": "shield ready"
+    "shield": "shield ready",
+    "stomp": "stomp!",
+    "magnet": "magnet on"
   },
   "attrs": {
     "speed_base": "Base Speed",

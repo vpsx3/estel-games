@@ -1,32 +1,37 @@
 {
   "comum": {
-    "speed": 1.7,
+    "speed": 2.9,
     "size": 14,
     "minDist": 8,
-    "weight": 50
+    "weight": 50,
+    "minPhase": 0
   },
   "rapido": {
-    "speed": 2.6,
+    "speed": 3.9,
     "size": 11,
     "minDist": 10,
-    "weight": 15
+    "weight": 15,
+    "minPhase": 1
   },
   "pesado": {
-    "speed": 1.1,
+    "speed": 1.9,
     "size": 22,
     "minDist": 6,
-    "weight": 15
+    "weight": 15,
+    "minPhase": 1
   },
   "errante": {
-    "speed": 1.7,
+    "speed": 2.9,
     "size": 14,
     "minDist": 8,
-    "weight": 12
+    "weight": 12,
+    "minPhase": 2
   },
   "venenoso": {
-    "speed": 1.5,
+    "speed": 2.55,
     "size": 14,
     "minDist": 10,
-    "weight": 8
+    "weight": 8,
+    "minPhase": 3
   }
 }

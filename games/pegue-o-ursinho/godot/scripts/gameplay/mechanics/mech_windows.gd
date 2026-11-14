@@ -42,8 +42,11 @@ func update(r: GameRun, dt: float) -> void:
 		if ctr.distance_to(r.bear.pos) < float(w["radius"]) * Units.TILE:
 			w["armed"] = true
 			w["t"] = float(w["t"]) + dt
-			if float(w["t"]) >= float(w["telegraph"]):   # telegrafou -> spawn de fantasma na janela
-				r.ghost_sys.ghosts.append(r.ghost_sys.make_ghost("comum", ctr))
+			if float(w["t"]) >= float(w["telegraph"]):   # telegrafou -> spawn de fantasma na janela (se abaixo do teto)
+				if r.ghost_sys.ghosts.size() < r.ghost_cap():
+					var g: GhostModel = r.ghost_sys.make_ghost("comum", ctr)
+					g.spawn_timer = GameplayLits.GHOST_SPAWN_GRACE
+					r.ghost_sys.ghosts.append(g)
 				w["t"] = 0.0
 				w["armed"] = false
 				w["cd"] = float(w["cd_max"])

@@ -59,13 +59,6 @@ func test_invuln_shield_rebound_hide() -> void:
 	near(run.bear.invuln, 0.9, "invuln 0.9s do escudo", 0.001)
 	check(run.ghosts[0].pos.distance_to(run.bear.pos) > 30.0, "fantasma empurrado ~TILE*1.6")
 	run.bear.invuln = 0.0
-	run.rebound_active = true
-	_put_ghost_on_bear(run).pos += Vector2(1, 0)
-	run.step(0.0, Vector2.ZERO)
-	eq(run.state, "playing", "rebote absorve")
-	check(not run.rebound_active, "rebote consumido")
-	near(run.bear.invuln, 1.1, "invuln 1.1s do rebote", 0.001)
-	run.bear.invuln = 0.0
 	run.cycle.ghost_hide_timer = 0.5
 	_put_ghost_on_bear(run)
 	run.step(0.0, Vector2.ZERO)

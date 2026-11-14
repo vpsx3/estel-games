@@ -7,7 +7,8 @@ extends RefCounted
 ##  - raios/distancias em px (HONEY_R, POISON_RADIUS, COLLECT_R, r dos morcegos, size dos
 ##    fantasmas...): godot_px = legado * TILE_SCALE
 ##  - valores em CELULAS e TEMPOS (s/ms) NAO mudam.
-## O balanceamento e intocavel: todo numero vem de data/legacy/*.json e so passa por aqui.
+## Balanceamento FINAL (docs/balanceamento.md): todo numero vem de data/legacy/*.json (editados
+## diretamente; o Godot e a fonte da verdade) ou de GameplayLits, e so passa por aqui.
 
 const LEGACY_TILE: int = 36
 const TILE: int = 32

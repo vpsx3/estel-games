@@ -7,7 +7,7 @@ const F: GDScript = preload("res://tests/support/run_factory.gd")
 func test_jump_basic_and_cooldown() -> void:
 	var j: JumpState = JumpState.new()
 	near(j.duration, 0.55, "JUMP_DURATION")
-	near(j.cd_max, 10.0, "cd base 10")
+	near(j.cd_max, 8.0, "cd base 8")
 	eq(j.try_jump(false, false), "started", "pula")
 	check(j.active, "ativo")
 	eq(j.try_jump(false, false), "", "sem pulo duplo => ignorado")
@@ -18,7 +18,7 @@ func test_jump_basic_and_cooldown() -> void:
 			break
 	check(landed, "pousa em ~0.55s")
 	check(not j.active, "inativo")
-	near(j.cd, 10.0, "cooldown 10s ao pousar")
+	near(j.cd, 8.0, "cooldown 8s ao pousar")
 	eq(j.try_jump(false, false), "", "em cooldown")
 	for i in 601:
 		j.update(1.0 / 60.0)
@@ -34,8 +34,8 @@ func test_jump_blocked_frozen_and_choosing() -> void:
 func test_jump_attributes() -> void:
 	var j: JumpState = JumpState.new()
 	j.recalc({"jump_ext": 3, "jump_cd": 10, "double_jump": 1})
-	near(j.duration, 0.55 + 0.27, "jump_ext nivel 3 = +0.27s")
-	near(j.cd_max, 10.0 * (1.0 - 0.65), "jump_cd nivel 10 = -65%")
+	near(j.duration, 0.55 + 0.135, "jump_ext nivel 3 = +0.135s")
+	near(j.cd_max, 8.0 * (1.0 - 0.40), "jump_cd nivel 10 = -40%")
 	eq(j.max_jumps(), 2, "double_jump")
 	eq(j.try_jump(false, false), "started", "1o")
 	j.update(0.5)
@@ -99,7 +99,7 @@ func test_honey_life_spawn_and_cap() -> void:
 	run.honey.spawn_timer = 0.01
 	run.honey.update(0.02)
 	eq(run.honey.drops.size(), 1, "spawn")
-	near(run.honey.spawn_timer, 12.0, "HONEY_SPAWN_INTERVAL=12")
+	near(run.honey.spawn_timer, 10.0, "HONEY_SPAWN_INTERVAL=10")
 	var d: Dictionary = run.honey.drops[0]
 	near(float(d["life"]), 14.0, "HONEY_LIFE=14", 0.05)
 	check((d["pos"] as Vector2).distance_to(run.bear.pos) >= 3.0 * 32.0, "longe do urso (3 celulas)")

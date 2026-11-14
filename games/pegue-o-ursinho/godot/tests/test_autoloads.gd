@@ -24,7 +24,7 @@ func test_i18n_and_save_defaults() -> void:
 	check(i18n != null, "autoload I18n presente")
 	if i18n != null:
 		eq(str(i18n.call("biome_name", 0)), "Floresta Encantada", "biome_name pt")
-		eq(str(i18n.call("buff_name", "dash")), "Dash", "buff_name pt")
+		eq(str(i18n.call("buff_name", "stomp")), "Pisão", "buff_name pt")
 	var sv: Node = _autoload("Save")
 	check(sv != null, "autoload Save presente")
 	if sv != null:

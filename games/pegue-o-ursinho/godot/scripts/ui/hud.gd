@@ -114,8 +114,6 @@ func collect_effects(run: GameRun) -> Array:
 	var list: Array = []
 	if run.shield_charges > 0:
 		list.append({"key": "shield", "name": I18n.t("fx_shield_name"), "static": true, "text": "×%d" % run.shield_charges, "color": Color("#9ad8ff")})
-	if run.rebound_active:
-		list.append({"key": "rebound", "name": I18n.t("fx_rebound_name"), "static": true, "text": I18n.t("fx_rebound_ready"), "color": Color("#ffd166")})
 	if run.bear_boost_timer > 0.0:
 		list.append({"key": "speed", "name": I18n.t("fx_speed"), "t": run.bear_boost_timer, "max": run.bear_boost_max, "color": Color("#7CFFB2")})
 	if run.post_jump_timer > 0.0:

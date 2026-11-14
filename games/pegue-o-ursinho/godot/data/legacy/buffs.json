@@ -28,7 +28,7 @@
       "rar": "comum",
       "selW": 14,
       "mapW": 11,
-      "desc": "Teleporta para ponto seguro."
+      "desc": "Teleporta para o ponto mais seguro do mapa."
     },
     {
       "id": "ghost_slow",
@@ -38,17 +38,7 @@
       "rar": "comum",
       "selW": 13,
       "mapW": 10,
-      "desc": "A cada 15s: −30% velocidade nos fantasmas."
-    },
-    {
-      "id": "dash",
-      "icon": "🏃",
-      "type": "map",
-      "name": "Dash",
-      "rar": "comum",
-      "selW": 14,
-      "mapW": 11,
-      "desc": "Arrancada na direção atual."
+      "desc": "A cada 12s: −40% de velocidade nos fantasmas por 4s."
     },
     {
       "id": "spirit_trap",
@@ -58,7 +48,7 @@
       "rar": "comum",
       "selW": 13,
       "mapW": 10,
-      "desc": "A cada 15s: prende o fantasma mais próximo."
+      "desc": "A cada 12s: prende o fantasma mais próximo por 4s."
     },
     {
       "id": "fake_wall",
@@ -78,7 +68,7 @@
       "rar": "incomum",
       "selW": 10,
       "mapW": 8,
-      "desc": "Empurra fantasmas ao redor."
+      "desc": "Empurra e atordoa os fantasmas ao redor."
     },
     {
       "id": "invisible",
@@ -88,7 +78,7 @@
       "rar": "incomum",
       "selW": 8,
       "mapW": 6,
-      "desc": "Fantasmas param de perseguir 5s."
+      "desc": "Por 5s os fantasmas perdem você de vista e não te pegam."
     },
     {
       "id": "slow_time",
@@ -101,16 +91,6 @@
       "desc": "Câmera lenta nos fantasmas 4s."
     },
     {
-      "id": "swap",
-      "icon": "🔀",
-      "type": "map",
-      "name": "Troca de Lugar",
-      "rar": "incomum",
-      "selW": 9,
-      "mapW": 7,
-      "desc": "Troca com o fantasma mais distante."
-    },
-    {
       "id": "lightning",
       "icon": "⚡",
       "type": "fixed",
@@ -118,7 +98,7 @@
       "rar": "raro",
       "selW": 5,
       "mapW": 3,
-      "desc": "A cada 50s: elimina o fantasma mais próximo."
+      "desc": "A cada 35s: elimina o fantasma mais próximo."
     },
     {
       "id": "light_bomb",
@@ -131,16 +111,6 @@
       "desc": "Elimina fantasmas em área."
     },
     {
-      "id": "rebound",
-      "icon": "🔆",
-      "type": "map",
-      "name": "Rebote",
-      "rar": "raro",
-      "selW": 6,
-      "mapW": 4,
-      "desc": "Sobrevive à próxima colisão."
-    },
-    {
       "id": "decoy",
       "icon": "🧸",
       "type": "fixed",
@@ -148,7 +118,7 @@
       "rar": "raro",
       "selW": 5,
       "mapW": 4,
-      "desc": "A cada 30s: lança a isca."
+      "desc": "A cada 25s: lança uma isca que atrai os fantasmas."
     },
     {
       "id": "shield",
@@ -159,16 +129,36 @@
       "selW": 6,
       "mapW": 4,
       "desc": "Absorve a próxima colisão (máx. 1 carga)."
+    },
+    {
+      "id": "stomp",
+      "icon": "🐾",
+      "type": "passive",
+      "name": "Pisão",
+      "rar": "incomum",
+      "selW": 9,
+      "mapW": 0,
+      "desc": "Ao pousar de um pulo, afasta e atordoa fantasmas próximos por 2s."
+    },
+    {
+      "id": "magnet",
+      "icon": "🧲",
+      "type": "passive",
+      "name": "Ímã de Mel",
+      "rar": "comum",
+      "selW": 12,
+      "mapW": 0,
+      "desc": "Atrai potes de mel e orbes de poder próximos."
     }
   ],
   "fixed_intervals": {
-    "ghost_slow": 15,
-    "spirit_trap": 15,
-    "lightning": 50,
-    "decoy": 30
+    "ghost_slow": 12,
+    "spirit_trap": 12,
+    "lightning": 35,
+    "decoy": 25
   },
-  "spray_slow_mult": 0.7,
-  "spray_slow_dur": 3,
+  "spray_slow_mult": 0.6,
+  "spray_slow_dur": 4,
   "rarity_labels": {
     "comum": "Comum",
     "incomum": "Incomum",

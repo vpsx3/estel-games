@@ -6,7 +6,7 @@ extends RefCounted
 ##     e o apply() usa a textura e esconde `Initial`; ou
 ##   - defina `texture` do no `Icon` direto na cena (apply() respeita texture ja definida).
 ## Chaves: buff id | atributo id | "biome_<id 1..10>" | "honey" | "ghost" | "bear" | "jump" |
-##   "medal_1..3" | "fx_<speed|postjump|slow|invisible|phase|decoy|frozen|trapped|shield|rebound>".
+##   "medal_1..3" | "fx_<speed|postjump|slow|invisible|phase|decoy|frozen|trapped|shield>".
 
 const DIR: String = "res://assets/ui/icons/"
 ## Chaves sem arte propria apontam para o icone equivalente (fx_* = efeito ativo -> icone do buff).
@@ -14,7 +14,7 @@ const ALIAS: Dictionary = {
 	"fx_speed": "speed_temp", "fx_postjump": "jump_ext", "fx_slow": "ghost_slow",
 	"fx_invisible": "invisible", "fx_phase": "fake_wall", "fx_decoy": "decoy",
 	"fx_frozen": "freeze_all", "fx_trapped": "spirit_trap", "fx_shield": "shield",
-	"fx_rebound": "rebound", "jump": "jump_ext",
+	"jump": "jump_ext",
 }
 const NEUTRAL: Color = Color("#E9A14D")
 

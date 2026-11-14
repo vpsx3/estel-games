@@ -5,8 +5,8 @@
     "icon": "🌲",
     "wallTint": "#2d5a1b",
     "bgColor": "#1a3a0a",
-    "ghostSpeed": 0.75,
-    "ghostSpawnRate": 20,
+    "ghostSpeed": 0.62,
+    "ghostSpawnRate": 12,
     "bearSpawn": {
       "c": 8,
       "r": 14
@@ -22,8 +22,8 @@
     "icon": "🏖️",
     "wallTint": "#b08d4a",
     "bgColor": "#c6a567",
-    "ghostSpeed": 0.8,
-    "ghostSpawnRate": 18,
+    "ghostSpeed": 0.7,
+    "ghostSpawnRate": 12,
     "bearSpawn": {
       "c": 8,
       "r": 14
@@ -39,8 +39,8 @@
     "icon": "🏔️",
     "wallTint": "#6a9ec9",
     "bgColor": "#495f84",
-    "ghostSpeed": 0.9,
-    "ghostSpawnRate": 16,
+    "ghostSpeed": 0.78,
+    "ghostSpawnRate": 11,
     "bearSpawn": {
       "c": 9,
       "r": 14
@@ -56,8 +56,8 @@
     "icon": "🐸",
     "wallTint": "#3f5a2a",
     "bgColor": "#2b3212",
-    "ghostSpeed": 0.95,
-    "ghostSpawnRate": 15,
+    "ghostSpeed": 0.85,
+    "ghostSpawnRate": 11,
     "bearSpawn": {
       "c": 9,
       "r": 15
@@ -73,8 +73,8 @@
     "icon": "🦇",
     "wallTint": "#5a4a6a",
     "bgColor": "#221d2f",
-    "ghostSpeed": 1,
-    "ghostSpawnRate": 14,
+    "ghostSpeed": 0.91,
+    "ghostSpawnRate": 10,
     "bearSpawn": {
       "c": 9,
       "r": 15
@@ -90,8 +90,8 @@
     "icon": "🏚️",
     "wallTint": "#6a5a8a",
     "bgColor": "#342c40",
-    "ghostSpeed": 1.05,
-    "ghostSpawnRate": 13,
+    "ghostSpeed": 0.97,
+    "ghostSpawnRate": 10,
     "bearSpawn": {
       "c": 8,
       "r": 15
@@ -107,8 +107,8 @@
     "icon": "👑",
     "wallTint": "#8a7a4a",
     "bgColor": "#3d3119",
-    "ghostSpeed": 1.1,
-    "ghostSpawnRate": 12,
+    "ghostSpeed": 1.01,
+    "ghostSpawnRate": 9,
     "bearSpawn": {
       "c": 8,
       "r": 13
@@ -124,8 +124,8 @@
     "icon": "☁️",
     "wallTint": "#5a7aa0",
     "bgColor": "#395879",
-    "ghostSpeed": 1.15,
-    "ghostSpawnRate": 11,
+    "ghostSpeed": 1.05,
+    "ghostSpawnRate": 9,
     "bearSpawn": {
       "c": 8,
       "r": 14
@@ -141,8 +141,8 @@
     "icon": "🔥",
     "wallTint": "#a04a3a",
     "bgColor": "#3a1f1e",
-    "ghostSpeed": 1.25,
-    "ghostSpawnRate": 10,
+    "ghostSpeed": 1.08,
+    "ghostSpawnRate": 8,
     "bearSpawn": {
       "c": 8,
       "r": 14
@@ -158,7 +158,7 @@
     "icon": "👻",
     "wallTint": "#7a4aa0",
     "bgColor": "#190736",
-    "ghostSpeed": 1.4,
+    "ghostSpeed": 1.12,
     "ghostSpawnRate": 8,
     "bearSpawn": {
       "c": 8,

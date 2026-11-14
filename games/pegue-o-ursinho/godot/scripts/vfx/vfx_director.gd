@@ -2,7 +2,7 @@ class_name VfxDirector
 extends Node
 ## Liga os VFX (assets/vfx) aos eventos do jogo e ao estado da run, de forma DESACOPLADA do gameplay:
 ## escuta Events.* (pulo, mel, buffs, captura, bioma, aviso) e observa a GameRun por polling de estado
-## (escudo, invisivel, veneno, fake_wall, rebound, slow, fantasmas congelados/presos/venenosos).
+## (escudo, invisivel, veneno, fake_wall, slow, atordoado, boost, ima, fantasmas congelados/presos/venenosos).
 ## Nao altera nenhum numero nem fluxo; so le. Criado/liberado pela cena de jogo (game.gd).
 
 const FEET_DY: float = 21.0          ## igual a BearView.FEET_DY (pes do urso abaixo de bear.pos)
@@ -14,7 +14,8 @@ var _loops: Dictionary = {}          # chave(String) -> VfxPlayer
 var _prev_ghosts: Dictionary = {}    # GhostModel -> Vector2 (posicao no frame anterior)
 var _seeded: bool = false
 var _elim_pending: int = 0
-var _boost_kind: String = ""         # "speed_temp" | "dash" (compartilham bear_boost_timer)
+var _boost_kind: String = ""         # "speed_temp" (usa bear_boost_timer)
+var _magnet_hold: float = 0.0        # histerese do loop "magnet"
 var _slow_kind: String = ""          # "ghost_slow" | "slow_time"
 var _prev_shield: int = 0
 var _warn_last: int = -1
@@ -86,13 +87,12 @@ func _on_buff(id: String) -> void:
 	match id:
 		"speed_temp":
 			_boost_kind = "speed_temp"
-		"dash":
-			_boost_kind = "dash"
-			_play("dash", feet, {"flip": west})
 		"freeze_all":
 			_play("freeze_all", run.bear.pos)
-		"teleport", "swap":
+		"teleport":
 			_play(id, feet)
+		"stomp":
+			_play("stomp", feet)
 		"light_burst":
 			_play("light_burst", feet)
 		"light_bomb":
@@ -142,7 +142,7 @@ func _on_biome_warning(seconds_left: float) -> void:
 
 
 # ------------------------------------------------------------------ estado
-func _process(_dt: float) -> void:
+func _process(dt: float) -> void:
 	if run == null or host == null:
 		return
 	var bear: BearModel = run.bear
@@ -154,10 +154,11 @@ func _process(_dt: float) -> void:
 	_loop("speed", "speed_temp", _boost_kind == "speed_temp" and run.bear_boost_timer > 0.0, bear, FEET_DY, west)
 	_loop("fake_wall", "fake_wall", run.phase_timer > 0.0, bear, FEET_DY)
 	_loop("invisible", "invisible", run.invisible_timer > 0.0, bear, FEET_DY)   # + urso a=0.45 (BearView)
-	_loop("rebound", "rebound", run.rebound_active, bear, FEET_DY)
 	_loop("shield", "shield", run.shield_charges > 0, bear, FEET_DY)
 	_loop("slow_time", "slow_time", _slow_kind == "slow_time" and run.ghost_slow_timer > 0.0, bear, FEET_DY)
 	_loop("poisoned", "poisoned", bear.poisoned, bear, FEET_DY)
+	_magnet_hold = 0.3 if (run.buffs != null and bool(run.buffs.get("magnet_pulling"))) else maxf(0.0, _magnet_hold - dt)
+	_loop("magnet", "magnet", _magnet_hold > 0.0, bear, FEET_DY)
 	if _prev_shield > run.shield_charges and run.shield_charges == 0:
 		_play("shield_break", _bear_feet())
 	_prev_shield = run.shield_charges
@@ -175,6 +176,8 @@ func _sync_ghosts() -> void:
 		_loop("frozen#" + k, "ice_sparkle", g.frozen > 0.0, g, 0.0)
 		_loop("trapped#" + k, "spirit_trap", g.trapped > 0.0, g, 0.0, false, true)
 		_loop("slow#" + k, "ghost_slow", _slow_kind == "ghost_slow" and run.ghost_slow_timer > 0.0, g, 0.0)
+		_loop("stun#" + k, "stun", g.stunned > 0.0, g, 0.0)
+		_loop("boost#" + k, "ghost_boost", g.boost_timer > 0.0, g, 0.0)
 		_loop("aura#" + k, "poison_aura", g.tipo == "venenoso", g, 0.0, false, false, Color(1, 1, 1, 0.55))
 	for g: GhostModel in _prev_ghosts:
 		if not cur.has(g) and _elim_pending > 0:
